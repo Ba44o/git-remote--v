@@ -3,7 +3,8 @@ name: ETL — Sync CSV to Google Sheets
 on:
   push:
     paths:
-      - "**/*.csv"
+      - "dados/creators/exports/**/*.xlsx"
+      - "dados/creators/exports/**/*.csv"
   workflow_dispatch:
 
 jobs:
@@ -25,7 +26,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install --upgrade pandas gspread oauth2client
+        run: pip install --upgrade pandas openpyxl gspread oauth2client
 
       - name: Create credentials.json from secret
         env:
