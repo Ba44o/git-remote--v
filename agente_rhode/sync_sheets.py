@@ -57,16 +57,29 @@ def upload(client: gspread.Client, df: pd.DataFrame) -> None:
 # ── ETL pipeline (auto-run se sync_ready.csv não existir) ────────────────────
 
 def run_etl_if_needed() -> None:
-    if not Path(INPUT_CSV).exists():
-        print("[INFO] sync_ready.csv não encontrado — rodando ETL...")
-        import subprocess
-        raw = next(Path("dados/creators/exports").glob("*.xlsx"), None)
-        if not raw:
-            raise FileNotFoundError("Nenhum .xlsx encontrado em dados/creators/exports/")
-        subprocess.run(
-            [sys.executable, "agente_rhode/etl_tiktok.py", str(raw), INPUT_CSV],
-            check=True,
+    if Path(INPUT_CSV).exists():
+        return
+    print("[INFO] sync_ready.csv não encontrado — procurando export...")
+    search_paths = [
+        Path("dados/creators/exports"),
+        Path("."),
+    ]
+    raw = None
+    for sp in search_paths:
+        raw = next(sp.glob("*.xlsx"), None)
+        if raw:
+            break
+    if not raw:
+        raise FileNotFoundError(
+            "Nenhum .xlsx encontrado. Rode manualmente: "
+            "python agente_rhode/etl_tiktok.py <arquivo.xlsx> sync_ready.csv"
         )
+    print(f"[INFO] Rodando ETL em: {raw}")
+    import subprocess
+    subprocess.run(
+        [sys.executable, "agente_rhode/etl_tiktok.py", str(raw), INPUT_CSV],
+        check=True,
+    )
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────

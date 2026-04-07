@@ -35,7 +35,13 @@ jobs:
           echo "${GCP_CREDENTIALS}" > credentials.json
           chmod 600 credentials.json
 
-      - name: Run ETL + sync to Google Sheets
+      - name: Run ETL
+        run: |
+          XLSX=$(find dados/creators/exports -name "*.xlsx" | head -1)
+          echo "Arquivo: $XLSX"
+          python agente_rhode/etl_tiktok.py "$XLSX" sync_ready.csv
+
+      - name: Sync to Google Sheets
         run: python agente_rhode/sync_sheets.py
 
       - name: Clean up credentials
