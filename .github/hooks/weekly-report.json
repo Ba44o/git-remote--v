@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "description": "Gera relatório semanal consolidado toda segunda-feira ao iniciar sessão",
+        "command": "node -e \"\nconst { execSync } = require('child_process');\nconst d = new Date();\nconst isMonday = d.getDay() === 1;\nconst hour = d.getHours();\nif (isMonday && hour >= 8 && hour <= 11) {\n  const flag = '.weekly_done_' + d.toISOString().slice(0,10);\n  const fs = require('fs');\n  if (!fs.existsSync(flag)) {\n    fs.writeFileSync(flag, '');\n    console.log('WEEKLY_REPORT_TRIGGER: segunda-feira detectada — executar /campaign-report e /kpi-analysis para gerar relatório semanal consolidado');\n  }\n}\n\"",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}

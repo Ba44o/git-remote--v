@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "description": "Detecta novos arquivos de dados e avisa o agente para processar",
+        "command": "node -e \"\nconst fs = require('fs');\nconst path = require('path');\nconst pastasDados = ['dados/marketplace/shopee','dados/marketplace/shein','dados/marketplace/tiktokshop','dados/campanhas/meta','dados/campanhas/google','dados/campanhas/tiktok'];\nconst extensoes = ['.xlsx','.csv','.xls'];\nlet novos = [];\npastasDados.forEach(pasta => {\n  if (!fs.existsSync(pasta)) return;\n  const arquivos = fs.readdirSync(pasta).filter(f => extensoes.some(e => f.endsWith(e)));\n  arquivos.forEach(arq => {\n    const caminho = path.join(pasta, arq);\n    const stat = fs.statSync(caminho);\n    const idadeMin = (Date.now() - stat.mtimeMs) / 60000;\n    if (idadeMin < 60) novos.push(caminho);\n  });\n});\nif (novos.length > 0) {\n  console.log('NOVOS_ARQUIVOS_DETECTADOS:', novos.join(', '));\n  console.log('Sugestão: execute /marketplace-data ou /campaign-report para processar os dados novos.');\n}\n\"",
+        "timeoutSec": 15
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "description": "Garante que relatórios gerados foram salvos na pasta correta com data",
+        "command": "node -e \"\nconst fs = require('fs');\nconst path = require('path');\nconst hoje = new Date().toISOString().slice(0,7);\nconst pastaRelatorio = path.join('relatorios', hoje);\nif (!fs.existsSync(pastaRelatorio)) {\n  fs.mkdirSync(pastaRelatorio, { recursive: true });\n  console.log('PASTA_CRIADA: ' + pastaRelatorio);\n}\nconst arquivosRaiz = fs.readdirSync('.').filter(f =>\n  (f.endsWith('.md') || f.endsWith('.xlsx') || f.endsWith('.csv'))\n  && f.includes('report') || f.includes('relatorio') || f.includes('kpi')\n);\nif (arquivosRaiz.length > 0) {\n  arquivosRaiz.forEach(arq => {\n    const destino = path.join(pastaRelatorio, arq);\n    fs.renameSync(arq, destino);\n    console.log('MOVIDO: ' + arq + ' → ' + destino);\n  });\n}\n\"",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}

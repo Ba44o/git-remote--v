@@ -1,0 +1,42 @@
+name: ETL — Sync CSV to Google Sheets
+
+on:
+  push:
+    paths:
+      - "**/*.csv"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Run ETL sync
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install --upgrade pandas gspread oauth2client
+
+      - name: Create credentials.json from secret
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          echo "${GCP_CREDENTIALS}" > credentials.json
+          chmod 600 credentials.json
+
+      - name: Run ETL + sync to Google Sheets
+        run: python agente_rhode/sync_sheets.py
+
+      - name: Clean up credentials
+        if: always()
+        run: rm -f credentials.json
