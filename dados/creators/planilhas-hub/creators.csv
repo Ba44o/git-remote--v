@@ -1,0 +1,6 @@
+id,nome,codigo_acesso,canais,modelo_pagamento,taxa,meta_gmv,meta_un,bonus
+c1,@annita.denim,ANNITA-RJ24,"live,organic",commission,8,15000,150,500
+c2,@lu_fashion_br,LU-FASHION24,"live,organic,paid",hybrid,400,20000,200,800
+c3,@mila.trends,MILA-TRENDS,"organic,paid",commission,6,8000,80,300
+c4,@carol_look,CAROL-LOOK24,live,hybrid,350,12000,120,500
+c5,@bah.creator,BAH-RJ24,organic,commission,5,5000,60,200

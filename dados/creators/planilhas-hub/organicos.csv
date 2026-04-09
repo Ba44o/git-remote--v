@@ -1,0 +1,5 @@
+id,creator_id,sku,plataforma,data,views,likes,comentarios,compartilhamentos,cliques,avg_view,vendas,receita
+o1,c1,Wide Leg Cargo,tiktok,2026-04-01,142000,8900,420,1200,4800,22,38,6462
+o2,c2,Mom Jean Vintage,tiktok,2026-03-30,88000,5200,310,780,2900,18,22,3958
+o3,c3,Mom Jean Vintage,instagram_reels,2026-03-28,55000,3100,180,420,1800,14,15,2699
+o4,c5,Skinny Destroyed,tiktok,2026-04-02,210000,15000,890,3200,7800,28,64,12798

@@ -1,0 +1,69 @@
+{
+  "creators": [
+    {
+      "id": "c001",
+      "nome": "Mariana Costa",
+      "perfil_tiktok": "@maricosta.moda",
+      "seguidores": 85000,
+      "taxa_engajamento": 6.2,
+      "nicho": ["moda feminina", "ootd", "wide leg"],
+      "tier": "micro",
+      "cidade": "São Paulo",
+      "status": "ativo",
+      "skus_enviados": [],
+      "observacoes": "Já postou competitor, mas tem fit com Rhode"
+    },
+    {
+      "id": "c002",
+      "nome": "Fernanda Lima",
+      "perfil_tiktok": "@fer.estilo",
+      "seguidores": 320000,
+      "taxa_engajamento": 4.8,
+      "nicho": ["moda", "lifestyle", "tiktokshop"],
+      "tier": "mid",
+      "cidade": "Rio de Janeiro",
+      "status": "ativo",
+      "skus_enviados": [],
+      "observacoes": "Alta conversão em lives"
+    },
+    {
+      "id": "c003",
+      "nome": "Juliana Mendes",
+      "perfil_tiktok": "@ju.looks",
+      "seguidores": 1200000,
+      "taxa_engajamento": 3.1,
+      "nicho": ["moda feminina", "plus size", "tendencias"],
+      "tier": "macro",
+      "cidade": "Belo Horizonte",
+      "status": "ativo",
+      "skus_enviados": [],
+      "observacoes": "Tier 1 — prioridade para REF549"
+    },
+    {
+      "id": "c004",
+      "nome": "Camila Rocha",
+      "perfil_tiktok": "@camilarocha.fit",
+      "seguidores": 45000,
+      "taxa_engajamento": 8.5,
+      "nicho": ["moda casual", "ootd", "dicas de look"],
+      "tier": "nano",
+      "cidade": "Curitiba",
+      "status": "ativo",
+      "skus_enviados": [],
+      "observacoes": "Engajamento altíssimo — ótima para teste"
+    },
+    {
+      "id": "c005",
+      "nome": "Bianca Torres",
+      "perfil_tiktok": "@bi.fashion",
+      "seguidores": 180000,
+      "taxa_engajamento": 5.7,
+      "nicho": ["moda feminina", "calça wide leg", "tiktokshop"],
+      "tier": "micro",
+      "cidade": "Salvador",
+      "status": "ativo",
+      "skus_enviados": [],
+      "observacoes": "Especialista em wide leg — fit perfeito"
+    }
+  ]
+}

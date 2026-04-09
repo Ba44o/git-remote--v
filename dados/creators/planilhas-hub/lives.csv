@@ -1,0 +1,5 @@
+id,creator_id,sku,estoque,preco_normal,preco_flash,inicio,fim,vendas,pico,duracao
+l1,c1,Wide Leg Cargo,120,249.90,169.90,2026-04-01 20:00,2026-04-01 21:30,118,4200,90
+l2,c2,Skinny Destroyed,80,199.90,149.90,2026-04-02 19:00,2026-04-02 20:15,42,2100,75
+l3,c4,Straight Cropped,100,219.90,139.90,2026-04-03 21:00,2026-04-03 23:00,71,5100,120
+l4,c1,Straight Cropped,80,219.90,159.90,2026-03-15 20:00,2026-03-15 21:30,76,3900,90
