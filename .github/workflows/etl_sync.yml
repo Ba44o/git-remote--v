@@ -1,4 +1,4 @@
-name: ETL — Sync CSV to Google Sheets
+name: Rhode ETL v2 — Data Warehouse Sync
 
 on:
   push:
@@ -6,44 +6,112 @@ on:
       - "dados/creators/exports/**/*.xlsx"
       - "dados/creators/exports/**/*.csv"
   workflow_dispatch:
+    inputs:
+      reimport_all:
+        description: "Reimportar todos os exports (ignorar histórico)"
+        required: false
+        default: "false"
 
 jobs:
-  sync:
-    name: Run ETL sync
+  etl-sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     env:
       PYTHONUNBUFFERED: "1"
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up Python 3.10
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-          cache: pip
+          python-version: "3.11"
+          cache: "pip"
 
       - name: Install dependencies
-        run: pip install --upgrade pandas openpyxl gspread oauth2client
+        run: pip install pandas openpyxl gspread oauth2client xlrd numpy
 
-      - name: Create credentials.json from secret
+      - name: Setup credentials
         env:
           GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
         run: |
           echo "${GCP_CREDENTIALS}" > credentials.json
           chmod 600 credentials.json
 
-      - name: Run ETL
+      - name: Baixar raw_imports existente do Sheets
         run: |
-          XLSX=$(find dados/creators/exports -name "*.xlsx" | head -1)
-          echo "Arquivo: $XLSX"
-          python agente_rhode/etl_tiktok.py "$XLSX" sync_ready.csv
+          python - <<'EOF'
+          import gspread, pandas as pd
+          from pathlib import Path
+          from oauth2client.service_account import ServiceAccountCredentials
 
-      - name: Sync to Google Sheets
-        run: python agente_rhode/sync_sheets.py
+          SCOPES = [
+            "https://spreadsheets.google.com/feeds",
+            "https://www.googleapis.com/auth/drive"
+          ]
+          SPREADSHEET_ID = "1hiyu1y9G7NeiBKnwV6FNlYRjVqTCRP3jY--I0Lv0Mh0"
+          Path("warehouse").mkdir(exist_ok=True)
 
-      - name: Clean up credentials
+          try:
+            creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", SCOPES)
+            client = gspread.authorize(creds)
+            ws = client.open_by_key(SPREADSHEET_ID).worksheet("raw_imports")
+            data = ws.get_all_values()
+            if len(data) > 1:
+              df = pd.DataFrame(data[1:], columns=data[0])
+              df.to_csv("warehouse/raw_imports.csv", index=False, encoding="utf-8-sig")
+              print(f"[OK] raw_imports baixado: {len(df)} linhas / {df['periodo'].nunique()} períodos")
+            else:
+              print("[INFO] raw_imports vazio no Sheets — iniciando histórico")
+          except Exception as e:
+            print(f"[AVISO] Não foi possível baixar raw_imports: {e}")
+          EOF
+
+      - name: Limpar histórico se reimport_all
+        if: github.event.inputs.reimport_all == 'true'
+        run: |
+          rm -f warehouse/raw_imports.csv
+          echo "[INFO] Histórico apagado — reimportando tudo"
+
+      - name: Rodar ETL v2
+        run: python agente_rhode/etl_v2.py --dir dados/creators/exports --warehouse warehouse
+
+      - name: Rodar Analyst v1
+        run: python agente_rhode/analyst_v1.py --warehouse warehouse
+
+      - name: Sincronizar com Google Sheets (4 abas + insights)
+        run: python agente_rhode/sync_v2.py --warehouse warehouse
+
+      - name: Sincronizar com Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          pip install requests -q
+          python agente_rhode/sync_supabase.py
+
+      - name: Commitar warehouse ao repositório
+        run: |
+          git config user.name  "Rhode ETL Bot"
+          git config user.email "etl-bot@rhodejeans.com.br"
+          git add warehouse/ 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Warehouse sem alterações."
+          else
+            PERIODO=$(python -c "
+          import pandas as pd
+          df = pd.read_csv('warehouse/raw_imports.csv')
+          print(df['periodo'].max())
+          " 2>/dev/null || echo "desconhecido")
+            git commit -m "warehouse: importação período ${PERIODO} [etl-bot]"
+            git push
+          fi
+
+      - name: Cleanup credentials
         if: always()
         run: rm -f credentials.json
