@@ -97,8 +97,13 @@ def detect_anomalias(raw: pd.DataFrame, periods) -> list[dict]:
     cur_p  = periods[-1]
     prev_p = periods[-2]
 
-    cur  = raw[raw["periodo"] == cur_p].set_index("creator_id")
-    prev = raw[raw["periodo"] == prev_p].set_index("creator_id")
+    agg = {c: "sum" for c in ["gmv_bruto","gmv_liquido","reembolso","pedidos","videos","lives"] if c in raw.columns}
+    agg.update({c: "mean" for c in ["refund_pct","aov"] if c in raw.columns})
+    def _agg(df):
+        return df.groupby("creator_id").agg(agg)
+
+    cur  = _agg(raw[raw["periodo"] == cur_p])
+    prev = _agg(raw[raw["periodo"] == prev_p])
 
     anomalias = []
 
@@ -462,7 +467,8 @@ def build_executive_brief(
     # Stars
     if stars_risk["stars"]:
         top = stars_risk["stars"][0]
-        bullets.append(f"🚀 {len(stars_risk['stars'])} creator(s) em trajetória de crescimento. Destaque: {top['creator']} (+{top['crescimento_pct']:.0f}%).")
+        pct_str = f"+{top['crescimento_pct']:.0f}%" if top['crescimento_pct'] is not None else "crescimento"
+        bullets.append(f"🚀 {len(stars_risk['stars'])} creator(s) em trajetória de crescimento. Destaque: {top['creator']} ({pct_str}).")
 
     # Em risco
     if stars_risk["em_risco"]:
