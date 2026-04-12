@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Rhode Creators | Inverno 2026</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,800;1,800&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: #050505; 
+            color: #F0EDE6; 
+            font-family: 'DM Sans', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+            background-image: radial-gradient(circle at 50% 50%, #111 0%, #050505 100%);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glow { position: absolute; width: 50vw; height: 50vw; border-radius: 50%; filter: blur(120px); z-index: 0; opacity: 0.4; pointer-events: none; }
+        .glow-red { background: #FE2C55; top: -10%; left: -10%; animation: float 12s infinite alternate; }
+        .glow-cyan { background: #25F4EE; bottom: -10%; right: -10%; animation: float 15s infinite alternate-reverse; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10%, 15%) scale(1.1); }
+        }
+
+        .container { 
+            max-width: 460px; width: 100%; 
+            background: rgba(10, 10, 10, 0.7); 
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            padding: 50px 45px; 
+            border-radius: 28px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9);
+            text-align: center; position: relative; z-index: 1;
+        }
+
+        .pure-css-logo { margin-bottom: 35px; display: flex; flex-direction: column; align-items: center; user-select: none; }
+        .logo-main { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: #FFFFFF; letter-spacing: -2px; line-height: 0.8; }
+        .logo-sub { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 800; font-style: italic; color: #FFFFFF; letter-spacing: 1.5px; margin-top: 4px; margin-left: 100px; }
+
+        h1 { font-family: 'Syne', sans-serif; font-size: 38px; margin-bottom: 12px; letter-spacing: -1.5px; line-height: 0.9; }
+        p.subtitle { font-size: 14px; color: #666; margin-bottom: 40px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+
+        .form-group { margin-bottom: 22px; position: relative; text-align: left; opacity: 0; transform: translateY(15px); animation: entry 0.5s ease forwards; }
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes entry { to { opacity: 1; transform: translateY(0); } }
+
+        input { 
+            width: 100%; padding: 22px 18px 10px 18px; 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); 
+            color: #F0EDE6; font-family: 'DM Sans', sans-serif; 
+            font-size: 16px !important;
+            border-radius: 14px; outline: none; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            -webkit-appearance: none;
+        }
+        label { position: absolute; left: 18px; top: 18px; font-family: 'DM Mono', monospace; font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1.5px; pointer-events: none; transition: all 0.3s ease; }
+        input:focus + label, input:not(:placeholder-shown) + label { top: 8px; font-size: 9px; color: #C9A96E; transform: translateX(2px); }
+        input:focus { border-color: #C9A96E; background: rgba(255,255,255,0.06); box-shadow: 0 0 20px rgba(201, 169, 110, 0.1); }
+
+        .submit-btn { 
+            width: 100%; padding: 20px; background-color: #FE2C55; color: #FFF; border: none; border-radius: 14px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 3px; position: relative; overflow: hidden; margin-top: 15px;
+            box-shadow: 0 10px 30px rgba(254, 44, 85, 0.3); transition: all 0.4s; touch-action: manipulation;
+        }
+        .submit-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: shimmer 4s infinite; }
+        @keyframes shimmer { 100% { left: 100%; } }
+        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(254, 44, 85, 0.5); }
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+        #success-screen { display: none; }
+        .checkmark-wrapper { margin: 0 auto 25px; width: 70px; height: 70px; }
+        .checkmark { width: 70px; height: 70px; border-radius: 50%; display: block; stroke-width: 2; stroke: #C9A96E; stroke-miterlimit: 10; animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both; }
+        .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke-miterlimit: 10; stroke: #C9A96E; fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+        .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 35px rgba(201, 169, 110, 0.05); } }
+
+        .whatsapp-btn { width: 100%; padding: 20px; background-color: #25D366; color: #fff; border-radius: 14px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; text-decoration: none; display: inline-block; margin-top: 35px; letter-spacing: 2px; text-transform: uppercase; transition: all 0.4s; touch-action: manipulation; }
+        .whatsapp-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4); }
+
+        .reset-link { display: inline-block; margin-top: 45px; font-family: 'DM Mono', monospace; font-size: 10px; color: #333; text-transform: uppercase; cursor: pointer; transition: 0.3s; letter-spacing: 2px; padding: 10px; }
+        .reset-link:hover { color: #666; }
+
+        .status-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: #C9A96E; margin-top: 12px; min-height: 18px; letter-spacing: 1px; }
+
+        @media (max-width: 480px) {
+            body { padding: 15px; }
+            .container { padding: 35px 22px; border-radius: 20px; }
+            .pure-css-logo { margin-bottom: 25px; }
+            .logo-main { font-size: 36px; }
+            .logo-sub { font-size: 10px; margin-left: 75px; }
+            h1 { font-size: 28px; }
+            p.subtitle { font-size: 12px; margin-bottom: 25px; }
+            .form-group { margin-bottom: 16px; }
+            input { padding: 20px 16px 8px 16px; border-radius: 10px; }
+            label { left: 16px; top: 16px; font-size: 10px; }
+            .submit-btn, .whatsapp-btn { padding: 18px; font-size: 14px; border-radius: 10px; }
+            .whatsapp-btn { margin-top: 25px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow glow-red"></div>
+    <div class="glow glow-cyan"></div>
+
+    <div class="container" id="main-container">
+        <div class="pure-css-logo">
+            <div class="logo-main">RHODE.</div>
+            <div class="logo-sub">JEANS</div>
+        </div>
+
+        <div id="form-screen">
+            <h1>Acesso VIP</h1>
+            <p class="subtitle">Winter Edition 2026</p>
+            
+            <form id="creator-form">
+                <div class="form-group">
+                    <input type="text" id="nome" placeholder=" " required autocomplete="off">
+                    <label>Nome Completo</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="tiktok" placeholder=" " required autocomplete="off">
+                    <label>@ do TikTok</label>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="whatsapp" placeholder=" " required autocomplete="off">
+                    <label>WhatsApp</label>
+                </div>
+                <button type="submit" class="submit-btn" id="btn-submit">Desbloquear Acesso</button>
+                <div class="status-msg" id="status-msg"></div>
+            </form>
+        </div>
+
+        <div id="success-screen">
+            <div class="checkmark-wrapper">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+            <h1 style="font-size:32px;color:#C9A96E;">Tudo pronto!</h1>
+            <p style="font-size:15px;margin-top:15px;color:#A0A0A0;line-height:1.6;">
+                Agora é só falar com nossa equipe no stand e participar da <span style="color:#fff;font-weight:bold;">Rhode Mystery</span>. 🤍
+            </p>
+            <br>
+            <div class="reset-link" onclick="resetForm()">[ Novo Registro ]</div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = 'https://ivzpykuluxcxefhyzfsf.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
+        const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxt9YiyptJJWwuszvrLEOAt2UHgxM6ZgDDCa2Ky3nbCrbf5nQnqo1TDkbwx1ILCRqOM/exec';
+
+        function normalizeHandle(h) {
+            return h.trim().replace(/^@/, '').toUpperCase();
+        }
+
+        function generateToken() {
+            const arr = new Uint8Array(18);
+            crypto.getRandomValues(arr);
+            return Array.from(arr).map(b => b.toString(36)).join('').slice(0, 24).toUpperCase();
+        }
+
+        async function saveToSupabase(nome, handle, whatsapp) {
+            try {
+                const token = generateToken();
+                const res = await fetch(`${SB_URL}/rest/v1/eventos_creators`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SB_KEY,
+                        'Authorization': `Bearer ${SB_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates,return=representation'
+                    },
+                    body: JSON.stringify({
+                        handle: normalizeHandle(handle),
+                        nome: nome.trim(),
+                        whatsapp: whatsapp.trim(),
+                        evento: 'Evento_13_04',
+                        access_token: token
+                    })
+                });
+                if (res.ok) {
+                    const rows = await res.json();
+                    return rows[0]?.access_token || token;
+                }
+                return null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        function saveToSheets(nome, handle, whatsapp) {
+            const data = new URLSearchParams();
+            data.append('nome', nome);
+            data.append('tiktok', handle);
+            data.append('whatsapp', whatsapp);
+            fetch(SHEETS_URL, { method: 'POST', mode: 'no-cors', body: data }).catch(() => {});
+        }
+
+        document.getElementById('creator-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('btn-submit');
+            const status = document.getElementById('status-msg');
+            const nome = document.getElementById('nome').value;
+            const tiktok = document.getElementById('tiktok').value;
+            const whatsapp = document.getElementById('whatsapp').value;
+
+            btn.disabled = true;
+            btn.textContent = '';
+            status.textContent = 'Registrando...';
+
+            // Salva no Supabase e obtém token de acesso
+            const [token] = await Promise.all([
+                saveToSupabase(nome, tiktok, whatsapp),
+                saveToSheets(nome, tiktok, whatsapp)
+            ]);
+
+            // Guarda token para uso pós-evento (link do hub)
+            if (token) window._hubToken = token;
+
+            setTimeout(() => {
+                document.getElementById('form-screen').style.display = 'none';
+                document.getElementById('success-screen').style.display = 'block';
+            }, 600);
+        });
+
+        function resetForm() {
+            document.getElementById('creator-form').reset();
+            document.getElementById('success-screen').style.display = 'none';
+            document.getElementById('form-screen').style.display = 'block';
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = false;
+            btn.textContent = 'Desbloquear Acesso';
+            document.getElementById('status-msg').textContent = '';
+        }
+    </script>
+</body>
+</html>

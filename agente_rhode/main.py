@@ -31,6 +31,7 @@ import anthropic
 
 # Importa todas as skills disponíveis
 from skills.analisar_dados import analisar_sku, listar_skus_por_prioridade, resumo_negocio
+from skills.gerar_script_ugc import gerar_script_ugc, salvar_script, formatar_script_para_leitura
 from skills.criar_conteudo import (
     gerar_brief_criativo,
     gerar_calendario_conteudo,
@@ -75,7 +76,8 @@ Como trabalhar:
 2. Para campanhas completas, avise que pode executar o fluxo multi-agentes
 3. Para gestão de creators: busque, filtre e gere outreach personalizado
 4. Para seeding: registre envios, atualize status e monitore follow-ups
-5. Seja estratégico e direto — sem rodeios
+5. Para scripts UGC: use gerar_script_ugc com os dados da creator e produto
+6. Seja estratégico e direto — sem rodeios
 
 Fale sempre em português."""
 
@@ -103,6 +105,8 @@ TODAS_SKILLS = [
     atualizar_status_seeding,
     listar_pendencias_followup,
     relatorio_seeding,
+    # UGC Script Generator
+    gerar_script_ugc,
 ]
 
 
@@ -137,6 +141,7 @@ def modo_interativo():
     print("Comandos especiais:")
     print("  /campanha REF562     → Fluxo completo de campanha (análise + brief + calendário)")
     print("  /creators REF549     → Fluxo de creators (prospecção + outreach + seeding)")
+    print("  /ugc                 → Gerar script UGC para creator (3 hooks + 3 CTAs)")
     print("  /seeding             → Relatório do pipeline de seeding")
     print("  /followup            → Lista pendências de follow-up com creators")
     print("  /skus                → Lista SKUs por prioridade")
@@ -177,6 +182,36 @@ def modo_interativo():
             for etapa, conteudo in resultado.items():
                 print(f"\n## {etapa.upper()}")
                 print(conteudo)
+            print()
+            continue
+
+        # Comando especial: gerar script UGC interativo
+        if entrada.lower().startswith("/ugc"):
+            print("\nGerador de Script UGC — Rhode Jeans")
+            print("Produtos: Wide Leg Marmorizada, Rosa Bebê, Azul Médio, Preta, Branca, Chocolate, Amarelo Manteiga, Stone Used, Sky Used, Preta Marmorizada")
+            produto  = input("Produto: ").strip()
+            formato  = input("Formato (30s / 60s / 90s / live / brief): ").strip() or "60s"
+            nome     = input("Nome da creator: ").strip()
+            altura   = input("Altura (ex: 1,65m): ").strip()
+            peso     = input("Peso (ex: 65kg): ").strip()
+            quadril  = input("Quadril (ex: 98cm): ").strip()
+            tamanho  = input("Tamanho (PP/P/M/G/GG/XGG): ").strip() or "M"
+            cintura  = input("Cintura (opcional): ").strip()
+            preco    = input("Preço (padrão: menos de R$100): ").strip() or "menos de R$100"
+            extra    = input("Contexto extra (opcional): ").strip()
+
+            print(f"\n🎬 Gerando script para {nome} — {produto} ({formato})...")
+            try:
+                resultado = gerar_script_ugc(
+                    produto=produto, formato=formato, nome_creator=nome,
+                    altura=altura, peso=peso, quadril=quadril, tamanho=tamanho,
+                    cintura=cintura, preco=preco, info_extra=extra,
+                )
+                print(formatar_script_para_leitura(resultado))
+                path = salvar_script(resultado, nome, produto, formato)
+                print(f"\n💾 Salvo em: {path}")
+            except Exception as e:
+                print(f"Erro: {e}")
             print()
             continue
 

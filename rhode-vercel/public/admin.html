@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhode Jeans · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050505;--surface:rgba(10,10,10,0.7);--text:#F0EDE6;--muted:#888;--gold:#C9A96E;--red:#FE2C55;--cyan:#25F4EE;--border:rgba(255,255,255,0.08);--green:#4ade80;--orange:#fb923c}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--void);color:var(--text);min-height:100vh}
+.light{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.lr{width:600px;height:600px;background:var(--red);opacity:.1;top:-200px;left:-200px;animation:f1 9s ease-in-out infinite}
+.lc{width:700px;height:700px;background:var(--cyan);opacity:.06;bottom:-250px;right:-250px;animation:f2 11s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,50px)}}
+@keyframes f2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-30px)}}
+.grid{position:fixed;inset:-100% 0 0 0;background:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,.01) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,.01) 60px);transform:perspective(500px) rotateX(60deg);transform-origin:50% 0;pointer-events:none;z-index:0}
+#adm-login{position:fixed;inset:0;background:var(--void);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px}
+.abox{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:380px;width:100%;backdrop-filter:blur(40px);box-shadow:0 40px 120px rgba(0,0,0,.95);text-align:center;animation:up .5s ease both}
+.alogo{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;letter-spacing:-1.5px;margin-bottom:4px}
+.adot{color:var(--gold)}
+.asub{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:36px}
+.field{position:relative;margin-bottom:16px;text-align:left}
+.finput{width:100%;padding:22px 16px 8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s}
+.finput::placeholder{color:transparent}
+.finput:focus{border-color:rgba(201,169,110,.4)}
+.flabel{position:absolute;left:16px;top:15px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);transition:top .18s,font-size .18s,color .18s;pointer-events:none}
+.finput:focus~.flabel,.finput:not(:placeholder-shown)~.flabel{top:7px;font-size:9px;color:var(--gold)}
+.btn-main{position:relative;width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.btn-main::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:shimmer 2.5s infinite}
+.btn-main:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(254,44,85,.35)}
+@keyframes shimmer{to{left:150%}}
+.aerr{margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--red);min-height:16px}
+#adm-app{display:none;position:relative;z-index:1}
+.topbar{background:rgba(5,5,5,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;gap:16px}
+.tlogo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-.5px;flex-shrink:0}
+.tdot{color:var(--gold)}
+.tright{display:flex;align-items:center;gap:12px}
+.tstatus{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.5px}
+.tbtn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
+.tbtn:hover{border-color:var(--gold);color:var(--gold)}
+.pbar-wrap{background:rgba(5,5,5,.6);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none}
+.pbar-wrap::-webkit-scrollbar{display:none}
+.pbar-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);flex-shrink:0;margin-right:4px}
+.pbtn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.5px;padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.pbtn.on{background:rgba(201,169,110,.1);border-color:var(--gold);color:var(--gold)}
+.pbtn:hover:not(.on){border-color:rgba(255,255,255,.2);color:var(--text)}
+.tabs-nav{display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:rgba(5,5,5,.4)}
+.tab{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:14px 20px;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;flex-shrink:0}
+.tab.on{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover:not(.on){color:var(--text)}
+.panel{display:none}.panel.on{display:block}
+.main{max-width:1400px;margin:0 auto;padding:24px 20px 80px}
+.kgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
+.kcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;backdrop-filter:blur(20px);animation:up .4s ease both}
+.klabel{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.kval{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;letter-spacing:-1px;margin-bottom:4px}
+.ksub{font-size:10px;color:var(--muted)}
+.up{color:var(--green)}.dn{color:var(--red)}.or{color:var(--orange)}
+.tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;backdrop-filter:blur(20px);margin-bottom:20px;animation:up .4s ease both}
+.tbl-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.tbl-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
+.tbl-meta{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.5px;color:var(--cyan)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.lk{color:var(--cyan);cursor:pointer;text-decoration:none;font-family:'DM Mono',monospace;font-size:11px}
+.lk:hover{color:var(--gold)}
+.mono{font-family:'DM Mono',monospace}
+.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.5px;padding:2px 8px;border-radius:99px;font-weight:500}
+.b-green{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)}
+.b-red{background:rgba(254,44,85,.1);color:var(--red);border:1px solid rgba(254,44,85,.2)}
+.b-orange{background:rgba(251,146,60,.1);color:var(--orange);border:1px solid rgba(251,146,60,.2)}
+.b-gold{background:rgba(201,169,110,.1);color:var(--gold);border:1px solid rgba(201,169,110,.2)}
+.b-cyan{background:rgba(37,244,238,.1);color:var(--cyan);border:1px solid rgba(37,244,238,.2)}
+.b-gray{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border)}
+.alert{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start}
+.alert-r{border-left:3px solid var(--red)}.alert-g{border-left:3px solid var(--green)}
+.alert strong{font-size:13px;display:block;margin-bottom:3px}.alert span{font-size:11px;color:var(--muted)}
+.delta{font-family:'DM Mono',monospace;font-size:11px}
+.d-up{color:var(--green)}.d-dn{color:var(--red)}.d-nt{color:var(--muted)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.bar{height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;margin-top:4px}
+.bar-fill{height:100%;border-radius:99px}
+.search-wrap{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.search-input{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text);outline:none;width:220px;transition:border-color .2s}
+.search-input:focus{border-color:rgba(201,169,110,.3)}
+.search-input::placeholder{color:var(--muted)}
+.pag{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.pag button{font-family:'DM Mono',monospace;font-size:10px;padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
+.pag button:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.pag button:disabled{opacity:.3;cursor:not-allowed}
+.pag-info{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.modal-bg.on{display:flex}
+.modal{background:#0a0a0a;border:1px solid var(--border);border-radius:20px;max-width:860px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 40px 120px rgba(0,0,0,.95)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
+.modal-x{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:18px;transition:all .2s}
+.modal-x:hover{border-color:var(--red);color:var(--red)}
+.modal-body{overflow-y:auto;padding:20px 24px}
+.evo-tl{display:flex;gap:6px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+.evo-tl::-webkit-scrollbar{display:none}
+.spin,.empty{text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){.kgrid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.kgrid{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.main{padding:16px 12px 60px}}
+</style>
+</head>
+<body>
+<div class="light lr"></div>
+<div class="light lc"></div>
+<div class="grid"></div>
+
+<div id="adm-login">
+  <div class="abox">
+    <div class="alogo">Rhode<span class="adot">.</span> Admin</div>
+    <div class="asub">Acesso restrito</div>
+    <div class="field"><input id="adm-pass" class="finput" type="password" placeholder=" " onkeydown="if(event.key==='Enter')admLogin()"><label class="flabel">Senha de acesso</label></div>
+    <button class="btn-main" onclick="admLogin()">Entrar</button>
+    <div class="aerr" id="adm-err"></div>
+  </div>
+</div>
+
+<div id="adm-app">
+  <div class="topbar">
+    <div class="tlogo">Rhode<span class="tdot">.</span> Admin</div>
+    <div class="tright"><span class="tstatus" id="st"></span><button class="tbtn" id="btn-sync" onclick="syncAll()">↻ Sincronizar</button></div>
+  </div>
+  <div class="pbar-wrap"><span class="pbar-label">Período</span><div id="period-bar"></div></div>
+  <div class="tabs-nav">
+    <button class="tab on" onclick="tab('dashboard',this)">Dashboard</button>
+    <button class="tab" onclick="tab('ranking',this)">Ranking</button>
+    <button class="tab" onclick="tab('alertas',this)">Alertas</button>
+    <button class="tab" onclick="tab('evolucao',this)">Evolução</button>
+    <button class="tab" onclick="tab('evento',this)" style="color:var(--cyan);border-bottom:2px solid transparent">⚡ Evento 13/04</button>
+  </div>
+
+  <div class="panel on" id="panel-dashboard">
+    <div class="main">
+      <div class="kgrid">
+        <div class="kcard"><div class="klabel">GMV Líquido</div><div class="kval" id="k-liq">—</div><div class="ksub" id="k-liq-s"></div></div>
+        <div class="kcard"><div class="klabel">GMV Bruto</div><div class="kval" id="k-gmv">—</div><div class="ksub" id="k-gmv-s"></div></div>
+        <div class="kcard"><div class="klabel">Refund Rate</div><div class="kval" id="k-ref">—</div></div>
+        <div class="kcard"><div class="klabel">AOV Médio</div><div class="kval" id="k-aov">—</div></div>
+        <div class="kcard"><div class="klabel">Creators Ativas</div><div class="kval" id="k-at">—</div><div class="ksub" id="k-at-s"></div></div>
+        <div class="kcard"><div class="klabel">Pedidos</div><div class="kval" id="k-ped">—</div><div class="ksub" id="k-ped-s"></div></div>
+      </div>
+      <div id="dash-alerts" style="margin-bottom:20px"></div>
+      <div class="g2">
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Top 10 Creators</div><div class="tbl-meta" id="top-meta"></div></div>
+          <table><thead><tr><th>#</th><th>Creator</th><th>GMV Líq.</th><th>Refund</th><th>Pedidos</th><th>Tier</th></tr></thead>
+          <tbody id="top-body"><tr><td colspan="6" class="spin">Sincronize para carregar</td></tr></tbody></table>
+        </div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Concentração GMV</div><div class="tbl-meta" id="conc-meta"></div></div>
+          <div style="padding:20px" id="conc-body"></div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Refund Crítico</div><div class="tbl-meta" id="crit-meta"></div></div>
+          <table><thead><tr><th>Creator</th><th>GMV Bruto</th><th>Refund</th></tr></thead>
+          <tbody id="crit-body"></tbody></table>
+        </div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Próximas do Upgrade</div><div class="tbl-meta" id="up-meta"></div></div>
+          <table><thead><tr><th>Creator</th><th>GMV</th><th>Tier</th><th>Falta</th></tr></thead>
+          <tbody id="up-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-ranking">
+    <div class="main">
+      <div class="tbl-card">
+        <div class="tbl-head"><div class="tbl-title">Ranking Completo</div><div class="tbl-meta" id="rank-meta"></div></div>
+        <div class="search-wrap"><input id="search" class="search-input" type="text" placeholder="Buscar creator..." oninput="filterRanking(this.value)"></div>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>Creator</th><th>Tier</th><th>GMV Bruto</th><th>Reimb.</th><th>Refund%</th><th>GMV Líq.</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th><th></th></tr></thead>
+          <tbody id="rank-body"><tr><td colspan="12" class="spin">Sincronize para carregar</td></tr></tbody>
+        </table></div>
+        <div class="pag" id="rank-pag"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-alertas">
+    <div class="main">
+      <div class="g2">
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Refund Crítico &gt;25%</div><div class="tbl-meta" id="al-ref-meta"></div></div>
+          <table><thead><tr><th>Creator</th><th>GMV Bruto</th><th>Reimb.</th><th>Refund</th></tr></thead>
+          <tbody id="al-ref-body"></tbody></table>
+        </div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Potencial Não Explorado</div></div>
+          <table><thead><tr><th>Creator</th><th>GMV</th><th>AOV</th><th>Conteúdo</th></tr></thead>
+          <tbody id="al-pot-body"></tbody></table>
+        </div>
+      </div>
+      <div class="tbl-card">
+        <div class="tbl-head"><div class="tbl-title">Creators Inativas</div><div class="tbl-meta" id="al-in-meta"></div></div>
+        <table><thead><tr><th>Creator</th><th>Vídeos</th><th>Lives</th></tr></thead>
+        <tbody id="al-in-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-evolucao">
+    <div class="main">
+      <div class="evo-tl" id="evo-timeline" style="margin-bottom:20px"></div>
+      <div class="tbl-card">
+        <div class="tbl-head"><div class="tbl-title">Evolução por Período</div><div class="tbl-meta" id="evo-meta"></div></div>
+        <div class="tw"><table>
+          <thead><tr><th>Período</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Δ</th><th>Refund</th><th>Pedidos</th><th>Creators</th><th>AOV</th></tr></thead>
+          <tbody id="evo-body"><tr><td colspan="8" class="spin">Sincronize para carregar</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="panel" id="panel-evento">
+    <div class="main">
+
+      <!-- ── TOP CREATORS VIP — FEED DINÂMICO ────────────────────────── -->
+      <div class="tbl-card" style="margin-bottom:24px;border-color:rgba(201,169,110,.4)">
+        <div class="tbl-head" style="background:rgba(201,169,110,.07)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="tbl-title" style="color:var(--gold)">⭐ VIPs Detectadas — Stand Santana Têxtil</div>
+            <span id="vip-live-dot" style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.5s infinite"></span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)" id="vip-refresh-info">ao vivo</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold)" id="vip-progress">—</span>
+            <button class="tbtn" onclick="resetVIP()" style="font-size:9px;padding:4px 10px">↺ Limpar check-ins</button>
+          </div>
+        </div>
+        <div id="vip-empty" style="padding:20px 24px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);display:none">
+          Aguardando cadastros de Diamante, Ouro ou Prata... atualizando a cada 30s.
+        </div>
+        <div class="tw" id="vip-table-wrap">
+          <table>
+            <thead><tr>
+              <th>Tier</th><th>Handle TikTok</th><th>Nome</th><th>GMV MTD</th>
+              <th style="text-align:center">Kit entregue</th>
+              <th style="text-align:center">Entrou na Live</th>
+              <th style="text-align:center">Follow-up</th>
+              <th>Obs</th>
+            </tr></thead>
+            <tbody id="vip-body"><tr><td colspan="8" class="spin">Abrindo aba Evento para carregar...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}</style>
+
+      <!-- KPIs do evento -->
+      <div class="kgrid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+        <div class="kcard"><div class="klabel">Cadastros no Evento</div><div class="kval" id="ev-total">—</div><div class="ksub" id="ev-total-s"></div></div>
+        <div class="kcard"><div class="klabel">Já Eram Afiliadas</div><div class="kval" id="ev-known" style="color:var(--gold)">—</div><div class="ksub">na base antes do evento</div></div>
+        <div class="kcard"><div class="klabel">Novas Captadas</div><div class="kval" id="ev-new" style="color:var(--cyan)">—</div><div class="ksub">novos registros</div></div>
+        <div class="kcard"><div class="klabel">Missão Iniciada</div><div class="kval" id="ev-missao" style="color:var(--green)">—</div><div class="ksub" id="ev-missao-s">bot ativado</div></div>
+        <div class="kcard"><div class="klabel">Vídeo Recebido</div><div class="kval" id="ev-video" style="color:var(--gold)">—</div><div class="ksub">link enviado</div></div>
+      </div>
+
+      <!-- Breakdown por turno -->
+      <div class="g2" style="margin-bottom:20px">
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Turno 13h–15h</div><div class="tbl-meta" id="ev-t1-meta"></div></div>
+          <div style="padding:16px 20px">
+            <div id="ev-t1-bar" style="margin-bottom:8px"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="ev-t1-info">—</div>
+          </div>
+        </div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Turno 15h–17h</div><div class="tbl-meta" id="ev-t2-meta"></div></div>
+          <div style="padding:16px 20px">
+            <div id="ev-t2-bar" style="margin-bottom:8px"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="ev-t2-info">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Afiliadas que vieram ao evento — breakdown por tier -->
+      <div class="tbl-card" style="margin-bottom:20px">
+        <div class="tbl-head"><div class="tbl-title">Afiliadas no Evento — por Tier</div><div class="tbl-meta" id="ev-tier-meta"></div></div>
+        <div style="padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap" id="ev-tier-pills"></div>
+      </div>
+
+      <!-- Tabela de cadastros -->
+      <div class="tbl-card">
+        <div class="tbl-head">
+          <div class="tbl-title">Todos os Cadastros</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="search-input" id="ev-search" placeholder="Buscar handle..." oninput="filterEvento(this.value)" style="width:180px">
+            <div class="tbl-meta" id="ev-list-meta"></div>
+          </div>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Handle TikTok</th><th>Nome</th><th>WhatsApp</th>
+              <th>Status Base</th><th>Tier</th><th>GMV MTD</th><th>Missão</th><th>Vídeo</th><th>Cadastro</th>
+            </tr></thead>
+            <tbody id="ev-body"><tr><td colspan="9" class="spin">Clique em ⚡ Evento para carregar</td></tr></tbody>
+          </table>
+        </div>
+        <div id="ev-pag"></div>
+      </div>
+    </div>
+  </div>
+
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modal-title">Histórico</div><div class="modal-x" onclick="closeModal()">×</div></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const ADM_PASS='rhode2026';
+function admLogin(){const pass=document.getElementById('adm-pass').value;if(pass===ADM_PASS){sessionStorage.setItem('rhode-admin','1');document.getElementById('adm-login').style.display='none';document.getElementById('adm-app').style.display='block';syncAll()}else{document.getElementById('adm-err').textContent='Senha incorreta.'}}
+if(sessionStorage.getItem('rhode-admin')==='1'){document.getElementById('adm-login').style.display='none';document.getElementById('adm-app').style.display='block'}
+const SB_URL='https://ivzpykuluxcxefhyzfsf.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
+const SB_H={'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`};
+let ALL_DATA=[],ALL_RANKED=[],FILTERED=[],PERIODS=[],CUR_PERIOD='',EVO_DATA=[],PAGE=1;
+const PG_SIZE=100;
+const fmtK=n=>{const v=+n||0;if(v>=1e6)return'R$'+(v/1e6).toFixed(1)+'M';if(v>=1e3)return'R$'+(v/1e3).toFixed(1)+'K';return'R$'+v.toFixed(0)};
+const fmtR=n=>'R$'+(+n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const el=id=>document.getElementById(id);
+const set=(id,v)=>{const e=el(id);if(e)e.textContent=v};
+const htm=(id,v)=>{const e=el(id);if(e)e.innerHTML=v};
+function tier(gmv){if(gmv>=60000)return{l:'Diamante',c:'b-cyan'};if(gmv>=25000)return{l:'Ouro',c:'b-gold'};if(gmv>=8000)return{l:'Prata',c:'b-gray'};if(gmv>=2000)return{l:'Bronze',c:'b-orange'};return{l:'Ferro',c:'b-gray'}}
+function nextTier(gmv){const tiers=[['Diamante',60000],['Ouro',25000],['Prata',8000],['Bronze',2000]];for(const[n,v]of tiers)if(gmv<v)return{name:n,need:v,diff:v-gmv};return null}
+function refBadge(p){p=+p||0;if(p>50)return`<span class="badge b-red">${p.toFixed(1)}%</span>`;if(p>25)return`<span class="badge b-orange">${p.toFixed(1)}%</span>`;return`<span class="badge b-green">${p.toFixed(1)}%</span>`}
+function dlt(v){if(v===null||v===undefined||v==='')return'';v=+v;if(Math.abs(v)<0.1)return`<span class="delta d-nt">→</span>`;if(v>0)return`<span class="delta d-up">↑${Math.abs(v).toFixed(1)}%</span>`;return`<span class="delta d-dn">↓${Math.abs(v).toFixed(1)}%</span>`}
+async function sbGet(path){const r=await fetch(`${SB_URL}/rest/v1/${path}`,{headers:SB_H});if(!r.ok)throw new Error(`${r.status} ${await r.text()}`);return r.json()}
+function tab(id,el_){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));el_.classList.add('on');el(`panel-${id}`).classList.add('on');if(id==='ranking')renderRankingPage(1);if(id==='alertas')renderAlertas();if(id==='evolucao')renderEvolucao()}
+async function syncAll(){const btn=el('btn-sync'),st=el('st');btn.disabled=true;btn.textContent='Carregando...';st.textContent='';st.style.color='var(--muted)';try{const pRows=await sbGet('performance_periods?select=periodo&order=periodo.desc');PERIODS=[...new Set(pRows.map(r=>r.periodo))];if(!CUR_PERIOD||!PERIODS.includes(CUR_PERIOD))CUR_PERIOD=PERIODS[0];EVO_DATA=await sbGet('performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,pedidos,aov,refund_pct&order=periodo.asc');await loadPeriod(CUR_PERIOD);st.style.color='var(--green)';st.textContent=`✓ ${ALL_DATA.length} creators · ${new Date().toLocaleTimeString('pt-BR')}`}catch(e){st.style.color='var(--red)';st.textContent='✗ '+e.message}finally{btn.disabled=false;btn.textContent='↻ Sincronizar'}}
+async function loadPeriod(p){CUR_PERIOD=p;ALL_DATA=await sbGet(`performance_periods?select=affiliate_id,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&periodo=eq.${p}&order=gmv_liquido.desc`);ALL_RANKED=[...ALL_DATA];FILTERED=[...ALL_RANKED];renderPeriodBar();renderDashboard()}
+function renderPeriodBar(){htm('period-bar',PERIODS.map(p=>`<button class="pbtn ${p===CUR_PERIOD?'on':''}" onclick="loadPeriod('${p}')">${p}</button>`).join(''))}
+function renderDashboard(){const ativos=ALL_DATA.filter(r=>r.gmv_liquido>0);const inativos=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0);const totLiq=ativos.reduce((s,r)=>s+(+r.gmv_liquido||0),0);const totBruto=ativos.reduce((s,r)=>s+(+r.gmv_bruto||0),0);const totReimb=ativos.reduce((s,r)=>s+(+r.reembolso||0),0);const totPed=ativos.reduce((s,r)=>s+(+r.pedidos||0),0);const refRate=totBruto>0?totReimb/totBruto*100:0;const aovReal=totPed>0?totLiq/totPed:0;const top10=ativos.slice(0,10).reduce((s,r)=>s+(+r.gmv_liquido||0),0);const conc=totLiq>0?top10/totLiq*100:0;set('k-liq',fmtK(totLiq));set('k-liq-s',`${ativos.length} creators ativas`);set('k-gmv',fmtK(totBruto));set('k-gmv-s',`reimb: ${fmtK(totReimb)}`);const refEl=el('k-ref');refEl.textContent=refRate.toFixed(1)+'%';refEl.className='kval '+(refRate>25?'dn':refRate>15?'or':'up');set('k-aov',fmtR(aovReal));set('k-at',ativos.length);set('k-at-s',`${inativos.length} sem GMV`);set('k-ped',totPed.toLocaleString('pt-BR'));set('k-ped-s',CUR_PERIOD);const als=[];if(conc>70)als.push({c:'alert-r',t:`Concentração: top 10 = ${conc.toFixed(1)}% do GMV`,s:'Dependência excessiva. Escalar micro-creators.'});if(refRate>25)als.push({c:'alert-r',t:`Refund rate ${refRate.toFixed(1)}% — acima de 25%`,s:'Investigar creators com alto chargeback.'});if(!als.length)als.push({c:'alert-g',t:'Base saudável — refund e concentração OK',s:''});htm('dash-alerts',als.map(a=>`<div class="alert ${a.c}"><div><strong>${a.t}</strong>${a.s?`<span>${a.s}</span>`:''}</div></div>`).join(''));set('top-meta',`${ativos.length} ativas`);htm('top-body',ativos.slice(0,10).map((r,i)=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono" style="color:var(--muted)">${i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono" style="font-weight:600;color:var(--gold)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td><span class="badge ${t.c}">${t.l}</span></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Sem dados</td></tr>');htm('conc-body',ativos.slice(0,5).map((r,i)=>{const p=totLiq>0?(+r.gmv_liquido||0)/totLiq*100:0;const col=i===0?'var(--red)':i<3?'var(--orange)':'var(--cyan)';return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><span style="font-family:'DM Mono',monospace;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i+1}. ${r.affiliate_id}</span><span style="color:var(--muted);font-family:'DM Mono',monospace">${p.toFixed(1)}% · ${fmtK(r.gmv_liquido)}</span></div><div class="bar"><div class="bar-fill" style="width:${Math.min(p*2.5,100)}%;background:${col}"></div></div></div>`}).join('')||'<div class="empty">—</div>');set('conc-meta',`top 5 / ${conc.toFixed(1)}% GMV`);const criticos=ALL_DATA.filter(r=>r.refund_pct>25&&r.gmv_bruto>0).slice(0,20);set('crit-meta',`${criticos.length} creators`);htm('crit-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>');const upgrades=ativos.map(r=>({...r,nt:nextTier(+r.gmv_liquido||0)})).filter(r=>r.nt&&r.nt.diff/r.nt.need<0.15).sort((a,b)=>a.nt.diff-b.nt.diff).slice(0,10);set('up-meta',`${upgrades.length} creators`);htm('up-body',upgrades.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono" style="color:var(--orange)">+${fmtK(r.nt.diff)}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>')}
+function renderRankingPage(p){PAGE=p;const list=FILTERED,total=list.length,pages=Math.max(1,Math.ceil(total/PG_SIZE));const start=(p-1)*PG_SIZE,slice=list.slice(start,start+PG_SIZE);set('rank-meta',`${total} creators`);requestAnimationFrame(()=>{const frag=document.createDocumentFragment();slice.forEach((r,i)=>{const t=tier(+r.gmv_liquido||0);const tr=document.createElement('tr');tr.innerHTML=`<td class="mono" style="color:var(--muted)">${start+i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono" style="font-weight:600;color:var(--gold)">${fmtK(r.gmv_liquido)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">→</a></td>`;frag.appendChild(tr)});const tbody=el('rank-body');tbody.innerHTML='';tbody.appendChild(frag);htm('rank-pag',`<div class="pag"><button onclick="renderRankingPage(${p-1})" ${p<=1?'disabled':''}>← Ant</button><span class="pag-info">${start+1}–${Math.min(start+PG_SIZE,total)} de ${total}</span><button onclick="renderRankingPage(${p+1})" ${p>=pages?'disabled':''}>Próx →</button></div>`)})}
+function filterRanking(q){const n=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');FILTERED=n?ALL_RANKED.filter(r=>(r.affiliate_id||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)):[...ALL_RANKED];renderRankingPage(1)}
+function renderAlertas(){const ativos=ALL_DATA.filter(r=>r.gmv_bruto>0);const criticos=ativos.filter(r=>r.refund_pct>25).slice(0,30);set('al-ref-meta',`${criticos.length} creators`);htm('al-ref-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="color:var(--red)">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const pot=ativos.filter(r=>(+r.aov||0)>80&&((+r.videos||0)+(+r.lives||0))<5).slice(0,15);htm('al-pot-body',pot.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td class="mono" style="color:var(--cyan)">${fmtR(r.aov)}</td><td class="mono">${(+r.videos||0)+(+r.lives||0)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const inat=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0).slice(0,50);set('al-in-meta',`${inat.length} creators`);htm('al-in-body',inat.map(r=>`<tr><td class="mono">${r.affiliate_id}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>')}
+function renderEvolucao(){if(!EVO_DATA.length){htm('evo-body','<tr><td colspan="8" class="spin">Sincronize primeiro.</td></tr>');return}const map={};EVO_DATA.forEach(r=>{const p=r.periodo;if(!map[p])map[p]={periodo:p,gmv_bruto:0,gmv_liquido:0,reembolso:0,pedidos:0,creators:0};map[p].gmv_bruto+=(+r.gmv_bruto||0);map[p].gmv_liquido+=(+r.gmv_liquido||0);map[p].reembolso+=(+r.reembolso||0);map[p].pedidos+=(+r.pedidos||0);if(r.gmv_liquido>0)map[p].creators++});const rows=Object.values(map).sort((a,b)=>b.periodo.localeCompare(a.periodo));htm('evo-timeline',[...rows].reverse().map(p=>`<div style="font-family:'DM Mono',monospace;font-size:10px;padding:5px 14px;border:1px solid ${p.periodo===CUR_PERIOD?'var(--gold)':'var(--border)'};border-radius:6px;background:${p.periodo===CUR_PERIOD?'rgba(201,169,110,.1)':'transparent'};color:${p.periodo===CUR_PERIOD?'var(--gold)':'var(--muted)'};white-space:nowrap;letter-spacing:.5px">${p.periodo}</div>`).join(''));set('evo-meta',`${rows.length} períodos`);htm('evo-body',rows.map((r,i)=>{const prev=rows[i+1];const d=prev&&prev.gmv_liquido>0?((r.gmv_liquido-prev.gmv_liquido)/prev.gmv_liquido*100).toFixed(1):null;const ref=r.gmv_bruto>0?r.reembolso/r.gmv_bruto*100:0;const aov=r.pedidos>0?r.gmv_liquido/r.pedidos:0;return`<tr ${r.periodo===CUR_PERIOD?'style="background:rgba(201,169,110,.04)"':''}><td class="mono" style="font-weight:600;color:var(--gold)">${r.periodo}</td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600">${fmtK(r.gmv_liquido)}</td><td>${dlt(d)}</td><td>${refBadge(ref)}</td><td class="mono">${r.pedidos.toLocaleString('pt-BR')}</td><td class="mono">${r.creators}</td><td class="mono">${fmtR(aov)}</td></tr>`}).join(''))}
+async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--gold)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--red)">Erro: ${e.message}</div>`)}}
+function closeModal(){el('modal').classList.remove('on')}
+
+// ---- ABA EVENTO ----
+let EV_DATA=[],EV_FILTERED=[],EV_PAGE=1;
+const EV_PG=50;
+const TIER_MAP={'diamante':{l:'Diamante',c:'b-cyan',icon:'💎'},'ouro':{l:'Ouro',c:'b-gold',icon:'🥇'},'prata':{l:'Prata',c:'b-gray',icon:'🥈'},'bronze':{l:'Bronze',c:'b-orange',icon:'🥉'},'ferro':{l:'Ferro',c:'b-gray',icon:'🔩'}};
+const TIER_ORDER=['diamante','ouro','prata','bronze','ferro'];
+
+async function loadEvento(){
+  el('ev-body').innerHTML='<tr><td colspan="10" class="spin">Carregando...</td></tr>';
+  try{
+    // 1. Busca todos os cadastros do evento
+    const evRows=await sbGet('eventos_creators?evento=eq.Evento_13_04&order=registered_at.desc&limit=1000');
+
+    // 2. Busca todos os afiliados para cruzar
+    let aff=[];
+    let offset=0;
+    while(true){
+      const batch=await sbGet(`affiliates?select=affiliate_id,tiktok_handle,current_tier,gmv_live_mtd,gmv_video_mtd&limit=1000&offset=${offset}`);
+      aff=aff.concat(batch);
+      if(batch.length<1000)break;
+      offset+=1000;
+    }
+    const affMap={};
+    aff.forEach(r=>{
+      const k=(r.tiktok_handle||r.affiliate_id||'').toLowerCase().replace(/^[@.]+/,'');
+      affMap[k]=r;
+    });
+
+    // 3. Enriquece cada cadastro com dados da base
+    EV_DATA=evRows.filter(r=>r.handle!=='_TESTE_CLAUDE').map(r=>{
+      const k=(r.handle||'').toLowerCase().replace(/^[@.]+/,'');
+      const aRow=affMap[k];
+      const gmv=aRow?((+aRow.gmv_live_mtd||0)+(+aRow.gmv_video_mtd||0)):null;
+      const tierKey=aRow?(aRow.current_tier||'ferro').toLowerCase():'novo';
+      return{...r,_aff:aRow||null,_gmv:gmv,_tier:tierKey,_isAfiliada:!!aRow};
+    });
+    EV_FILTERED=[...EV_DATA];
+    renderEvento();
+    renderVIP();
+  }catch(e){
+    el('ev-body').innerHTML=`<tr><td colspan="9" class="empty" style="color:var(--red)">Erro: ${e.message}</td></tr>`;
+  }
+}
+
+function renderEvento(){
+  const total=EV_DATA.length;
+  const known=EV_DATA.filter(r=>r._isAfiliada).length;
+  const novos=total-known;
+  const missao=EV_DATA.filter(r=>r.missao_iniciada).length;
+  const videos=EV_DATA.filter(r=>r.video_url).length;
+
+  set('ev-total',total);
+  set('ev-total-s',`último: ${total?new Date(EV_DATA[0].registered_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'—'}`);
+  set('ev-known',known);
+  set('ev-new',novos);
+  set('ev-missao',missao);
+  set('ev-missao-s',`${total?Math.round(missao/total*100):0}% dos cadastros`);
+  set('ev-video',videos);
+
+  // Pills por tier (só afiliadas)
+  const byTier={};
+  TIER_ORDER.forEach(t=>byTier[t]=[]);
+  EV_DATA.filter(r=>r._isAfiliada).forEach(r=>{
+    const t=TIER_MAP[r._tier]?r._tier:'ferro';
+    byTier[t].push(r);
+  });
+  const pills=TIER_ORDER.filter(t=>byTier[t].length).map(t=>{
+    const info=TIER_MAP[t];
+    return`<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 16px">
+      <span style="font-size:20px">${info.icon}</span>
+      <div><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">${info.l}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--text)">${byTier[t].length}</div></div>
+    </div>`;
+  }).join('');
+  htm('ev-tier-pills',pills||'<span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:11px">Aguardando cadastros...</span>');
+  set('ev-tier-meta',`${known} afiliadas reconhecidas`);
+  set('ev-list-meta',`${EV_FILTERED.length} registros`);
+
+  renderEventoPage(1);
+}
+
+function renderEventoPage(p){
+  EV_PAGE=p;
+  const list=EV_FILTERED,total=list.length,pages=Math.max(1,Math.ceil(total/EV_PG));
+  const start=(p-1)*EV_PG,slice=list.slice(start,start+EV_PG);
+
+  const rows=slice.map((r,i)=>{
+    const tierInfo=TIER_MAP[r._tier];
+    const tierBadge=r._isAfiliada
+      ?(tierInfo?`<span class="badge ${tierInfo.c}">${tierInfo.icon} ${tierInfo.l}</span>`:`<span class="badge b-gray">${r._tier}</span>`)
+      :`<span class="badge b-cyan">Nova</span>`;
+    const statusBadge=r._isAfiliada
+      ?`<span class="badge b-gold">Afiliada</span>`
+      :`<span class="badge b-cyan">Nova</span>`;
+    const gmvCell=r._gmv!==null?`<span class="mono" style="color:var(--gold)">${fmtK(r._gmv)}</span>`:`<span style="color:var(--muted)">—</span>`;
+    const missaoBadge=r.missao_iniciada
+      ?`<span class="badge b-green">✓ Iniciada</span>`
+      :`<span class="badge b-gray">—</span>`;
+    const videoBadge=r.video_url
+      ?`<a href="${r.video_url}" target="_blank" style="color:var(--gold);font-family:'DM Mono',monospace;font-size:10px">▶ Ver</a>`
+      :`<span style="color:var(--muted)">—</span>`;
+    const dt=r.registered_at?new Date(r.registered_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+    const handle=r._isAfiliada
+      ?`<a class="lk" onclick="openModal('${r.handle}')">${r.handle}</a>`
+      :`<span class="mono">${r.handle}</span>`;
+    return`<tr>
+      <td class="mono" style="color:var(--muted)">${start+i+1}</td>
+      <td>${handle}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;font-size:11px">${r.nome||'—'}</td>
+      <td class="mono" style="color:var(--muted);font-size:11px">${r.whatsapp||'—'}</td>
+      <td>${statusBadge}</td>
+      <td>${tierBadge}</td>
+      <td>${gmvCell}</td>
+      <td>${missaoBadge}</td>
+      <td>${videoBadge}</td>
+      <td class="mono" style="color:var(--muted);font-size:10px">${dt}</td>
+    </tr>`;
+  }).join('');
+
+  htm('ev-body',rows||'<tr><td colspan="10" class="empty">Nenhum registro ainda</td></tr>');
+  htm('ev-pag',`<div class="pag"><button onclick="renderEventoPage(${p-1})" ${p<=1?'disabled':''}>← Ant</button><span class="pag-info">${start+1}–${Math.min(start+EV_PG,total)} de ${total}</span><button onclick="renderEventoPage(${p+1})" ${p>=pages?'disabled':''}>Próx →</button></div>`);
+}
+
+function filterEvento(q){
+  const n=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  EV_FILTERED=n?EV_DATA.filter(r=>(r.handle||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)||(r.nome||'').toLowerCase().includes(n)):[...EV_DATA];
+  set('ev-list-meta',`${EV_FILTERED.length} registros`);
+  renderEventoPage(1);
+}
+
+// ---- VIP FEED DINÂMICO ----
+const VIP_KEY='rhode-vip-checkin-13-04';
+const VIP_TIERS=['diamante','ouro','prata']; // quem entra no feed
+let VIP_REFRESH_TIMER=null;
+
+function vipLoad(){return JSON.parse(localStorage.getItem(VIP_KEY)||'{}')}
+function vipSave(d){localStorage.setItem(VIP_KEY,JSON.stringify(d))}
+
+function renderVIP(){
+  // Filtra do EV_DATA quem é Diamante, Ouro ou Prata
+  const vips=EV_DATA
+    .filter(r=>VIP_TIERS.includes(r._tier))
+    .sort((a,b)=>{
+      const ord={diamante:0,ouro:1,prata:2};
+      const oa=ord[a._tier]??9, ob=ord[b._tier]??9;
+      if(oa!==ob)return oa-ob;
+      return (b._gmv||0)-(a._gmv||0);
+    });
+
+  const saved=vipLoad();
+
+  if(!vips.length){
+    el('vip-empty').style.display='block';
+    el('vip-table-wrap').style.display='none';
+    set('vip-progress','aguardando...');
+    return;
+  }
+  el('vip-empty').style.display='none';
+  el('vip-table-wrap').style.display='block';
+
+  const rows=vips.map(r=>{
+    const h=r.handle;
+    const s=saved[h]||{kit:false,live:false,followup:false,obs:''};
+    const tierInfo=TIER_MAP[r._tier]||{l:r._tier,c:'b-gold',icon:'⭐'};
+    const tierBadge=`<span class="badge ${tierInfo.c}" style="font-size:10px">${tierInfo.icon} ${tierInfo.l}</span>`;
+    const gmv=r._gmv!=null?`<span class="mono" style="color:var(--gold);font-weight:600">${fmtK(r._gmv)}</span>`:'<span style="color:var(--muted)">—</span>';
+    const chk=(field)=>`<td style="text-align:center"><input type="checkbox" ${s[field]?'checked':''} onchange="vipCheck('${h}','${field}',this.checked)" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer"></td>`;
+    // destaque se já tem kit ou live
+    const rowStyle=s.kit?'background:rgba(201,169,110,.06)':'';
+    const dt=r.registered_at?new Date(r.registered_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+    return`<tr style="${rowStyle}">
+      <td>${tierBadge}</td>
+      <td><span class="mono" style="font-weight:700;font-size:12px;color:var(--gold)">@${(h||'').toLowerCase()}</span><br><span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">${dt}</span></td>
+      <td style="font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis">${r.nome||'—'}</td>
+      <td>${gmv}</td>
+      ${chk('kit')}
+      ${chk('live')}
+      ${chk('followup')}
+      <td><input type="text" value="${s.obs||''}" placeholder="—" onchange="vipObs('${h}',this.value)"
+        style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:10px;width:130px;outline:none;padding:2px 4px"></td>
+    </tr>`;
+  }).join('');
+
+  htm('vip-body',rows);
+
+  // contador
+  const kits=vips.filter(r=>saved[r.handle]?.kit).length;
+  const lives=vips.filter(r=>saved[r.handle]?.live).length;
+  set('vip-progress',`${vips.length} VIPs chegaram · ${kits} kits · ${lives} lives`);
+  set('vip-refresh-info',`ao vivo · atualiza 30s`);
+}
+
+function vipCheck(handle,field,val){
+  const d=vipLoad();
+  if(!d[handle])d[handle]={kit:false,live:false,followup:false,obs:''};
+  d[handle][field]=val;
+  vipSave(d);
+  renderVIP();
+}
+function vipObs(handle,val){
+  const d=vipLoad();
+  if(!d[handle])d[handle]={kit:false,live:false,followup:false,obs:''};
+  d[handle].obs=val;
+  vipSave(d);
+}
+function resetVIP(){if(confirm('Limpar todos os check-ins VIP? (não apaga o cadastro, só os checks locais)')){localStorage.removeItem(VIP_KEY);renderVIP()}}
+
+function startVIPRefresh(){
+  stopVIPRefresh();
+  VIP_REFRESH_TIMER=setInterval(async()=>{
+    try{
+      set('vip-refresh-info','atualizando...');
+      await loadEvento();
+      const now=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      set('vip-refresh-info',`atualizado ${now}`);
+    }catch(e){}
+  },30000);
+}
+function stopVIPRefresh(){
+  if(VIP_REFRESH_TIMER){clearInterval(VIP_REFRESH_TIMER);VIP_REFRESH_TIMER=null;}
+}
+
+// Sobrescreve tab() para interceptar a aba evento
+const _tabOrig=tab;
+function tab(id,elBtn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  elBtn.classList.add('on');
+  el(`panel-${id}`).classList.add('on');
+  if(id==='ranking')renderRankingPage(1);
+  else if(id==='alertas')renderAlertas();
+  else if(id==='evolucao')renderEvolucao();
+  else if(id==='evento'){loadEvento().then(()=>renderVIP());startVIPRefresh();}
+  else{stopVIPRefresh();}
+}
+
+if(sessionStorage.getItem('rhode-admin')==='1')syncAll();
+</script>
+</body>
+</html>
