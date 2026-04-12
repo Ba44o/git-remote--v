@@ -78,10 +78,10 @@
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); 
             color: #F0EDE6; font-family: 'DM Sans', sans-serif; 
             font-size: 16px !important;
-            border-radius: 14px; outline: none; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            border-radius: 14px; outline: none; transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
             -webkit-appearance: none;
         }
-        label { position: absolute; left: 18px; top: 18px; font-family: 'DM Mono', monospace; font-size: 11px; color: #ccc; text-transform: uppercase; letter-spacing: 1.5px; pointer-events: none; transition: all 0.3s ease; }
+        label { position: absolute; left: 18px; top: 18px; font-family: 'DM Mono', monospace; font-size: 11px; color: #ccc; text-transform: uppercase; letter-spacing: 1.5px; pointer-events: none; transition: top 0.15s ease, font-size 0.15s ease, color 0.15s ease; }
         input:focus + label, input:not(:placeholder-shown) + label { top: 8px; font-size: 9px; color: #C9A96E; transform: translateX(2px); }
         input:focus { border-color: #C9A96E; background: rgba(255,255,255,0.06); box-shadow: 0 0 20px rgba(201, 169, 110, 0.1); }
 
