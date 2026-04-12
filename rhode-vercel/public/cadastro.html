@@ -81,7 +81,7 @@
             border-radius: 14px; outline: none; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
             -webkit-appearance: none;
         }
-        label { position: absolute; left: 18px; top: 18px; font-family: 'DM Mono', monospace; font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1.5px; pointer-events: none; transition: all 0.3s ease; }
+        label { position: absolute; left: 18px; top: 18px; font-family: 'DM Mono', monospace; font-size: 11px; color: #ccc; text-transform: uppercase; letter-spacing: 1.5px; pointer-events: none; transition: all 0.3s ease; }
         input:focus + label, input:not(:placeholder-shown) + label { top: 8px; font-size: 9px; color: #C9A96E; transform: translateX(2px); }
         input:focus { border-color: #C9A96E; background: rgba(255,255,255,0.06); box-shadow: 0 0 20px rgba(201, 169, 110, 0.1); }
 
@@ -111,6 +111,19 @@
         .reset-link:hover { color: #666; }
 
         .status-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: #C9A96E; margin-top: 12px; min-height: 18px; letter-spacing: 1px; }
+
+        @media (min-width: 481px) and (max-width: 1024px) {
+            body { padding: 40px 20px; align-items: center; overflow: auto; }
+            .container { max-width: 560px; padding: 55px 50px; }
+            .logo-main { font-size: 52px; }
+            h1 { font-size: 42px; }
+            p.subtitle { font-size: 15px; }
+            input { font-size: 17px !important; padding: 24px 20px 10px 20px; }
+            label { left: 20px; top: 20px; font-size: 12px; }
+            input:focus + label, input:not(:placeholder-shown) + label { top: 9px; font-size: 10px; }
+            .submit-btn, .whatsapp-btn { padding: 22px; font-size: 16px; }
+            .form-group { margin-bottom: 24px; }
+        }
 
         @media (max-width: 480px) {
             body { padding: 15px; }
