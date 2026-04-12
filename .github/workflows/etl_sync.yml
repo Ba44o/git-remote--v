@@ -5,6 +5,7 @@ on:
     paths:
       - "dados/creators/exports/**/*.xlsx"
       - "dados/creators/exports/**/*.csv"
+      - "agente_rhode/**/*.py"
   workflow_dispatch:
     inputs:
       reimport_all:
