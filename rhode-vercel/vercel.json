@@ -6,13 +6,6 @@
     "api/relay.js": { "maxDuration": 10 },
     "api/cron-recovery.js": { "maxDuration": 60 }
   },
-  "rewrites": [
-    {
-      "source": "/",
-      "has": [{ "type": "host", "value": "creators.rhodejeans.com.br" }],
-      "destination": "/cadastro.html"
-    }
-  ],
   "crons": [
     {
       "path": "/api/cron-recovery",
