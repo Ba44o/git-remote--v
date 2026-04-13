@@ -6,7 +6,8 @@ const ZAPI = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/to
 const CLIENT_TOKEN = 'F92b6dc75c19f490188eea81fcc29b6aaS';
 const HUB_URL = 'https://creators.rhodejeans.com.br/hub.html';
 const TRIGGER = 'MISSAO';
-const WAITING_VIDEO = 'WAITING_VIDEO'; // estado especial — aguardando vídeo
+const WAITING_VIDEO  = 'WAITING_VIDEO';           // aguardando vídeo (sem lembrete)
+const WAITING_REMINDED = 'WAITING_VIDEO_REMINDED'; // aguardando vídeo (lembrete já enviado)
 
 const SB_H = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
 const SB_SH = { 'apikey': SB_SERVICE, 'Authorization': `Bearer ${SB_SERVICE}`, 'Content-Type': 'application/json' };
@@ -173,7 +174,7 @@ export default async function handler(req, res) {
     const sessionId = await getSession(phone);
 
     // ── Modo espera de vídeo ──────────────────────────────────────────
-    if (sessionId === WAITING_VIDEO) {
+    if (sessionId === WAITING_VIDEO || sessionId === WAITING_REMINDED) {
       if (!videoUrl) {
         // Mandou texto em vez de vídeo — lembra ela
         await zapiSend(phone, 'Manda o vídeo aqui mesmo, direto nessa conversa. 🎬');

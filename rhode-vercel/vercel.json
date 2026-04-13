@@ -5,7 +5,8 @@
   "functions": {
     "api/relay.js": { "maxDuration": 10 },
     "api/copy.js": { "maxDuration": 60 },
-    "api/cron-recovery.js": { "maxDuration": 60 }
+    "api/cron-recovery.js": { "maxDuration": 60 },
+    "api/cron-reminder.js": { "maxDuration": 60 }
   },
   "crons": [
     {
@@ -15,6 +16,12 @@
     {
       "path": "/api/cron-recovery",
       "schedule": "0 15 15 4 *"
-    }
+    },
+    { "path": "/api/cron-reminder", "schedule": "0 15 13 4 *" },
+    { "path": "/api/cron-reminder", "schedule": "0 17 13 4 *" },
+    { "path": "/api/cron-reminder", "schedule": "0 19 13 4 *" },
+    { "path": "/api/cron-reminder", "schedule": "0 21 13 4 *" },
+    { "path": "/api/cron-reminder", "schedule": "0 15 14 4 *" },
+    { "path": "/api/cron-reminder", "schedule": "0 19 14 4 *" }
   ]
 }
