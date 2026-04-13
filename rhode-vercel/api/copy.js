@@ -194,7 +194,7 @@ Retorne APENAS um JSON válido com esta estrutura:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1200,
+        max_tokens: 2048,
         messages: [{ role: 'user', content: prompt }]
       })
     });
