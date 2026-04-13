@@ -193,7 +193,7 @@ Retorne APENAS um JSON válido com esta estrutura:
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-6',
+        model: 'claude-sonnet-4-6',
         max_tokens: 2048,
         messages: [{ role: 'user', content: prompt }]
       })

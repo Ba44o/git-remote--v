@@ -4,6 +4,7 @@
   "buildCommand": null,
   "functions": {
     "api/relay.js": { "maxDuration": 10 },
+    "api/copy.js": { "maxDuration": 60 },
     "api/cron-recovery.js": { "maxDuration": 60 }
   },
   "crons": [
