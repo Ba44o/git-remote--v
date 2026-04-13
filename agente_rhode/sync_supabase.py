@@ -26,8 +26,9 @@ HEADERS = {
     "Prefer": "resolution=merge-duplicates",
 }
 
-def upsert(table: str, rows: list[dict], chunk=500):
-    url = f"{SUPABASE_URL}/rest/v1/{table}"
+def upsert(table: str, rows: list[dict], chunk=500, on_conflict: str = ""):
+    params = f"?on_conflict={on_conflict}" if on_conflict else ""
+    url = f"{SUPABASE_URL}/rest/v1/{table}{params}"
     total = 0
     for i in range(0, len(rows), chunk):
         batch = rows[i:i+chunk]
@@ -51,7 +52,7 @@ def sync_affiliates():
             "last_updated_at": str(r.get("last_updated_at", "")) or None,
         })
     rows = [r for r in rows if r["affiliate_id"]]
-    upsert("affiliates", rows)
+    upsert("affiliates", rows, on_conflict="affiliate_id")
 
 def sync_performance_periods():
     df = pd.read_csv(WAREHOUSE / "raw_imports.csv").fillna("")
@@ -74,7 +75,7 @@ def sync_performance_periods():
             "tier":           str(r.get("tier", "")),
         })
     rows = [r for r in rows if r["affiliate_id"] and r["periodo"]]
-    upsert("performance_periods", rows)
+    upsert("performance_periods", rows, on_conflict="affiliate_id,periodo")
 
 JOBS = {
     "affiliates":           sync_affiliates,
