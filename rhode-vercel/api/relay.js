@@ -2,8 +2,12 @@ const SB_URL = 'https://ivzpykuluxcxefhyzfsf.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
 const SB_SERVICE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTczNzkzNiwiZXhwIjoyMDkxMzEzOTM2fQ.qlHnvGOnGSMwniuS_YYKQaQa-gD_F5asDQTIT2B42hk';
 const TYPEBOT_ID = 'rhode-miss-o-extra-ulvrj9s';
-const ZAPI = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3';
-const CLIENT_TOKEN = 'F92b6dc75c19f490188eea81fcc29b6aaS';
+// ─── TROCAR AQUI quando mudar de número ──────────────────────────────────────
+const ZAPI_INSTANCE  = '3F173410FA03D317C69AAAE399BC1248';
+const ZAPI_TOKEN     = '23F1D0021AF2CC2A39C7AFE3';
+const CLIENT_TOKEN   = 'F92b6dc75c19f490188eea81fcc29b6aaS';
+// ─────────────────────────────────────────────────────────────────────────────
+const ZAPI = `https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN}`;
 const HUB_URL = 'https://creators.rhodejeans.com.br/hub.html';
 const TRIGGER = 'MISSAO';
 const WAITING_VIDEO  = 'WAITING_VIDEO';           // aguardando vídeo (sem lembrete)
@@ -125,11 +129,17 @@ function parseMessages(data) {
 }
 
 async function zapiSend(phone, message) {
-  await fetch(`${ZAPI}/send-text`, {
+  const r = await fetch(`${ZAPI}/send-text`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Client-Token': CLIENT_TOKEN },
     body: JSON.stringify({ phone, message })
   });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || data?.error) {
+    console.error(`[zapi] falha ao enviar para ${phone.slice(-4)}****: ${JSON.stringify(data)}`);
+    throw new Error(`zapi_send_failed: ${data?.error || r.status}`);
+  }
+  return data;
 }
 
 function delay(ms) {
