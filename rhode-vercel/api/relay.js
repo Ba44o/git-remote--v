@@ -180,6 +180,14 @@ export default async function handler(req, res) {
 
   if (!phone) return res.status(200).json({ ok: true });
 
+  // Ignora mensagens com mais de 2 horas (evita replay de fila do Z-API)
+  const msgTs = body?.momment || body?.timestamp || 0;
+  const msgTsSec = msgTs > 9999999999 ? msgTs / 1000 : msgTs;
+  if (msgTsSec && (Date.now() / 1000 - msgTsSec) > 7200) {
+    console.log(`[relay] ignorando msg antiga (${Math.round((Date.now()/1000 - msgTsSec)/3600)}h atrás) de ${phone.slice(-4)}****`);
+    return res.status(200).json({ ok: true });
+  }
+
   try {
     const sessionId = await getSession(phone);
 
