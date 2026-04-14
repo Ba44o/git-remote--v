@@ -75,6 +75,11 @@ def sync_performance_periods():
             "tier":           str(r.get("tier", "")),
         })
     rows = [r for r in rows if r["affiliate_id"] and r["periodo"]]
+    # Deduplica por (affiliate_id, periodo) — mantém último registro
+    seen = {}
+    for r in rows:
+        seen[(r["affiliate_id"], r["periodo"])] = r
+    rows = list(seen.values())
     upsert("performance_periods", rows, on_conflict="affiliate_id,periodo")
 
 JOBS = {
