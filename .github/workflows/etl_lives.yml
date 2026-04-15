@@ -1,0 +1,43 @@
+name: Rhode ETL Lives - Supabase Sync
+
+on:
+  push:
+    paths:
+      - "dados/lives/exports/**/*.xlsx"
+  workflow_dispatch:
+    inputs:
+      reimport_all:
+        description: "Forçar reimportação de todos os arquivos"
+        required: false
+        default: "false"
+
+jobs:
+  etl-lives:
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install pandas openpyxl requests
+
+      - name: Rodar ETL Lives
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python agente_rhode/etl_lives.py --dir dados/lives/exports
+
+      - name: Resumo
+        run: echo "ETL Lives concluído — dados sincronizados no Supabase."
