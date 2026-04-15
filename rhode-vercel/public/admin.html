@@ -298,7 +298,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="tbl-head">
           <div class="tbl-title">Todos os Cadastros</div>
           <div style="display:flex;gap:10px;align-items:center">
-            <input class="search-input" id="ev-search" placeholder="Buscar handle..." oninput="filterEvento(this.value)" style="width:180px">
+            <input class="search-input" id="ev-search" placeholder="Handle, nome ou WhatsApp..." oninput="filterEvento(this.value)" style="width:240px">
             <div class="tbl-meta" id="ev-list-meta"></div>
           </div>
         </div>
@@ -477,8 +477,18 @@ function renderEventoPage(p){
 }
 
 function filterEvento(q){
-  const n=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-  EV_FILTERED=n?EV_DATA.filter(r=>(r.handle||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)||(r.nome||'').toLowerCase().includes(n)):[...EV_DATA];
+  const n=(q||'').replace(/\D/g,'');   // só dígitos → busca por telefone
+  const s=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  EV_FILTERED=q
+    ? EV_DATA.filter(r=>{
+        if(n.length>=4){
+          const wpp=(r.whatsapp||'').replace(/\D/g,'');
+          if(wpp.includes(n)) return true;
+        }
+        return (r.handle||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(s)
+            || (r.nome||'').toLowerCase().includes(s);
+      })
+    : [...EV_DATA];
   set('ev-list-meta',`${EV_FILTERED.length} registros`);
   renderEventoPage(1);
 }
