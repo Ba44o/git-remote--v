@@ -4,6 +4,6 @@ sync_ready.csv
 __pycache__/
 *.pyc
 .DS_Store
-public/
+/public/
 relatorios/
 dados/marketplace/tiktokshop/*.xlsx

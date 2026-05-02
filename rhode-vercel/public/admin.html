@@ -4,122 +4,390 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rhode Jeans · Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--void:#050505;--surface:rgba(10,10,10,0.7);--text:#F0EDE6;--muted:#888;--gold:#C9A96E;--red:#FE2C55;--cyan:#25F4EE;--border:rgba(255,255,255,0.08);--green:#4ade80;--orange:#fb923c}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--void);color:var(--text);min-height:100vh}
-.light{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
-.lr{width:600px;height:600px;background:var(--red);opacity:.1;top:-200px;left:-200px;animation:f1 9s ease-in-out infinite}
-.lc{width:700px;height:700px;background:var(--cyan);opacity:.06;bottom:-250px;right:-250px;animation:f2 11s ease-in-out infinite}
-@keyframes f1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,50px)}}
-@keyframes f2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-30px)}}
-.grid{position:fixed;inset:-100% 0 0 0;background:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,.01) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,.01) 60px);transform:perspective(500px) rotateX(60deg);transform-origin:50% 0;pointer-events:none;z-index:0}
-#adm-login{position:fixed;inset:0;background:var(--void);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px}
-.abox{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:380px;width:100%;backdrop-filter:blur(40px);box-shadow:0 40px 120px rgba(0,0,0,.95);text-align:center;animation:up .5s ease both}
-.alogo{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;letter-spacing:-1.5px;margin-bottom:4px}
-.adot{color:var(--gold)}
-.asub{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:36px}
-.field{position:relative;margin-bottom:16px;text-align:left}
-.finput{width:100%;padding:22px 16px 8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s}
-.finput::placeholder{color:transparent}
-.finput:focus{border-color:rgba(201,169,110,.4)}
-.flabel{position:absolute;left:16px;top:15px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);transition:top .18s,font-size .18s,color .18s;pointer-events:none}
-.finput:focus~.flabel,.finput:not(:placeholder-shown)~.flabel{top:7px;font-size:9px;color:var(--gold)}
-.btn-main{position:relative;width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;overflow:hidden;transition:transform .2s,box-shadow .2s}
-.btn-main::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:shimmer 2.5s infinite}
-.btn-main:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(254,44,85,.35)}
-@keyframes shimmer{to{left:150%}}
-.aerr{margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--red);min-height:16px}
-#adm-app{display:none;position:relative;z-index:1}
-.topbar{background:rgba(5,5,5,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;gap:16px}
-.tlogo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-.5px;flex-shrink:0}
-.tdot{color:var(--gold)}
+
+:root{
+  --canvas:#ffffff;
+  --parchment:#f5f5f7;
+  --pearl:#fafafc;
+  --tile-1:#272729;
+  --black:#000000;
+  --ink:#1d1d1f;
+  --on-dark:#ffffff;
+  --body-muted:#cccccc;
+  --ink-80:#333333;
+  --ink-48:#7a7a7a;
+  --hairline:#e0e0e0;
+  --divider-soft:#f0f0f0;
+
+  --rhode-red:#FE2C55;
+  --rhode-red-hover:#e8264c;
+  --rhode-red-on-dark:#ff6b8a;
+  --rhode-red-focus:#fe4869;
+
+  --green:#00796b;
+  --gold:#9a7030;
+  --orange:#c05e00;
+  --cyan:#0369a1;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Inter','SF Pro Text',system-ui,-apple-system,sans-serif;
+  background:var(--parchment);color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  font-feature-settings:'cv11','ss01','ss03';
+  letter-spacing:-0.011em;
+}
+
+/* ── Login ── */
+#adm-login{position:fixed;inset:0;background:var(--parchment);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px}
+.abox{
+  background:var(--canvas);border:1px solid rgba(0,0,0,0.05);border-radius:18px;
+  padding:48px 36px;max-width:380px;width:100%;text-align:center;
+}
+.alogo{font-weight:700;font-size:28px;letter-spacing:-0.022em;margin-bottom:6px;color:var(--ink)}
+.adot{color:var(--rhode-red)}
+.asub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-48);margin-bottom:32px;font-weight:500}
+.field{position:relative;margin-bottom:14px;text-align:left}
+.finput{
+  width:100%;padding:14px 16px;background:var(--canvas);
+  border:1px solid var(--hairline);border-radius:11px;
+  font-family:'Inter',sans-serif;font-size:17px;color:var(--ink);
+  outline:none;transition:border-color .15s ease,box-shadow .15s ease;
+  letter-spacing:-0.022em;
+}
+.finput::placeholder{color:var(--ink-48)}
+.finput:focus{border-color:var(--rhode-red);box-shadow:0 0 0 3px rgba(254,44,85,0.08)}
+.flabel{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);margin-bottom:8px;font-weight:500}
+.btn-main{
+  width:100%;padding:13px 22px;background:var(--rhode-red);color:#fff;
+  border:none;border-radius:9999px;
+  font-family:'Inter',sans-serif;font-size:17px;font-weight:500;letter-spacing:-0.022em;
+  cursor:pointer;transition:transform .12s ease,background .15s ease;
+  margin-top:6px;
+}
+.btn-main:hover{background:var(--rhode-red-hover)}
+.btn-main:active{transform:scale(.97)}
+.aerr{margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rhode-red);min-height:16px;letter-spacing:0.04em}
+
+/* ── App ── */
+#adm-app{display:none}
+
+.topbar{
+  background:rgba(255,255,255,0.85);backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;
+  height:56px;position:sticky;top:0;z-index:100;gap:16px;
+}
+.tlogo{font-weight:700;font-size:18px;letter-spacing:-0.022em;color:var(--ink);flex-shrink:0}
+.tdot{color:var(--rhode-red)}
+.tlogo small{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-left:8px}
 .tright{display:flex;align-items:center;gap:12px}
-.tstatus{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.5px}
-.tbtn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
-.tbtn:hover{border-color:var(--gold);color:var(--gold)}
-.pbar-wrap{background:rgba(5,5,5,.6);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tstatus{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;color:var(--ink-48)}
+.tbtn{
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;letter-spacing:-0.011em;
+  padding:7px 14px;border:1px solid var(--hairline);border-radius:99px;
+  background:var(--canvas);color:var(--ink);cursor:pointer;
+  transition:all .15s ease;
+}
+.tbtn:hover{border-color:var(--ink)}
+.tbtn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── Period bar ── */
+.pbar-wrap{
+  background:rgba(255,255,255,0.65);backdrop-filter:saturate(180%) blur(16px);
+  -webkit-backdrop-filter:saturate(180%) blur(16px);
+  border-bottom:1px solid rgba(0,0,0,0.05);
+  padding:12px 24px;display:flex;align-items:center;gap:8px;
+  overflow-x:auto;scrollbar-width:none;
+  position:sticky;top:56px;z-index:99;
+}
 .pbar-wrap::-webkit-scrollbar{display:none}
-.pbar-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);flex-shrink:0;margin-right:4px}
-.pbtn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.5px;padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
-.pbtn.on{background:rgba(201,169,110,.1);border-color:var(--gold);color:var(--gold)}
-.pbtn:hover:not(.on){border-color:rgba(255,255,255,.2);color:var(--text)}
-.tabs-nav{display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:rgba(5,5,5,.4)}
-.tab{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:14px 20px;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;flex-shrink:0}
-.tab.on{color:var(--gold);border-bottom-color:var(--gold)}
-.tab:hover:not(.on){color:var(--text)}
+.pbar-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-48);flex-shrink:0;margin-right:6px;font-weight:500}
+.pbtn{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;
+  padding:5px 12px;border:1px solid var(--hairline);border-radius:99px;
+  background:var(--canvas);color:var(--ink-48);cursor:pointer;
+  white-space:nowrap;transition:all .15s ease;flex-shrink:0;font-weight:500;
+}
+.pbtn.on{background:var(--rhode-red);border-color:var(--rhode-red);color:#fff}
+.pbtn:hover:not(.on){border-color:var(--ink);color:var(--ink)}
+
+/* ── Tabs ── */
+.tabs-nav{
+  display:flex;border-bottom:1px solid rgba(0,0,0,0.05);
+  padding:0 24px;background:var(--canvas);
+  overflow-x:auto;scrollbar-width:none;
+}
+.tabs-nav::-webkit-scrollbar{display:none}
+.tab{
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:-0.011em;
+  padding:14px 18px;color:var(--ink-48);cursor:pointer;
+  border:none;background:transparent;
+  border-bottom:2px solid transparent;
+  transition:color .15s ease,border-color .15s ease;
+  flex-shrink:0;
+}
+.tab.on{color:var(--rhode-red);border-bottom-color:var(--rhode-red)}
+.tab:hover:not(.on){color:var(--ink)}
+
 .panel{display:none}.panel.on{display:block}
-.main{max-width:1400px;margin:0 auto;padding:24px 20px 80px}
+.main{max-width:1400px;margin:0 auto;padding:32px 24px 80px}
+
+/* ── KPI grid ── */
 .kgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
-.kcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;backdrop-filter:blur(20px);animation:up .4s ease both}
-.klabel{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.kval{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;letter-spacing:-1px;margin-bottom:4px}
-.ksub{font-size:10px;color:var(--muted)}
-.up{color:var(--green)}.dn{color:var(--red)}.or{color:var(--orange)}
-.tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;backdrop-filter:blur(20px);margin-bottom:20px;animation:up .4s ease both}
-.tbl-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
-.tbl-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
-.tbl-meta{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.5px;color:var(--cyan)}
-.tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;white-space:nowrap}
+.kcard{
+  background:var(--canvas);border:1px solid rgba(0,0,0,0.05);
+  border-radius:14px;padding:20px;
+}
+.klabel{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--ink-48);margin-bottom:10px;font-weight:500;
+}
+.kval{font-family:'Inter',sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.022em;line-height:1.05;margin-bottom:4px;color:var(--ink)}
+.ksub{font-size:12px;color:var(--ink-48);font-weight:400;letter-spacing:-0.006em}
+.up{color:var(--green)}.dn{color:var(--rhode-red)}.or{color:var(--orange)}
+
+/* ── Table card ── */
+.tbl-card{
+  background:var(--canvas);border:1px solid rgba(0,0,0,0.05);
+  border-radius:14px;overflow:hidden;margin-bottom:16px;
+}
+.tbl-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--divider-soft);gap:10px;flex-wrap:wrap;
+}
+.tbl-title{font-family:'Inter',sans-serif;font-weight:600;font-size:15px;letter-spacing:-0.022em;color:var(--ink)}
+.tbl-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;color:var(--ink-48);font-weight:500}
+
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse}
+th{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--ink-48);font-weight:500;
+  padding:12px 16px;text-align:left;border-bottom:1px solid var(--divider-soft);white-space:nowrap;
+  background:var(--pearl);
+}
+td{
+  padding:12px 16px;border-bottom:1px solid var(--divider-soft);
+  font-size:13px;white-space:nowrap;color:var(--ink);font-weight:400;letter-spacing:-0.006em;
+}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,.02)}
-.lk{color:var(--cyan);cursor:pointer;text-decoration:none;font-family:'DM Mono',monospace;font-size:11px}
-.lk:hover{color:var(--gold)}
-.mono{font-family:'DM Mono',monospace}
-.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.5px;padding:2px 8px;border-radius:99px;font-weight:500}
-.b-green{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)}
-.b-red{background:rgba(254,44,85,.1);color:var(--red);border:1px solid rgba(254,44,85,.2)}
-.b-orange{background:rgba(251,146,60,.1);color:var(--orange);border:1px solid rgba(251,146,60,.2)}
-.b-gold{background:rgba(201,169,110,.1);color:var(--gold);border:1px solid rgba(201,169,110,.2)}
-.b-cyan{background:rgba(37,244,238,.1);color:var(--cyan);border:1px solid rgba(37,244,238,.2)}
-.b-gray{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border)}
-.alert{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start}
-.alert-r{border-left:3px solid var(--red)}.alert-g{border-left:3px solid var(--green)}
-.alert strong{font-size:13px;display:block;margin-bottom:3px}.alert span{font-size:11px;color:var(--muted)}
-.delta{font-family:'DM Mono',monospace;font-size:11px}
-.d-up{color:var(--green)}.d-dn{color:var(--red)}.d-nt{color:var(--muted)}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-.bar{height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;margin-top:4px}
-.bar-fill{height:100%;border-radius:99px}
-.search-wrap{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.search-input{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text);outline:none;width:220px;transition:border-color .2s}
-.search-input:focus{border-color:rgba(201,169,110,.3)}
-.search-input::placeholder{color:var(--muted)}
-.pag{display:flex;align-items:center;gap:10px;padding:12px 16px}
-.pag button{font-family:'DM Mono',monospace;font-size:10px;padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
-.pag button:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+tr:hover td{background:rgba(254,44,85,0.015)}
+
+.lk{color:var(--rhode-red);cursor:pointer;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.02em}
+.lk:hover{color:var(--rhode-red-hover);text-decoration:underline}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.02em}
+
+/* ── Badges ── */
+.badge{
+  display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:0.08em;padding:3px 9px;border-radius:99px;font-weight:500;
+}
+.b-green{background:rgba(0,121,107,0.08);color:var(--green);border:1px solid rgba(0,121,107,0.18)}
+.b-red{background:rgba(254,44,85,0.08);color:var(--rhode-red);border:1px solid rgba(254,44,85,0.2)}
+.b-orange{background:rgba(192,94,0,0.08);color:var(--orange);border:1px solid rgba(192,94,0,0.18)}
+.b-gold{background:rgba(154,112,48,0.08);color:var(--gold);border:1px solid rgba(154,112,48,0.18)}
+.b-cyan{background:rgba(3,105,161,0.08);color:var(--cyan);border:1px solid rgba(3,105,161,0.18)}
+.b-gray{background:var(--parchment);color:var(--ink-48);border:1px solid var(--hairline)}
+
+/* ── Alerts ── */
+.alert{
+  background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;
+  padding:18px 22px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;
+}
+.alert-r{border-left:3px solid var(--rhode-red)}
+.alert-g{border-left:3px solid var(--green)}
+.alert strong{font-size:14px;font-weight:600;display:block;margin-bottom:4px;letter-spacing:-0.011em;color:var(--ink)}
+.alert span{font-size:13px;color:var(--ink-48);letter-spacing:-0.006em}
+
+/* ── Delta ── */
+.delta{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.02em;font-weight:500}
+.d-up{color:var(--green)}.d-dn{color:var(--rhode-red)}.d-nt{color:var(--ink-48)}
+
+/* ── Layout ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+
+/* ── Bars ── */
+.bar{height:4px;background:rgba(0,0,0,0.06);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar-fill{height:100%;border-radius:99px;transition:width .9s ease}
+
+/* ── Search ── */
+.search-wrap{padding:14px 20px;border-bottom:1px solid var(--divider-soft);display:flex;align-items:center;gap:10px;background:var(--pearl)}
+.search-input{
+  background:var(--canvas);border:1px solid var(--hairline);border-radius:9px;
+  padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);
+  outline:none;width:240px;transition:border-color .15s ease,box-shadow .15s ease;
+  letter-spacing:0.02em;
+}
+.search-input:focus{border-color:var(--rhode-red);box-shadow:0 0 0 3px rgba(254,44,85,0.08)}
+.search-input::placeholder{color:var(--ink-48)}
+
+/* ── Pagination ── */
+.pag{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--pearl);border-top:1px solid var(--divider-soft)}
+.pag button{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;letter-spacing:-0.011em;
+  padding:6px 14px;border:1px solid var(--hairline);border-radius:99px;
+  background:var(--canvas);color:var(--ink);cursor:pointer;transition:all .15s ease;
+}
+.pag button:hover:not(:disabled){border-color:var(--ink)}
 .pag button:disabled{opacity:.3;cursor:not-allowed}
-.pag-info{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.pag-info{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.04em}
+
+/* ── Modal ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(29,29,31,0.55);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;z-index:1000;padding:16px;
+}
 .modal-bg.on{display:flex}
-.modal{background:#0a0a0a;border:1px solid var(--border);border-radius:20px;max-width:860px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 40px 120px rgba(0,0,0,.95)}
-.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
-.modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
-.modal-x{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:18px;transition:all .2s}
-.modal-x:hover{border-color:var(--red);color:var(--red)}
+.modal{
+  background:var(--canvas);border:1px solid rgba(0,0,0,0.05);border-radius:18px;
+  max-width:920px;width:100%;max-height:88vh;display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--divider-soft)}
+.modal-title{font-family:'Inter',sans-serif;font-weight:600;font-size:17px;letter-spacing:-0.022em;color:var(--ink)}
+.modal-x{
+  width:32px;height:32px;border:1px solid var(--hairline);border-radius:99px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--ink-48);font-size:18px;background:var(--canvas);
+  transition:all .15s ease;
+}
+.modal-x:hover{border-color:var(--ink);color:var(--ink)}
 .modal-body{overflow-y:auto;padding:20px 24px}
-.evo-tl{display:flex;gap:6px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+
+/* ── Evolução timeline ── */
+.evo-tl{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
 .evo-tl::-webkit-scrollbar{display:none}
-.spin,.empty{text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px}
-@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:1100px){.kgrid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:700px){.kgrid{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.main{padding:16px 12px 60px}}
+
+/* ── States ── */
+.spin,.empty{
+  text-align:center;padding:48px 24px;color:var(--ink-48);
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;
+}
+
+/* ── Live dot animation ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── Analyst quadrants ── */
+.quad{
+  background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;
+  padding:20px;position:relative;
+}
+.quad-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px}
+.quad-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-48);margin-bottom:6px;font-weight:500}
+.quad-title{font-weight:600;font-size:18px;letter-spacing:-0.022em;color:var(--ink);line-height:1.15}
+.quad-count{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:3px 9px;border-radius:99px;font-weight:500}
+.q-star{border-color:rgba(0,121,107,0.25)}
+.q-star .quad-count{background:rgba(0,121,107,0.08);color:var(--green)}
+.q-cash{border-color:rgba(192,94,0,0.25)}
+.q-cash .quad-count{background:rgba(192,94,0,0.08);color:var(--orange)}
+.q-gem{border-color:rgba(254,44,85,0.25)}
+.q-gem .quad-count{background:rgba(254,44,85,0.08);color:var(--rhode-red)}
+.q-dorm{border-color:var(--hairline)}
+.q-dorm .quad-count{background:var(--parchment);color:var(--ink-48)}
+.quad-desc{font-size:13px;color:var(--ink-48);line-height:1.45;letter-spacing:-0.006em;margin-bottom:14px}
+.quad-list{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--divider-soft);padding-top:14px}
+.quad-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;letter-spacing:-0.006em}
+.quad-row .qhandle{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--rhode-red);cursor:pointer;letter-spacing:0.02em}
+.quad-row .qhandle:hover{text-decoration:underline}
+.quad-row .qval{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-48);letter-spacing:0.02em}
+.quad-action{margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.04em;line-height:1.5;font-weight:500;background:var(--parchment);padding:10px 12px;border-radius:8px}
+.quad-action strong{color:var(--ink);font-weight:600}
+
+/* ── Cognitive summary ── */
+.cog-grid{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:start}
+.cog-score{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--parchment);border-radius:14px;padding:24px 28px;min-width:180px;
+}
+.cog-score-num{font-weight:600;font-size:56px;letter-spacing:-0.032em;line-height:1;color:var(--ink)}
+.cog-score-num .sm{font-size:24px;color:var(--ink-48);font-weight:400}
+.cog-grade{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--rhode-red);margin-top:10px;font-weight:500}
+.cog-headline{font-weight:600;font-size:24px;letter-spacing:-0.022em;line-height:1.2;color:var(--ink);margin-bottom:14px}
+.cog-summary{font-size:15px;line-height:1.55;color:var(--ink-80);letter-spacing:-0.006em;margin-bottom:22px}
+.cog-section-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-48);margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--divider-soft);font-weight:500}
+.cog-dim-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cog-dim{background:var(--canvas);border:1px solid var(--hairline);border-radius:11px;padding:14px 16px}
+.cog-dim-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cog-dim-name{font-weight:600;font-size:13px;letter-spacing:-0.011em;color:var(--ink)}
+.cog-dim-score{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:0.02em}
+.cog-dim-bar{height:3px;background:rgba(0,0,0,0.06);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.cog-dim-fill{height:100%;border-radius:99px;transition:width 1s ease}
+.cog-dim-text{font-size:12px;line-height:1.45;color:var(--ink-48);letter-spacing:-0.006em}
+.cog-diag-list{display:flex;flex-direction:column;gap:8px}
+.cog-diag{padding:14px 16px;border-radius:11px;border-left:3px solid;background:var(--canvas);border-right:1px solid var(--hairline);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
+.cog-diag.tipo-critico{border-left-color:var(--rhode-red)}
+.cog-diag.tipo-alerta{border-left-color:var(--orange)}
+.cog-diag.tipo-positivo{border-left-color:var(--green)}
+.cog-diag-title{font-weight:600;font-size:14px;letter-spacing:-0.011em;margin-bottom:5px;color:var(--ink)}
+.cog-diag-desc{font-size:13px;line-height:1.45;color:var(--ink-80);letter-spacing:-0.006em;margin-bottom:6px}
+.cog-diag-impact{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rhode-red);letter-spacing:0.04em;font-weight:500}
+.cog-rec-list{display:flex;flex-direction:column;gap:10px}
+.cog-rec{display:flex;gap:14px;background:var(--parchment);border-radius:11px;padding:14px 16px;border:1px solid transparent}
+.cog-rec-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--rhode-red);letter-spacing:-0.022em;line-height:1;flex-shrink:0;width:30px}
+.cog-rec-body{flex:1}
+.cog-rec-title{font-weight:600;font-size:14px;letter-spacing:-0.011em;color:var(--ink);margin-bottom:6px}
+.cog-rec-how{font-size:13px;line-height:1.5;color:var(--ink-80);letter-spacing:-0.006em;margin-bottom:8px}
+.cog-rec-meta{display:flex;gap:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.04em}
+.cog-rec-meta strong{color:var(--rhode-red);font-weight:500}
+.cog-insight{
+  background:var(--tile-1);color:var(--on-dark);border-radius:14px;padding:22px 24px;margin-top:24px;
+  position:relative;overflow:hidden;
+}
+.cog-insight::before{content:'';position:absolute;top:0;left:24px;right:24px;height:1px;background:linear-gradient(90deg,transparent,var(--rhode-red-on-dark),transparent);opacity:0.7}
+.cog-insight-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--rhode-red-on-dark);margin-bottom:10px;font-weight:500}
+.cog-insight-text{font-size:15px;line-height:1.55;color:var(--on-dark);font-weight:300;letter-spacing:0.011em}
+
+/* ── Creator AI modal ── */
+.creator-ai-block{margin-top:24px;border-top:1px solid var(--divider-soft);padding-top:20px}
+.creator-ai-cta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.creator-ai-title{font-weight:600;font-size:15px;letter-spacing:-0.022em}
+.creator-ai-body{display:none}
+.creator-ai-body.show{display:block}
+.creator-perfil-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.creator-perfil-pill{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:5px 12px;border-radius:99px;background:var(--parchment);color:var(--ink-80);border:1px solid var(--hairline);font-weight:500}
+.creator-tags{display:flex;flex-direction:column;gap:6px}
+.creator-tag-row{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.5;letter-spacing:-0.006em}
+.creator-tag-row.forca::before{content:'+';color:var(--green);font-weight:700;flex-shrink:0;width:14px;font-family:'JetBrains Mono',monospace}
+.creator-tag-row.risco::before{content:'!';color:var(--rhode-red);font-weight:700;flex-shrink:0;width:14px;font-family:'JetBrains Mono',monospace}
+.creator-traj-pill{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:99px;font-weight:500}
+.traj-acelerando{background:rgba(0,121,107,0.08);color:var(--green);border:1px solid rgba(0,121,107,0.18)}
+.traj-estavel{background:var(--parchment);color:var(--ink-48);border:1px solid var(--hairline)}
+.traj-desacelerando{background:rgba(192,94,0,0.08);color:var(--orange);border:1px solid rgba(192,94,0,0.18)}
+.traj-instavel{background:rgba(254,44,85,0.08);color:var(--rhode-red);border:1px solid rgba(254,44,85,0.2)}
+
+/* ── Responsive ── */
+@media(max-width:1100px){
+  .kgrid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:700px){
+  .kgrid{grid-template-columns:repeat(2,1fr)}
+  .g2{grid-template-columns:1fr}
+  .main{padding:20px 16px 60px}
+  .topbar{padding:0 16px}
+  .pbar-wrap{padding:10px 16px}
+  .tabs-nav{padding:0 16px}
+}
 </style>
 </head>
 <body>
-<div class="light lr"></div>
-<div class="light lc"></div>
-<div class="grid"></div>
 
 <div id="adm-login">
   <div class="abox">
-    <div class="alogo">Rhode<span class="adot">.</span> Admin</div>
-    <div class="asub">Acesso restrito</div>
-    <div class="field"><input id="adm-pass" class="finput" type="password" placeholder=" " onkeydown="if(event.key==='Enter')admLogin()"><label class="flabel">Senha de acesso</label></div>
+    <div class="alogo">Rhode<span class="adot">.</span></div>
+    <div class="asub">Admin · Acesso restrito</div>
+    <div class="field">
+      <label class="flabel">Senha</label>
+      <input id="adm-pass" class="finput" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')admLogin()">
+    </div>
     <button class="btn-main" onclick="admLogin()">Entrar</button>
     <div class="aerr" id="adm-err"></div>
   </div>
@@ -127,16 +395,25 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <div id="adm-app">
   <div class="topbar">
-    <div class="tlogo">Rhode<span class="tdot">.</span> Admin</div>
-    <div class="tright"><span class="tstatus" id="st"></span><button class="tbtn" id="btn-sync" onclick="syncAll()">↻ Sincronizar</button></div>
+    <div class="tlogo">Rhode<span class="tdot">.</span><small>Admin</small></div>
+    <div class="tright">
+      <span class="tstatus" id="st"></span>
+      <button class="tbtn" id="btn-sync" onclick="syncAll()">↻ Sincronizar</button>
+    </div>
   </div>
-  <div class="pbar-wrap"><span class="pbar-label">Período</span><div id="period-bar"></div></div>
+
+  <div class="pbar-wrap">
+    <span class="pbar-label">Período</span>
+    <div id="period-bar" style="display:flex;gap:6px"></div>
+  </div>
+
   <div class="tabs-nav">
     <button class="tab on" onclick="tab('dashboard',this)">Dashboard</button>
     <button class="tab" onclick="tab('ranking',this)">Ranking</button>
     <button class="tab" onclick="tab('alertas',this)">Alertas</button>
     <button class="tab" onclick="tab('evolucao',this)">Evolução</button>
-    <button class="tab" onclick="tab('evento',this)" style="color:var(--cyan);border-bottom:2px solid transparent">⚡ Evento 13/04</button>
+    <button class="tab" onclick="tab('analista',this)">Analista IA</button>
+    <button class="tab" onclick="tab('evento',this)">Evento 13/04</button>
   </div>
 
   <div class="panel on" id="panel-dashboard">
@@ -153,8 +430,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="g2">
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Top 10 Creators</div><div class="tbl-meta" id="top-meta"></div></div>
-          <table><thead><tr><th>#</th><th>Creator</th><th>GMV Líq.</th><th>Refund</th><th>Pedidos</th><th>Tier</th></tr></thead>
-          <tbody id="top-body"><tr><td colspan="6" class="spin">Sincronize para carregar</td></tr></tbody></table>
+          <div class="tw"><table>
+            <thead><tr><th>#</th><th>Creator</th><th>GMV Líq.</th><th>Refund</th><th>Pedidos</th><th>Tier</th></tr></thead>
+            <tbody id="top-body"><tr><td colspan="6" class="spin">Sincronize para carregar</td></tr></tbody>
+          </table></div>
         </div>
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Concentração GMV</div><div class="tbl-meta" id="conc-meta"></div></div>
@@ -164,13 +443,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="g2">
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Refund Crítico</div><div class="tbl-meta" id="crit-meta"></div></div>
-          <table><thead><tr><th>Creator</th><th>GMV Bruto</th><th>Refund</th></tr></thead>
-          <tbody id="crit-body"></tbody></table>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>GMV Bruto</th><th>Refund</th></tr></thead>
+            <tbody id="crit-body"></tbody>
+          </table></div>
         </div>
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Próximas do Upgrade</div><div class="tbl-meta" id="up-meta"></div></div>
-          <table><thead><tr><th>Creator</th><th>GMV</th><th>Tier</th><th>Falta</th></tr></thead>
-          <tbody id="up-body"></tbody></table>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>GMV</th><th>Tier</th><th>Falta</th></tr></thead>
+            <tbody id="up-body"></tbody>
+          </table></div>
         </div>
       </div>
     </div>
@@ -195,19 +478,25 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="g2">
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Refund Crítico &gt;25%</div><div class="tbl-meta" id="al-ref-meta"></div></div>
-          <table><thead><tr><th>Creator</th><th>GMV Bruto</th><th>Reimb.</th><th>Refund</th></tr></thead>
-          <tbody id="al-ref-body"></tbody></table>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>GMV Bruto</th><th>Reimb.</th><th>Refund</th></tr></thead>
+            <tbody id="al-ref-body"></tbody>
+          </table></div>
         </div>
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Potencial Não Explorado</div></div>
-          <table><thead><tr><th>Creator</th><th>GMV</th><th>AOV</th><th>Conteúdo</th></tr></thead>
-          <tbody id="al-pot-body"></tbody></table>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>GMV</th><th>AOV</th><th>Conteúdo</th></tr></thead>
+            <tbody id="al-pot-body"></tbody>
+          </table></div>
         </div>
       </div>
       <div class="tbl-card">
         <div class="tbl-head"><div class="tbl-title">Creators Inativas</div><div class="tbl-meta" id="al-in-meta"></div></div>
-        <table><thead><tr><th>Creator</th><th>Vídeos</th><th>Lives</th></tr></thead>
-        <tbody id="al-in-body"></tbody></table>
+        <div class="tw"><table>
+          <thead><tr><th>Creator</th><th>Vídeos</th><th>Lives</th></tr></thead>
+          <tbody id="al-in-body"></tbody>
+        </table></div>
       </div>
     </div>
   </div>
@@ -224,26 +513,87 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
     </div>
   </div>
-</div>
+
+  <div class="panel" id="panel-analista">
+    <div class="main">
+      <!-- Hero do Analista -->
+      <div style="background:var(--tile-1);color:var(--on-dark);border-radius:18px;padding:36px 32px;margin-bottom:20px;position:relative;overflow:hidden">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--rhode-red-on-dark);margin-bottom:14px;font-weight:500">Analista Cognitivo · Powered by Claude</div>
+        <div style="font-weight:600;font-size:34px;line-height:1.1;letter-spacing:-0.025em;margin-bottom:14px">Diagnóstico inteligente do programa e por creator.</div>
+        <div style="font-size:17px;color:var(--body-muted);max-width:600px;line-height:1.45;letter-spacing:0.011em;font-weight:300">Detecção automática de oportunidades, anomalias estatísticas e movimento — somado a análises IA sob demanda para qualquer creator individual.</div>
+      </div>
+
+      <!-- Resumo Cognitivo IA -->
+      <div class="tbl-card" style="margin-bottom:16px">
+        <div class="tbl-head">
+          <div class="tbl-title">Resumo Cognitivo do Período</div>
+          <button class="tbtn" id="btn-cognitive" onclick="generateCognitive()">↻ Gerar análise IA</button>
+        </div>
+        <div id="cognitive-body" style="padding:28px 24px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-48);text-align:center;padding:32px 16px;letter-spacing:0.06em">
+            CLIQUE EM "GERAR ANÁLISE IA" PARA O DIAGNÓSTICO DO PERÍODO
+          </div>
+        </div>
+      </div>
+
+      <!-- Matriz de Oportunidade -->
+      <div class="tbl-card" style="margin-bottom:16px">
+        <div class="tbl-head">
+          <div>
+            <div class="tbl-title">Matriz de Oportunidade</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.06em">GMV × Eficiência (AOV + Refund)</div>
+          </div>
+          <div class="tbl-meta" id="matrix-meta"></div>
+        </div>
+        <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px" id="matrix-body">
+          <div class="empty">Sincronize para classificar creators.</div>
+        </div>
+      </div>
+
+      <!-- Anomalias + Movimento -->
+      <div class="g2">
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-title">Anomalias Detectadas</div>
+            <div class="tbl-meta" id="anom-meta"></div>
+          </div>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>Anomalia</th><th>Severidade</th></tr></thead>
+            <tbody id="anom-body"></tbody>
+          </table></div>
+        </div>
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-title">Movimento do Período</div>
+            <div class="tbl-meta" id="mov-meta"></div>
+          </div>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>Δ GMV</th><th>Tendência</th></tr></thead>
+            <tbody id="mov-body"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="panel" id="panel-evento">
     <div class="main">
 
-      <!-- ── TOP CREATORS VIP — FEED DINÂMICO ────────────────────────── -->
-      <div class="tbl-card" style="margin-bottom:24px;border-color:rgba(201,169,110,.4)">
-        <div class="tbl-head" style="background:rgba(201,169,110,.07)">
+      <!-- VIPs Detectadas -->
+      <div class="tbl-card" style="margin-bottom:20px;border-color:rgba(254,44,85,0.2)">
+        <div class="tbl-head" style="background:rgba(254,44,85,0.025)">
           <div style="display:flex;align-items:center;gap:10px">
-            <div class="tbl-title" style="color:var(--gold)">⭐ VIPs Detectadas — Stand Santana Têxtil</div>
-            <span id="vip-live-dot" style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.5s infinite"></span>
-            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)" id="vip-refresh-info">ao vivo</span>
+            <div class="tbl-title" style="color:var(--rhode-red)">VIPs Detectadas — Stand Santana Têxtil</div>
+            <span id="vip-live-dot" style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.5s infinite"></span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-48);letter-spacing:0.04em" id="vip-refresh-info">ao vivo</span>
           </div>
           <div style="display:flex;gap:10px;align-items:center">
-            <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold)" id="vip-progress">—</span>
-            <button class="tbtn" onclick="resetVIP()" style="font-size:9px;padding:4px 10px">↺ Limpar check-ins</button>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rhode-red);letter-spacing:0.04em;font-weight:500" id="vip-progress">—</span>
+            <button class="tbtn" onclick="resetVIP()" style="font-size:11px">↺ Limpar check-ins</button>
           </div>
         </div>
-        <div id="vip-empty" style="padding:20px 24px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);display:none">
-          Aguardando cadastros de Diamante, Ouro ou Prata... atualizando a cada 30s.
+        <div id="vip-empty" style="padding:24px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-48);display:none;letter-spacing:0.06em;text-align:center">
+          Aguardando cadastros de Diamante, Ouro ou Prata · atualizando a cada 30s.
         </div>
         <div class="tw" id="vip-table-wrap">
           <table>
@@ -258,46 +608,45 @@ tr:hover td{background:rgba(255,255,255,.02)}
           </table>
         </div>
       </div>
-      <style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}</style>
 
       <!-- KPIs do evento -->
-      <div class="kgrid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+      <div class="kgrid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">
         <div class="kcard"><div class="klabel">Cadastros no Evento</div><div class="kval" id="ev-total">—</div><div class="ksub" id="ev-total-s"></div></div>
-        <div class="kcard"><div class="klabel">Já Eram Afiliadas</div><div class="kval" id="ev-known" style="color:var(--gold)">—</div><div class="ksub">na base antes do evento</div></div>
-        <div class="kcard"><div class="klabel">Novas Captadas</div><div class="kval" id="ev-new" style="color:var(--cyan)">—</div><div class="ksub">novos registros</div></div>
-        <div class="kcard"><div class="klabel">Missão Iniciada</div><div class="kval" id="ev-missao" style="color:var(--green)">—</div><div class="ksub" id="ev-missao-s">bot ativado</div></div>
-        <div class="kcard"><div class="klabel">Vídeo Recebido</div><div class="kval" id="ev-video" style="color:var(--gold)">—</div><div class="ksub">link enviado</div></div>
+        <div class="kcard"><div class="klabel">Já Eram Afiliadas</div><div class="kval" id="ev-known">—</div><div class="ksub">na base antes do evento</div></div>
+        <div class="kcard"><div class="klabel">Novas Captadas</div><div class="kval" id="ev-new">—</div><div class="ksub">novos registros</div></div>
+        <div class="kcard"><div class="klabel">Missão Iniciada</div><div class="kval" id="ev-missao">—</div><div class="ksub" id="ev-missao-s">bot ativado</div></div>
+        <div class="kcard"><div class="klabel">Vídeo Recebido</div><div class="kval" id="ev-video">—</div><div class="ksub">link enviado</div></div>
       </div>
 
       <!-- Breakdown por turno -->
-      <div class="g2" style="margin-bottom:20px">
+      <div class="g2" style="margin-bottom:16px">
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Turno 13h–15h</div><div class="tbl-meta" id="ev-t1-meta"></div></div>
-          <div style="padding:16px 20px">
+          <div style="padding:18px 20px">
             <div id="ev-t1-bar" style="margin-bottom:8px"></div>
-            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="ev-t1-info">—</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-48);letter-spacing:0.04em" id="ev-t1-info">—</div>
           </div>
         </div>
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Turno 15h–17h</div><div class="tbl-meta" id="ev-t2-meta"></div></div>
-          <div style="padding:16px 20px">
+          <div style="padding:18px 20px">
             <div id="ev-t2-bar" style="margin-bottom:8px"></div>
-            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="ev-t2-info">—</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-48);letter-spacing:0.04em" id="ev-t2-info">—</div>
           </div>
         </div>
       </div>
 
-      <!-- Afiliadas que vieram ao evento — breakdown por tier -->
-      <div class="tbl-card" style="margin-bottom:20px">
+      <!-- Por tier -->
+      <div class="tbl-card" style="margin-bottom:16px">
         <div class="tbl-head"><div class="tbl-title">Afiliadas no Evento — por Tier</div><div class="tbl-meta" id="ev-tier-meta"></div></div>
-        <div style="padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap" id="ev-tier-pills"></div>
+        <div style="padding:18px 20px;display:flex;gap:12px;flex-wrap:wrap" id="ev-tier-pills"></div>
       </div>
 
-      <!-- Tabela de cadastros -->
+      <!-- Cadastros -->
       <div class="tbl-card">
         <div class="tbl-head">
           <div class="tbl-title">Todos os Cadastros</div>
-          <div style="display:flex;gap:10px;align-items:center">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <input class="search-input" id="ev-search" placeholder="Handle, nome ou WhatsApp..." oninput="filterEvento(this.value)" style="width:240px">
             <div class="tbl-meta" id="ev-list-meta"></div>
           </div>
@@ -308,13 +657,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
               <th>#</th><th>Handle TikTok</th><th>Nome</th><th>WhatsApp</th>
               <th>Status Base</th><th>Tier</th><th>GMV MTD</th><th>Missão</th><th>Vídeo</th><th>Cadastro</th>
             </tr></thead>
-            <tbody id="ev-body"><tr><td colspan="9" class="spin">Clique em ⚡ Evento para carregar</td></tr></tbody>
+            <tbody id="ev-body"><tr><td colspan="10" class="spin">Clique em Evento para carregar</td></tr></tbody>
           </table>
         </div>
         <div id="ev-pag"></div>
       </div>
     </div>
   </div>
+</div>
 
 <div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -343,30 +693,27 @@ function refBadge(p){p=+p||0;if(p>50)return`<span class="badge b-red">${p.toFixe
 function dlt(v){if(v===null||v===undefined||v==='')return'';v=+v;if(Math.abs(v)<0.1)return`<span class="delta d-nt">→</span>`;if(v>0)return`<span class="delta d-up">↑${Math.abs(v).toFixed(1)}%</span>`;return`<span class="delta d-dn">↓${Math.abs(v).toFixed(1)}%</span>`}
 async function sbGet(path){const r=await fetch(`${SB_URL}/rest/v1/${path}`,{headers:SB_H});if(!r.ok)throw new Error(`${r.status} ${await r.text()}`);return r.json()}
 function tab(id,el_){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));el_.classList.add('on');el(`panel-${id}`).classList.add('on');if(id==='ranking')renderRankingPage(1);if(id==='alertas')renderAlertas();if(id==='evolucao')renderEvolucao()}
-async function syncAll(){const btn=el('btn-sync'),st=el('st');btn.disabled=true;btn.textContent='Carregando...';st.textContent='';st.style.color='var(--muted)';try{const pRows=await sbGet('performance_periods?select=periodo&order=periodo.desc');PERIODS=[...new Set(pRows.map(r=>r.periodo))];if(!CUR_PERIOD||!PERIODS.includes(CUR_PERIOD))CUR_PERIOD=PERIODS[0];EVO_DATA=await sbGet('performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,pedidos,aov,refund_pct&order=periodo.asc');await loadPeriod(CUR_PERIOD);st.style.color='var(--green)';st.textContent=`✓ ${ALL_DATA.length} creators · ${new Date().toLocaleTimeString('pt-BR')}`}catch(e){st.style.color='var(--red)';st.textContent='✗ '+e.message}finally{btn.disabled=false;btn.textContent='↻ Sincronizar'}}
+async function syncAll(){const btn=el('btn-sync'),st=el('st');btn.disabled=true;btn.textContent='Carregando...';st.textContent='';st.style.color='var(--ink-48)';try{const pRows=await sbGet('performance_periods?select=periodo&order=periodo.desc');PERIODS=[...new Set(pRows.map(r=>r.periodo))];if(!CUR_PERIOD||!PERIODS.includes(CUR_PERIOD))CUR_PERIOD=PERIODS[0];EVO_DATA=await sbGet('performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,pedidos,aov,refund_pct&order=periodo.asc');await loadPeriod(CUR_PERIOD);st.style.color='var(--green)';st.textContent=`✓ ${ALL_DATA.length} creators · ${new Date().toLocaleTimeString('pt-BR')}`}catch(e){st.style.color='var(--rhode-red)';st.textContent='✗ '+e.message}finally{btn.disabled=false;btn.textContent='↻ Sincronizar'}}
 async function loadPeriod(p){CUR_PERIOD=p;ALL_DATA=await sbGet(`performance_periods?select=affiliate_id,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&periodo=eq.${p}&order=gmv_liquido.desc`);ALL_RANKED=[...ALL_DATA];FILTERED=[...ALL_RANKED];renderPeriodBar();renderDashboard()}
 function renderPeriodBar(){htm('period-bar',PERIODS.map(p=>`<button class="pbtn ${p===CUR_PERIOD?'on':''}" onclick="loadPeriod('${p}')">${p}</button>`).join(''))}
-function renderDashboard(){const ativos=ALL_DATA.filter(r=>r.gmv_liquido>0);const inativos=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0);const totLiq=ativos.reduce((s,r)=>s+(+r.gmv_liquido||0),0);const totBruto=ativos.reduce((s,r)=>s+(+r.gmv_bruto||0),0);const totReimb=ativos.reduce((s,r)=>s+(+r.reembolso||0),0);const totPed=ativos.reduce((s,r)=>s+(+r.pedidos||0),0);const refRate=totBruto>0?totReimb/totBruto*100:0;const aovReal=totPed>0?totLiq/totPed:0;const top10=ativos.slice(0,10).reduce((s,r)=>s+(+r.gmv_liquido||0),0);const conc=totLiq>0?top10/totLiq*100:0;set('k-liq',fmtK(totLiq));set('k-liq-s',`${ativos.length} creators ativas`);set('k-gmv',fmtK(totBruto));set('k-gmv-s',`reimb: ${fmtK(totReimb)}`);const refEl=el('k-ref');refEl.textContent=refRate.toFixed(1)+'%';refEl.className='kval '+(refRate>25?'dn':refRate>15?'or':'up');set('k-aov',fmtR(aovReal));set('k-at',ativos.length);set('k-at-s',`${inativos.length} sem GMV`);set('k-ped',totPed.toLocaleString('pt-BR'));set('k-ped-s',CUR_PERIOD);const als=[];if(conc>70)als.push({c:'alert-r',t:`Concentração: top 10 = ${conc.toFixed(1)}% do GMV`,s:'Dependência excessiva. Escalar micro-creators.'});if(refRate>25)als.push({c:'alert-r',t:`Refund rate ${refRate.toFixed(1)}% — acima de 25%`,s:'Investigar creators com alto chargeback.'});if(!als.length)als.push({c:'alert-g',t:'Base saudável — refund e concentração OK',s:''});htm('dash-alerts',als.map(a=>`<div class="alert ${a.c}"><div><strong>${a.t}</strong>${a.s?`<span>${a.s}</span>`:''}</div></div>`).join(''));set('top-meta',`${ativos.length} ativas`);htm('top-body',ativos.slice(0,10).map((r,i)=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono" style="color:var(--muted)">${i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono" style="font-weight:600;color:var(--gold)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td><span class="badge ${t.c}">${t.l}</span></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Sem dados</td></tr>');htm('conc-body',ativos.slice(0,5).map((r,i)=>{const p=totLiq>0?(+r.gmv_liquido||0)/totLiq*100:0;const col=i===0?'var(--red)':i<3?'var(--orange)':'var(--cyan)';return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><span style="font-family:'DM Mono',monospace;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i+1}. ${r.affiliate_id}</span><span style="color:var(--muted);font-family:'DM Mono',monospace">${p.toFixed(1)}% · ${fmtK(r.gmv_liquido)}</span></div><div class="bar"><div class="bar-fill" style="width:${Math.min(p*2.5,100)}%;background:${col}"></div></div></div>`}).join('')||'<div class="empty">—</div>');set('conc-meta',`top 5 / ${conc.toFixed(1)}% GMV`);const criticos=ALL_DATA.filter(r=>r.refund_pct>25&&r.gmv_bruto>0).slice(0,20);set('crit-meta',`${criticos.length} creators`);htm('crit-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>');const upgrades=ativos.map(r=>({...r,nt:nextTier(+r.gmv_liquido||0)})).filter(r=>r.nt&&r.nt.diff/r.nt.need<0.15).sort((a,b)=>a.nt.diff-b.nt.diff).slice(0,10);set('up-meta',`${upgrades.length} creators`);htm('up-body',upgrades.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono" style="color:var(--orange)">+${fmtK(r.nt.diff)}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>')}
-function renderRankingPage(p){PAGE=p;const list=FILTERED,total=list.length,pages=Math.max(1,Math.ceil(total/PG_SIZE));const start=(p-1)*PG_SIZE,slice=list.slice(start,start+PG_SIZE);set('rank-meta',`${total} creators`);requestAnimationFrame(()=>{const frag=document.createDocumentFragment();slice.forEach((r,i)=>{const t=tier(+r.gmv_liquido||0);const tr=document.createElement('tr');tr.innerHTML=`<td class="mono" style="color:var(--muted)">${start+i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono" style="font-weight:600;color:var(--gold)">${fmtK(r.gmv_liquido)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">→</a></td>`;frag.appendChild(tr)});const tbody=el('rank-body');tbody.innerHTML='';tbody.appendChild(frag);htm('rank-pag',`<div class="pag"><button onclick="renderRankingPage(${p-1})" ${p<=1?'disabled':''}>← Ant</button><span class="pag-info">${start+1}–${Math.min(start+PG_SIZE,total)} de ${total}</span><button onclick="renderRankingPage(${p+1})" ${p>=pages?'disabled':''}>Próx →</button></div>`)})}
+function renderDashboard(){const ativos=ALL_DATA.filter(r=>r.gmv_liquido>0);const inativos=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0);const totLiq=ativos.reduce((s,r)=>s+(+r.gmv_liquido||0),0);const totBruto=ativos.reduce((s,r)=>s+(+r.gmv_bruto||0),0);const totReimb=ativos.reduce((s,r)=>s+(+r.reembolso||0),0);const totPed=ativos.reduce((s,r)=>s+(+r.pedidos||0),0);const refRate=totBruto>0?totReimb/totBruto*100:0;const aovReal=totPed>0?totLiq/totPed:0;const top10=ativos.slice(0,10).reduce((s,r)=>s+(+r.gmv_liquido||0),0);const conc=totLiq>0?top10/totLiq*100:0;set('k-liq',fmtK(totLiq));set('k-liq-s',`${ativos.length} creators ativas`);set('k-gmv',fmtK(totBruto));set('k-gmv-s',`reimb: ${fmtK(totReimb)}`);const refEl=el('k-ref');refEl.textContent=refRate.toFixed(1)+'%';refEl.className='kval '+(refRate>25?'dn':refRate>15?'or':'up');set('k-aov',fmtR(aovReal));set('k-at',ativos.length);set('k-at-s',`${inativos.length} sem GMV`);set('k-ped',totPed.toLocaleString('pt-BR'));set('k-ped-s',CUR_PERIOD);const als=[];if(conc>70)als.push({c:'alert-r',t:`Concentração: top 10 = ${conc.toFixed(1)}% do GMV`,s:'Dependência excessiva. Escalar micro-creators.'});if(refRate>25)als.push({c:'alert-r',t:`Refund rate ${refRate.toFixed(1)}% — acima de 25%`,s:'Investigar creators com alto chargeback.'});if(!als.length)als.push({c:'alert-g',t:'Base saudável — refund e concentração OK',s:''});htm('dash-alerts',als.map(a=>`<div class="alert ${a.c}"><div><strong>${a.t}</strong>${a.s?`<span>${a.s}</span>`:''}</div></div>`).join(''));set('top-meta',`${ativos.length} ativas`);htm('top-body',ativos.slice(0,10).map((r,i)=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono" style="color:var(--ink-48)">${i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td><span class="badge ${t.c}">${t.l}</span></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Sem dados</td></tr>');htm('conc-body',ativos.slice(0,5).map((r,i)=>{const p=totLiq>0?(+r.gmv_liquido||0)/totLiq*100:0;const col=i===0?'var(--rhode-red)':i<3?'var(--orange)':'var(--ink-48)';return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="font-family:'JetBrains Mono',monospace;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0.02em">${i+1}. ${r.affiliate_id}</span><span style="color:var(--ink-48);font-family:'JetBrains Mono',monospace;letter-spacing:0.02em">${p.toFixed(1)}% · ${fmtK(r.gmv_liquido)}</span></div><div class="bar"><div class="bar-fill" style="width:${Math.min(p*2.5,100)}%;background:${col}"></div></div></div>`}).join('')||'<div class="empty">—</div>');set('conc-meta',`top 5 / ${conc.toFixed(1)}% GMV`);const criticos=ALL_DATA.filter(r=>r.refund_pct>25&&r.gmv_bruto>0).slice(0,20);set('crit-meta',`${criticos.length} creators`);htm('crit-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>');const upgrades=ativos.map(r=>({...r,nt:nextTier(+r.gmv_liquido||0)})).filter(r=>r.nt&&r.nt.diff/r.nt.need<0.15).sort((a,b)=>a.nt.diff-b.nt.diff).slice(0,10);set('up-meta',`${upgrades.length} creators`);htm('up-body',upgrades.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono" style="color:var(--orange)">+${fmtK(r.nt.diff)}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>')}
+function renderRankingPage(p){PAGE=p;const list=FILTERED,total=list.length,pages=Math.max(1,Math.ceil(total/PG_SIZE));const start=(p-1)*PG_SIZE,slice=list.slice(start,start+PG_SIZE);set('rank-meta',`${total} creators`);requestAnimationFrame(()=>{const frag=document.createDocumentFragment();slice.forEach((r,i)=>{const t=tier(+r.gmv_liquido||0);const tr=document.createElement('tr');tr.innerHTML=`<td class="mono" style="color:var(--ink-48)">${start+i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">→</a></td>`;frag.appendChild(tr)});const tbody=el('rank-body');tbody.innerHTML='';tbody.appendChild(frag);htm('rank-pag',`<button onclick="renderRankingPage(${p-1})" ${p<=1?'disabled':''}>← Ant</button><span class="pag-info">${start+1}–${Math.min(start+PG_SIZE,total)} de ${total}</span><button onclick="renderRankingPage(${p+1})" ${p>=pages?'disabled':''}>Próx →</button>`)})}
 function filterRanking(q){const n=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');FILTERED=n?ALL_RANKED.filter(r=>(r.affiliate_id||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)):[...ALL_RANKED];renderRankingPage(1)}
-function renderAlertas(){const ativos=ALL_DATA.filter(r=>r.gmv_bruto>0);const criticos=ativos.filter(r=>r.refund_pct>25).slice(0,30);set('al-ref-meta',`${criticos.length} creators`);htm('al-ref-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="color:var(--red)">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const pot=ativos.filter(r=>(+r.aov||0)>80&&((+r.videos||0)+(+r.lives||0))<5).slice(0,15);htm('al-pot-body',pot.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td class="mono" style="color:var(--cyan)">${fmtR(r.aov)}</td><td class="mono">${(+r.videos||0)+(+r.lives||0)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const inat=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0).slice(0,50);set('al-in-meta',`${inat.length} creators`);htm('al-in-body',inat.map(r=>`<tr><td class="mono">${r.affiliate_id}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>')}
-function renderEvolucao(){if(!EVO_DATA.length){htm('evo-body','<tr><td colspan="8" class="spin">Sincronize primeiro.</td></tr>');return}const map={};EVO_DATA.forEach(r=>{const p=r.periodo;if(!map[p])map[p]={periodo:p,gmv_bruto:0,gmv_liquido:0,reembolso:0,pedidos:0,creators:0};map[p].gmv_bruto+=(+r.gmv_bruto||0);map[p].gmv_liquido+=(+r.gmv_liquido||0);map[p].reembolso+=(+r.reembolso||0);map[p].pedidos+=(+r.pedidos||0);if(r.gmv_liquido>0)map[p].creators++});const rows=Object.values(map).sort((a,b)=>b.periodo.localeCompare(a.periodo));htm('evo-timeline',[...rows].reverse().map(p=>`<div style="font-family:'DM Mono',monospace;font-size:10px;padding:5px 14px;border:1px solid ${p.periodo===CUR_PERIOD?'var(--gold)':'var(--border)'};border-radius:6px;background:${p.periodo===CUR_PERIOD?'rgba(201,169,110,.1)':'transparent'};color:${p.periodo===CUR_PERIOD?'var(--gold)':'var(--muted)'};white-space:nowrap;letter-spacing:.5px">${p.periodo}</div>`).join(''));set('evo-meta',`${rows.length} períodos`);htm('evo-body',rows.map((r,i)=>{const prev=rows[i+1];const d=prev&&prev.gmv_liquido>0?((r.gmv_liquido-prev.gmv_liquido)/prev.gmv_liquido*100).toFixed(1):null;const ref=r.gmv_bruto>0?r.reembolso/r.gmv_bruto*100:0;const aov=r.pedidos>0?r.gmv_liquido/r.pedidos:0;return`<tr ${r.periodo===CUR_PERIOD?'style="background:rgba(201,169,110,.04)"':''}><td class="mono" style="font-weight:600;color:var(--gold)">${r.periodo}</td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600">${fmtK(r.gmv_liquido)}</td><td>${dlt(d)}</td><td>${refBadge(ref)}</td><td class="mono">${r.pedidos.toLocaleString('pt-BR')}</td><td class="mono">${r.creators}</td><td class="mono">${fmtR(aov)}</td></tr>`}).join(''))}
-async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--gold)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--red)">Erro: ${e.message}</div>`)}}
+function renderAlertas(){const ativos=ALL_DATA.filter(r=>r.gmv_bruto>0);const criticos=ativos.filter(r=>r.refund_pct>25).slice(0,30);set('al-ref-meta',`${criticos.length} creators`);htm('al-ref-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="color:var(--rhode-red)">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const pot=ativos.filter(r=>(+r.aov||0)>80&&((+r.videos||0)+(+r.lives||0))<5).slice(0,15);htm('al-pot-body',pot.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td class="mono" style="color:var(--cyan)">${fmtR(r.aov)}</td><td class="mono">${(+r.videos||0)+(+r.lives||0)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const inat=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0).slice(0,50);set('al-in-meta',`${inat.length} creators`);htm('al-in-body',inat.map(r=>`<tr><td class="mono">${r.affiliate_id}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>')}
+function renderEvolucao(){if(!EVO_DATA.length){htm('evo-body','<tr><td colspan="8" class="spin">Sincronize primeiro.</td></tr>');return}const map={};EVO_DATA.forEach(r=>{const p=r.periodo;if(!map[p])map[p]={periodo:p,gmv_bruto:0,gmv_liquido:0,reembolso:0,pedidos:0,creators:0};map[p].gmv_bruto+=(+r.gmv_bruto||0);map[p].gmv_liquido+=(+r.gmv_liquido||0);map[p].reembolso+=(+r.reembolso||0);map[p].pedidos+=(+r.pedidos||0);if(r.gmv_liquido>0)map[p].creators++});const rows=Object.values(map).sort((a,b)=>b.periodo.localeCompare(a.periodo));htm('evo-timeline',[...rows].reverse().map(p=>`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 14px;border:1px solid ${p.periodo===CUR_PERIOD?'var(--rhode-red)':'var(--hairline)'};border-radius:99px;background:${p.periodo===CUR_PERIOD?'rgba(254,44,85,0.05)':'var(--canvas)'};color:${p.periodo===CUR_PERIOD?'var(--rhode-red)':'var(--ink-48)'};white-space:nowrap;letter-spacing:0.04em;font-weight:500">${p.periodo}</div>`).join(''));set('evo-meta',`${rows.length} períodos`);htm('evo-body',rows.map((r,i)=>{const prev=rows[i+1];const d=prev&&prev.gmv_liquido>0?((r.gmv_liquido-prev.gmv_liquido)/prev.gmv_liquido*100).toFixed(1):null;const ref=r.gmv_bruto>0?r.reembolso/r.gmv_bruto*100:0;const aov=r.pedidos>0?r.gmv_liquido/r.pedidos:0;return`<tr ${r.periodo===CUR_PERIOD?'style="background:rgba(254,44,85,0.025)"':''}><td class="mono" style="font-weight:600;color:var(--rhode-red)">${r.periodo}</td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600">${fmtK(r.gmv_liquido)}</td><td>${dlt(d)}</td><td>${refBadge(ref)}</td><td class="mono">${r.pedidos.toLocaleString('pt-BR')}</td><td class="mono">${r.creators}</td><td class="mono">${fmtR(aov)}</td></tr>`}).join(''))}
+async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
 
 // ---- ABA EVENTO ----
 let EV_DATA=[],EV_FILTERED=[],EV_PAGE=1;
 const EV_PG=50;
-const TIER_MAP={'diamante':{l:'Diamante',c:'b-cyan',icon:'💎'},'ouro':{l:'Ouro',c:'b-gold',icon:'🥇'},'prata':{l:'Prata',c:'b-gray',icon:'🥈'},'bronze':{l:'Bronze',c:'b-orange',icon:'🥉'},'ferro':{l:'Ferro',c:'b-gray',icon:'🔩'}};
+const TIER_MAP={'diamante':{l:'Diamante',c:'b-cyan',icon:'◆'},'ouro':{l:'Ouro',c:'b-gold',icon:'★'},'prata':{l:'Prata',c:'b-gray',icon:'⬢'},'bronze':{l:'Bronze',c:'b-orange',icon:'●'},'ferro':{l:'Ferro',c:'b-gray',icon:'○'}};
 const TIER_ORDER=['diamante','ouro','prata','bronze','ferro'];
 
 async function loadEvento(){
   el('ev-body').innerHTML='<tr><td colspan="10" class="spin">Carregando...</td></tr>';
   try{
-    // 1. Busca todos os cadastros do evento
     const evRows=await sbGet('eventos_creators?evento=eq.Evento_13_04&order=registered_at.desc&limit=1000');
-
-    // 2. Busca todos os afiliados para cruzar
     let aff=[];
     let offset=0;
     while(true){
@@ -380,8 +727,6 @@ async function loadEvento(){
       const k=(r.tiktok_handle||r.affiliate_id||'').toLowerCase().replace(/^[@.]+/,'');
       affMap[k]=r;
     });
-
-    // 3. Enriquece cada cadastro com dados da base
     EV_DATA=evRows.filter(r=>r.handle!=='_TESTE_CLAUDE').map(r=>{
       const k=(r.handle||'').toLowerCase().replace(/^[@.]+/,'');
       const aRow=affMap[k];
@@ -393,7 +738,7 @@ async function loadEvento(){
     renderEvento();
     renderVIP();
   }catch(e){
-    el('ev-body').innerHTML=`<tr><td colspan="9" class="empty" style="color:var(--red)">Erro: ${e.message}</td></tr>`;
+    el('ev-body').innerHTML=`<tr><td colspan="10" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`;
   }
 }
 
@@ -412,7 +757,6 @@ function renderEvento(){
   set('ev-missao-s',`${total?Math.round(missao/total*100):0}% dos cadastros`);
   set('ev-video',videos);
 
-  // Pills por tier (só afiliadas)
   const byTier={};
   TIER_ORDER.forEach(t=>byTier[t]=[]);
   EV_DATA.filter(r=>r._isAfiliada).forEach(r=>{
@@ -421,13 +765,13 @@ function renderEvento(){
   });
   const pills=TIER_ORDER.filter(t=>byTier[t].length).map(t=>{
     const info=TIER_MAP[t];
-    return`<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 16px">
-      <span style="font-size:20px">${info.icon}</span>
-      <div><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">${info.l}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--text)">${byTier[t].length}</div></div>
+    return`<div style="display:flex;align-items:center;gap:12px;background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;padding:14px 18px">
+      <span style="font-size:18px;color:var(--rhode-red)">${info.icon}</span>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-48);font-weight:500">${info.l}</div>
+      <div style="font-family:'Inter',sans-serif;font-size:21px;font-weight:600;color:var(--ink);letter-spacing:-0.022em;line-height:1.1;margin-top:2px">${byTier[t].length}</div></div>
     </div>`;
   }).join('');
-  htm('ev-tier-pills',pills||'<span style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:11px">Aguardando cadastros...</span>');
+  htm('ev-tier-pills',pills||'<span style="color:var(--ink-48);font-family:\'JetBrains Mono\',monospace;font-size:12px;letter-spacing:0.06em">Aguardando cadastros...</span>');
   set('ev-tier-meta',`${known} afiliadas reconhecidas`);
   set('ev-list-meta',`${EV_FILTERED.length} registros`);
 
@@ -447,28 +791,28 @@ function renderEventoPage(p){
     const statusBadge=r._isAfiliada
       ?`<span class="badge b-gold">Afiliada</span>`
       :`<span class="badge b-cyan">Nova</span>`;
-    const gmvCell=r._gmv!==null?`<span class="mono" style="color:var(--gold)">${fmtK(r._gmv)}</span>`:`<span style="color:var(--muted)">—</span>`;
+    const gmvCell=r._gmv!==null?`<span class="mono" style="color:var(--rhode-red);font-weight:500">${fmtK(r._gmv)}</span>`:`<span style="color:var(--ink-48)">—</span>`;
     const missaoBadge=r.missao_iniciada
       ?`<span class="badge b-green">✓ Iniciada</span>`
       :`<span class="badge b-gray">—</span>`;
     const videoBadge=r.video_url
-      ?`<a href="${r.video_url}" target="_blank" style="color:var(--gold);font-family:'DM Mono',monospace;font-size:10px">▶ Ver</a>`
-      :`<span style="color:var(--muted)">—</span>`;
+      ?`<a href="${r.video_url}" target="_blank" class="lk">▶ Ver</a>`
+      :`<span style="color:var(--ink-48)">—</span>`;
     const dt=r.registered_at?new Date(r.registered_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
     const handle=r._isAfiliada
       ?`<a class="lk" onclick="openModal('${r.handle}')">${r.handle}</a>`
       :`<span class="mono">${r.handle}</span>`;
     return`<tr>
-      <td class="mono" style="color:var(--muted)">${start+i+1}</td>
+      <td class="mono" style="color:var(--ink-48)">${start+i+1}</td>
       <td>${handle}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;font-size:11px">${r.nome||'—'}</td>
-      <td class="mono" style="color:var(--muted);font-size:11px">${r.whatsapp||'—'}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;font-size:13px">${r.nome||'—'}</td>
+      <td class="mono" style="color:var(--ink-48);font-size:12px">${r.whatsapp||'—'}</td>
       <td>${statusBadge}</td>
       <td>${tierBadge}</td>
       <td>${gmvCell}</td>
       <td>${missaoBadge}</td>
       <td>${videoBadge}</td>
-      <td class="mono" style="color:var(--muted);font-size:10px">${dt}</td>
+      <td class="mono" style="color:var(--ink-48);font-size:11px">${dt}</td>
     </tr>`;
   }).join('');
 
@@ -477,7 +821,7 @@ function renderEventoPage(p){
 }
 
 function filterEvento(q){
-  const n=(q||'').replace(/\D/g,'');   // só dígitos → busca por telefone
+  const n=(q||'').replace(/\D/g,'');
   const s=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');
   EV_FILTERED=q
     ? EV_DATA.filter(r=>{
@@ -493,16 +837,15 @@ function filterEvento(q){
   renderEventoPage(1);
 }
 
-// ---- VIP FEED DINÂMICO ----
+// ---- VIP FEED ----
 const VIP_KEY='rhode-vip-checkin-13-04';
-const VIP_TIERS=['diamante','ouro','prata']; // quem entra no feed
+const VIP_TIERS=['diamante','ouro','prata'];
 let VIP_REFRESH_TIMER=null;
 
 function vipLoad(){return JSON.parse(localStorage.getItem(VIP_KEY)||'{}')}
 function vipSave(d){localStorage.setItem(VIP_KEY,JSON.stringify(d))}
 
 function renderVIP(){
-  // Filtra do EV_DATA quem é Diamante, Ouro ou Prata
   const vips=EV_DATA
     .filter(r=>VIP_TIERS.includes(r._tier))
     .sort((a,b)=>{
@@ -526,33 +869,31 @@ function renderVIP(){
   const rows=vips.map(r=>{
     const h=r.handle;
     const s=saved[h]||{kit:false,live:false,followup:false,obs:''};
-    const tierInfo=TIER_MAP[r._tier]||{l:r._tier,c:'b-gold',icon:'⭐'};
-    const tierBadge=`<span class="badge ${tierInfo.c}" style="font-size:10px">${tierInfo.icon} ${tierInfo.l}</span>`;
-    const gmv=r._gmv!=null?`<span class="mono" style="color:var(--gold);font-weight:600">${fmtK(r._gmv)}</span>`:'<span style="color:var(--muted)">—</span>';
-    const chk=(field)=>`<td style="text-align:center"><input type="checkbox" ${s[field]?'checked':''} onchange="vipCheck('${h}','${field}',this.checked)" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer"></td>`;
-    // destaque se já tem kit ou live
-    const rowStyle=s.kit?'background:rgba(201,169,110,.06)':'';
+    const tierInfo=TIER_MAP[r._tier]||{l:r._tier,c:'b-gold',icon:'★'};
+    const tierBadge=`<span class="badge ${tierInfo.c}">${tierInfo.icon} ${tierInfo.l}</span>`;
+    const gmv=r._gmv!=null?`<span class="mono" style="color:var(--rhode-red);font-weight:600">${fmtK(r._gmv)}</span>`:'<span style="color:var(--ink-48)">—</span>';
+    const chk=(field)=>`<td style="text-align:center"><input type="checkbox" ${s[field]?'checked':''} onchange="vipCheck('${h}','${field}',this.checked)" style="width:18px;height:18px;accent-color:var(--rhode-red);cursor:pointer"></td>`;
+    const rowStyle=s.kit?'background:rgba(254,44,85,0.025)':'';
     const dt=r.registered_at?new Date(r.registered_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
     return`<tr style="${rowStyle}">
       <td>${tierBadge}</td>
-      <td><span class="mono" style="font-weight:700;font-size:12px;color:var(--gold)">@${(h||'').toLowerCase()}</span><br><span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">${dt}</span></td>
-      <td style="font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis">${r.nome||'—'}</td>
+      <td><span class="mono" style="font-weight:600;font-size:13px;color:var(--rhode-red)">@${(h||'').toLowerCase()}</span><br><span style="font-size:10px;color:var(--ink-48);font-family:'JetBrains Mono',monospace;letter-spacing:0.04em">${dt}</span></td>
+      <td style="font-size:13px;max-width:130px;overflow:hidden;text-overflow:ellipsis">${r.nome||'—'}</td>
       <td>${gmv}</td>
       ${chk('kit')}
       ${chk('live')}
       ${chk('followup')}
       <td><input type="text" value="${s.obs||''}" placeholder="—" onchange="vipObs('${h}',this.value)"
-        style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:10px;width:130px;outline:none;padding:2px 4px"></td>
+        style="background:transparent;border:none;border-bottom:1px solid var(--hairline);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:11px;width:140px;outline:none;padding:3px 4px;letter-spacing:0.02em"></td>
     </tr>`;
   }).join('');
 
   htm('vip-body',rows);
 
-  // contador
   const kits=vips.filter(r=>saved[r.handle]?.kit).length;
   const lives=vips.filter(r=>saved[r.handle]?.live).length;
-  set('vip-progress',`${vips.length} VIPs chegaram · ${kits} kits · ${lives} lives`);
-  set('vip-refresh-info',`ao vivo · atualiza 30s`);
+  set('vip-progress',`${vips.length} VIPs · ${kits} kits · ${lives} lives`);
+  set('vip-refresh-info',`ao vivo · 30s`);
 }
 
 function vipCheck(handle,field,val){
@@ -585,7 +926,6 @@ function stopVIPRefresh(){
   if(VIP_REFRESH_TIMER){clearInterval(VIP_REFRESH_TIMER);VIP_REFRESH_TIMER=null;}
 }
 
-// Sobrescreve tab() para interceptar a aba evento
 const _tabOrig=tab;
 function tab(id,elBtn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
@@ -595,8 +935,479 @@ function tab(id,elBtn){
   if(id==='ranking')renderRankingPage(1);
   else if(id==='alertas')renderAlertas();
   else if(id==='evolucao')renderEvolucao();
+  else if(id==='analista')renderAnalista();
   else if(id==='evento'){loadEvento().then(()=>renderVIP());startVIPRefresh();}
-  else{stopVIPRefresh();}
+  if(id!=='evento')stopVIPRefresh();
+}
+
+// ═════════════════════════════════════════════════════════════
+//   ANALISTA COGNITIVO
+// ═════════════════════════════════════════════════════════════
+
+let COGNITIVE_CACHE={};        // chave = periodo, valor = JSON resposta
+let CREATOR_AI_CACHE={};       // chave = affiliate_id, valor = JSON resposta
+
+// ── Estatística básica
+function zScore(values, target){
+  if(!values.length)return 0;
+  const mean=values.reduce((a,b)=>a+b,0)/values.length;
+  const std=Math.sqrt(values.reduce((s,v)=>s+(v-mean)**2,0)/values.length);
+  if(std===0)return 0;
+  return(target-mean)/std;
+}
+function median(arr){
+  const v=[...arr].filter(x=>!isNaN(x)).sort((a,b)=>a-b);
+  if(!v.length)return 0;
+  const m=Math.floor(v.length/2);
+  return v.length%2?v[m]:(v[m-1]+v[m])/2;
+}
+
+// ── Classificação em quadrantes (Star / Cash / Gem / Dormente)
+function classifyMatrix(rows){
+  const ativos=rows.filter(r=>(+r.gmv_liquido||0)>0);
+  if(!ativos.length)return{star:[],cash:[],gem:[],dorm:[]};
+
+  const medGMV=median(ativos.map(r=>+r.gmv_liquido||0));
+  const medAOV=median(ativos.map(r=>+r.aov||0).filter(v=>v>0));
+
+  const result={star:[],cash:[],gem:[],dorm:[]};
+
+  rows.forEach(r=>{
+    const gmv=+r.gmv_liquido||0;
+    const aov=+r.aov||0;
+    const refund=+r.refund_pct||0;
+    const content=(+r.videos||0)+(+r.lives||0);
+
+    if(gmv===0&&content===0){
+      result.dorm.push({...r,_score:0});
+      return;
+    }
+    const isHighGMV=gmv>=medGMV;
+    const isHighEff=(aov>=medAOV)&&(refund<20);
+
+    if(isHighGMV&&isHighEff)       result.star.push({...r,_score:gmv*(1+aov/100)});
+    else if(isHighGMV&&!isHighEff) result.cash.push({...r,_score:gmv*(1-refund/100)});
+    else if(!isHighGMV&&isHighEff) result.gem.push({...r,_score:aov*(content||1)});
+    else                            result.dorm.push({...r,_score:gmv});
+  });
+
+  ['star','cash','gem','dorm'].forEach(k=>result[k].sort((a,b)=>b._score-a._score));
+  return result;
+}
+
+// ── Detecção de anomalias estatísticas (z-score)
+function findAnomalies(rows){
+  const ativos=rows.filter(r=>(+r.gmv_bruto||0)>0);
+  if(ativos.length<5)return[];
+
+  const refunds=ativos.map(r=>+r.refund_pct||0);
+  const aovs=ativos.map(r=>+r.aov||0).filter(v=>v>0);
+  const gmvs=ativos.map(r=>+r.gmv_liquido||0);
+
+  const out=[];
+  ativos.forEach(r=>{
+    const refund=+r.refund_pct||0;
+    const aov=+r.aov||0;
+    const gmv=+r.gmv_liquido||0;
+    const flags=[];
+
+    const zR=zScore(refunds,refund);
+    if(zR>2&&refund>25)flags.push({kind:'refund_alto',sev:'crítico',msg:`Refund ${refund.toFixed(1)}% — ${zR.toFixed(1)}σ acima da média`,severityScore:zR*10});
+    else if(zR>1.8&&refund>20)flags.push({kind:'refund_atenc',sev:'atenção',msg:`Refund ${refund.toFixed(1)}% — ${zR.toFixed(1)}σ`,severityScore:zR*5});
+
+    const zA=aovs.length?zScore(aovs,aov):0;
+    if(aov>0&&zA>2.5)flags.push({kind:'aov_alto',sev:'positivo',msg:`AOV R$ ${aov.toFixed(0)} — ticket anormalmente alto`,severityScore:zA*3});
+    if(aov>0&&zA<-2)flags.push({kind:'aov_baixo',sev:'atenção',msg:`AOV R$ ${aov.toFixed(0)} — ticket anormalmente baixo`,severityScore:Math.abs(zA)*3});
+
+    if(gmv>5000&&((+r.videos||0)+(+r.lives||0))===0)flags.push({kind:'sem_conteudo',sev:'atenção',msg:`R$ ${fmtK(gmv)} sem vídeos/lives registrados`,severityScore:8});
+
+    if(flags.length)out.push({creator:r,flags,topSev:Math.max(...flags.map(f=>f.severityScore))});
+  });
+
+  return out.sort((a,b)=>b.topSev-a.topSev).slice(0,15);
+}
+
+// ── Movimento (período atual vs anterior)
+function computeMovement(){
+  if(!EVO_DATA||EVO_DATA.length<2||!CUR_PERIOD)return[];
+  const periodList=[...new Set(EVO_DATA.map(r=>r.periodo))].sort();
+  const idx=periodList.indexOf(CUR_PERIOD);
+  if(idx<1)return[];
+  const prev=periodList[idx-1];
+
+  const curMap={},prevMap={};
+  ALL_DATA.forEach(r=>curMap[r.affiliate_id]=+r.gmv_liquido||0);
+  EVO_DATA.filter(r=>r.periodo===prev).forEach(r=>{prevMap[r.affiliate_id]=(+prevMap[r.affiliate_id]||0)+(+r.gmv_liquido||0)});
+
+  const moves=[];
+  Object.keys({...curMap,...prevMap}).forEach(id=>{
+    const c=curMap[id]||0;
+    const p=prevMap[id]||0;
+    if(c===0&&p===0)return;
+    if(p===0&&c>0){moves.push({id,delta:c,pct:null,kind:'novo'});return;}
+    if(p>0&&c===0){moves.push({id,delta:-p,pct:-100,kind:'sumiu'});return;}
+    const pct=((c-p)/p)*100;
+    moves.push({id,delta:c-p,pct,kind:pct>20?'acelera':pct<-20?'desacelera':'estavel'});
+  });
+
+  // top 6 aceleradores + top 6 desaceleradores
+  const accel=moves.filter(m=>m.kind==='acelera'||m.kind==='novo').sort((a,b)=>b.delta-a.delta).slice(0,6);
+  const decel=moves.filter(m=>m.kind==='desacelera'||m.kind==='sumiu').sort((a,b)=>a.delta-b.delta).slice(0,6);
+  return[...accel,...decel];
+}
+
+// ── Render principal do Analista
+function renderAnalista(){
+  if(!ALL_DATA.length){
+    htm('matrix-body','<div class="empty" style="grid-column:1/-1">Sincronize para classificar creators.</div>');
+    htm('anom-body','<tr><td colspan="3" class="empty">Sincronize para detectar anomalias.</td></tr>');
+    htm('mov-body','<tr><td colspan="3" class="empty">Sincronize para mapear movimento.</td></tr>');
+    return;
+  }
+
+  // ── Matriz
+  const matrix=classifyMatrix(ALL_DATA);
+  const total=Object.values(matrix).reduce((s,v)=>s+v.length,0);
+  set('matrix-meta',`${total} creators classificadas`);
+
+  const renderQuad=(key,clsName,eyebrow,title,desc,action,list)=>{
+    const top=list.slice(0,5);
+    const rows=top.map(r=>`<div class="quad-row">
+      <span class="qhandle" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</span>
+      <span class="qval">${fmtK(r.gmv_liquido)} · ${refPct(r.refund_pct)}</span>
+    </div>`).join('')||'<div class="qval" style="text-align:center;padding:8px">—</div>';
+    return`<div class="quad ${clsName}">
+      <div class="quad-head">
+        <div>
+          <div class="quad-eyebrow">${eyebrow}</div>
+          <div class="quad-title">${title}</div>
+        </div>
+        <span class="quad-count">${list.length}</span>
+      </div>
+      <div class="quad-desc">${desc}</div>
+      <div class="quad-list">${rows}</div>
+      <div class="quad-action"><strong>Ação:</strong> ${action}</div>
+    </div>`;
+  };
+
+  htm('matrix-body',
+    renderQuad('star','q-star','Alto GMV · Alta eficiência','Stars','Top performers eficientes. Não mexer no que está funcionando.','Manter cadência. Ofereça spark ads e amostras antecipadas.',matrix.star)+
+    renderQuad('cash','q-cash','Alto GMV · Eficiência baixa','Cash Cows','Volume alto mas com refund elevado ou AOV baixo. Há dinheiro escapando.','Atacar refund e ticket. Cupom errado ou produto barato no mix.',matrix.cash)+
+    renderQuad('gem','q-gem','Baixo GMV · Alta eficiência','Hidden Gems','Convertem bem, mas pouco volume. Maior potencial de escala do programa.','Ativar conteúdo. Spark ads + briefing antecipado para escalar.',matrix.gem)+
+    renderQuad('dorm','q-dorm','Baixo GMV · Pouco engajamento','Dormentes','Sem conteúdo recente ou GMV abaixo do mediano sem direção clara.','Reativar com missão pontual ou descontinuar do programa.',matrix.dorm)
+  );
+
+  // ── Anomalias
+  const anoms=findAnomalies(ALL_DATA);
+  set('anom-meta',`${anoms.length} flagged`);
+  if(!anoms.length){
+    htm('anom-body','<tr><td colspan="3" class="empty">Nenhuma anomalia significativa</td></tr>');
+  }else{
+    htm('anom-body',anoms.map(a=>{
+      const sev=a.flags[0].sev;
+      const sevBadge=sev==='crítico'?'b-red':sev==='atenção'?'b-orange':'b-green';
+      const reasons=a.flags.map(f=>f.msg).join(' · ');
+      return`<tr>
+        <td><a class="lk" onclick="openModal('${a.creator.affiliate_id}')">${a.creator.affiliate_id}</a></td>
+        <td style="font-size:12px;line-height:1.5;letter-spacing:-0.006em;white-space:normal;max-width:340px">${reasons}</td>
+        <td><span class="badge ${sevBadge}">${sev}</span></td>
+      </tr>`;
+    }).join(''));
+  }
+
+  // ── Movimento
+  const mov=computeMovement();
+  set('mov-meta',mov.length?`${mov.length} movimentações`:'sem dados');
+  if(!mov.length){
+    htm('mov-body','<tr><td colspan="3" class="empty">Sem período anterior para comparar</td></tr>');
+  }else{
+    htm('mov-body',mov.map(m=>{
+      const dArrow=m.delta>0?'↑':'↓';
+      const dColor=m.delta>0?'var(--green)':'var(--rhode-red)';
+      const trendBadge=m.kind==='novo'?'<span class="badge b-green">Novo</span>'
+                     :m.kind==='sumiu'?'<span class="badge b-red">Inativa</span>'
+                     :m.kind==='acelera'?'<span class="badge b-green">Acelerando</span>'
+                     :m.kind==='desacelera'?'<span class="badge b-orange">Desacelerando</span>'
+                     :'<span class="badge b-gray">Estável</span>';
+      const pctStr=m.pct===null?'novo':`${m.pct>0?'+':''}${m.pct.toFixed(0)}%`;
+      return`<tr>
+        <td><a class="lk" onclick="openModal('${m.id}')">${m.id}</a></td>
+        <td class="mono" style="color:${dColor};font-weight:500">${dArrow} ${fmtK(Math.abs(m.delta))} <span style="color:var(--ink-48);font-weight:400">(${pctStr})</span></td>
+        <td>${trendBadge}</td>
+      </tr>`;
+    }).join(''));
+  }
+}
+
+// ── Helper: refund pct simples
+function refPct(p){p=+p||0;const c=p>50?'var(--rhode-red)':p>25?'var(--orange)':'var(--green)';return`<span style="color:${c}">${p.toFixed(0)}%</span>`}
+
+// ── Geração do Resumo Cognitivo (Claude API)
+async function generateCognitive(){
+  if(!ALL_DATA.length){alert('Sincronize os dados antes.');return;}
+  if(COGNITIVE_CACHE[CUR_PERIOD]){renderCognitive(COGNITIVE_CACHE[CUR_PERIOD]);return;}
+
+  const btn=el('btn-cognitive');
+  btn.disabled=true;btn.textContent='Analisando...';
+  htm('cognitive-body','<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--ink-48);text-align:center;padding:60px 16px;letter-spacing:0.06em">CLAUDE ANALISANDO O PERÍODO · ATÉ 30S</div>');
+
+  try{
+    const ativos=ALL_DATA.filter(r=>r.gmv_liquido>0);
+    const totLiq=ativos.reduce((s,r)=>s+(+r.gmv_liquido||0),0);
+    const totBruto=ativos.reduce((s,r)=>s+(+r.gmv_bruto||0),0);
+    const totReimb=ativos.reduce((s,r)=>s+(+r.reembolso||0),0);
+    const totPed=ativos.reduce((s,r)=>s+(+r.pedidos||0),0);
+    const top10=ativos.slice(0,10).reduce((s,r)=>s+(+r.gmv_liquido||0),0);
+    const refunds=ativos.map(r=>+r.refund_pct||0);
+    const refMedio=refunds.length?refunds.reduce((a,b)=>a+b,0)/refunds.length:0;
+
+    const periodList=[...new Set(EVO_DATA.map(r=>r.periodo))].sort();
+    const idx=periodList.indexOf(CUR_PERIOD);
+    const prev=idx>0?periodList[idx-1]:null;
+    const prevTot=prev?EVO_DATA.filter(r=>r.periodo===prev).reduce((s,r)=>s+(+r.gmv_liquido||0),0):null;
+    const growthMoM=prev&&prevTot?((totLiq-prevTot)/prevTot*100):null;
+
+    const matrix=classifyMatrix(ALL_DATA);
+    const anoms=findAnomalies(ALL_DATA);
+
+    const data={
+      periodo:CUR_PERIOD,
+      total_creators:ALL_DATA.length,
+      creators_ativas:ativos.length,
+      creators_zero_gmv:ALL_DATA.length-ativos.length,
+      gmv_liquido_total:Math.round(totLiq),
+      gmv_bruto_total:Math.round(totBruto),
+      reembolso_total:Math.round(totReimb),
+      refund_rate_pct:totBruto>0?+(totReimb/totBruto*100).toFixed(2):0,
+      refund_medio_creators_pct:+refMedio.toFixed(2),
+      pedidos_total:totPed,
+      aov_real:totPed>0?+(totLiq/totPed).toFixed(2):0,
+      concentracao_top10_pct:totLiq>0?+(top10/totLiq*100).toFixed(2):0,
+      crescimento_mom_pct:growthMoM!==null?+growthMoM.toFixed(2):null,
+      periodo_anterior:prev,
+      gmv_periodo_anterior:prevTot?Math.round(prevTot):null,
+      matriz:{
+        stars:matrix.star.length,
+        cash_cows:matrix.cash.length,
+        hidden_gems:matrix.gem.length,
+        dormentes:matrix.dorm.length
+      },
+      anomalias_detectadas:anoms.length,
+      anomalias_criticas:anoms.filter(a=>a.flags.some(f=>f.sev==='crítico')).length
+    };
+
+    const r=await fetch('/api/analyst',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mode:'period',data})
+    });
+    if(!r.ok){const e=await r.json();throw new Error(e.error||'Erro');}
+    const result=await r.json();
+    COGNITIVE_CACHE[CUR_PERIOD]=result;
+    renderCognitive(result);
+  }catch(e){
+    htm('cognitive-body',`<div style="padding:32px;text-align:center;color:var(--rhode-red);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em">ERRO: ${e.message}</div>`);
+  }finally{
+    btn.disabled=false;btn.textContent='↻ Gerar análise IA';
+  }
+}
+
+function renderCognitive(d){
+  const grade=d.grade||'C';
+  const score=d.score_geral||0;
+
+  const dimsHTML=(d.dimensoes||[]).map(dim=>{
+    const statusColor={'excelente':'var(--green)','bom':'var(--green)','medio':'var(--ink-48)','médio':'var(--ink-48)','atencao':'var(--orange)','atenção':'var(--orange)','critico':'var(--rhode-red)','crítico':'var(--rhode-red)'}[dim.status]||'var(--ink-48)';
+    return`<div class="cog-dim">
+      <div class="cog-dim-head">
+        <span class="cog-dim-name">${dim.nome}</span>
+        <span class="cog-dim-score" style="color:${statusColor}">${dim.score}/100</span>
+      </div>
+      <div class="cog-dim-bar"><div class="cog-dim-fill" style="width:${dim.score}%;background:${statusColor}"></div></div>
+      <div class="cog-dim-text">${dim.avaliacao}</div>
+    </div>`;
+  }).join('');
+
+  const diagsHTML=(d.diagnostico||[]).map(diag=>{
+    const tipoCls=diag.tipo==='critico'?'tipo-critico':diag.tipo==='alerta'?'tipo-alerta':'tipo-positivo';
+    return`<div class="cog-diag ${tipoCls}">
+      <div class="cog-diag-title">${diag.titulo}</div>
+      <div class="cog-diag-desc">${diag.descricao}</div>
+      ${diag.impacto?`<div class="cog-diag-impact">${diag.impacto}</div>`:''}
+    </div>`;
+  }).join('');
+
+  const recsHTML=(d.recomendacoes||[]).map(r=>`<div class="cog-rec">
+    <div class="cog-rec-num">${String(r.prioridade||1).padStart(2,'0')}</div>
+    <div class="cog-rec-body">
+      <div class="cog-rec-title">${r.titulo}</div>
+      <div class="cog-rec-how">${r.como||''}</div>
+      <div class="cog-rec-meta">
+        ${r.impacto_estimado?`<span><strong>Impacto:</strong> ${r.impacto_estimado}</span>`:''}
+        ${r.prazo?`<span><strong>Prazo:</strong> ${r.prazo}</span>`:''}
+      </div>
+    </div>
+  </div>`).join('');
+
+  const insight=d.insight_nao_obvio?`<div class="cog-insight">
+    <div class="cog-insight-eyebrow">Insight não óbvio</div>
+    <div class="cog-insight-text">${d.insight_nao_obvio}</div>
+  </div>`:'';
+
+  htm('cognitive-body',`
+    <div class="cog-grid">
+      <div class="cog-score">
+        <div class="cog-score-num">${score}<span class="sm">/100</span></div>
+        <div class="cog-grade">Grade ${grade}</div>
+      </div>
+      <div>
+        <div class="cog-headline">${d.headline||''}</div>
+        <div class="cog-summary">${d.resumo_executivo||''}</div>
+      </div>
+    </div>
+
+    ${dimsHTML?`<div class="cog-section-title">Dimensões</div><div class="cog-dim-list">${dimsHTML}</div>`:''}
+    ${diagsHTML?`<div class="cog-section-title">Diagnóstico</div><div class="cog-diag-list">${diagsHTML}</div>`:''}
+    ${recsHTML?`<div class="cog-section-title">Recomendações</div><div class="cog-rec-list">${recsHTML}</div>`:''}
+    ${insight}
+  `);
+}
+
+// ═════════════════════════════════════════════════════════════
+//   AI INSIGHT POR CREATOR (chamado dentro do modal de detalhe)
+// ═════════════════════════════════════════════════════════════
+
+async function generateCreatorInsight(creatorId){
+  if(CREATOR_AI_CACHE[creatorId]){renderCreatorInsight(CREATOR_AI_CACHE[creatorId],creatorId);return;}
+
+  const btn=el('btn-creator-ai');
+  if(btn){btn.disabled=true;btn.textContent='Analisando...';}
+  htm('creator-ai-result','<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--ink-48);text-align:center;padding:32px;letter-spacing:0.06em">CLAUDE ANALISANDO ESTA CREATOR · ATÉ 25S</div>');
+  el('creator-ai-result').classList.add('show');
+
+  try{
+    const hist=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(creatorId)}&order=periodo.asc`);
+    if(!hist.length){htm('creator-ai-result','<div style="padding:24px;text-align:center;color:var(--ink-48);font-family:\'JetBrains Mono\',monospace;font-size:12px">SEM HISTÓRICO PARA ANALISAR</div>');return;}
+
+    const totalGMV=hist.reduce((s,r)=>s+(+r.gmv_liquido||0),0);
+    const totalPed=hist.reduce((s,r)=>s+(+r.pedidos||0),0);
+    const totalVid=hist.reduce((s,r)=>s+(+r.videos||0),0);
+    const totalLive=hist.reduce((s,r)=>s+(+r.lives||0),0);
+
+    const data={
+      affiliate_id:creatorId,
+      gmv_acumulado:Math.round(totalGMV),
+      pedidos_total:totalPed,
+      videos_total:totalVid,
+      lives_total:totalLive,
+      historico_periodos:hist.map(r=>({
+        periodo:r.periodo,
+        gmv_bruto:Math.round(+r.gmv_bruto||0),
+        gmv_liquido:Math.round(+r.gmv_liquido||0),
+        refund_pct:+(+r.refund_pct||0).toFixed(1),
+        pedidos:+r.pedidos||0,
+        aov:+(+r.aov||0).toFixed(2),
+        videos:+r.videos||0,
+        lives:+r.lives||0,
+        tier:r.tier
+      }))
+    };
+
+    const r=await fetch('/api/analyst',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mode:'creator',data})
+    });
+    if(!r.ok){const e=await r.json();throw new Error(e.error||'Erro');}
+    const result=await r.json();
+    CREATOR_AI_CACHE[creatorId]=result;
+    renderCreatorInsight(result,creatorId);
+  }catch(e){
+    htm('creator-ai-result',`<div style="padding:24px;text-align:center;color:var(--rhode-red);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em">ERRO: ${e.message}</div>`);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='↻ Re-analisar';}
+  }
+}
+
+function renderCreatorInsight(d,creatorId){
+  const trajCls={'acelerando':'traj-acelerando','estavel':'traj-estavel','desacelerando':'traj-desacelerando','instavel':'traj-instavel'}[d.trajetoria]||'traj-estavel';
+  const trajLabel={'acelerando':'↑ Acelerando','estavel':'→ Estável','desacelerando':'↓ Desacelerando','instavel':'∼ Instável'}[d.trajetoria]||d.trajetoria;
+
+  const tipoLabel={'live_seller':'Live Seller','video_creator':'Video Creator','hibrido':'Híbrida','dormente':'Dormente'}[d.perfil?.tipo]||d.perfil?.tipo;
+  const estagioLabel={'iniciante':'Iniciante','em_crescimento':'Em crescimento','estabelecida':'Estabelecida','em_declinio':'Em declínio'}[d.perfil?.estagio]||d.perfil?.estagio;
+
+  const forcasHTML=(d.forcas||[]).map(f=>`<div class="creator-tag-row forca"><span>${f}</span></div>`).join('');
+  const riscosHTML=(d.riscos||[]).map(f=>`<div class="creator-tag-row risco"><span>${f}</span></div>`).join('');
+  const acoesHTML=(d.acoes||[]).map(a=>`<div class="cog-rec">
+    <div class="cog-rec-num">${String(a.prioridade||1).padStart(2,'0')}</div>
+    <div class="cog-rec-body">
+      <div class="cog-rec-title">${a.acao}</div>
+      <div class="cog-rec-how">${a.razao||''}</div>
+      <div class="cog-rec-meta">
+        ${a.impacto_estimado?`<span><strong>Impacto:</strong> ${a.impacto_estimado}</span>`:''}
+        ${a.prazo?`<span><strong>Prazo:</strong> ${a.prazo}</span>`:''}
+      </div>
+    </div>
+  </div>`).join('');
+
+  const projHTML=d.projecao_3m?`<div class="cog-rec" style="background:rgba(254,44,85,0.04);border:1px solid rgba(254,44,85,0.18)">
+    <div class="cog-rec-num">3m</div>
+    <div class="cog-rec-body">
+      <div class="cog-rec-title">Projeção 90 dias · ${fmtK(d.projecao_3m.gmv_estimado)}</div>
+      <div class="cog-rec-how">${d.projecao_3m.premissa}</div>
+    </div>
+  </div>`:'';
+
+  const insight=d.insight_nao_obvio?`<div class="cog-insight">
+    <div class="cog-insight-eyebrow">Insight não óbvio</div>
+    <div class="cog-insight-text">${d.insight_nao_obvio}</div>
+  </div>`:'';
+
+  htm('creator-ai-result',`
+    <div class="creator-perfil-row">
+      ${tipoLabel?`<span class="creator-perfil-pill">${tipoLabel}</span>`:''}
+      ${estagioLabel?`<span class="creator-perfil-pill">${estagioLabel}</span>`:''}
+      <span class="creator-traj-pill ${trajCls}">${trajLabel}</span>
+      ${d.score_growth!=null?`<span class="creator-perfil-pill" style="background:rgba(254,44,85,0.06);border-color:rgba(254,44,85,0.2);color:var(--rhode-red)">Growth ${d.score_growth}/100</span>`:''}
+    </div>
+    ${d.perfil?.headline?`<div class="cog-headline" style="font-size:20px;margin-bottom:10px">${d.perfil.headline}</div>`:''}
+    <div class="cog-summary">${d.diagnostico||''}</div>
+
+    ${forcasHTML?`<div class="cog-section-title">Forças</div><div class="creator-tags">${forcasHTML}</div>`:''}
+    ${riscosHTML?`<div class="cog-section-title">Riscos</div><div class="creator-tags">${riscosHTML}</div>`:''}
+    ${acoesHTML?`<div class="cog-section-title">Ações priorizadas</div><div class="cog-rec-list">${acoesHTML}${projHTML}</div>`:''}
+    ${insight}
+  `);
+}
+
+// Sobrescreve openModal para incluir bloco de análise IA
+const _openModalOrig=openModal;
+async function openModal(id){
+  el('modal-title').textContent=id;
+  htm('modal-body','<div class="spin">Carregando...</div>');
+  el('modal').classList.add('on');
+  try{
+    const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);
+    if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return;}
+    htm('modal-body',`
+      <div class="tw"><table>
+        <thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead>
+        <tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody>
+      </table></div>
+      <div class="creator-ai-block">
+        <div class="creator-ai-cta">
+          <div>
+            <div class="creator-ai-title">Análise IA desta creator</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.04em">Diagnóstico + ações priorizadas + projeção 90d</div>
+          </div>
+          <button class="btn-main" id="btn-creator-ai" style="width:auto;padding:10px 22px;font-size:14px" onclick="generateCreatorInsight('${id}')">Gerar análise IA</button>
+        </div>
+        <div id="creator-ai-result" class="creator-ai-body"></div>
+      </div>
+    `);
+  }catch(e){
+    htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`);
+  }
 }
 
 if(sessionStorage.getItem('rhode-admin')==='1')syncAll();

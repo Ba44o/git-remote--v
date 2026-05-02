@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhode Jeans · Acessar meu Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#050505;--bg2:rgba(255,255,255,.04);--text:#F0EDE6;--dim:rgba(240,237,230,.55);--dimmer:rgba(240,237,230,.3);--red:#FE2C55;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--gold:#C9A96E;--green:#4ade80}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.blob{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+.b1{width:500px;height:500px;background:var(--red);opacity:.08;top:-150px;left:-150px}
+.b2{width:400px;height:400px;background:var(--gold);opacity:.05;bottom:-100px;right:-100px}
+
+.card{position:relative;z-index:1;width:100%;max-width:420px;background:rgba(10,10,10,.85);border:1px solid var(--border);border-radius:24px;padding:48px 36px;backdrop-filter:blur(40px)}
+
+.logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;letter-spacing:-1px;margin-bottom:32px;text-align:center}
+.logo span{color:var(--gold)}
+
+/* Steps */
+.step{display:none}
+.step.active{display:block}
+
+.step-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dimmer);margin-bottom:12px}
+.title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:24px;letter-spacing:-0.5px;margin-bottom:8px;line-height:1.2}
+.sub{font-size:14px;color:var(--dim);line-height:1.6;margin-bottom:28px}
+
+.label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dimmer);margin-bottom:8px;display:block}
+.field{margin-bottom:14px}
+.input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:15px 18px;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.input:focus{border-color:rgba(254,44,85,.4)}
+.input::placeholder{color:var(--dimmer)}
+.input.pin-input{font-family:'DM Mono',monospace;font-size:22px;letter-spacing:6px;text-align:center}
+
+.btn{width:100%;background:var(--red);border:none;border-radius:999px;padding:16px;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-top:8px;transition:opacity .2s,transform .2s;box-shadow:0 8px 32px rgba(254,44,85,.2)}
+.btn:hover:not(:disabled){opacity:.88;transform:scale(1.01)}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.btn-ghost{width:100%;background:transparent;border:1px solid var(--border2);border-radius:999px;padding:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--dim);cursor:pointer;margin-top:8px;transition:border-color .2s,color .2s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.25);color:var(--text)}
+
+.note{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.05em;color:var(--dimmer);text-align:center;margin-top:14px;line-height:1.8}
+
+.err{display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:13px;line-height:1.5;background:rgba(254,44,85,.08);border:1px solid rgba(254,44,85,.2);color:#fe6b88}
+.err.show{display:block}
+
+.success{display:none;text-align:center}
+.success.show{display:block}
+.success-icon{font-size:40px;margin-bottom:16px}
+.success-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;margin-bottom:8px}
+.success-sub{font-size:14px;color:var(--dim)}
+.progress{width:32px;height:3px;background:rgba(255,255,255,.1);border-radius:4px;margin:0 3px;display:inline-block;transition:background .3s}
+.progress.done{background:var(--gold)}
+.dots{text-align:center;margin-bottom:28px;display:flex;justify-content:center;gap:6px}
+</style>
+</head>
+<body>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="card">
+  <div class="logo">RHODE<span>.</span></div>
+
+  <!-- STEP 1: Handle -->
+  <div class="step active" id="step-handle">
+    <div class="dots"><div class="progress done"></div><div class="progress"></div></div>
+    <p class="step-label">Identificação</p>
+    <h1 class="title">Qual é o seu @?</h1>
+    <p class="sub">Digite seu arroba do TikTok para acessar seu hub Rhode.</p>
+    <div class="field">
+      <label class="label">@ TikTok</label>
+      <input class="input" id="handle" type="text" placeholder="@seunome" autocomplete="username" onkeydown="if(event.key==='Enter')checkHandle()">
+    </div>
+    <button class="btn" id="btn-handle" onclick="checkHandle()">Continuar →</button>
+    <div class="err" id="err-handle"></div>
+  </div>
+
+  <!-- STEP 2A: PIN (creator já tem código salvo) -->
+  <div class="step" id="step-pin">
+    <div class="dots"><div class="progress done"></div><div class="progress done"></div></div>
+    <p class="step-label">Acessar hub</p>
+    <h1 class="title">Qual é o seu código?</h1>
+    <p class="sub">Digite o código que você criou para entrar.</p>
+    <div class="field">
+      <label class="label">Código</label>
+      <input class="input pin-input" id="pin" type="text" inputmode="numeric" placeholder="· · · · · ·" maxlength="6" autocomplete="one-time-code" onkeydown="if(event.key==='Enter')submitPin()">
+    </div>
+    <button class="btn" id="btn-pin" onclick="submitPin()">Entrar →</button>
+    <button class="btn-ghost" onclick="goBack('step-handle')">← Voltar</button>
+    <div class="err" id="err-pin"></div>
+    <p class="note">Esqueceu o código ou nunca criou um?<br>Fale com a Rhode em <a href="https://wa.me/5511952759126" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">wa.me/5511952759126</a></p>
+  </div>
+
+  <!-- STEP 2B: Primeiro acesso (WhatsApp + criar código no mesmo form) -->
+  <div class="step" id="step-firstaccess">
+    <div class="dots"><div class="progress done"></div><div class="progress done"></div></div>
+    <p class="step-label">Primeiro acesso</p>
+    <h1 class="title">Crie seu acesso.</h1>
+    <p class="sub">Informe seu WhatsApp e escolha um código de 4 a 6 números. Você vai usar esse código sempre que voltar.</p>
+    <div class="field">
+      <label class="label">WhatsApp (com DDD)</label>
+      <input class="input" id="whatsapp" type="tel" placeholder="11 99999-9999" autocomplete="tel">
+    </div>
+    <div class="field">
+      <label class="label">Crie um código</label>
+      <input class="input pin-input" id="new-pin" type="text" inputmode="numeric" placeholder="· · · · · ·" maxlength="6" onkeydown="if(event.key==='Enter')submitFirstAccess()">
+    </div>
+    <button class="btn" id="btn-firstaccess" onclick="submitFirstAccess()">Entrar no hub →</button>
+    <button class="btn-ghost" onclick="goBack('step-handle')">← Voltar</button>
+    <div class="err" id="err-firstaccess"></div>
+    <p class="note">Guarde bem esse código — é seu acesso permanente.</p>
+  </div>
+
+  <!-- Sucesso -->
+  <div class="success" id="success">
+    <div class="success-icon">🤍</div>
+    <h2 class="success-title">Entrando no hub...</h2>
+    <p class="success-sub">Você será redirecionada agora.</p>
+  </div>
+</div>
+
+<script>
+let _handle = '';
+
+// ── Rate limit local (5 tentativas erradas → 5min de cooldown) ──
+const PIN_LOCK_MS = 5 * 60 * 1000;
+const PIN_MAX_ATTEMPTS = 5;
+
+function pinAttemptsKey(h) { return `rhode-pin-attempts-${(h||'').toLowerCase()}`; }
+
+function pinLockedSeconds(h) {
+  try {
+    const d = JSON.parse(localStorage.getItem(pinAttemptsKey(h)) || '{}');
+    if (d.lockedUntil && d.lockedUntil > Date.now()) {
+      return Math.ceil((d.lockedUntil - Date.now()) / 1000);
+    }
+  } catch (e) {}
+  return 0;
+}
+
+function recordWrongPin(h) {
+  try {
+    const k = pinAttemptsKey(h);
+    const d = JSON.parse(localStorage.getItem(k) || '{}');
+    d.attempts = (d.attempts || 0) + 1;
+    if (d.attempts >= PIN_MAX_ATTEMPTS) {
+      d.lockedUntil = Date.now() + PIN_LOCK_MS;
+      d.attempts = 0;
+    }
+    localStorage.setItem(k, JSON.stringify(d));
+    return d;
+  } catch (e) { return {}; }
+}
+
+function clearPinAttempts(h) {
+  try { localStorage.removeItem(pinAttemptsKey(h)); } catch (e) {}
+}
+
+function fmtCooldown(s) {
+  const m = Math.floor(s / 60), r = s % 60;
+  return m > 0 ? `${m}min ${r}s` : `${r}s`;
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function clearErr(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('show');
+}
+function setLoading(btnId, loading, text) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.textContent = loading ? 'Aguarde...' : text;
+}
+function showStep(id) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goBack(stepId) {
+  showStep(stepId);
+}
+
+async function checkHandle() {
+  clearErr('err-handle');
+  const handle = document.getElementById('handle').value.trim();
+  if (!handle) return showErr('err-handle', 'Digite seu @ do TikTok.');
+  setLoading('btn-handle', true, 'Continuar →');
+
+  const r = await fetch('/api/get-hub', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ handle })
+  }).catch(() => null);
+
+  setLoading('btn-handle', false, 'Continuar →');
+
+  if (!r) return showErr('err-handle', 'Erro de conexão. Tente novamente.');
+  const data = await r.json();
+
+  if (!r.ok) return showErr('err-handle', data.error || 'Handle não encontrado.');
+
+  _handle = handle;
+  if (data.step === 'enter_pin') {
+    showStep('step-pin');
+    setTimeout(() => document.getElementById('pin').focus(), 100);
+  } else {
+    // Primeiro acesso — formulário único: WhatsApp + criar PIN
+    showStep('step-firstaccess');
+    setTimeout(() => document.getElementById('whatsapp').focus(), 100);
+  }
+}
+
+async function submitPin() {
+  clearErr('err-pin');
+
+  // Cooldown ativo? bloqueia antes de chamar a API
+  const cd = pinLockedSeconds(_handle);
+  if (cd > 0) {
+    return showErr('err-pin', `Muitas tentativas. Tente novamente em ${fmtCooldown(cd)}.`);
+  }
+
+  const pin = document.getElementById('pin').value.trim();
+  if (!pin) return showErr('err-pin', 'Digite seu código.');
+  setLoading('btn-pin', true, 'Entrar →');
+
+  const r = await fetch('/api/get-hub', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ handle: _handle, pin })
+  }).catch(() => null);
+
+  setLoading('btn-pin', false, 'Entrar →');
+  if (!r) return showErr('err-pin', 'Erro de conexão. Tente novamente.');
+  const data = await r.json();
+
+  if (!r.ok) {
+    const state = recordWrongPin(_handle);
+    if (state.lockedUntil) {
+      return showErr('err-pin', `5 códigos errados. Bloqueado por 5min para sua segurança.`);
+    }
+    const left = PIN_MAX_ATTEMPTS - (state.attempts || 0);
+    return showErr('err-pin', `Código incorreto. ${left} tentativa${left===1?'':'s'} restante${left===1?'':'s'}.`);
+  }
+
+  clearPinAttempts(_handle);
+  enter(data.token);
+}
+
+async function submitFirstAccess() {
+  clearErr('err-firstaccess');
+  const whatsapp = document.getElementById('whatsapp').value.trim();
+  const newPin   = document.getElementById('new-pin').value.trim();
+
+  if (!whatsapp) return showErr('err-firstaccess', 'Digite seu WhatsApp.');
+  if (whatsapp.replace(/\D/g,'').length < 10) return showErr('err-firstaccess', 'WhatsApp inválido. Use DDD + número.');
+  if (!newPin) return showErr('err-firstaccess', 'Crie um código de acesso.');
+  if (!/^\d{4,6}$/.test(newPin)) return showErr('err-firstaccess', 'O código deve ter de 4 a 6 números.');
+
+  setLoading('btn-firstaccess', true, 'Entrar no hub →');
+
+  // 1 chamada só: backend valida WhatsApp, registra (auto-cadastro se não tiver) e cria PIN
+  const r = await fetch('/api/get-hub', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ handle: _handle, whatsapp, new_pin: newPin })
+  }).catch(() => null);
+
+  setLoading('btn-firstaccess', false, 'Entrar no hub →');
+  if (!r) return showErr('err-firstaccess', 'Erro de conexão. Tente novamente.');
+  const data = await r.json();
+
+  if (!r.ok) return showErr('err-firstaccess', data.error || 'Erro ao criar acesso.');
+  enter(data.token);
+}
+
+function enter(token) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('success').classList.add('show');
+  setTimeout(() => { window.location.href = `/hub.html?token=${token}`; }, 1200);
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.step.active');
+  if (!active) return;
+  if (active.id === 'step-handle')        checkHandle();
+  if (active.id === 'step-pin')           submitPin();
+  if (active.id === 'step-firstaccess')   submitFirstAccess();
+});
+</script>
+</body>
+</html>
