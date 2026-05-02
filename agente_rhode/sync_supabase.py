@@ -80,6 +80,20 @@ def sync_performance_periods():
     for r in rows:
         seen[(r["affiliate_id"], r["periodo"])] = r
     rows = list(seen.values())
+
+    # DELETE-then-UPSERT por período: remove creators "fantasma" (linhas que existiam
+    # em snapshots antigos do mesmo período mas não estão mais no export canônico).
+    # Sem isso, ao reprocessar abril o sync só atualiza/insere — nunca remove.
+    periodos_atuais = sorted({r["periodo"] for r in rows})
+    print(f"  Limpando dados antigos de {len(periodos_atuais)} período(s) antes do upsert...")
+    for p in periodos_atuais:
+        url = f"{SUPABASE_URL}/rest/v1/performance_periods?periodo=eq.{p}"
+        d = requests.delete(url, headers=HEADERS)
+        if d.status_code not in (200, 204):
+            print(f"  [AVISO] DELETE periodo={p}: {d.status_code} {d.text[:200]}")
+        else:
+            print(f"  [✓] DELETE periodo={p}")
+
     upsert("performance_periods", rows, on_conflict="affiliate_id,periodo")
 
 JOBS = {
