@@ -61,7 +61,11 @@ REQUIRED_COLS = {
 COLUMN_ALIASES = {
     # TikTok Seller Center PT
     "creator_name":                              "creator_id",
-    "gmv_atribuido_a_afiliados":                 "gmv_bruto",
+    # GMV atribuído — TikTok renomeou o header em abril/2026:
+    "gmv_atribuido_a_afiliados":                 "gmv_bruto",  # exports até março/2026
+    "gmv_atribuido_ao_criador":                  "gmv_bruto",  # exports a partir de abril/2026
+    "gmv_atribuido_ao_afiliado":                 "gmv_bruto",  # variação singular eventual
+    "gmv_atribuido_aos_criadores":               "gmv_bruto",  # variação plural eventual
     "reembolsos":                                "reembolso",
     "pedidos_atribuidos":                        "pedidos",
     "aov":                                       "aov",
@@ -467,10 +471,71 @@ def save_warehouse(raw: pd.DataFrame, warehouse_dir: Path) -> dict:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
+def pick_canonical_per_period(input_files: list[Path]) -> list[Path]:
+    """
+    Quando o user despeja vários snapshots do mesmo período (ex: abril com
+    arquivos cobrindo 1-11, 1-13, 1-19, ..., 1-30, 24-30), processar todos
+    duplica linhas e o dedup acaba pegando o snapshot errado.
+
+    Estratégia: para cada período (YYYY-MM), escolhe o arquivo que:
+      1. Começa no dia 01 do mês (cumulativo desde o início)
+      2. Tem a data fim mais recente (snapshot mais novo)
+    Se nenhum começa em 01, pega o que cobre mais dias.
+    """
+    from collections import defaultdict
+    from datetime import datetime
+
+    def file_kind(name: str) -> tuple[int, str]:
+        """Prioridade: Creator_List (lista de creators) > Creator (legacy) > Core_Metrics (totalizador, sem dados úteis)."""
+        n = name.lower()
+        if "creator_list" in n or "creator-list" in n: return (3, "creator_list")
+        if "creator" in n and "core" not in n:         return (2, "creator")
+        if "core_metrics" in n or "overview" in n:     return (1, "totalizer")
+        return (2, "unknown")
+
+    by_period = defaultdict(list)
+    for f in input_files:
+        ym, ini, fim = detect_period(f)
+        di = datetime.strptime(ini, "%Y-%m-%d").date()
+        df = datetime.strptime(fim, "%Y-%m-%d").date()
+        kind_priority, kind_label = file_kind(f.name)
+        by_period[ym].append((f, di, df, (df - di).days, kind_priority, kind_label))
+
+    chosen, dropped = [], []
+    for ym, files in sorted(by_period.items()):
+        # Filtra para deixar apenas tipos com dados úteis (descarta totalizers)
+        useful = [t for t in files if t[4] >= 2]
+        if not useful:
+            # Só tem totalizers para esse período — descarta tudo
+            for f, di, df, span, _, kind in files:
+                dropped.append((ym, f.name, f"{di} → {df} ({span+1}d) · {kind}"))
+            continue
+        # Prefere arquivos que começam no dia 1 do mês
+        start_of_month = [t for t in useful if t[1].day == 1]
+        pool = start_of_month if start_of_month else useful
+        # Ordena: maior prioridade de tipo > maior cobertura > fim mais recente
+        pool.sort(key=lambda x: (x[4], x[3], x[2]), reverse=True)
+        winner = pool[0][0]
+        chosen.append(winner)
+        for f, di, df, span, _, kind in files:
+            if f != winner:
+                dropped.append((ym, f.name, f"{di} → {df} ({span+1}d) · {kind}"))
+
+    if dropped:
+        print(f"\n▶ Filtrando snapshots redundantes ({len(dropped)} arquivo(s) ignorado(s)):")
+        for ym, name, cobertura in dropped:
+            print(f"    [SKIP {ym}] {name}  ·  {cobertura}")
+
+    return chosen
+
+
 def run(input_files: list[Path], warehouse_dir: Path = WAREHOUSE_DIR) -> None:
     print("\n" + "═" * 56)
     print("  Rhode Jeans — ETL v2 · Data Warehouse")
     print("═" * 56)
+
+    # Filtra snapshots redundantes — 1 arquivo canônico por período
+    input_files = pick_canonical_per_period(input_files)
 
     all_new = []
     for path in input_files:
@@ -490,6 +555,22 @@ def run(input_files: list[Path], warehouse_dir: Path = WAREHOUSE_DIR) -> None:
 
         df = transform(raw_df, periodo_ym, inicio, fim)
         print(f"  Após limpeza:  {len(df)} creators")
+
+        # ── Sanity check: se o export tem pedidos > 0 mas gmv_bruto = 0 em
+        #    mais de 30% das linhas ativas, é provável bug de header renomeado.
+        if len(df) >= 5:
+            ativas = df[df["pedidos"] > 0]
+            if len(ativas) >= 5:
+                quebradas = ativas[ativas["gmv_bruto"] == 0]
+                pct_quebrado = len(quebradas) / len(ativas) * 100
+                if pct_quebrado > 30:
+                    print(f"  [ERRO] {len(quebradas)}/{len(ativas)} creators ativas têm GMV bruto = 0 ({pct_quebrado:.0f}%).", file=sys.stderr)
+                    print(f"  [ERRO] Provável renomeação de coluna no export. Headers detectados:", file=sys.stderr)
+                    for c in raw_df.columns:
+                        print(f"           {c!r}", file=sys.stderr)
+                    print(f"  [ERRO] Atualize COLUMN_ALIASES em etl_v2.py antes de rodar de novo.", file=sys.stderr)
+                    sys.exit(2)
+
         all_new.append(df)
 
     if not all_new:
