@@ -8,291 +8,178 @@
   ],
   "periodo_atual": "2026-04",
   "health": {
-    "score": 80.0,
+    "score": 83.3,
     "label": "Excelente",
     "color": "#16a34a",
     "fatores": [
       {
         "fator": "Refund rate",
-        "valor": "0.0%",
+        "valor": "14.1%",
         "impacto": 0,
         "status": "ok"
       },
       {
         "fator": "Anomalias críticas",
-        "valor": "42",
+        "valor": "23",
         "impacto": -20,
         "status": "ruim"
       },
       {
         "fator": "GMV vs período ant.",
-        "valor": "5.7%",
-        "impacto": 0,
-        "status": "neutro"
+        "valor": "+16.5%",
+        "impacto": 3.3,
+        "status": "ok"
       }
     ]
   },
   "executive_brief": {
-    "headline": "Operação saudável em 2026-04 — GMV líquido R$ -109.649,39, refund 0.0%.",
+    "headline": "Operação saudável em 2026-04 — GMV líquido R$ 666.129,03, refund 14.1%.",
     "bullets": [
-      "GMV líquido R$ -109.649,39 (+5.7% vs período anterior).",
-      "Refund rate 0.0% — dentro do controle.",
+      "GMV líquido R$ 666.129,03 (+16.5% vs período anterior).",
+      "Refund rate 14.1% — dentro do controle.",
+      "🚀 11 creator(s) em trajetória de crescimento. Destaque: PSI.MIRELLARODRIGUES (+136071%).",
       "🔻 20 creator(s) em declínio consecutivo — requerem reativação.",
-      "💡 4 creator(s) a menos de 15% de upgrade de tier — candidatas a meta de incentivo.",
-      "Retenção de creators ativas: 28.4% (99 recorrentes, 249 churned)."
+      "💡 9 creator(s) a menos de 15% de upgrade de tier — candidatas a meta de incentivo.",
+      "Retenção de creators ativas: 33.3% (116 recorrentes, 232 churned)."
     ],
     "acoes": [
-      "URGENTE: contatar DAVYLLAG — Refund saltou de 20.3% → 65.1%. Investigar produto/cliente recorrente.",
+      "URGENTE: contatar DAVYLLAG — Refund saltou de 20.3% → 195.3%. Investigar produto/cliente recorrente.",
       "Campanha de reativação para 20 creators em queda.",
-      "Meta de tier: THAMI.BRAMBILLA falta apenas R$ 65,96 para Bronze."
+      "Meta de tier: HITALASANTIAGO falta apenas R$ 3,52 para Bronze."
     ],
-    "health_score": 80.0,
+    "health_score": 83.3,
     "health_label": "Excelente"
   },
   "anomalias": [
     {
       "tipo": "refund_spike",
       "creator": "DAVYLLAG",
-      "valor_atual": 65.1,
+      "valor_atual": 195.3,
       "valor_anterior": 20.3,
-      "delta_pct": 221.0,
+      "delta_pct": 863.0,
       "severidade": "critica",
-      "gmv_em_risco": 820.08,
-      "acao": "Refund saltou de 20.3% → 65.1%. Investigar produto/cliente recorrente."
+      "gmv_em_risco": 136.68,
+      "acao": "Refund saltou de 20.3% → 195.3%. Investigar produto/cliente recorrente."
+    },
+    {
+      "tipo": "refund_spike",
+      "creator": "EUVIVIANEBORGES",
+      "valor_atual": 120.8,
+      "valor_anterior": 28.4,
+      "delta_pct": 325.7,
+      "severidade": "critica",
+      "gmv_em_risco": 79.9,
+      "acao": "Refund saltou de 28.4% → 120.8%. Investigar produto/cliente recorrente."
+    },
+    {
+      "tipo": "refund_spike",
+      "creator": "_MAREIIS",
+      "valor_atual": 48.2,
+      "valor_anterior": 20.1,
+      "delta_pct": 139.6,
+      "severidade": "critica",
+      "gmv_em_risco": 796.27,
+      "acao": "Refund saltou de 20.1% → 48.2%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "gmv_crash",
-      "creator": ".FAMILIAPIMENTEL",
-      "valor_atual": -1660.35,
-      "valor_anterior": 7194.4,
-      "delta_pct": -123.1,
+      "creator": "ANA.FERNNANDES",
+      "valor_atual": 90.98,
+      "valor_anterior": 609.13,
+      "delta_pct": -85.1,
       "severidade": "alta",
-      "acao": "GMV caiu 123%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 85%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
-      "creator": "ADV.DAYANE",
-      "valor_atual": -5420.25,
-      "valor_anterior": 33645.11,
-      "delta_pct": -116.1,
+      "creator": "CAROLXCREATORSHOP",
+      "valor_atual": 177.56,
+      "valor_anterior": 724.91,
+      "delta_pct": -75.5,
       "severidade": "alta",
-      "acao": "GMV caiu 116%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 76%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
-      "creator": "ALINECAVANELLAS",
-      "valor_atual": 3461.34,
-      "valor_anterior": 22290.81,
+      "creator": "DAVYLLAG",
+      "valor_atual": -66.69,
+      "valor_anterior": 2824.87,
+      "delta_pct": -102.4,
+      "severidade": "alta",
+      "acao": "GMV caiu 102%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
+      "tipo": "gmv_crash",
+      "creator": "DICASDATHAYOFICIAL",
+      "valor_atual": 487.5,
+      "valor_anterior": 3149.53,
       "delta_pct": -84.5,
       "severidade": "alta",
       "acao": "GMV caiu 84%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
-      "creator": "ANA.FERNNANDES",
-      "valor_atual": -180.84,
-      "valor_anterior": 609.13,
-      "delta_pct": -129.7,
-      "severidade": "alta",
-      "acao": "GMV caiu 130%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "ARENATAJARDIM",
-      "valor_atual": -184.3,
-      "valor_anterior": 1832.25,
-      "delta_pct": -110.1,
-      "severidade": "alta",
-      "acao": "GMV caiu 110%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "BIALUZZMODAS",
-      "valor_atual": 866.22,
-      "valor_anterior": 2441.51,
-      "delta_pct": -64.5,
-      "severidade": "alta",
-      "acao": "GMV caiu 64%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "CAROLXCREATORSHOP",
-      "valor_atual": 0.0,
-      "valor_anterior": 724.91,
-      "delta_pct": -100.0,
-      "severidade": "alta",
-      "acao": "GMV caiu 100%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "CINTIA.THIES",
-      "valor_atual": 51.58,
-      "valor_anterior": 869.75,
-      "delta_pct": -94.1,
-      "severidade": "alta",
-      "acao": "GMV caiu 94%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "DANIJEANS",
-      "valor_atual": 82.56,
-      "valor_anterior": 2446.36,
-      "delta_pct": -96.6,
-      "severidade": "alta",
-      "acao": "GMV caiu 97%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "DAVYLLAG",
-      "valor_atual": -680.1,
-      "valor_anterior": 2824.87,
-      "delta_pct": -124.1,
-      "severidade": "alta",
-      "acao": "GMV caiu 124%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "DICASDATHAYOFICIAL",
-      "valor_atual": -401.2,
-      "valor_anterior": 3149.53,
-      "delta_pct": -112.7,
-      "severidade": "alta",
-      "acao": "GMV caiu 113%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "DPAULA57",
-      "valor_atual": -593.7,
-      "valor_anterior": 563.64,
-      "delta_pct": -205.3,
-      "severidade": "alta",
-      "acao": "GMV caiu 205%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
       "creator": "EE2UT0L0R4",
-      "valor_atual": 150.46,
+      "valor_atual": 75.23,
       "valor_anterior": 6237.7,
-      "delta_pct": -97.6,
+      "delta_pct": -98.8,
       "severidade": "alta",
-      "acao": "GMV caiu 98%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 99%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "ELACATARINA",
-      "valor_atual": 0.0,
+      "valor_atual": 78.32,
       "valor_anterior": 812.13,
-      "delta_pct": -100.0,
-      "severidade": "alta",
-      "acao": "GMV caiu 100%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "ERICAMCABELUDA",
-      "valor_atual": 7632.68,
-      "valor_anterior": 38144.34,
-      "delta_pct": -80.0,
-      "severidade": "alta",
-      "acao": "GMV caiu 80%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "EU.LIDIANNEMARTINS",
-      "valor_atual": 325.66,
-      "valor_anterior": 929.15,
-      "delta_pct": -65.0,
-      "severidade": "alta",
-      "acao": "GMV caiu 65%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "GLEYSAAGUIAR",
-      "valor_atual": 524.92,
-      "valor_anterior": 2358.12,
-      "delta_pct": -77.7,
-      "severidade": "alta",
-      "acao": "GMV caiu 78%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "JESSICAMESANT",
-      "valor_atual": 587.44,
-      "valor_anterior": 5743.68,
-      "delta_pct": -89.8,
+      "delta_pct": -90.4,
       "severidade": "alta",
       "acao": "GMV caiu 90%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
+      "creator": "ESSENCIADANI",
+      "valor_atual": 256.22,
+      "valor_anterior": 851.04,
+      "delta_pct": -69.9,
+      "severidade": "alta",
+      "acao": "GMV caiu 70%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
+      "tipo": "gmv_crash",
       "creator": "KCOMKARINA",
-      "valor_atual": -389.64,
+      "valor_atual": -64.94,
       "valor_anterior": 2455.67,
-      "delta_pct": -115.9,
+      "delta_pct": -102.6,
       "severidade": "alta",
-      "acao": "GMV caiu 116%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "LAIANENOVAISSS",
-      "valor_atual": 2753.77,
-      "valor_anterior": 23070.51,
-      "delta_pct": -88.1,
-      "severidade": "alta",
-      "acao": "GMV caiu 88%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "LARYOLIVEIIRA_",
-      "valor_atual": -782.66,
-      "valor_anterior": 1659.82,
-      "delta_pct": -147.2,
-      "severidade": "alta",
-      "acao": "GMV caiu 147%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 103%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "LETICIATSEC",
-      "valor_atual": 917.48,
+      "valor_atual": 7224.72,
       "valor_anterior": 19069.26,
-      "delta_pct": -95.2,
+      "delta_pct": -62.1,
       "severidade": "alta",
-      "acao": "GMV caiu 95%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 62%. Verificar frequência de conteúdo e qualidade."
     },
     {
-      "tipo": "gmv_crash",
-      "creator": "LIDIKPF6",
-      "valor_atual": 172.17,
-      "valor_anterior": 4358.52,
-      "delta_pct": -96.0,
+      "tipo": "refund_spike",
+      "creator": "MARITIPS_",
+      "valor_atual": 23.0,
+      "valor_anterior": 9.2,
+      "delta_pct": 149.6,
       "severidade": "alta",
-      "acao": "GMV caiu 96%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "MARIAAUGUSTAREISS",
-      "valor_atual": 122.51,
-      "valor_anterior": 1514.7,
-      "delta_pct": -91.9,
-      "severidade": "alta",
-      "acao": "GMV caiu 92%. Verificar frequência de conteúdo e qualidade."
+      "gmv_em_risco": 237.64,
+      "acao": "Refund saltou de 9.2% → 23.0%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "gmv_crash",
       "creator": "MARITIPS_",
-      "valor_atual": 320.82,
+      "valor_atual": 793.87,
       "valor_anterior": 6355.61,
-      "delta_pct": -95.0,
+      "delta_pct": -87.5,
       "severidade": "alta",
-      "acao": "GMV caiu 95%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "MATHEUSLIMASHOP",
-      "valor_atual": -136.4,
-      "valor_anterior": 654.81,
-      "delta_pct": -120.8,
-      "severidade": "alta",
-      "acao": "GMV caiu 121%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 88%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -306,20 +193,11 @@
     {
       "tipo": "gmv_crash",
       "creator": "NANACASAGRANDI",
-      "valor_atual": 0.0,
+      "valor_atual": 80.3,
       "valor_anterior": 539.8,
-      "delta_pct": -100.0,
+      "delta_pct": -85.1,
       "severidade": "alta",
-      "acao": "GMV caiu 100%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "NATI_SUS",
-      "valor_atual": 477.96,
-      "valor_anterior": 5991.74,
-      "delta_pct": -92.0,
-      "severidade": "alta",
-      "acao": "GMV caiu 92%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 85%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -332,102 +210,67 @@
     },
     {
       "tipo": "gmv_crash",
-      "creator": "NUMARCHI",
-      "valor_atual": 4332.34,
-      "valor_anterior": 18442.2,
-      "delta_pct": -76.5,
-      "severidade": "alta",
-      "acao": "GMV caiu 76%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "PATTYLAZZAROTTO",
-      "valor_atual": 3912.06,
-      "valor_anterior": 28185.49,
-      "delta_pct": -86.1,
-      "severidade": "alta",
-      "acao": "GMV caiu 86%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "ROBERTAKGUILHERME",
-      "valor_atual": 179.8,
-      "valor_anterior": 1910.49,
-      "delta_pct": -90.6,
-      "severidade": "alta",
-      "acao": "GMV caiu 91%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "TACIANETORRESS",
-      "valor_atual": 12523.07,
-      "valor_anterior": 70641.64,
-      "delta_pct": -82.3,
-      "severidade": "alta",
-      "acao": "GMV caiu 82%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "THAINABEAUTYOFICIAL",
-      "valor_atual": 8820.4,
-      "valor_anterior": 39088.13,
-      "delta_pct": -77.4,
-      "severidade": "alta",
-      "acao": "GMV caiu 77%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
       "creator": "THALYYTAGUEDES",
-      "valor_atual": -306.4,
+      "valor_atual": 142.69,
       "valor_anterior": 545.55,
-      "delta_pct": -156.2,
+      "delta_pct": -73.8,
       "severidade": "alta",
-      "acao": "GMV caiu 156%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "THAMI.BRAMBILLA",
-      "valor_atual": 2143.94,
-      "valor_anterior": 7284.65,
-      "delta_pct": -70.6,
-      "severidade": "alta",
-      "acao": "GMV caiu 71%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 74%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "YASMIN.AOLIVEIRA",
-      "valor_atual": 127.94,
+      "valor_atual": 647.12,
       "valor_anterior": 2699.23,
-      "delta_pct": -95.3,
+      "delta_pct": -76.0,
       "severidade": "alta",
-      "acao": "GMV caiu 95%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 76%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
+      "tipo": "refund_spike",
+      "creator": "YOARIADNY",
+      "valor_atual": 39.3,
+      "valor_anterior": 10.8,
+      "delta_pct": 264.0,
+      "severidade": "alta",
+      "gmv_em_risco": 79.9,
+      "acao": "Refund saltou de 10.8% → 39.3%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "gmv_crash",
       "creator": "YOARIADNY",
-      "valor_atual": 86.9,
+      "valor_atual": 123.35,
       "valor_anterior": 646.51,
-      "delta_pct": -86.6,
+      "delta_pct": -80.9,
       "severidade": "alta",
-      "acao": "GMV caiu 87%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 81%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "_MAREIIS",
-      "valor_atual": -996.9,
+      "valor_atual": 855.45,
       "valor_anterior": 19572.31,
-      "delta_pct": -105.1,
+      "delta_pct": -95.6,
       "severidade": "alta",
-      "acao": "GMV caiu 105%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 96%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "_MILENECARVALHO",
-      "valor_atual": 0.0,
+      "valor_atual": 232.83,
       "valor_anterior": 589.03,
-      "delta_pct": -100.0,
+      "delta_pct": -60.5,
       "severidade": "alta",
-      "acao": "GMV caiu 100%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 60%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
+      "tipo": "gmv_crash",
+      "creator": "ADV.DAYANE",
+      "valor_atual": 18628.26,
+      "valor_anterior": 33645.11,
+      "delta_pct": -44.6,
+      "severidade": "media",
+      "acao": "GMV caiu 45%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -439,49 +282,13 @@
       "acao": "Parou de gerar GMV. Último período: R$ 237,91. Reativar com amostra ou campanha."
     },
     {
-      "tipo": "inatividade_subita",
-      "creator": "CAROLXCREATORSHOP",
-      "valor_atual": 0,
-      "valor_anterior": 724.91,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 724,91. Reativar com amostra ou campanha."
-    },
-    {
       "tipo": "gmv_crash",
-      "creator": "COMPREIA",
-      "valor_atual": 614.74,
-      "valor_anterior": 1050.9,
-      "delta_pct": -41.5,
+      "creator": "CINTIA.THIES",
+      "valor_atual": 373.48,
+      "valor_anterior": 869.75,
+      "delta_pct": -57.1,
       "severidade": "media",
-      "acao": "GMV caiu 42%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "inatividade_subita",
-      "creator": "ELACATARINA",
-      "valor_atual": 0,
-      "valor_anterior": 812.13,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 812,13. Reativar com amostra ou campanha."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "ESCUTA.AMIGA",
-      "valor_atual": 1130.81,
-      "valor_anterior": 2546.33,
-      "delta_pct": -55.6,
-      "severidade": "media",
-      "acao": "GMV caiu 56%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "inatividade_subita",
-      "creator": "FLAVINHA.BRAND",
-      "valor_atual": 0,
-      "valor_anterior": 478.95,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 478,95. Reativar com amostra ou campanha."
+      "acao": "GMV caiu 57%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -494,21 +301,12 @@
     },
     {
       "tipo": "gmv_crash",
-      "creator": "HITALASANTIAGO",
-      "valor_atual": 882.79,
-      "valor_anterior": 2182.1,
-      "delta_pct": -59.5,
+      "creator": "JESSICAMESANT",
+      "valor_atual": 2608.76,
+      "valor_anterior": 5743.68,
+      "delta_pct": -54.6,
       "severidade": "media",
-      "acao": "GMV caiu 60%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "inatividade_subita",
-      "creator": "JHENNYTHH",
-      "valor_atual": 0,
-      "valor_anterior": 349.72,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 349,72. Reativar com amostra ou campanha."
+      "acao": "GMV caiu 55%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -522,11 +320,29 @@
     {
       "tipo": "gmv_crash",
       "creator": "LARI.QUARESMA",
-      "valor_atual": 946.44,
+      "valor_atual": 951.05,
       "valor_anterior": 1586.71,
-      "delta_pct": -40.4,
+      "delta_pct": -40.1,
       "severidade": "media",
       "acao": "GMV caiu 40%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
+      "tipo": "gmv_crash",
+      "creator": "LIDIKPF6",
+      "valor_atual": 2068.6,
+      "valor_anterior": 4358.52,
+      "delta_pct": -52.5,
+      "severidade": "media",
+      "acao": "GMV caiu 52%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
+      "tipo": "gmv_crash",
+      "creator": "MARIAAUGUSTAREISS",
+      "valor_atual": 667.76,
+      "valor_anterior": 1514.7,
+      "delta_pct": -55.9,
+      "severidade": "media",
+      "acao": "GMV caiu 56%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -539,39 +355,30 @@
     },
     {
       "tipo": "inatividade_subita",
-      "creator": "NAMATOKANOVIC",
-      "valor_atual": 0,
-      "valor_anterior": 326.96,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 326,96. Reativar com amostra ou campanha."
-    },
-    {
-      "tipo": "inatividade_subita",
-      "creator": "NANACASAGRANDI",
-      "valor_atual": 0,
-      "valor_anterior": 539.8,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 539,80. Reativar com amostra ou campanha."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "NATMARQUESSS",
-      "valor_atual": 22716.31,
-      "valor_anterior": 48324.5,
-      "delta_pct": -53.0,
-      "severidade": "media",
-      "acao": "GMV caiu 53%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "inatividade_subita",
       "creator": "NAY.TARCIA",
       "valor_atual": 0,
       "valor_anterior": 568.81,
       "delta_pct": -100.0,
       "severidade": "media",
       "acao": "Parou de gerar GMV. Último período: R$ 568,81. Reativar com amostra ou campanha."
+    },
+    {
+      "tipo": "gmv_crash",
+      "creator": "NUMARCHI",
+      "valor_atual": 10808.25,
+      "valor_anterior": 18442.2,
+      "delta_pct": -41.4,
+      "severidade": "media",
+      "acao": "GMV caiu 41%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
+      "tipo": "gmv_crash",
+      "creator": "PATTYLAZZAROTTO",
+      "valor_atual": 16037.24,
+      "valor_anterior": 28185.49,
+      "delta_pct": -43.1,
+      "severidade": "media",
+      "acao": "GMV caiu 43%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -592,24 +399,6 @@
       "acao": "Parou de gerar GMV. Último período: R$ 248,10. Reativar com amostra ou campanha."
     },
     {
-      "tipo": "gmv_crash",
-      "creator": "TACIRECOMENDA",
-      "valor_atual": 397.64,
-      "valor_anterior": 711.77,
-      "delta_pct": -44.1,
-      "severidade": "media",
-      "acao": "GMV caiu 44%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "inatividade_subita",
-      "creator": "TASSIASOUZA_SHOP",
-      "valor_atual": 0,
-      "valor_anterior": 416.9,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 416,90. Reativar com amostra ou campanha."
-    },
-    {
       "tipo": "inatividade_subita",
       "creator": "THAI.VITRINE",
       "valor_atual": 0,
@@ -617,311 +406,404 @@
       "delta_pct": -100.0,
       "severidade": "media",
       "acao": "Parou de gerar GMV. Último período: R$ 319,90. Reativar com amostra ou campanha."
-    },
-    {
-      "tipo": "inatividade_subita",
-      "creator": "THALYYTAGUEDES",
-      "valor_atual": 0,
-      "valor_anterior": 545.55,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 545,55. Reativar com amostra ou campanha."
-    },
-    {
-      "tipo": "inatividade_subita",
-      "creator": "_MILENECARVALHO",
-      "valor_atual": 0,
-      "valor_anterior": 589.03,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 589,03. Reativar com amostra ou campanha."
-    },
-    {
-      "tipo": "aov_outlier",
-      "creator": "NELDICASDEMODA",
-      "valor_atual": 162.58,
-      "valor_anterior": 86.03,
-      "delta_pct": 89.0,
-      "severidade": "info",
-      "acao": "AOV R$ 162,58 vs média R$ 86,03. Investigar produto premium ou erro de dados."
-    },
-    {
-      "tipo": "aov_outlier",
-      "creator": "SARAHEMANUELYS",
-      "valor_atual": 218.56,
-      "valor_anterior": 86.03,
-      "delta_pct": 154.0,
-      "severidade": "info",
-      "acao": "AOV R$ 218,56 vs média R$ 86,03. Investigar produto premium ou erro de dados."
     }
   ],
   "oportunidades": [
     {
-      "tipo": "escala_conteudo",
-      "creator": "EU.LIDIANNEMARTINS",
-      "gmv_atual": 666.38,
-      "aov": 111.06,
-      "conteudos": 0,
-      "prioridade": "alta",
-      "acao": "AOV alto (R$ 111,06) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
-    },
-    {
       "tipo": "tier_upgrade",
-      "creator": "LETICIATSEC",
-      "gmv_atual": 1920.45,
+      "creator": "HITALASANTIAGO",
+      "gmv_atual": 1996.48,
       "tier_atual": "Ferro",
       "tier_alvo": "Bronze",
-      "gmv_faltando": 79.55,
-      "pct_faltando": 4.0,
+      "gmv_faltando": 3.52,
+      "pct_faltando": 0.2,
       "prioridade": "alta",
-      "acao": "Faltam R$ 79,55 para Bronze. Incentivar com meta de conteúdo."
+      "acao": "Faltam R$ 3,52 para Bronze. Incentivar com meta de conteúdo."
     },
     {
       "tipo": "escala_conteudo",
-      "creator": "MONICAP.PEREIRA",
-      "gmv_atual": 1864.0,
-      "aov": 103.07,
+      "creator": "SARAHEMANUELYS",
+      "gmv_atual": 568.14,
+      "aov": 189.38,
       "conteudos": 2,
       "prioridade": "alta",
-      "acao": "AOV alto (R$ 103,07) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 189,38) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "TACIRECOMENDA",
-      "gmv_atual": 729.69,
-      "aov": 112.98,
-      "conteudos": 2,
+      "gmv_atual": 1269.07,
+      "aov": 103.75,
+      "conteudos": 3,
       "prioridade": "alta",
-      "acao": "AOV alto (R$ 112,98) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
-    },
-    {
-      "tipo": "tier_upgrade",
-      "creator": "THAMI.BRAMBILLA",
-      "gmv_atual": 1934.04,
-      "tier_atual": "Ferro",
-      "tier_alvo": "Bronze",
-      "gmv_faltando": 65.96,
-      "pct_faltando": 3.3,
-      "prioridade": "alta",
-      "acao": "Faltam R$ 65,96 para Bronze. Incentivar com meta de conteúdo."
+      "acao": "AOV alto (R$ 103,75) com apenas 3 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": ".FAMILIAPIMENTEL",
-      "gmv_atual": 1638.58,
-      "aov": 85.94,
+      "gmv_atual": 5357.24,
+      "aov": 85.38,
       "conteudos": 3,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 85,94) com apenas 3 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 85,38) com apenas 3 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "ALINECAVANELLAS",
-      "gmv_atual": 5382.3,
-      "aov": 95.7,
+      "gmv_atual": 19976.82,
+      "aov": 92.97,
       "conteudos": 3,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 95,70) com apenas 3 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 92,97) com apenas 3 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
-      "tipo": "escala_conteudo",
+      "tipo": "tier_upgrade",
       "creator": "BIALUZZMODAS",
-      "gmv_atual": 1005.87,
-      "aov": 82.35,
-      "conteudos": 0,
+      "gmv_atual": 1733.07,
+      "tier_atual": "Ferro",
+      "tier_alvo": "Bronze",
+      "gmv_faltando": 266.93,
+      "pct_faltando": 13.3,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 82,35) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "Faltam R$ 266,93 para Bronze. Incentivar com meta de conteúdo."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "COMPREIA",
-      "gmv_atual": 743.62,
-      "aov": 91.5,
+      "gmv_atual": 986.78,
+      "aov": 87.49,
       "conteudos": 2,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 91,50) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 87,49) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
+    },
+    {
+      "tipo": "tier_upgrade",
+      "creator": "ERICAMCABELUDA",
+      "gmv_atual": 23288.91,
+      "tier_atual": "Prata",
+      "tier_alvo": "Ouro",
+      "gmv_faltando": 1711.09,
+      "pct_faltando": 6.8,
+      "prioridade": "media",
+      "acao": "Faltam R$ 1.711,09 para Ouro. Incentivar com meta de conteúdo."
+    },
+    {
+      "tipo": "tier_upgrade",
+      "creator": "ESCUTA.AMIGA",
+      "gmv_atual": 7098.59,
+      "tier_atual": "Bronze",
+      "tier_alvo": "Prata",
+      "gmv_faltando": 901.41,
+      "pct_faltando": 11.3,
+      "prioridade": "media",
+      "acao": "Faltam R$ 901,41 para Prata. Incentivar com meta de conteúdo."
+    },
+    {
+      "tipo": "escala_conteudo",
+      "creator": "EU.LIDIANNEMARTINS",
+      "gmv_atual": 1116.6,
+      "aov": 99.4,
+      "conteudos": 0,
+      "prioridade": "media",
+      "acao": "AOV alto (R$ 99,40) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "FAMILIALIU",
-      "gmv_atual": 805.35,
-      "aov": 80.54,
+      "gmv_atual": 887.7,
+      "aov": 80.43,
       "conteudos": 0,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 80,54) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 80,43) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "FGGUTYY2",
-      "gmv_atual": 908.93,
-      "aov": 90.89,
+      "gmv_atual": 987.23,
+      "aov": 89.75,
       "conteudos": 0,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 90,89) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 89,75) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
-      "tipo": "tier_upgrade",
+      "tipo": "escala_conteudo",
       "creator": "GABBIZIE",
-      "gmv_atual": 1860.15,
-      "tier_atual": "Ferro",
-      "tier_alvo": "Bronze",
-      "gmv_faltando": 139.85,
-      "pct_faltando": 7.0,
+      "gmv_atual": 3056.98,
+      "aov": 82.51,
+      "conteudos": 2,
       "prioridade": "media",
-      "acao": "Faltam R$ 139,85 para Bronze. Incentivar com meta de conteúdo."
+      "acao": "AOV alto (R$ 82,51) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "GLEYSAAGUIAR",
-      "gmv_atual": 1026.69,
-      "aov": 85.72,
+      "gmv_atual": 2613.5,
+      "aov": 83.77,
       "conteudos": 0,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 85,72) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
-    },
-    {
-      "tipo": "escala_conteudo",
-      "creator": "HITALASANTIAGO",
-      "gmv_atual": 728.74,
-      "aov": 80.86,
-      "conteudos": 0,
-      "prioridade": "media",
-      "acao": "AOV alto (R$ 80,86) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 83,77) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "JESSICAMESANT",
-      "gmv_atual": 1370.65,
-      "aov": 89.8,
-      "conteudos": 0,
-      "prioridade": "media",
-      "acao": "AOV alto (R$ 89,80) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
-    },
-    {
-      "tipo": "escala_conteudo",
-      "creator": "LAIANENOVAISSS",
-      "gmv_atual": 8561.2,
-      "aov": 82.07,
+      "gmv_atual": 2608.76,
+      "aov": 88.65,
       "conteudos": 1,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 82,07) com apenas 1 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 88,65) com apenas 1 conteúdo(s). Dobrar frequência = ~2× GMV."
+    },
+    {
+      "tipo": "tier_upgrade",
+      "creator": "LAIANENOVAISSS",
+      "gmv_atual": 23363.15,
+      "tier_atual": "Prata",
+      "tier_alvo": "Ouro",
+      "gmv_faltando": 1636.85,
+      "pct_faltando": 6.5,
+      "prioridade": "media",
+      "acao": "Faltam R$ 1.636,85 para Ouro. Incentivar com meta de conteúdo."
     },
     {
       "tipo": "escala_conteudo",
-      "creator": "LIDIKPF6",
-      "gmv_atual": 1122.51,
-      "aov": 80.3,
-      "conteudos": 0,
+      "creator": "LARI.QUARESMA",
+      "gmv_atual": 951.05,
+      "aov": 86.46,
+      "conteudos": 1,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 80,30) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 86,46) com apenas 1 conteúdo(s). Dobrar frequência = ~2× GMV."
+    },
+    {
+      "tipo": "tier_upgrade",
+      "creator": "LETICIATSEC",
+      "gmv_atual": 7224.72,
+      "tier_atual": "Bronze",
+      "tier_alvo": "Prata",
+      "gmv_faltando": 775.28,
+      "pct_faltando": 9.7,
+      "prioridade": "media",
+      "acao": "Faltam R$ 775,28 para Prata. Incentivar com meta de conteúdo."
+    },
+    {
+      "tipo": "tier_upgrade",
+      "creator": "MAICONEANDREIA",
+      "gmv_atual": 56929.1,
+      "tier_atual": "Ouro",
+      "tier_alvo": "Diamante",
+      "gmv_faltando": 3070.9,
+      "pct_faltando": 5.1,
+      "prioridade": "media",
+      "acao": "Faltam R$ 3.070,90 para Diamante. Incentivar com meta de conteúdo."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "MARIAAUGUSTAREISS",
-      "gmv_atual": 504.76,
-      "aov": 81.2,
+      "gmv_atual": 667.76,
+      "aov": 83.2,
       "conteudos": 0,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 81,20) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 83,20) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+    },
+    {
+      "tipo": "escala_conteudo",
+      "creator": "ML5LHBAZC2",
+      "gmv_atual": 558.28,
+      "aov": 93.05,
+      "conteudos": 1,
+      "prioridade": "media",
+      "acao": "AOV alto (R$ 93,05) com apenas 1 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "PATTYLAZZAROTTO",
-      "gmv_atual": 6732.07,
-      "aov": 86.26,
-      "conteudos": 1,
+      "gmv_atual": 16037.24,
+      "aov": 85.17,
+      "conteudos": 4,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 86,26) com apenas 1 conteúdo(s). Dobrar frequência = ~2× GMV."
-    },
-    {
-      "tipo": "sem_videos",
-      "creator": "PSI.MIRELLARODRIGUES",
-      "gmv_atual": 69228.92,
-      "lives": 38,
-      "prioridade": "media",
-      "acao": "Só faz lives (38). Vídeos evergreen têm descoberta orgânica constante."
+      "acao": "AOV alto (R$ 85,17) com apenas 4 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "tier_upgrade",
-      "creator": "SILSANTIAGOTRC",
-      "gmv_atual": 1772.71,
+      "creator": "ROBERTAKGUILHERME",
+      "gmv_atual": 1859.16,
       "tier_atual": "Ferro",
       "tier_alvo": "Bronze",
-      "gmv_faltando": 227.29,
-      "pct_faltando": 11.4,
+      "gmv_faltando": 140.84,
+      "pct_faltando": 7.0,
       "prioridade": "media",
-      "acao": "Faltam R$ 227,29 para Bronze. Incentivar com meta de conteúdo."
+      "acao": "Faltam R$ 140,84 para Bronze. Incentivar com meta de conteúdo."
+    },
+    {
+      "tipo": "sem_videos",
+      "creator": "TALITABRAZSOUZA",
+      "gmv_atual": 2295.99,
+      "lives": 14,
+      "prioridade": "media",
+      "acao": "Só faz lives (14). Vídeos evergreen têm descoberta orgânica constante."
+    },
+    {
+      "tipo": "tier_upgrade",
+      "creator": "TANIARIBEIRO_CREATOR",
+      "gmv_atual": 1799.04,
+      "tier_atual": "Ferro",
+      "tier_alvo": "Bronze",
+      "gmv_faltando": 200.96,
+      "pct_faltando": 10.0,
+      "prioridade": "media",
+      "acao": "Faltam R$ 200,96 para Bronze. Incentivar com meta de conteúdo."
     },
     {
       "tipo": "escala_conteudo",
-      "creator": "THAINABEAUTYOFICIAL",
-      "gmv_atual": 13233.71,
-      "aov": 83.54,
-      "conteudos": 4,
+      "creator": "THAMI.BRAMBILLA",
+      "gmv_atual": 4444.61,
+      "aov": 89.13,
+      "conteudos": 3,
       "prioridade": "media",
-      "acao": "AOV alto (R$ 83,54) com apenas 4 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 89,13) com apenas 3 conteúdo(s). Dobrar frequência = ~2× GMV."
+    },
+    {
+      "tipo": "escala_conteudo",
+      "creator": "YASMIN.AOLIVEIRA",
+      "gmv_atual": 647.12,
+      "aov": 91.86,
+      "conteudos": 1,
+      "prioridade": "media",
+      "acao": "AOV alto (R$ 91,86) com apenas 1 conteúdo(s). Dobrar frequência = ~2× GMV."
     }
   ],
-  "stars": [],
+  "stars": [
+    {
+      "creator": "PSI.MIRELLARODRIGUES",
+      "gmv_atual": 105532.58,
+      "crescimento_pct": 136071.1,
+      "tier": "Diamante",
+      "tendencia": [
+        77.5,
+        76250.99,
+        105532.58
+      ]
+    },
+    {
+      "creator": "MONICAP.PEREIRA",
+      "gmv_atual": 5159.42,
+      "crescimento_pct": 749.0,
+      "tier": "Bronze",
+      "tendencia": [
+        607.69,
+        1678.72,
+        5159.42
+      ]
+    },
+    {
+      "creator": "ARENATAJARDIM",
+      "gmv_atual": 3844.98,
+      "crescimento_pct": 239.7,
+      "tier": "Bronze",
+      "tendencia": [
+        1131.98,
+        1832.25,
+        3844.98
+      ]
+    },
+    {
+      "creator": "TACIANETORRESS",
+      "gmv_atual": 75840.06,
+      "crescimento_pct": 65.9,
+      "tier": "Diamante",
+      "tendencia": [
+        45704.67,
+        70641.64,
+        75840.06
+      ]
+    },
+    {
+      "creator": "ESCUTA.AMIGA",
+      "gmv_atual": 7098.59,
+      "crescimento_pct": null,
+      "tier": "Bronze",
+      "tendencia": [
+        0.0,
+        2546.33,
+        7098.59
+      ]
+    },
+    {
+      "creator": "EU.LIDIANNEMARTINS",
+      "gmv_atual": 1116.6,
+      "crescimento_pct": null,
+      "tier": "Ferro",
+      "tendencia": [
+        0.0,
+        929.15,
+        1116.6
+      ]
+    },
+    {
+      "creator": "FRANCRUZ.26",
+      "gmv_atual": 3196.12,
+      "crescimento_pct": null,
+      "tier": "Bronze",
+      "tendencia": [
+        0.0,
+        1878.38,
+        3196.12
+      ]
+    },
+    {
+      "creator": "LARYOLIVEIIRA_",
+      "gmv_atual": 3892.62,
+      "crescimento_pct": null,
+      "tier": "Bronze",
+      "tendencia": [
+        0.0,
+        1659.82,
+        3892.62
+      ]
+    },
+    {
+      "creator": "NATI_SUS",
+      "gmv_atual": 6585.93,
+      "crescimento_pct": null,
+      "tier": "Bronze",
+      "tendencia": [
+        0.0,
+        5991.74,
+        6585.93
+      ]
+    },
+    {
+      "creator": "SOMEONEDUDA",
+      "gmv_atual": 9815.19,
+      "crescimento_pct": null,
+      "tier": "Prata",
+      "tendencia": [
+        0.0,
+        1534.31,
+        9815.19
+      ]
+    },
+    {
+      "creator": "TACIRECOMENDA",
+      "gmv_atual": 1269.07,
+      "crescimento_pct": null,
+      "tier": "Ferro",
+      "tendencia": [
+        0.0,
+        711.77,
+        1269.07
+      ]
+    }
+  ],
   "em_risco": [
-    {
-      "creator": "JESIANEALVESCREATOR",
-      "gmv_pico": 637.62,
-      "gmv_atual": -80.66,
-      "queda_total_pct": -112.7,
-      "tier": "Ferro",
-      "tendencia": [
-        637.62,
-        160.6,
-        -80.66
-      ]
-    },
-    {
-      "creator": "THALYYTAGUEDES",
-      "gmv_pico": 886.42,
-      "gmv_atual": -76.6,
-      "queda_total_pct": -110.3,
-      "tier": "Ferro",
-      "tendencia": [
-        740.84,
-        545.55,
-        -76.6
-      ]
-    },
     {
       "creator": "AMARISHOPCREATOR",
       "gmv_pico": 636.09,
-      "gmv_atual": -28.77,
-      "queda_total_pct": -104.5,
+      "gmv_atual": -3.2,
+      "queda_total_pct": -100.5,
       "tier": "Ferro",
       "tendencia": [
         636.09,
         409.9,
-        -28.77
-      ]
-    },
-    {
-      "creator": ".FAMILIAPIMENTEL",
-      "gmv_pico": 15718.22,
-      "gmv_atual": -276.72,
-      "queda_total_pct": -102.5,
-      "tier": "Ferro",
-      "tendencia": [
-        10983.9,
-        7194.4,
-        -276.72
-      ]
-    },
-    {
-      "creator": "DICASDATHAYOFICIAL",
-      "gmv_pico": 7247.43,
-      "gmv_atual": -66.87,
-      "queda_total_pct": -100.9,
-      "tier": "Ferro",
-      "tendencia": [
-        7247.43,
-        3149.53,
-        -66.87
+        -3.2
       ]
     },
     {
@@ -945,18 +827,6 @@
       "tendencia": [
         731.2,
         437.18,
-        0.0
-      ]
-    },
-    {
-      "creator": "CAROLXCREATORSHOP",
-      "gmv_pico": 938.58,
-      "gmv_atual": 0.0,
-      "queda_total_pct": -100.0,
-      "tier": "Ferro",
-      "tendencia": [
-        938.58,
-        724.91,
         0.0
       ]
     },
@@ -997,6 +867,18 @@
       ]
     },
     {
+      "creator": "NATMARQUESSS",
+      "gmv_pico": 235911.15,
+      "gmv_atual": 0.0,
+      "queda_total_pct": -100.0,
+      "tier": "Ferro",
+      "tendencia": [
+        235911.15,
+        48324.5,
+        0.0
+      ]
+    },
+    {
       "creator": "YOH.NOBRE",
       "gmv_pico": 744.86,
       "gmv_atual": 0.0,
@@ -1009,131 +891,204 @@
       ]
     },
     {
-      "creator": "DANIJEANS",
-      "gmv_pico": 9465.46,
-      "gmv_atual": 13.76,
-      "queda_total_pct": -99.9,
+      "creator": "JESIANEALVESCREATOR",
+      "gmv_pico": 637.62,
+      "gmv_atual": 15.61,
+      "queda_total_pct": -97.6,
       "tier": "Ferro",
       "tendencia": [
-        9465.46,
-        2446.36,
-        13.76
+        637.62,
+        160.6,
+        15.61
+      ]
+    },
+    {
+      "creator": "DICASDATHAYOFICIAL",
+      "gmv_pico": 7247.43,
+      "gmv_atual": 487.5,
+      "queda_total_pct": -93.3,
+      "tier": "Ferro",
+      "tendencia": [
+        7247.43,
+        3149.53,
+        487.5
       ]
     },
     {
       "creator": "YASMIN.AOLIVEIRA",
       "gmv_pico": 8301.48,
-      "gmv_atual": 21.32,
-      "queda_total_pct": -99.7,
+      "gmv_atual": 647.12,
+      "queda_total_pct": -92.2,
       "tier": "Ferro",
       "tendencia": [
         8301.48,
         2699.23,
-        21.32
+        647.12
       ]
     },
     {
-      "creator": "CINTIA.THIES",
-      "gmv_pico": 5122.16,
-      "gmv_atual": 8.6,
-      "queda_total_pct": -99.6,
+      "creator": "DAILYCAH08",
+      "gmv_pico": 753.76,
+      "gmv_atual": 85.69,
+      "queda_total_pct": -88.6,
       "tier": "Ferro",
       "tendencia": [
-        2356.89,
-        869.75,
-        8.6
-      ]
-    },
-    {
-      "creator": "ALINECAVANELLAS",
-      "gmv_pico": 63678.15,
-      "gmv_atual": 576.89,
-      "queda_total_pct": -99.1,
-      "tier": "Ferro",
-      "tendencia": [
-        63678.15,
-        22290.81,
-        576.89
-      ]
-    },
-    {
-      "creator": "MARIAAUGUSTAREISS",
-      "gmv_pico": 3524.03,
-      "gmv_atual": 20.42,
-      "queda_total_pct": -98.9,
-      "tier": "Ferro",
-      "tendencia": [
-        1844.99,
-        1514.7,
-        20.42
-      ]
-    },
-    {
-      "creator": "LARISSAPACHECOINDICA",
-      "gmv_pico": 2844.18,
-      "gmv_atual": 39.77,
-      "queda_total_pct": -98.6,
-      "tier": "Ferro",
-      "tendencia": [
-        2844.18,
-        173.47,
-        39.77
-      ]
-    },
-    {
-      "creator": "ERICAMCABELUDA",
-      "gmv_pico": 68153.06,
-      "gmv_atual": 1272.11,
-      "queda_total_pct": -98.1,
-      "tier": "Ferro",
-      "tendencia": [
-        68153.06,
-        38144.34,
-        1272.11
+        753.76,
+        356.74,
+        85.69
       ]
     },
     {
       "creator": "BBRUALVESS",
       "gmv_pico": 1273.86,
-      "gmv_atual": 25.81,
-      "queda_total_pct": -98.0,
+      "gmv_atual": 165.11,
+      "queda_total_pct": -87.0,
       "tier": "Ferro",
       "tendencia": [
         1273.86,
         239.7,
-        25.81
+        165.11
+      ]
+    },
+    {
+      "creator": "CINTIA.THIES",
+      "gmv_pico": 5122.16,
+      "gmv_atual": 373.48,
+      "queda_total_pct": -84.2,
+      "tier": "Ferro",
+      "tendencia": [
+        2356.89,
+        869.75,
+        373.48
+      ]
+    },
+    {
+      "creator": "CAROLXCREATORSHOP",
+      "gmv_pico": 938.58,
+      "gmv_atual": 177.56,
+      "queda_total_pct": -81.1,
+      "tier": "Ferro",
+      "tendencia": [
+        938.58,
+        724.91,
+        177.56
+      ]
+    },
+    {
+      "creator": "THALYYTAGUEDES",
+      "gmv_pico": 886.42,
+      "gmv_atual": 142.69,
+      "queda_total_pct": -80.7,
+      "tier": "Ferro",
+      "tendencia": [
+        740.84,
+        545.55,
+        142.69
+      ]
+    },
+    {
+      "creator": "ERICAMCABELUDA",
+      "gmv_pico": 68153.06,
+      "gmv_atual": 23288.91,
+      "queda_total_pct": -65.8,
+      "tier": "Prata",
+      "tendencia": [
+        68153.06,
+        38144.34,
+        23288.91
+      ]
+    },
+    {
+      "creator": "BIALUZZMODAS",
+      "gmv_pico": 5409.18,
+      "gmv_atual": 1733.07,
+      "queda_total_pct": -65.3,
+      "tier": "Ferro",
+      "tendencia": [
+        5001.03,
+        2441.51,
+        1733.07
+      ]
+    },
+    {
+      "creator": "MARIAAUGUSTAREISS",
+      "gmv_pico": 3524.03,
+      "gmv_atual": 667.76,
+      "queda_total_pct": -63.8,
+      "tier": "Ferro",
+      "tendencia": [
+        1844.99,
+        1514.7,
+        667.76
+      ]
+    },
+    {
+      "creator": "NUMARCHI",
+      "gmv_pico": 34235.94,
+      "gmv_atual": 10808.25,
+      "queda_total_pct": -61.0,
+      "tier": "Prata",
+      "tendencia": [
+        27722.37,
+        18442.2,
+        10808.25
       ]
     }
   ],
-  "novos_destaques": [],
+  "novos_destaques": [
+    {
+      "creator": "NATMARQUESVI",
+      "gmv_estreia": 132586.24,
+      "tier": "Diamante",
+      "acao": "Primeira aparição com GMV relevante. Priorizar onboarding e amostra."
+    },
+    {
+      "creator": "MAICONEANDREIA",
+      "gmv_estreia": 56929.1,
+      "tier": "Ouro",
+      "acao": "Primeira aparição com GMV relevante. Priorizar onboarding e amostra."
+    },
+    {
+      "creator": "JACKMUNDOMABU",
+      "gmv_estreia": 4247.91,
+      "tier": "Bronze",
+      "acao": "Primeira aparição com GMV relevante. Priorizar onboarding e amostra."
+    },
+    {
+      "creator": "GAB_CAROLINE",
+      "gmv_estreia": 2793.02,
+      "tier": "Bronze",
+      "acao": "Primeira aparição com GMV relevante. Priorizar onboarding e amostra."
+    }
+  ],
   "cohorts": {
     "novos": {
-      "count": 107,
-      "gmv": 19624.67
+      "count": 267,
+      "gmv": 232403.04
     },
     "recorrentes": {
-      "count": 99,
-      "gmv": 163315.57
+      "count": 116,
+      "gmv": 434749.23
     },
     "churned": {
-      "count": 249,
+      "count": 232,
       "gmv": 0
     },
     "dormentes": {
-      "count": 4512,
+      "count": 4311,
       "gmv": 0
     },
-    "retencao_pct": 28.4
+    "retencao_pct": 33.3
   },
   "projecoes": {
     "periodo_atual": "2026-04",
     "is_parcial": false,
     "dias_cobertos": 30,
     "dias_mes": 30,
-    "gmv_atual": -109649.39,
-    "gmv_projetado_mes": -109649.39,
+    "gmv_atual": 666129.03,
+    "gmv_projetado_mes": 666129.03,
     "pedidos_projetados": null,
-    "crescimento_medio_pct": -67.6,
-    "gmv_proximo_periodo": -35524.2
+    "crescimento_medio_pct": 0.2,
+    "gmv_proximo_periodo": 667744.79
   }
 }
