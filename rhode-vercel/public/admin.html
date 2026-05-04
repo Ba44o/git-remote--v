@@ -664,20 +664,11 @@ tr:hover td{background:rgba(254,44,85,0.015)}
   <div class="panel" id="panel-ranking">
     <div class="main">
       <div class="tbl-card">
-        <div class="tbl-head">
-          <div class="tbl-title">Ranking Completo</div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn-lote-secondary" onclick="openModalPagamentos()">💰 Marcar pagamentos</button>
-            <div class="tbl-meta" id="rank-meta"></div>
-          </div>
-        </div>
-        <div class="search-wrap">
-          <input id="search" class="search-input" type="text" placeholder="Buscar creator..." oninput="filterRanking(this.value)">
-          <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.06em" id="pgto-resumo"></span>
-        </div>
+        <div class="tbl-head"><div class="tbl-title">Ranking Completo</div><div class="tbl-meta" id="rank-meta"></div></div>
+        <div class="search-wrap"><input id="search" class="search-input" type="text" placeholder="Buscar creator..." oninput="filterRanking(this.value)"></div>
         <div class="tw"><table>
-          <thead><tr><th>#</th><th>Creator</th><th>Tier</th><th>GMV Bruto</th><th>Reimb.</th><th>Refund%</th><th>GMV Líq.</th><th>Pedidos</th><th>AOV</th><th>Comissão</th><th>Pgto</th><th></th></tr></thead>
-          <tbody id="rank-body"><tr><td colspan="12" class="spin">Sincronize para carregar</td></tr></tbody>
+          <thead><tr><th>#</th><th>Creator</th><th>Tier</th><th>GMV Bruto</th><th>Reimb.</th><th>Refund%</th><th>GMV Líq.</th><th>Pedidos</th><th>AOV</th><th>Comissão</th><th></th></tr></thead>
+          <tbody id="rank-body"><tr><td colspan="11" class="spin">Sincronize para carregar</td></tr></tbody>
         </table></div>
         <div class="pag" id="rank-pag"></div>
       </div>
@@ -812,7 +803,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <div class="amostra-form-card">
           <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;margin-bottom:14px;letter-spacing:-0.011em">Registrar lote de amostras</div>
 
-          <div class="amostra-form-row">
+          <div class="amostra-form-row" style="grid-template-columns:140px 1fr 180px 1fr 140px">
             <div class="amostra-form-field">
               <label>Data envio</label>
               <input type="date" id="am-data">
@@ -821,6 +812,17 @@ tr:hover td{background:rgba(254,44,85,0.015)}
               <label>Creator</label>
               <input type="text" id="am-creator" placeholder="Digite o @ ou nome..." autocomplete="off" oninput="searchCreatorAmostra(this.value)">
               <div class="creator-suggestions" id="am-creator-sug"></div>
+            </div>
+            <div class="amostra-form-field">
+              <label>Tipo</label>
+              <select id="am-tipo" onchange="onTipoChange()">
+                <option value="amostra">📦 Amostra de produto</option>
+                <option value="placa_tier">🏆 Placa de tier</option>
+                <option value="spark_ads">🚀 Spark Ads boost</option>
+                <option value="kit_surpresa">🎁 Kit surpresa</option>
+                <option value="premio_evento">🎊 Prêmio de evento</option>
+                <option value="outro">Outro</option>
+              </select>
             </div>
             <div class="amostra-form-field">
               <label>Campanha (opcional)</label>
@@ -843,10 +845,10 @@ tr:hover td{background:rgba(254,44,85,0.015)}
             </div>
           </div>
 
-          <!-- Itens do lote -->
-          <div class="lote-itens">
+          <!-- Itens do lote (só aparece pra tipo=amostra; outros tipos são lotes sem produto) -->
+          <div class="lote-itens" id="lote-itens-block">
             <div class="lote-itens-head">
-              <span class="lote-itens-titulo">Produtos neste lote</span>
+              <span class="lote-itens-titulo" id="lote-itens-titulo">Produtos neste lote</span>
               <span class="lote-itens-titulo" id="lote-summary">0 itens · 0 peças</span>
             </div>
             <div id="lote-items-list">
@@ -857,6 +859,10 @@ tr:hover td{background:rgba(254,44,85,0.015)}
               <button class="btn-lote-secondary" onclick="openModalNovoProduto()">+ Cadastrar SKU novo</button>
               <button class="btn-lote-secondary" onclick="openModalNovaCampanha()" style="margin-left:auto">+ Criar campanha</button>
             </div>
+          </div>
+          <div id="lote-sem-produto" style="display:none;padding:14px;background:var(--parchment);border-radius:11px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.04em;line-height:1.6">
+            <strong style="color:var(--ink);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:-0.011em" id="lote-sem-produto-titulo">Entrega sem produto</strong><br>
+            <span id="lote-sem-produto-desc">Esse tipo de entrega não tem SKU vinculado.</span>
           </div>
 
           <div style="margin-top:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
@@ -881,9 +887,9 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           </div>
           <div class="tw"><table>
             <thead><tr>
-              <th>Data envio</th><th>Creator</th><th>SKU</th><th>Qtd</th><th>Origem</th><th>Tier no envio</th><th>Recebido em</th><th>Obs</th><th></th>
+              <th>Data envio</th><th>Creator</th><th>Tipo</th><th>Conteúdo</th><th>Qtd</th><th>Campanha</th><th>Tier</th><th>Status</th><th>Obs</th><th></th>
             </tr></thead>
-            <tbody id="am-body"><tr><td colspan="9" class="spin">Carregando...</td></tr></tbody>
+            <tbody id="am-body"><tr><td colspan="10" class="spin">Carregando...</td></tr></tbody>
           </table></div>
         </div>
 
@@ -1151,59 +1157,6 @@ tr:hover td{background:rgba(254,44,85,0.015)}
     </div>
   </div>
 
-  <!-- Modal Marcar Pagamentos -->
-  <div class="modal-overlay" id="modal-pagamentos">
-    <div class="modal-box" style="max-width:560px">
-      <div class="modal-box-head">
-        <div class="modal-box-title">💰 Marcar pagamentos em lote</div>
-        <div class="modal-box-x" onclick="closeModalPagamentos()">×</div>
-      </div>
-      <div class="modal-box-body">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.04em;margin-bottom:14px;line-height:1.6">
-          Marque como <strong style="color:var(--ink)">pagas</strong> todas as comissões pendentes que correspondam aos filtros abaixo. A creator vai ver "✓ Pago em DD/MM" no hub dela.
-        </div>
-        <div class="modal-form-grid">
-          <div class="modal-form-field">
-            <label>Período *</label>
-            <select id="pg-periodo"></select>
-          </div>
-          <div class="modal-form-field">
-            <label>Tier</label>
-            <select id="pg-tier">
-              <option value="">Todos</option>
-              <option value="Bronze">Bronze</option>
-              <option value="Silver">Silver</option>
-              <option value="Gold">Gold</option>
-              <option value="Diamond">Diamond</option>
-              <option value="Black">Black</option>
-              <option value="Iniciante">Iniciante</option>
-            </select>
-          </div>
-          <div class="modal-form-field">
-            <label>Data do pagamento</label>
-            <input id="pg-data" type="date">
-          </div>
-          <div class="modal-form-field">
-            <label>Valor min comissão (R$)</label>
-            <input id="pg-min" type="number" step="0.01" placeholder="0">
-          </div>
-          <div class="modal-form-field full">
-            <label>Observação (opcional)</label>
-            <input id="pg-obs" type="text" placeholder="Ex: lote PIX 15/05">
-          </div>
-        </div>
-        <div id="pg-preview" style="margin-top:18px;padding:14px 16px;background:var(--parchment);border-radius:11px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.04em;line-height:1.7">
-          <span style="color:var(--ink-48)">Aguardando filtros...</span>
-        </div>
-        <div id="pg-feedback" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;min-height:14px"></div>
-      </div>
-      <div class="modal-box-foot">
-        <button class="btn-lote-secondary" onclick="closeModalPagamentos()">Cancelar</button>
-        <button class="btn-amostra-add" id="pg-btn-confirm" onclick="confirmarPagamentos()">Marcar como pagas</button>
-      </div>
-    </div>
-  </div>
-
   <div class="panel" id="panel-evento">
     <div class="main">
 
@@ -1338,93 +1291,7 @@ async function sbGetPaged(path, pageSize=1000){
 }
 
 async function syncAll(){const btn=el('btn-sync'),st=el('st');btn.disabled=true;btn.textContent='Carregando...';st.textContent='';st.style.color='var(--ink-48)';try{const pRows=await sbGetPaged('performance_periods?select=periodo&order=periodo.desc');PERIODS=[...new Set(pRows.map(r=>r.periodo))];if(!CUR_PERIOD||!PERIODS.includes(CUR_PERIOD))CUR_PERIOD=PERIODS[0];EVO_DATA=await sbGetPaged('performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,pedidos,aov,refund_pct&order=periodo.asc');await loadPeriod(CUR_PERIOD);st.style.color='var(--green)';st.textContent=`✓ ${ALL_DATA.length} creators · ${new Date().toLocaleTimeString('pt-BR')}`}catch(e){st.style.color='var(--rhode-red)';st.textContent='✗ '+e.message}finally{btn.disabled=false;btn.textContent='↻ Sincronizar'}}
-async function loadPeriod(p){CUR_PERIOD=p;ALL_DATA=await sbGetPaged(`performance_periods?select=affiliate_id,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier,pagamento_status,pago_em,comissao_paga&periodo=eq.${p}&order=gmv_liquido.desc`);ALL_RANKED=[...ALL_DATA];FILTERED=[...ALL_RANKED];renderPeriodBar();renderDashboard();renderRenovacoesAlert();renderPgtoResumo();}
-
-// ── Modal Marcar Pagamentos
-async function openModalPagamentos(){
-  const sel=el('pg-periodo');
-  sel.innerHTML=PERIODS.map(p=>`<option value="${p}">${p}</option>`).join('');
-  sel.value=CUR_PERIOD;
-  el('pg-data').value=new Date().toISOString().split('T')[0];
-  el('pg-tier').value='';
-  el('pg-min').value='';
-  el('pg-obs').value='';
-  el('pg-feedback').textContent='';
-  el('modal-pagamentos').classList.add('on');
-  ['pg-periodo','pg-tier','pg-min'].forEach(id=>el(id).onchange=updatePgtoPreview);
-  el('pg-min').oninput=updatePgtoPreview;
-  await updatePgtoPreview();
-}
-function closeModalPagamentos(){el('modal-pagamentos').classList.remove('on')}
-
-let PG_PREVIEW_ROWS=[];
-async function updatePgtoPreview(){
-  const periodo=el('pg-periodo').value;
-  const tierFiltro=el('pg-tier').value;
-  const min=parseFloat(el('pg-min').value)||0;
-  if(!periodo)return;
-  el('pg-preview').innerHTML='<span style="color:var(--ink-48)">Calculando...</span>';
-  try{
-    let url=`performance_periods?select=affiliate_id,comissao,tier,pagamento_status&periodo=eq.${periodo}&pagamento_status=neq.pago&order=comissao.desc`;
-    if(tierFiltro) url+=`&tier=eq.${encodeURIComponent(tierFiltro)}`;
-    PG_PREVIEW_ROWS=await sbGetPaged(url);
-    PG_PREVIEW_ROWS=PG_PREVIEW_ROWS.filter(r=>(+r.comissao||0)>=min);
-    const total=PG_PREVIEW_ROWS.reduce((s,r)=>s+(+r.comissao||0),0);
-    el('pg-preview').innerHTML=`
-      <div><strong style="color:var(--ink)">${PG_PREVIEW_ROWS.length}</strong> creators serão marcadas como pagas</div>
-      <div>Total a pagar: <strong style="color:var(--rhode-red);font-size:14px">${fmtR(total)}</strong></div>
-      ${PG_PREVIEW_ROWS.length?`<div style="margin-top:6px;color:var(--ink-48)">Maiores: ${PG_PREVIEW_ROWS.slice(0,3).map(r=>`${r.affiliate_id} (${fmtR(r.comissao)})`).join(' · ')}</div>`:''}
-    `;
-  }catch(e){
-    el('pg-preview').innerHTML=`<span style="color:var(--rhode-red)">Erro: ${e.message}</span>`;
-  }
-}
-
-async function confirmarPagamentos(){
-  if(!PG_PREVIEW_ROWS.length){return failFb(el('pg-feedback'),'Nenhuma comissão pendente nesse filtro.');}
-  if(!confirm(`Marcar ${PG_PREVIEW_ROWS.length} creators como PAGAS no período ${el('pg-periodo').value}?\n\nIsso é reversível mas atualiza no hub das creators imediatamente.`))return;
-
-  const btn=el('pg-btn-confirm');
-  btn.disabled=true;btn.textContent='Salvando...';
-  el('pg-feedback').textContent='';
-
-  const ids=PG_PREVIEW_ROWS.map(r=>r.affiliate_id);
-  const dataPgto=el('pg-data').value||new Date().toISOString().split('T')[0];
-  const obs=el('pg-obs').value.trim()||null;
-
-  // PATCH em batches de 100 (limite de URL com IN())
-  let sucesso=0, falhas=0;
-  const BATCH=100;
-  for(let i=0;i<ids.length;i+=BATCH){
-    const batchIds=ids.slice(i,i+BATCH).map(id=>encodeURIComponent(id)).join(',');
-    try{
-      // Pra cada creator: setar comissao_paga=comissao do registro existente
-      // Como não dá pra fazer "SET coluna = outra coluna" via REST simples, faço via RPC ou loop individual
-      // Solução mais simples: PATCH em massa setando status, e cada row pega o valor que já tem em comissao
-      const r=await fetch(`${SB_URL}/rest/v1/performance_periods?periodo=eq.${el('pg-periodo').value}&affiliate_id=in.(${batchIds})`,{
-        method:'PATCH',
-        headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({pagamento_status:'pago',pago_em:dataPgto,pago_obs:obs})
-      });
-      if(r.ok) sucesso+=ids.slice(i,i+BATCH).length;
-      else falhas+=ids.slice(i,i+BATCH).length;
-    }catch(e){falhas+=ids.slice(i,i+BATCH).length}
-  }
-
-  // Aproveita pra setar comissao_paga = comissao em todos os recém-pagos via RPC simples (PATCH genérico)
-  // Como o REST do Supabase não suporta SET col = other_col, faço client-side: itera pelas rows do filter
-  // e PATCH individual com comissao_paga = comissao da row local. Mas como já temos PG_PREVIEW_ROWS...
-  // Alternativa simples: fazer 1 PATCH por row com comissao_paga específica. Isso é lento se >100 rows.
-  // Solução: aceito que comissao_paga possa ficar null e o front mostra comissao quando paga_em existe.
-
-  el('pg-feedback').style.color=falhas?'var(--orange)':'var(--green)';
-  el('pg-feedback').textContent=`✓ ${sucesso} marcadas como pagas${falhas?` · ⚠ ${falhas} falhas`:''}`;
-  btn.disabled=false;btn.textContent='Marcar como pagas';
-
-  // Refresh
-  await loadPeriod(el('pg-periodo').value);
-  setTimeout(closeModalPagamentos,1500);
-}
+async function loadPeriod(p){CUR_PERIOD=p;ALL_DATA=await sbGetPaged(`performance_periods?select=affiliate_id,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&periodo=eq.${p}&order=gmv_liquido.desc`);ALL_RANKED=[...ALL_DATA];FILTERED=[...ALL_RANKED];renderPeriodBar();renderDashboard();renderRenovacoesAlert();}
 
 // ── Alerta de Renovação de Flash Sales (Dashboard)
 async function renderRenovacoesAlert(){
@@ -1492,29 +1359,7 @@ function goToFlashSales(){
 }
 function renderPeriodBar(){htm('period-bar',PERIODS.map(p=>`<button class="pbtn ${p===CUR_PERIOD?'on':''}" onclick="loadPeriod('${p}')">${p}</button>`).join(''))}
 function renderDashboard(){const ativos=ALL_DATA.filter(r=>r.gmv_liquido>0);const inativos=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0);const totLiq=ativos.reduce((s,r)=>s+(+r.gmv_liquido||0),0);const totBruto=ativos.reduce((s,r)=>s+(+r.gmv_bruto||0),0);const totReimb=ativos.reduce((s,r)=>s+(+r.reembolso||0),0);const totPed=ativos.reduce((s,r)=>s+(+r.pedidos||0),0);const refRate=totBruto>0?totReimb/totBruto*100:0;const aovReal=totPed>0?totLiq/totPed:0;const top10=ativos.slice(0,10).reduce((s,r)=>s+(+r.gmv_liquido||0),0);const conc=totLiq>0?top10/totLiq*100:0;set('k-liq',fmtK(totLiq));set('k-liq-s',`${ativos.length} creators ativas`);set('k-gmv',fmtK(totBruto));set('k-gmv-s',`reimb: ${fmtK(totReimb)}`);const refEl=el('k-ref');refEl.textContent=refRate.toFixed(1)+'%';refEl.className='kval '+(refRate>25?'dn':refRate>15?'or':'up');set('k-aov',fmtR(aovReal));set('k-at',ativos.length);set('k-at-s',`${inativos.length} sem GMV`);set('k-ped',totPed.toLocaleString('pt-BR'));set('k-ped-s',CUR_PERIOD);const als=[];if(conc>70)als.push({c:'alert-r',t:`Concentração: top 10 = ${conc.toFixed(1)}% do GMV`,s:'Dependência excessiva. Escalar micro-creators.'});if(refRate>25)als.push({c:'alert-r',t:`Refund rate ${refRate.toFixed(1)}% — acima de 25%`,s:'Investigar creators com alto chargeback.'});if(!als.length)als.push({c:'alert-g',t:'Base saudável — refund e concentração OK',s:''});htm('dash-alerts',als.map(a=>`<div class="alert ${a.c}"><div><strong>${a.t}</strong>${a.s?`<span>${a.s}</span>`:''}</div></div>`).join(''));set('top-meta',`${ativos.length} ativas`);htm('top-body',ativos.slice(0,10).map((r,i)=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono" style="color:var(--ink-48)">${i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td><span class="badge ${t.c}">${t.l}</span></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Sem dados</td></tr>');htm('conc-body',ativos.slice(0,5).map((r,i)=>{const p=totLiq>0?(+r.gmv_liquido||0)/totLiq*100:0;const col=i===0?'var(--rhode-red)':i<3?'var(--orange)':'var(--ink-48)';return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="font-family:'JetBrains Mono',monospace;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0.02em">${i+1}. ${r.affiliate_id}</span><span style="color:var(--ink-48);font-family:'JetBrains Mono',monospace;letter-spacing:0.02em">${p.toFixed(1)}% · ${fmtK(r.gmv_liquido)}</span></div><div class="bar"><div class="bar-fill" style="width:${Math.min(p*2.5,100)}%;background:${col}"></div></div></div>`}).join('')||'<div class="empty">—</div>');set('conc-meta',`top 5 / ${conc.toFixed(1)}% GMV`);const criticos=ALL_DATA.filter(r=>r.refund_pct>25&&r.gmv_bruto>0).slice(0,20);set('crit-meta',`${criticos.length} creators`);htm('crit-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>');const upgrades=ativos.map(r=>({...r,nt:nextTier(+r.gmv_liquido||0)})).filter(r=>r.nt&&r.nt.diff/r.nt.need<0.15).sort((a,b)=>a.nt.diff-b.nt.diff).slice(0,10);set('up-meta',`${upgrades.length} creators`);htm('up-body',upgrades.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono" style="color:var(--orange)">+${fmtK(r.nt.diff)}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>')}
-function pgtoBadge(r){
-  const status=r.pagamento_status||'pendente';
-  if(status==='pago'){
-    const d=r.pago_em?new Date(r.pago_em+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
-    return `<span class="badge b-green" title="Pago em ${d}">✓ Pago${d?` ${d}`:''}</span>`;
-  }
-  if(status==='disputado') return `<span class="badge b-red" title="Comissão disputada">⚠ Disputado</span>`;
-  if(status==='ajustado')  return `<span class="badge b-orange" title="Comissão ajustada">↻ Ajustado</span>`;
-  return `<span class="badge b-gray">Pendente</span>`;
-}
-
-function renderRankingPage(p){PAGE=p;const list=FILTERED,total=list.length,pages=Math.max(1,Math.ceil(total/PG_SIZE));const start=(p-1)*PG_SIZE,slice=list.slice(start,start+PG_SIZE);set('rank-meta',`${total} creators`);requestAnimationFrame(()=>{const frag=document.createDocumentFragment();slice.forEach((r,i)=>{const t=tier(+r.gmv_liquido||0);const tr=document.createElement('tr');tr.innerHTML=`<td class="mono" style="color:var(--ink-48)">${start+i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono" style="color:var(--green)">${fmtR(r.comissao||0)}</td><td>${pgtoBadge(r)}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">→</a></td>`;frag.appendChild(tr)});const tbody=el('rank-body');tbody.innerHTML='';tbody.appendChild(frag);htm('rank-pag',`<button onclick="renderRankingPage(${p-1})" ${p<=1?'disabled':''}>← Ant</button><span class="pag-info">${start+1}–${Math.min(start+PG_SIZE,total)} de ${total}</span><button onclick="renderRankingPage(${p+1})" ${p>=pages?'disabled':''}>Próx →</button>`)})}
-
-function renderPgtoResumo(){
-  if(!ALL_DATA.length)return;
-  const ativas=ALL_DATA.filter(r=>(+r.comissao||0)>0);
-  const pago=ativas.filter(r=>r.pagamento_status==='pago');
-  const pend=ativas.filter(r=>!r.pagamento_status||r.pagamento_status==='pendente');
-  const totalPago=pago.reduce((s,r)=>s+(+r.comissao_paga||+r.comissao||0),0);
-  const totalPend=pend.reduce((s,r)=>s+(+r.comissao||0),0);
-  const e=el('pgto-resumo');
-  if(e)e.innerHTML=`Pago ${fmtK(totalPago)} (${pago.length}) · Pendente <strong style="color:var(--rhode-red)">${fmtK(totalPend)}</strong> (${pend.length})`;
-}
+function renderRankingPage(p){PAGE=p;const list=FILTERED,total=list.length,pages=Math.max(1,Math.ceil(total/PG_SIZE));const start=(p-1)*PG_SIZE,slice=list.slice(start,start+PG_SIZE);set('rank-meta',`${total} creators`);requestAnimationFrame(()=>{const frag=document.createDocumentFragment();slice.forEach((r,i)=>{const t=tier(+r.gmv_liquido||0);const tr=document.createElement('tr');tr.innerHTML=`<td class="mono" style="color:var(--ink-48)">${start+i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono" style="color:var(--green)">${fmtR(r.comissao||0)}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">→</a></td>`;frag.appendChild(tr)});const tbody=el('rank-body');tbody.innerHTML='';tbody.appendChild(frag);htm('rank-pag',`<button onclick="renderRankingPage(${p-1})" ${p<=1?'disabled':''}>← Ant</button><span class="pag-info">${start+1}–${Math.min(start+PG_SIZE,total)} de ${total}</span><button onclick="renderRankingPage(${p+1})" ${p>=pages?'disabled':''}>Próx →</button>`)})}
 function filterRanking(q){const n=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');FILTERED=n?ALL_RANKED.filter(r=>(r.affiliate_id||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)):[...ALL_RANKED];renderRankingPage(1)}
 function renderAlertas(){const ativos=ALL_DATA.filter(r=>r.gmv_bruto>0);const criticos=ativos.filter(r=>r.refund_pct>25).slice(0,30);set('al-ref-meta',`${criticos.length} creators`);htm('al-ref-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="color:var(--rhode-red)">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const pot=ativos.filter(r=>(+r.aov||0)>80&&((+r.videos||0)+(+r.lives||0))<5).slice(0,15);htm('al-pot-body',pot.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td class="mono" style="color:var(--cyan)">${fmtR(r.aov)}</td><td class="mono">${(+r.videos||0)+(+r.lives||0)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const inat=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0).slice(0,50);set('al-in-meta',`${inat.length} creators`);htm('al-in-body',inat.map(r=>`<tr><td class="mono">${r.affiliate_id}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>')}
 function renderEvolucao(){if(!EVO_DATA.length){htm('evo-body','<tr><td colspan="8" class="spin">Sincronize primeiro.</td></tr>');return}const map={};EVO_DATA.forEach(r=>{const p=r.periodo;if(!map[p])map[p]={periodo:p,gmv_bruto:0,gmv_liquido:0,reembolso:0,pedidos:0,creators:0};map[p].gmv_bruto+=(+r.gmv_bruto||0);map[p].gmv_liquido+=(+r.gmv_liquido||0);map[p].reembolso+=(+r.reembolso||0);map[p].pedidos+=(+r.pedidos||0);if(r.gmv_liquido>0)map[p].creators++});const rows=Object.values(map).sort((a,b)=>b.periodo.localeCompare(a.periodo));htm('evo-timeline',[...rows].reverse().map(p=>`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 14px;border:1px solid ${p.periodo===CUR_PERIOD?'var(--rhode-red)':'var(--hairline)'};border-radius:99px;background:${p.periodo===CUR_PERIOD?'rgba(254,44,85,0.05)':'var(--canvas)'};color:${p.periodo===CUR_PERIOD?'var(--rhode-red)':'var(--ink-48)'};white-space:nowrap;letter-spacing:0.04em;font-weight:500">${p.periodo}</div>`).join(''));set('evo-meta',`${rows.length} períodos`);htm('evo-body',rows.map((r,i)=>{const prev=rows[i+1];const d=prev&&prev.gmv_liquido>0?((r.gmv_liquido-prev.gmv_liquido)/prev.gmv_liquido*100).toFixed(1):null;const ref=r.gmv_bruto>0?r.reembolso/r.gmv_bruto*100:0;const aov=r.pedidos>0?r.gmv_liquido/r.pedidos:0;return`<tr ${r.periodo===CUR_PERIOD?'style="background:rgba(254,44,85,0.025)"':''}><td class="mono" style="font-weight:600;color:var(--rhode-red)">${r.periodo}</td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600">${fmtK(r.gmv_liquido)}</td><td>${dlt(d)}</td><td>${refBadge(ref)}</td><td class="mono">${r.pedidos.toLocaleString('pt-BR')}</td><td class="mono">${r.creators}</td><td class="mono">${fmtR(aov)}</td></tr>`}).join(''))}
@@ -2262,7 +2107,33 @@ async function loadAmostrasInit(){
 
   populateCampanhaDropdown();
   if(LOTE_ITENS.length===0) addLoteItem();
+  onTipoChange(); // ajusta UI conforme tipo selecionado
   await refreshAmostras();
+}
+
+const TIPO_META = {
+  amostra:       { icon: '📦', label: 'Amostra de produto',   precisaProduto: true,  desc: 'Produto físico enviado pra creator testar e gravar conteúdo.' },
+  placa_tier:    { icon: '🏆', label: 'Placa de tier',         precisaProduto: false, desc: 'Acrílico/troféu enviado quando a creator atinge novo tier.' },
+  spark_ads:     { icon: '🚀', label: 'Spark Ads boost',       precisaProduto: false, desc: 'Boost pago no vídeo da creator. Registra o investimento e o vídeo impulsionado.' },
+  kit_surpresa:  { icon: '🎁', label: 'Kit surpresa',           precisaProduto: false, desc: 'Caixa/mimo mensal sem produto específico — benefício do tier.' },
+  premio_evento: { icon: '🎊', label: 'Prêmio de evento',       precisaProduto: false, desc: 'Premiação pontual de campanha/evento (ex: vouchers, mimos especiais).' },
+  outro:         { icon: '✨', label: 'Outro',                  precisaProduto: false, desc: 'Outro tipo de entrega Rhode. Detalhe na observação.' },
+};
+
+function onTipoChange(){
+  const tipo=el('am-tipo').value;
+  const meta=TIPO_META[tipo]||TIPO_META.amostra;
+  const block=el('lote-itens-block');
+  const semProduto=el('lote-sem-produto');
+  if(meta.precisaProduto){
+    block.style.display='';
+    semProduto.style.display='none';
+  }else{
+    block.style.display='none';
+    semProduto.style.display='block';
+    el('lote-sem-produto-titulo').textContent=`${meta.icon} ${meta.label}`;
+    el('lote-sem-produto-desc').textContent=meta.desc;
+  }
 }
 
 function populateCampanhaDropdown(){
@@ -2329,7 +2200,7 @@ async function refreshAmostras(){
     renderRoiPorSku();
   }catch(e){
     el('am-meta').textContent='Erro ao carregar';
-    el('am-body').innerHTML=`<tr><td colspan="9" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`;
+    el('am-body').innerHTML=`<tr><td colspan="10" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`;
   }
 }
 
@@ -2410,7 +2281,7 @@ function renderAmostrasTabela(){
 
   set('am-meta',`${lotesArr.length} ${lotesArr.length===1?'lote':'lotes'} · ${AMOSTRAS_FILTRADAS.length} itens`);
   if(!lotesArr.length){
-    el('am-body').innerHTML='<tr><td colspan="9" class="empty">Nenhum lote registrado com esse filtro</td></tr>';
+    el('am-body').innerHTML='<tr><td colspan="10" class="empty">Nenhum lote registrado com esse filtro</td></tr>';
     return;
   }
   el('am-body').innerHTML=lotesArr.slice(0,200).map(L=>{
@@ -2418,18 +2289,26 @@ function renderAmostrasTabela(){
     const tierBadge=L.tier_no_envio?`<span class="badge b-gray">${L.tier_no_envio}</span>`:'';
     const camp=L.campanha_id?CAMPANHAS.find(c=>c.id===L.campanha_id):null;
     const campLbl=camp?`<span class="badge b-cyan" title="${(camp.nome||'').replace(/"/g,'&quot;')}">${camp.nome.length>22?camp.nome.slice(0,22)+'…':camp.nome}</span>`:'<span style="color:var(--ink-48)">—</span>';
+    const tipo=L.itens[0]?.tipo||'amostra';
+    const tipoMeta=TIPO_META[tipo]||TIPO_META.amostra;
     const totPecas=L.itens.reduce((s,i)=>s+(+i.quantidade||0),0);
-    const skusLbl=L.itens.map(it=>{
-      const prod=PRODUTOS.find(p=>p.sku===it.sku);
-      return `${prod?prod.nome:it.sku}${it.quantidade>1?` (${it.quantidade})`:''}`;
-    }).join(' · ');
+    let conteudoLbl;
+    if(tipoMeta.precisaProduto){
+      conteudoLbl=L.itens.map(it=>{
+        const prod=PRODUTOS.find(p=>p.sku===it.sku);
+        return `${prod?prod.nome:it.sku||'(sem SKU)'}${it.quantidade>1?` (${it.quantidade})`:''}`;
+      }).join(' · ');
+    }else{
+      conteudoLbl=`<span style="color:var(--ink-48)">${tipoMeta.icon} ${tipoMeta.label}</span>`;
+    }
     const status=L.video_url?'<span class="badge b-green">✓ Vídeo</span>':L.confirmada_em?'<span class="badge b-cyan">Recebido</span>':'<span class="badge b-gray">Aguardando</span>';
     const ids=L.itens.map(i=>i.id).join(',');
     return`<tr>
       <td class="mono">${dt}</td>
       <td><a class="lk" onclick="openModal('${L.creator_id}')">${L.creator_id}</a></td>
-      <td style="font-size:12.5px;max-width:300px;white-space:normal;line-height:1.4">${skusLbl}</td>
-      <td class="mono">${totPecas}</td>
+      <td title="${tipoMeta.label}"><span style="font-size:14px">${tipoMeta.icon}</span></td>
+      <td style="font-size:12.5px;max-width:300px;white-space:normal;line-height:1.4">${conteudoLbl}</td>
+      <td class="mono">${tipoMeta.precisaProduto?totPecas:'—'}</td>
       <td>${campLbl}</td>
       <td>${tierBadge}</td>
       <td>${status}</td>
@@ -2505,12 +2384,14 @@ document.addEventListener('click',e=>{
   }
 });
 
-// ── Salvar lote multi-SKU
+// ── Salvar lote (multi-SKU para tipo=amostra · 1 row genérica para outros tipos)
 async function saveLote(){
   const fb=el('am-form-feedback');
   fb.textContent='';
   const data=el('am-data').value;
   const creatorInput=el('am-creator').value.trim();
+  const tipo=el('am-tipo').value||'amostra';
+  const tipoMeta=TIPO_META[tipo]||TIPO_META.amostra;
   const campanhaId=el('am-campanha').value||null;
   const briefing=el('am-briefing').value.trim();
   const obs=el('am-obs').value.trim();
@@ -2519,7 +2400,7 @@ async function saveLote(){
 
   if(!data){return failFb(fb,'Selecione a data de envio.');}
   if(!creatorInput){return failFb(fb,'Informe a creator.');}
-  if(!itensValidos.length){return failFb(fb,'Adicione ao menos 1 produto ao lote.');}
+  if(tipoMeta.precisaProduto && !itensValidos.length){return failFb(fb,'Adicione ao menos 1 produto ao lote.');}
 
   const creatorId=(AM_SELECTED_CREATOR?.affiliate_id||creatorInput).toUpperCase().replace(/^[@.]+/,'');
   const tier=AM_SELECTED_CREATOR?.tier||null;
@@ -2527,13 +2408,33 @@ async function saveLote(){
 
   const briefingFinal=briefing||(campanhaId?(CAMPANHAS.find(c=>c.id==campanhaId)?.briefing_creator||null):null);
 
-  const rows=itensValidos.map(it=>{
-    const prod=PRODUTOS.find(p=>p.sku===it.sku);
-    return {
+  let rows;
+  if(tipoMeta.precisaProduto){
+    rows=itensValidos.map(it=>{
+      const prod=PRODUTOS.find(p=>p.sku===it.sku);
+      return {
+        creator_id:creatorId,
+        sku:it.sku,
+        quantidade:it.qtd,
+        custo_unitario_snapshot:prod?.custo_unitario||null,
+        data_envio:data,
+        origem:'manual',
+        tier_no_envio:tier,
+        lote_id:loteId,
+        campanha_id:campanhaId,
+        briefing_creator:briefingFinal,
+        prazo_video:prazo,
+        obs:obs||null,
+        tipo,
+      };
+    });
+  }else{
+    // Tipo sem produto (placa, spark ads, kit, prêmio, outro): 1 row sintética
+    rows=[{
       creator_id:creatorId,
-      sku:it.sku,
-      quantidade:it.qtd,
-      custo_unitario_snapshot:prod?.custo_unitario||null,
+      sku:null,
+      quantidade:1,
+      custo_unitario_snapshot:null,
       data_envio:data,
       origem:'manual',
       tier_no_envio:tier,
@@ -2542,8 +2443,9 @@ async function saveLote(){
       briefing_creator:briefingFinal,
       prazo_video:prazo,
       obs:obs||null,
-    };
-  });
+      tipo,
+    }];
+  }
 
   fb.textContent='Salvando lote...';fb.style.color='var(--ink-48)';
   try{
@@ -2553,12 +2455,14 @@ async function saveLote(){
       body:JSON.stringify(rows)
     });
     if(!r.ok){throw new Error((await r.text()).slice(0,200));}
-    fb.textContent=`✓ Lote registrado · ${rows.length} ${rows.length===1?'item':'itens'} → ${creatorId}`;
+    fb.textContent=`✓ ${tipoMeta.icon} ${tipoMeta.label} registrado → ${creatorId}`;
     fb.style.color='var(--green)';
     // Limpa form
     el('am-creator').value='';el('am-briefing').value='';el('am-obs').value='';el('am-prazo-video').value='';el('am-campanha').value='';
+    el('am-tipo').value='amostra';
     AM_SELECTED_CREATOR=null;
     LOTE_ITENS=[];addLoteItem();
+    onTipoChange();
     await refreshAmostras();
   }catch(e){failFb(fb,'Erro: '+e.message);}
 }

@@ -1824,36 +1824,18 @@ function renderPainelBody(){
       </div>
       <div class="sec-meta">${hist.length} Períodos</div>
     </div>
-    ${pay?(()=>{
-      const u=hist[0];
-      const isPago=u?.pagamento_status==='pago';
-      const valor=isPago?(+u.comissao_paga||+u.comissao||0):(+u?.comissao||0);
-      if(isPago){
-        const pagoEm=u.pago_em?new Date(u.pago_em+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
-        return`<div class="comm-pay" style="background:linear-gradient(135deg,rgba(0,121,107,0.05) 0%,#fff 60%);border-color:rgba(0,121,107,0.25)">
-          <div>
-            <div class="comm-pay-info-label" style="color:var(--green)">✓ Pagamento confirmado</div>
-            <div class="comm-pay-date">${pagoEm||'Pago'}</div>
-            <div class="comm-pay-days" style="color:var(--green)">${u.periodo} · processado</div>
-          </div>
-          <div class="comm-pay-amount">
-            <div class="comm-pay-val" style="color:var(--green)">${R(valor)}</div>
-            <div class="comm-pay-sub">Valor pago</div>
-          </div>
-        </div>`;
-      }
-      return`<div class="comm-pay">
-        <div>
-          <div class="comm-pay-info-label">Próximo pagamento</div>
-          <div class="comm-pay-date">${pay.dateStr}</div>
-          <div class="comm-pay-days${pay.urgent?' urgent':''}">${pay.daysStr}</div>
-        </div>
-        <div class="comm-pay-amount">
-          <div class="comm-pay-val">${R(valor)}</div>
-          <div class="comm-pay-sub">Estimativa do período</div>
-        </div>
-      </div>`;
-    })():''}
+    ${pay?`
+    <div class="comm-pay">
+      <div>
+        <div class="comm-pay-info-label">Próximo pagamento</div>
+        <div class="comm-pay-date">${pay.dateStr}</div>
+        <div class="comm-pay-days${pay.urgent?' urgent':''}">${pay.daysStr}</div>
+      </div>
+      <div class="comm-pay-amount">
+        <div class="comm-pay-val">${R(+(hist[0]?.comissao||0))}</div>
+        <div class="comm-pay-sub">Estimativa do período</div>
+      </div>
+    </div>`:''}
     <div class="comm-summary">
       <div class="comm-stat"><div class="comm-stat-label">${filter.label}</div><div class="comm-stat-val">${R(cur.comissao)}</div></div>
       <div class="comm-stat"><div class="comm-stat-label">Acumulado total</div><div class="comm-stat-val">${R(hist.reduce((s,r)=>s+(+r.comissao||0),0))}</div></div>
@@ -1861,18 +1843,13 @@ function renderPainelBody(){
     <div class="comm-list">
       ${hist.slice(0,8).map(r=>{
         const pct=Math.round((+(r.comissao||0)/maxC)*100);
-        const isPago=r.pagamento_status==='pago';
-        const valor=isPago?(+r.comissao_paga||+r.comissao||0):(+r.comissao||0);
-        const tag=isPago
-          ?`<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--green);letter-spacing:0.06em;font-weight:500;margin-left:6px">✓ pago${r.pago_em?` ${new Date(r.pago_em+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`:''}</span>`
-          :'';
         return`<div class="comm-row">
           <span class="comm-per">${(r.periodo||'').replace(/^(\d{4})-(\d{2}).*/,'$2/$1')}</span>
-          <div class="comm-bar"><div class="comm-bar-fill" style="width:${pct}%;${isPago?'background:var(--green)':''}"></div></div>
-          <span class="comm-val">${R(valor)}${tag}</span>
+          <div class="comm-bar"><div class="comm-bar-fill" style="width:${pct}%"></div></div>
+          <span class="comm-val">${R(r.comissao||0)}</span>
         </div>`;
       }).join('')}
-      <div class="comm-note">Valores estimados com base no GMV líquido e na comissão do seu tier · Pagamentos confirmados aparecem em verde</div>
+      <div class="comm-note">Valores estimados com base no GMV líquido e na comissão do seu tier · Pagamento todo dia 15</div>
     </div>
   </div>
 
@@ -2066,9 +2043,9 @@ async function loadTarefasRhode(affId){
       const k=a.lote_id||`solo-${a.id}`;
       if(!lotes[k])lotes[k]={key:k,ids:[],itens:[],campanha:campMap[a.campanha_id]||null,
         data_envio:a.data_envio,briefing:a.briefing_creator,prazo:a.prazo_video,
-        confirmada_em:a.confirmada_em,video_url:a.video_url};
+        confirmada_em:a.confirmada_em,video_url:a.video_url,tipo:a.tipo||'amostra'};
       lotes[k].ids.push(a.id);
-      lotes[k].itens.push({sku:a.sku,nome:prodMap[a.sku]?.nome||a.sku,qtd:a.quantidade});
+      if(a.sku) lotes[k].itens.push({sku:a.sku,nome:prodMap[a.sku]?.nome||a.sku,qtd:a.quantidade});
       if(a.confirmada_em && !lotes[k].confirmada_em)lotes[k].confirmada_em=a.confirmada_em;
       if(a.video_url && !lotes[k].video_url)lotes[k].video_url=a.video_url;
     });
@@ -2076,12 +2053,23 @@ async function loadTarefasRhode(affId){
   }catch(e){renderTarefas([]);}
 }
 
+const TIPO_TAREFA_META = {
+  amostra:       { icon: '🎁', eyebrow: 'Tarefa Rhode pra você',           titulo: 'Você recebeu amostras Rhode',  cta: 'Já gravei o vídeo',  hasItens: true  },
+  placa_tier:    { icon: '🏆', eyebrow: 'Reconhecimento Rhode',              titulo: 'Sua placa de tier chegou',     cta: 'Já recebi e postei',  hasItens: false },
+  spark_ads:     { icon: '🚀', eyebrow: 'Spark Ads ativo no seu vídeo',     titulo: 'Spark Ads Rhode no seu conteúdo', cta: 'Confirmar',          hasItens: false },
+  kit_surpresa:  { icon: '📦', eyebrow: 'Kit surpresa Rhode',                titulo: 'Sua caixa Rhode chegou',       cta: 'Já recebi e postei',  hasItens: false },
+  premio_evento: { icon: '🎊', eyebrow: 'Prêmio Rhode',                      titulo: 'Você ganhou um prêmio Rhode',  cta: 'Já recebi',          hasItens: false },
+  outro:         { icon: '✨', eyebrow: 'Entrega Rhode pra você',            titulo: 'Você tem uma entrega Rhode',   cta: 'Confirmar',          hasItens: false },
+};
+
 function renderTarefas(lotes){
   const slot=document.getElementById('tarefas-rhode-slot');
   if(!slot)return;
   if(!lotes.length){slot.innerHTML='';return;}
 
   slot.innerHTML=lotes.map(L=>{
+    const tipo=L.tipo||'amostra';
+    const meta=TIPO_TAREFA_META[tipo]||TIPO_TAREFA_META.amostra;
     const dt=L.data_envio?new Date(L.data_envio+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
     let prazoPill='';
     if(L.prazo){
@@ -2092,30 +2080,32 @@ function renderTarefas(lotes){
       prazoPill=`<span class="tarefa-pill ${cls}">⏱ ${lbl}</span>`;
     }
     const campanhaPill=L.campanha?`<span class="tarefa-pill" style="background:rgba(254,44,85,0.06);color:var(--rhode-red)">${L.campanha.nome}</span>`:'';
-    const dataPill=`<span class="tarefa-pill">📦 Enviado ${dt}</span>`;
+    const dataPill=`<span class="tarefa-pill">${meta.icon} Enviado ${dt}</span>`;
     const statusPill=L.video_url?'<span class="tarefa-pill done">✓ Vídeo enviado</span>':L.confirmada_em?'<span class="tarefa-pill done">✓ Recebido</span>':'';
 
-    const itensHTML=L.itens.map(it=>`<div class="tarefa-item-row"><span class="ck">●</span><span><strong>${it.qtd}× ${it.nome}</strong></span></div>`).join('');
+    const itensHTML=meta.hasItens && L.itens.length
+      ? L.itens.map(it=>`<div class="tarefa-item-row"><span class="ck">●</span><span><strong>${it.qtd}× ${it.nome}</strong></span></div>`).join('')
+      : '';
 
-    const titulo=L.campanha?L.campanha.nome:'Você recebeu amostras Rhode';
+    const titulo=L.campanha?L.campanha.nome:meta.titulo;
     const briefing=L.briefing||L.campanha?.briefing_creator||'';
 
     let actions='';
     if(L.video_url){
-      actions=`<a class="tarefa-btn tarefa-btn-done" href="${L.video_url}" target="_blank" rel="noopener">✓ Vídeo postado · ver</a>`;
+      actions=`<a class="tarefa-btn tarefa-btn-done" href="${L.video_url}" target="_blank" rel="noopener">✓ Postado · ver</a>`;
     }else if(L.confirmada_em){
       actions=`<button class="tarefa-btn tarefa-btn-primary" onclick="anexarVideoTarefa('${L.ids.join(',')}')">📎 Anexar link do vídeo</button>`;
     }else{
       actions=`
         <button class="tarefa-btn tarefa-btn-primary" onclick="confirmarRecebimentoTarefa('${L.ids.join(',')}')">✓ Confirmar recebimento</button>
-        <button class="tarefa-btn tarefa-btn-secondary" onclick="anexarVideoTarefa('${L.ids.join(',')}')">📎 Já gravei o vídeo</button>`;
+        <button class="tarefa-btn tarefa-btn-secondary" onclick="anexarVideoTarefa('${L.ids.join(',')}')">📎 ${meta.cta}</button>`;
     }
 
     return`<div class="tarefas-card">
-      <div class="tarefa-eyebrow"><span class="gift">🎁</span>Tarefa Rhode pra você</div>
+      <div class="tarefa-eyebrow"><span class="gift">${meta.icon}</span>${meta.eyebrow}</div>
       <div class="tarefa-titulo">${titulo}</div>
       <div class="tarefa-meta-row">${dataPill}${prazoPill}${campanhaPill}${statusPill}</div>
-      <div class="tarefa-itens">${itensHTML}</div>
+      ${itensHTML?`<div class="tarefa-itens">${itensHTML}</div>`:''}
       ${briefing?`<div class="tarefa-briefing">${briefing}</div>`:''}
       <div class="tarefa-actions">${actions}</div>
     </div>`;

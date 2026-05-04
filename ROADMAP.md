@@ -112,21 +112,29 @@ _(nada no momento)_
 
 ---
 
-### ✅ ~~3. Status de Pagamento de Comissão (admin + hub)~~ — concluído mai/2026
+### ⛔ 3. ~~Status de Pagamento de Comissão~~ — REVERTIDO mai/2026
+
+**Por que rejeitado:** comissão de venda é calculada e paga pelo **TikTok Shop** direto pra creator, não pela Rhode. Tentar replicar status no hub geraria divergência com a fonte oficial (creator vê no painel TikTok dela). Rhode não tem visibilidade nem controle sobre esse pagamento.
+
+**Substituído por:** extensão da aba **Amostras → Entregas Rhode** (item 3.1 abaixo) — trackeia só o que a Rhode efetivamente entrega: placa de tier, kit surpresa, spark ads boost, prêmios de campanha.
+
+**Manteve:** apenas a coluna "Comissão (R$)" no Ranking do admin (informativa, mostra valor estimado pago pela TikTok). Removido: badge "Pgto", botão "Marcar pagamentos", modal, schema `pagamento_status/pago_em/comissao_paga/pago_obs`.
+
+---
+
+### ✅ 3.1. Entregas Rhode (extensão da aba Amostras) — concluído mai/2026
 
 **Entregue:**
-- 4 colunas novas em `performance_periods`: `pagamento_status` (pendente/pago/disputado/ajustado), `pago_em`, `comissao_paga`, `pago_obs`
-- Admin Ranking: nova coluna "Comissão" e "Pgto" com badges visuais (✓ Pago / Pendente / Disputado / Ajustado)
-- Resumo no header da busca: "Pago R$ X (N) · Pendente R$ Y (M)"
-- Modal "💰 Marcar pagamentos em lote" com filtros (período + tier + valor min)
-- Preview ao vivo da quantidade afetada e do valor total antes de confirmar
-- PATCH em batches de 100 creators
-- Hub: card de "Próximo pagamento" vira "✓ Pagamento confirmado" verde quando paga
-- Hub: lista de períodos mostra "✓ pago DD/MM" em verde nas barras
-
-**Pendente (não-bloqueante):**
-- `comissao_paga` específico por linha (atualmente herda de `comissao` quando não setado)
-- Histórico de auditoria (quem marcou como pago)
+- Coluna `tipo` em `amostras_enviadas`: `amostra` · `placa_tier` · `spark_ads` · `kit_surpresa` · `premio_evento` · `outro`
+- `sku` virou opcional (tipos sem produto não precisam)
+- Form do admin: dropdown de tipo controla se mostra produtos (amostra) ou bloco genérico (placa/spark_ads/kit/etc)
+- Tabela do admin: nova coluna "Tipo" com ícone (📦/🏆/🚀/🎁/🎊/✨); coluna "Conteúdo" mostra produtos OU label do tipo
+- Hub: card "Tarefas Rhode" adapta título, ícone e CTA por tipo:
+  - Amostra: "Você recebeu amostras Rhode" + lista de SKUs
+  - Placa: "🏆 Sua placa de tier chegou"
+  - Spark Ads: "🚀 Spark Ads Rhode no seu conteúdo"
+  - Kit surpresa: "📦 Sua caixa Rhode chegou"
+  - Prêmio: "🎊 Você ganhou um prêmio Rhode"
 
 ---
 
