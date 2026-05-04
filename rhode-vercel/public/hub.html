@@ -1929,9 +1929,11 @@ function renderFlashBanner(f){
   if(!f){slot.innerHTML='';return;}
 
   const isSheets=f.origem==='sheets';
+  const fimD=new Date(f.fim_at);
+  const fimLabel=fimD.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' às '+fimD.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   const headlineText=isSheets
-    ? `<strong>Sua janela Rhode está ativa</strong> · benefício de creator ativado`
-    : `<strong>Flash Sale ativa</strong> · ${f.produto_nome||''}${f.desconto_pct?` · ${f.desconto_pct}% OFF`:''}`;
+    ? `<strong>Flash Sale ativa</strong> · termina ${fimLabel}`
+    : `<strong>Flash Sale ativa</strong> · ${f.produto_nome||''}${f.desconto_pct?` · ${f.desconto_pct}% OFF`:''} · termina ${fimLabel}`;
   slot.innerHTML=`<div class="flash-banner" onclick="openFlashModal()">
     <span class="flash-banner-icon">🔥</span>
     <div class="flash-banner-text">${headlineText}</div>
@@ -1939,7 +1941,7 @@ function renderFlashBanner(f){
     <span class="flash-banner-arrow">›</span>
   </div>`;
 
-  // Countdown ao vivo
+  // Countdown ao vivo (inclui dias quando duração > 24h)
   const tick=()=>{
     const ms=new Date(f.fim_at)-new Date();
     if(ms<=0){
@@ -1948,13 +1950,16 @@ function renderFlashBanner(f){
       _flashAtiva=null;
       return;
     }
-    const h=Math.floor(ms/3600000);
+    const dias=Math.floor(ms/86400000);
+    const h=Math.floor((ms%86400000)/3600000);
     const m=Math.floor((ms%3600000)/60000);
     const s=Math.floor((ms%60000)/1000);
+    const pad=v=>String(v).padStart(2,'0');
+    const txtCompacto = dias>0 ? `${dias}d ${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(h)}:${pad(m)}:${pad(s)}`;
     const cdEl=document.getElementById('flash-banner-cd');
-    if(cdEl) cdEl.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(cdEl) cdEl.textContent=txtCompacto;
     const cdMod=document.getElementById('flash-modal-cd');
-    if(cdMod) cdMod.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(cdMod) cdMod.textContent=txtCompacto;
   };
   tick();
   _flashCdInterval=setInterval(tick,1000);
@@ -1965,17 +1970,16 @@ function openFlashModal(){
   const f=_flashAtiva;
   const isSheets=f.origem==='sheets';
   const desc=f.desconto_pct?`${f.desconto_pct}% OFF`:'';
+  const fimD=new Date(f.fim_at);
+  const fimDataFmt=fimD.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const fimHoraFmt=fimD.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 
-  let titulo, eyebrow, briefing, precosHTML='', fotoHTML='', descontoHTML='';
+  let titulo, briefing, precosHTML='', fotoHTML='', descontoHTML='';
   if(isSheets){
-    titulo='Sua janela Rhode está ativa';
-    eyebrow='⚡ Benefício de Creator';
-    briefing=f.briefing||'Sua janela exclusiva de comissão/cupom Rhode está ativa. Aproveita pra publicar conteúdo com seu link de afiliada agora — todo pedido nesse período conta.';
-    fotoHTML='';
-    precosHTML='';
+    titulo='Flash Sale Rhode';
+    briefing=f.briefing||'Sua janela de Flash Sale Rhode está ativa. Aproveita pra publicar conteúdo com seu link de afiliada agora — todo pedido nesse período conta com comissão diferenciada.';
   }else{
     titulo=f.produto_nome||'Flash Sale Rhode';
-    eyebrow='🔥 Flash Sale Rhode';
     briefing=f.briefing||'Aproveite enquanto está rolando — repassa pra sua audiência com seu link de afiliada Rhode.';
     fotoHTML=f.produto_foto?`<div class="flash-modal-foto"><img src="${f.produto_foto}" alt=""></div>`:'';
     descontoHTML=desc?`<span class="flash-modal-desconto">${desc}</span>`:'';
@@ -1988,7 +1992,7 @@ function openFlashModal(){
   document.getElementById('flash-modal-content').innerHTML=`
     <div class="flash-modal-header">
       <button class="flash-modal-close" onclick="closeFlashModal()">×</button>
-      <div class="flash-modal-eyebrow">${eyebrow}</div>
+      <div class="flash-modal-eyebrow">🔥 Flash Sale Rhode</div>
       <div class="flash-modal-title">${titulo}</div>
     </div>
     <div class="flash-modal-body">
@@ -1997,11 +2001,11 @@ function openFlashModal(){
       ${precosHTML}
       <div class="flash-modal-briefing">${briefing}</div>
       <div class="flash-modal-cd-block">
-        <div class="flash-modal-cd-label">Termina em</div>
+        <div class="flash-modal-cd-label">Termina em ${fimDataFmt} · ${fimHoraFmt}</div>
         <div class="flash-modal-cd-time" id="flash-modal-cd">--:--:--</div>
       </div>
       <div class="flash-modal-actions">
-        <button class="flash-modal-btn flash-modal-btn-primary" onclick="closeFlashModal()">${isSheets?'Entendi, vou postar':'Vou aproveitar agora'}</button>
+        <button class="flash-modal-btn flash-modal-btn-primary" onclick="closeFlashModal()">Vou aproveitar agora</button>
         <button class="flash-modal-btn flash-modal-btn-secondary" onclick="closeFlashModal()">Lembrar depois</button>
       </div>
     </div>`;
