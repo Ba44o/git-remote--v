@@ -1824,18 +1824,36 @@ function renderPainelBody(){
       </div>
       <div class="sec-meta">${hist.length} Períodos</div>
     </div>
-    ${pay?`
-    <div class="comm-pay">
-      <div>
-        <div class="comm-pay-info-label">Próximo pagamento</div>
-        <div class="comm-pay-date">${pay.dateStr}</div>
-        <div class="comm-pay-days${pay.urgent?' urgent':''}">${pay.daysStr}</div>
-      </div>
-      <div class="comm-pay-amount">
-        <div class="comm-pay-val">${R(+(hist[0]?.comissao||0))}</div>
-        <div class="comm-pay-sub">Estimativa do período</div>
-      </div>
-    </div>`:''}
+    ${pay?(()=>{
+      const u=hist[0];
+      const isPago=u?.pagamento_status==='pago';
+      const valor=isPago?(+u.comissao_paga||+u.comissao||0):(+u?.comissao||0);
+      if(isPago){
+        const pagoEm=u.pago_em?new Date(u.pago_em+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+        return`<div class="comm-pay" style="background:linear-gradient(135deg,rgba(0,121,107,0.05) 0%,#fff 60%);border-color:rgba(0,121,107,0.25)">
+          <div>
+            <div class="comm-pay-info-label" style="color:var(--green)">✓ Pagamento confirmado</div>
+            <div class="comm-pay-date">${pagoEm||'Pago'}</div>
+            <div class="comm-pay-days" style="color:var(--green)">${u.periodo} · processado</div>
+          </div>
+          <div class="comm-pay-amount">
+            <div class="comm-pay-val" style="color:var(--green)">${R(valor)}</div>
+            <div class="comm-pay-sub">Valor pago</div>
+          </div>
+        </div>`;
+      }
+      return`<div class="comm-pay">
+        <div>
+          <div class="comm-pay-info-label">Próximo pagamento</div>
+          <div class="comm-pay-date">${pay.dateStr}</div>
+          <div class="comm-pay-days${pay.urgent?' urgent':''}">${pay.daysStr}</div>
+        </div>
+        <div class="comm-pay-amount">
+          <div class="comm-pay-val">${R(valor)}</div>
+          <div class="comm-pay-sub">Estimativa do período</div>
+        </div>
+      </div>`;
+    })():''}
     <div class="comm-summary">
       <div class="comm-stat"><div class="comm-stat-label">${filter.label}</div><div class="comm-stat-val">${R(cur.comissao)}</div></div>
       <div class="comm-stat"><div class="comm-stat-label">Acumulado total</div><div class="comm-stat-val">${R(hist.reduce((s,r)=>s+(+r.comissao||0),0))}</div></div>
@@ -1843,13 +1861,18 @@ function renderPainelBody(){
     <div class="comm-list">
       ${hist.slice(0,8).map(r=>{
         const pct=Math.round((+(r.comissao||0)/maxC)*100);
+        const isPago=r.pagamento_status==='pago';
+        const valor=isPago?(+r.comissao_paga||+r.comissao||0):(+r.comissao||0);
+        const tag=isPago
+          ?`<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--green);letter-spacing:0.06em;font-weight:500;margin-left:6px">✓ pago${r.pago_em?` ${new Date(r.pago_em+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`:''}</span>`
+          :'';
         return`<div class="comm-row">
           <span class="comm-per">${(r.periodo||'').replace(/^(\d{4})-(\d{2}).*/,'$2/$1')}</span>
-          <div class="comm-bar"><div class="comm-bar-fill" style="width:${pct}%"></div></div>
-          <span class="comm-val">${R(r.comissao||0)}</span>
+          <div class="comm-bar"><div class="comm-bar-fill" style="width:${pct}%;${isPago?'background:var(--green)':''}"></div></div>
+          <span class="comm-val">${R(valor)}${tag}</span>
         </div>`;
       }).join('')}
-      <div class="comm-note">Valores estimados com base no GMV líquido e na comissão do seu tier · Pagamento todo dia 15</div>
+      <div class="comm-note">Valores estimados com base no GMV líquido e na comissão do seu tier · Pagamentos confirmados aparecem em verde</div>
     </div>
   </div>
 

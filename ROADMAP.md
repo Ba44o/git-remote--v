@@ -112,27 +112,21 @@ _(nada no momento)_
 
 ---
 
-### 3. Status de Pagamento de Comissão (admin + hub)
+### ✅ ~~3. Status de Pagamento de Comissão (admin + hub)~~ — concluído mai/2026
 
-**Por que:** hoje o hub mostra "comissão estimada" mas nunca confirma se pagou. Falta fechar o ciclo financeiro.
+**Entregue:**
+- 4 colunas novas em `performance_periods`: `pagamento_status` (pendente/pago/disputado/ajustado), `pago_em`, `comissao_paga`, `pago_obs`
+- Admin Ranking: nova coluna "Comissão" e "Pgto" com badges visuais (✓ Pago / Pendente / Disputado / Ajustado)
+- Resumo no header da busca: "Pago R$ X (N) · Pendente R$ Y (M)"
+- Modal "💰 Marcar pagamentos em lote" com filtros (período + tier + valor min)
+- Preview ao vivo da quantidade afetada e do valor total antes de confirmar
+- PATCH em batches de 100 creators
+- Hub: card de "Próximo pagamento" vira "✓ Pagamento confirmado" verde quando paga
+- Hub: lista de períodos mostra "✓ pago DD/MM" em verde nas barras
 
-**Schema Supabase (extender `performance_periods`):**
-```sql
-ALTER TABLE performance_periods ADD COLUMN pagamento_status TEXT
-  DEFAULT 'pendente'
-  CHECK (pagamento_status IN ('pendente','pago','disputado','ajustado'));
-ALTER TABLE performance_periods ADD COLUMN pago_em DATE;
-ALTER TABLE performance_periods ADD COLUMN comissao_paga NUMERIC;
-```
-
-**Admin:**
-- Coluna nova no Ranking: status de pagamento
-- Botão "Marcar batch como pago" (filtro por tier+período → bulk update)
-
-**Hub:**
-- "Comissão estimada" vira "Comissão de março/2026 · ✓ Paga em 15/04 · R$ X" quando confirmada
-
-**Esforço:** ~1 dia.
+**Pendente (não-bloqueante):**
+- `comissao_paga` específico por linha (atualmente herda de `comissao` quando não setado)
+- Histórico de auditoria (quem marcou como pago)
 
 ---
 
