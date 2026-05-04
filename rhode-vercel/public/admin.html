@@ -902,10 +902,12 @@ tr:hover td{background:rgba(254,44,85,0.015)}
               <option value="mom_jeans">Mom Jeans</option>
               <option value="skinny">Skinny</option>
               <option value="reta">Reta</option>
-              <option value="bata">Bata</option>
+              <option value="shorts">Shorts</option>
+              <option value="body">Body</option>
+              <option value="saia">Saia</option>
+              <option value="bata">Bata / Blusa</option>
               <option value="top">Top / Cropped</option>
               <option value="vestido">Vestido</option>
-              <option value="saia">Saia</option>
               <option value="acessorio">Acessório</option>
               <option value="outro">Outro</option>
             </select>
@@ -1895,7 +1897,7 @@ function renderLoteItens(){
   // Agrupa por categoria pro optgroup
   const porCat={};
   ativas.forEach(p=>{const c=p.categoria||'outro';(porCat[c]=porCat[c]||[]).push(p)});
-  const ordemCat=['wide_leg','mom_jeans','skinny','reta','bata','top','vestido','saia','acessorio','outro'];
+  const ordemCat=['wide_leg','mom_jeans','skinny','reta','shorts','body','saia','bata','top','vestido','acessorio','outro'];
   const ordCats=[...ordemCat.filter(c=>porCat[c]),...Object.keys(porCat).filter(c=>!ordemCat.includes(c))];
 
   const optsByCat=ordCats.map(cat=>{
