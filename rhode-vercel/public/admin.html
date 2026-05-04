@@ -329,14 +329,14 @@ tr:hover td{background:rgba(254,44,85,0.015)}
 
 /* ── Filtros ── */
 .amostra-filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
-.amostra-filtros .pill-filter{
+.pill-filter{
   font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;
   padding:6px 12px;border:1px solid var(--hairline);border-radius:99px;
   background:var(--canvas);color:var(--ink-48);cursor:pointer;font-weight:500;
-  transition:all .15s ease;
+  transition:all .15s ease;display:inline-block;user-select:none;
 }
-.amostra-filtros .pill-filter.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.amostra-filtros .pill-filter:hover:not(.on){border-color:var(--ink);color:var(--ink)}
+.pill-filter.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pill-filter:hover:not(.on){border-color:var(--ink);color:var(--ink)}
 
 /* ── Lote multi-SKU ── */
 .lote-itens{
@@ -1169,7 +1169,8 @@ tr:hover td{background:rgba(254,44,85,0.015)}
       </div>
 
       <div class="amostra-form-card">
-        <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;margin-bottom:14px;letter-spacing:-0.011em">Novo disparo segmentado</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;margin-bottom:6px;letter-spacing:-0.011em">Novo disparo segmentado</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-48);letter-spacing:0.04em;margin-bottom:14px;line-height:1.5">Universo: ~201 creators que cadastraram WhatsApp na plataforma · base atualiza conforme novas creators fazem login pela primeira vez</div>
 
         <div class="amostra-form-row" style="grid-template-columns:1fr 1fr 1fr">
           <div class="amostra-form-field">

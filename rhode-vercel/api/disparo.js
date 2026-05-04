@@ -77,9 +77,33 @@ function renderTemplate(tpl, vars) {
 }
 
 async function buscarAlvos(filtros) {
-  // Pega todas affiliates com phone preenchido + GMV acumulado de performance_periods
-  let aff = await sbGetPaged('affiliates?select=affiliate_id,tiktok_handle,phone,nome,access_token,current_tier&phone=not.is.null&phone=neq.');
-  if (!aff.length) return [];
+  // Fonte primária de phone: eventos_creators.whatsapp (201 creators registradas).
+  // affiliates.phone existe no schema mas está sempre NULL — não usa.
+  const evcRows = await sbGetPaged('eventos_creators?select=handle,nome,whatsapp,access_token&whatsapp=not.is.null');
+  if (!evcRows.length) return [];
+
+  // Dedup por handle: pega 1 row por handle (a mais recente, eventos_creators tem id serial)
+  const byHandle = new Map();
+  for (const r of evcRows) {
+    const h = String(r.handle || '').toUpperCase().replace(/^[@.]+/, '');
+    if (!h) continue;
+    if (!byHandle.has(h)) byHandle.set(h, r);
+  }
+
+  // Tier/access_token de affiliates por handle
+  const handles = Array.from(byHandle.keys());
+  let affMap = {};
+  if (handles.length) {
+    // Busca em chunks pra não estourar URL
+    for (const ch of chunk(handles, 100)) {
+      const inList = ch.map((h) => `"${h}"`).join(',');
+      const aff = await sbGetPaged(`affiliates?select=affiliate_id,nome,access_token&affiliate_id=in.(${inList})`);
+      aff.forEach((a) => {
+        const id = String(a.affiliate_id || '').toUpperCase().replace(/^[@.]+/, '');
+        affMap[id] = a;
+      });
+    }
+  }
 
   // Acumula GMV de performance_periods por creator
   const periodos = await sbGetPaged('performance_periods?select=affiliate_id,gmv_liquido,refund_pct,periodo&order=periodo.desc');
@@ -95,7 +119,7 @@ async function buscarAlvos(filtros) {
     }
   });
 
-  // Enriquece + aplica filtros
+  // Filtros
   const minGmv = Number(filtros.gmv_min) || 0;
   const maxGmv = filtros.gmv_max != null && filtros.gmv_max !== '' ? Number(filtros.gmv_max) : Infinity;
   const tiersAceitos = filtros.tiers && filtros.tiers.length ? new Set(filtros.tiers) : null;
@@ -104,14 +128,13 @@ async function buscarAlvos(filtros) {
   const handlesEspecificos = filtros.handles && filtros.handles.length ? new Set(filtros.handles.map((h) => String(h).toUpperCase().replace(/^[@.]+/, ''))) : null;
 
   const alvos = [];
-  for (const a of aff) {
-    const id = String(a.affiliate_id || a.tiktok_handle || '').toUpperCase().replace(/^[@.]+/, '');
-    if (!id) continue;
+  for (const [id, evc] of byHandle) {
     if (handlesEspecificos && !handlesEspecificos.has(id)) continue;
 
     const gmv = gmvMap[id] || 0;
     const tier = calcTier(gmv);
     const refund = refundMap[id] || 0;
+    const aff = affMap[id] || {};
 
     if (tiersAceitos && !tiersAceitos.has(tier)) continue;
     if (gmv < minGmv) continue;
@@ -121,12 +144,12 @@ async function buscarAlvos(filtros) {
 
     alvos.push({
       affiliate_id: id,
-      phone: normalizePhone(a.phone),
-      nome: (a.nome || a.tiktok_handle || id).split(' ')[0],
+      phone: normalizePhone(evc.whatsapp),
+      nome: (evc.nome || aff.nome || id).split(' ')[0],
       tier,
       gmv,
       refund,
-      access_token: a.access_token,
+      access_token: evc.access_token || aff.access_token,
     });
   }
   return alvos;
