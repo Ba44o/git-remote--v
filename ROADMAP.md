@@ -71,38 +71,21 @@ _(nada no momento)_
 
 ## 🔜 Próximos — priorizados
 
-### 1. Amostras Enviadas (admin + hub)
+### ✅ ~~1. Amostras Enviadas (admin)~~ — concluído mai/2026
 
-**Por que:** hoje vocês mandam amostras "no escuro" — sem rastrear ROI de seeding.
+**Entregue:**
+- Tabelas Supabase: `produtos` (10 SKUs pré-cadastrados) + `amostras_enviadas` + view `amostra_roi_por_sku`
+- Aba "Operação" no admin com sub-aba "Amostras"
+- 4 KPIs (custo mês · qtd mês · acumulado ano · top SKU)
+- Form quick-add com autocomplete de creator e tier auto-snap
+- Tabela com filtros (período, busca por creator/SKU)
+- Edição inline de `data_recebimento` direto na tabela
+- Vista de ROI por SKU (cruzamento com performance_periods, janela 60d pós-envio)
 
-**Schema Supabase (nova tabela):**
-```sql
-CREATE TABLE amostras_enviadas (
-  id BIGSERIAL PRIMARY KEY,
-  creator_id TEXT NOT NULL,
-  sku TEXT NOT NULL,
-  sku_descricao TEXT,
-  quantidade INT DEFAULT 1,
-  data_envio DATE,
-  data_recebimento DATE,
-  origem TEXT CHECK (origem IN ('manual','tiktok_import','evento','solicitacao_creator')),
-  tier_da_creator_no_envio TEXT,
-  obs TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**Admin:**
-- Tela com tabela: data, creator, SKU, quantidade, origem, status logístico
-- Input manual (criar registro)
-- Botão "Importar relatório TikTok" (parser do export Sample Management)
-- Vista de "ROI por seeding": creators que receberam amostra de SKU X vs vendas dele
-
-**Hub:**
-- Aba ou seção "Suas amostras": histórico do que ela recebeu
-- Botão "Pedir amostra" no Catálogo de Lançamentos (item #5 abaixo)
-
-**Esforço:** ~2 dias.
+**Pendente (não-bloqueante):**
+- Importação automática do export TikTok `affiliate/estatisticas/detalhes` filtro Amostras
+- Aba "Suas amostras" no hub das creators (visão da creator do que ela recebeu)
+- Custo unitário por SKU em `produtos.custo_unitario` (atualmente NULL — preenchimento manual quando souber)
 
 ---
 
