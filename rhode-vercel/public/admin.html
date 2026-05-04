@@ -887,10 +887,14 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tbl-head">
             <div>
               <div class="tbl-title">Flash Sales</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.04em">Promoções relâmpago direcionadas por tier · aparecem como pop-up no hub das creators elegíveis</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.04em">Janelas de promoção/comissão · planilha sincroniza automaticamente · admin permite criar campanhas globais</div>
             </div>
-            <button class="btn-amostra-add" onclick="openModalNovaFlash()">+ Nova flash sale</button>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn-lote-secondary" id="btn-sync-flash" onclick="syncFlashSheets()">↻ Sincronizar planilha</button>
+              <button class="btn-amostra-add" onclick="openModalNovaFlash()">+ Nova flash sale</button>
+            </div>
           </div>
+          <div id="flash-sync-status" style="padding:0 20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;display:none;border-bottom:1px solid var(--divider-soft)"></div>
           <div style="padding:14px 20px;border-bottom:1px solid var(--divider-soft);display:flex;flex-wrap:wrap;gap:6px;background:var(--pearl)">
             <span class="pill-filter on" data-flashf="todas" onclick="filterFlash(this,'todas')">Todas</span>
             <span class="pill-filter" data-flashf="ativas" onclick="filterFlash(this,'ativas')">Ativas agora</span>
@@ -2554,8 +2558,10 @@ async function renderFlashList(){
   }
 
   el('flash-list').innerHTML=lista.map(f=>{
-    const prod=PRODUTOS.find(p=>p.sku===f.sku);
-    const nome=prod?prod.nome:f.sku;
+    const prod=f.sku?PRODUTOS.find(p=>p.sku===f.sku):null;
+    const fromSheets=f.origem==='sheets';
+    const handleCreator=fromSheets&&Array.isArray(f.creators_convidadas)&&f.creators_convidadas.length?f.creators_convidadas[0]:null;
+    const nome=fromSheets?(handleCreator?`@${handleCreator.toLowerCase()}`:'(sem creator)'):(prod?prod.nome:f.sku||'(sem produto)');
     const foto=prod?.foto_url||'';
     const desconto=f.desconto_pct?`${f.desconto_pct}% OFF`:'';
     const ini=new Date(f.inicio_at);
@@ -2564,17 +2570,27 @@ async function renderFlashList(){
     let janela='';
     if(f._status==='ativa'){
       const ms=fim-new Date();
-      const h=Math.floor(ms/3600000);
+      const dias=Math.floor(ms/86400000);
+      const h=Math.floor((ms%86400000)/3600000);
       const m=Math.floor((ms%3600000)/60000);
-      janela=`<strong>${h>0?h+'h ':''}${m}m</strong> restantes<br><span style="color:var(--ink-48)">termina ${fmtDt(fim)}</span>`;
+      janela=`<strong>${dias>0?dias+'d ':''}${h>0?h+'h ':''}${m}m</strong> restantes<br><span style="color:var(--ink-48)">termina ${fmtDt(fim)}</span>`;
     }else if(f._status==='agendada'){
       janela=`começa em<br><strong>${fmtDt(ini)}</strong>`;
     }else{
       janela=`expirada<br><span style="color:var(--ink-48)">${fmtDt(fim)}</span>`;
     }
-    return`<div class="flash-card ${f._status}">
-      <div class="flash-thumb">${foto?`<img src="${foto}" alt="">`:''}</div>
-      <div class="flash-info">
+
+    let infoBlock;
+    if(fromSheets){
+      infoBlock=`<div class="flash-info">
+        <div class="nome">${nome}</div>
+        <div class="precos">
+          <span style="color:var(--cyan)">📊 da planilha</span>
+          ${f.source_handle?`<span style="color:var(--ink-48);margin-left:8px">${f.source_handle}</span>`:''}
+        </div>
+      </div>`;
+    }else{
+      infoBlock=`<div class="flash-info">
         <div class="nome">${nome}</div>
         <div class="precos">
           ${f.preco_de?`<span class="de">R$ ${(+f.preco_de).toFixed(2)}</span>`:''}
@@ -2582,7 +2598,16 @@ async function renderFlashList(){
           ${desconto?`<span style="color:var(--rhode-red);margin-left:8px">${desconto}</span>`:''}
           <span style="color:var(--ink-48);margin-left:8px">· ${f.tier_minimo}+</span>
         </div>
-      </div>
+      </div>`;
+    }
+
+    const thumb=fromSheets
+      ?`<div class="flash-thumb" style="background:rgba(254,44,85,0.08);color:var(--rhode-red);font-size:18px">⚡</div>`
+      :`<div class="flash-thumb">${foto?`<img src="${foto}" alt="">`:''}</div>`;
+
+    return`<div class="flash-card ${f._status}">
+      ${thumb}
+      ${infoBlock}
       <span class="flash-status ${f._status}">${f._status}</span>
       <div class="flash-window">${janela}</div>
       <button onclick="toggleFlashAtivo(${f.id},${f.ativo})" title="${f.ativo?'Desativar':'Reativar'}" style="background:transparent;border:1px solid var(--hairline);border-radius:99px;padding:5px 10px;font-size:11px;cursor:pointer;color:var(--ink-48)">${f.ativo?'⏸ Pausar':'▶ Ativar'}</button>
@@ -2606,6 +2631,35 @@ async function toggleFlashAtivo(id,atual){
     });
     await renderFlashList();
   }catch(e){alert('Erro: '+e.message);}
+}
+
+async function syncFlashSheets(){
+  const btn=el('btn-sync-flash');
+  const status=el('flash-sync-status');
+  btn.disabled=true;btn.textContent='Sincronizando...';
+  status.style.display='block';
+  status.style.padding='14px 20px';
+  status.style.color='var(--ink-48)';
+  status.textContent='⏳ Lendo planilha do Google Sheets...';
+
+  try{
+    const r=await fetch('/api/sync-flash-sales',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-pass':'rhode2026'}
+    });
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);
+
+    status.style.color='var(--green)';
+    status.innerHTML=`✓ Sincronizado em ${(data.duracao_ms/1000).toFixed(1)}s · ${data.processadas} linhas processadas · ${data.sincronizadas} sincronizadas${data.erros_parsing?` · ${data.erros_parsing} erros parsing`:''}`;
+    await renderFlashList();
+  }catch(e){
+    status.style.color='var(--rhode-red)';
+    status.textContent='✗ Erro: '+e.message;
+  }finally{
+    btn.disabled=false;btn.textContent='↻ Sincronizar planilha';
+    setTimeout(()=>{if(status.style.color==='var(--green)')status.style.display='none'},8000);
+  }
 }
 
 // ── Modal nova flash sale
