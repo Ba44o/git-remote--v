@@ -864,10 +864,14 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tbl-head">
             <div>
               <div class="tbl-title">Catálogo de Produtos</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.04em">SKUs disponíveis para envio · adicione novos conforme cadastrar Mom Jeans, batas, tops, etc</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.04em">SKUs sincronizados de rhodejeans.com.br · Atualize após lançamentos novos no Magazord</div>
             </div>
-            <button class="btn-amostra-add" onclick="openModalNovoProduto()">+ Novo produto</button>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn-lote-secondary" id="btn-sync-cat" onclick="syncCatalogo()">↻ Atualizar do site</button>
+              <button class="btn-amostra-add" onclick="openModalNovoProduto()">+ Novo produto</button>
+            </div>
           </div>
+          <div id="cat-sync-status" style="padding:0 20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;display:none;border-bottom:1px solid var(--divider-soft)"></div>
           <div class="tw"><table>
             <thead><tr><th>SKU</th><th>Nome</th><th>Categoria</th><th>Coleção</th><th>Preço venda</th><th>Custo unit.</th><th>Ativo</th></tr></thead>
             <tbody id="catalogo-body"><tr><td colspan="7" class="spin">Carregando...</td></tr></tbody>
@@ -2308,6 +2312,41 @@ async function renderCatalogo(){
       <td>${p.ativo?'<span class="badge b-green">Ativo</span>':'<span class="badge b-gray">Inativo</span>'}</td>
     </tr>`;
   }).join('');
+}
+
+async function syncCatalogo(){
+  if(!confirm('Buscar produtos novos/atualizados em rhodejeans.com.br?\n\nIsso lê o sitemap do site, extrai 56+ produtos e atualiza a tabela. Operação idempotente: SKUs existentes são atualizados, novos são criados, nenhum é apagado.'))return;
+
+  const btn=el('btn-sync-cat');
+  const status=el('cat-sync-status');
+  btn.disabled=true;btn.textContent='Sincronizando...';
+  status.style.display='block';
+  status.style.padding='14px 20px';
+  status.style.color='var(--ink-48)';
+  status.textContent='⏳ Lendo sitemap e baixando páginas... pode levar até 60s';
+
+  try{
+    const r=await fetch('/api/sync-catalogo',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-pass':'rhode2026'},
+    });
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);
+
+    const cats=Object.entries(data.por_categoria||{}).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`${k}: ${n}`).join(' · ');
+    status.style.color='var(--green)';
+    status.innerHTML=`✓ Sincronizado em ${(data.duracao_ms/1000).toFixed(1)}s · ${data.sincronizados} produtos · ${cats}`;
+    await renderCatalogo();
+    // Re-popula dropdown do form de lote (se estiver na aba Amostras)
+    PRODUTOS=await sbGet('produtos?select=*&order=categoria.asc,nome.asc');
+    if(typeof renderLoteItens==='function')renderLoteItens();
+  }catch(e){
+    status.style.color='var(--rhode-red)';
+    status.textContent='✗ Erro: '+e.message;
+  }finally{
+    btn.disabled=false;btn.textContent='↻ Atualizar do site';
+    setTimeout(()=>{if(status.style.color==='var(--green)')status.style.display='none'},8000);
+  }
 }
 
 function openModalNovoProduto(){

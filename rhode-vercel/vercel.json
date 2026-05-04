@@ -16,7 +16,8 @@
     "api/analyze.js": { "maxDuration": 30 },
     "api/cron-recovery.js": { "maxDuration": 60 },
     "api/cron-reminder.js": { "maxDuration": 60 },
-    "api/cron-tier-milestones.js": { "maxDuration": 60 }
+    "api/cron-tier-milestones.js": { "maxDuration": 60 },
+    "api/sync-catalogo.js": { "maxDuration": 60 }
   },
   "crons": [
     {
