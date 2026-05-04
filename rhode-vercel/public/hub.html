@@ -179,6 +179,80 @@ body{
 .kpi-val .accent{color:var(--rhode-red)}
 .kpi-sub{font-size:14px;color:var(--ink-48);font-weight:400;letter-spacing:-0.006em}
 
+/* ── Flash Sale ── */
+.flash-banner{
+  background:linear-gradient(135deg,var(--rhode-red) 0%,#ff4d6e 100%);color:#fff;
+  padding:14px 24px;display:flex;align-items:center;gap:14px;
+  position:sticky;top:96px;z-index:48;cursor:pointer;
+  box-shadow:0 2px 12px rgba(254,44,85,0.18);
+}
+.flash-banner-icon{font-size:18px;line-height:1;flex-shrink:0}
+.flash-banner-text{flex:1;min-width:0;font-size:13px;line-height:1.35;letter-spacing:-0.006em}
+.flash-banner-text strong{font-weight:700;letter-spacing:-0.011em}
+.flash-banner-cd{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;letter-spacing:0.04em;background:rgba(0,0,0,0.18);padding:6px 12px;border-radius:8px;flex-shrink:0}
+.flash-banner-arrow{font-size:18px;flex-shrink:0;opacity:.85}
+
+.flash-modal-overlay{
+  position:fixed;inset:0;background:rgba(29,29,31,0.7);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;z-index:200;padding:20px;
+  animation:fadeIn .2s ease;
+}
+.flash-modal-overlay.on{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.flash-modal{
+  background:var(--canvas);border-radius:22px;max-width:440px;width:100%;
+  overflow:hidden;animation:popIn .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.flash-modal-header{
+  background:linear-gradient(135deg,var(--rhode-red) 0%,#ff4d6e 100%);
+  color:#fff;padding:24px;text-align:center;position:relative;
+}
+.flash-modal-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:700;opacity:.92;margin-bottom:8px}
+.flash-modal-title{font-weight:700;font-size:24px;letter-spacing:-0.022em;line-height:1.15}
+.flash-modal-close{
+  position:absolute;top:14px;right:14px;
+  width:30px;height:30px;border-radius:99px;background:rgba(0,0,0,0.18);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:#fff;font-size:18px;border:none;
+}
+.flash-modal-body{padding:24px}
+.flash-modal-foto{width:100%;height:200px;background:var(--parchment);border-radius:14px;overflow:hidden;margin-bottom:18px;display:flex;align-items:center;justify-content:center}
+.flash-modal-foto img{width:100%;height:100%;object-fit:cover}
+.flash-modal-prod{font-weight:600;font-size:18px;letter-spacing:-0.022em;color:var(--ink);margin-bottom:8px;line-height:1.25}
+.flash-modal-precos{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.flash-modal-precos .de{text-decoration:line-through;color:var(--ink-48);font-size:15px}
+.flash-modal-precos .por{color:var(--rhode-red);font-weight:700;font-size:28px;letter-spacing:-0.025em}
+.flash-modal-desconto{display:inline-block;background:rgba(254,44,85,0.1);color:var(--rhode-red);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 11px;border-radius:99px;font-weight:700;margin-bottom:14px}
+.flash-modal-briefing{font-size:14px;line-height:1.5;color:var(--ink-80);margin-bottom:18px;padding:12px 14px;background:var(--parchment);border-radius:10px;letter-spacing:-0.006em}
+.flash-modal-cd-block{
+  background:var(--ink);color:#fff;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;
+}
+.flash-modal-cd-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--body-muted);margin-bottom:8px;font-weight:500}
+.flash-modal-cd-time{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;letter-spacing:0.04em;color:var(--rhode-red-on-dark)}
+.flash-modal-actions{display:flex;flex-direction:column;gap:8px}
+.flash-modal-btn{
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Inter',sans-serif;font-size:15px;font-weight:600;letter-spacing:-0.011em;
+  padding:13px 20px;border-radius:9999px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .12s ease,background .15s ease;
+}
+.flash-modal-btn-primary{background:var(--rhode-red);color:#fff}
+.flash-modal-btn-primary:hover{background:var(--rhode-red-hover)}
+.flash-modal-btn-primary:active{transform:scale(.97)}
+.flash-modal-btn-secondary{background:transparent;color:var(--ink-48);font-size:13px;font-weight:500}
+.flash-modal-btn-secondary:hover{color:var(--ink)}
+
+@media(max-width:520px){
+  .flash-banner{padding:12px 18px;gap:10px;top:96px}
+  .flash-banner-text{font-size:12px}
+  .flash-banner-cd{font-size:12px;padding:4px 10px}
+  .flash-modal{max-width:100%;border-radius:18px}
+  .flash-modal-foto{height:160px}
+  .flash-modal-precos .por{font-size:24px}
+}
+
 /* ── Tarefas Rhode (campanhas + amostras enviadas) ── */
 .tarefas-section{padding:0 24px;max-width:980px;margin:0 auto}
 .tarefas-card{
@@ -1018,6 +1092,14 @@ tr:last-child td{border-bottom:none}
   </nav>
 </div>
 
+<!-- Flash Sale Banner (sticky abaixo da nav, só aparece se ativa) -->
+<div id="flash-banner-slot"></div>
+
+<!-- Flash Sale Modal -->
+<div class="flash-modal-overlay" id="flash-modal" onclick="if(event.target===this)closeFlashModal()">
+  <div class="flash-modal" id="flash-modal-content"></div>
+</div>
+
 <!-- Suporte -->
 <a id="suporte-btn" href="https://wa.me/5511952759126" target="_blank" rel="noopener">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -1357,6 +1439,7 @@ async function loadPerf(handle,row){
     renderEntregaveis();
     loadLeaderboard(handle,rows[0]?.periodo);
     loadTarefasRhode(affId);
+    loadFlashSales(tier?.name||'Iniciante');
   }catch(e){
     document.getElementById('perf-main').innerHTML='<div class="empty">ERRO AO CARREGAR<br>Tente recarregar a página.</div>';
   }
@@ -1807,6 +1890,111 @@ function renderPainelBody(){
 }
 
 // Disparado uma vez quando os dados carregam — escreve no slot e cacheia
+// ── Flash Sales · banner + modal countdown
+const TIER_RANK={'Iniciante':0,'Bronze':1,'Silver':2,'Gold':3,'Diamond':4,'Black':5};
+let _flashAtiva=null;
+let _flashCdInterval=null;
+
+async function loadFlashSales(creatorTier){
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/flash_sales_ativas?select=*&order=fim_at.asc`,{headers:SBH});
+    const flashes=await r.json();
+    if(!flashes?.length){renderFlashBanner(null);return;}
+
+    // Filtra por tier mínimo
+    const meuRank=TIER_RANK[creatorTier]??0;
+    const elegiveis=flashes.filter(f=>{
+      const minRank=TIER_RANK[f.tier_minimo]??0;
+      const convidadasOk=!f.creators_convidadas||!f.creators_convidadas.length||f.creators_convidadas.includes(_creator?.handle?.toUpperCase());
+      return meuRank>=minRank && convidadasOk;
+    });
+    if(!elegiveis.length){renderFlashBanner(null);return;}
+
+    _flashAtiva=elegiveis[0]; // pega a que vai expirar primeiro
+    renderFlashBanner(_flashAtiva);
+
+    // Auto-abre modal se ainda não viu nessa sessão
+    const seenKey=`flash-seen-${_flashAtiva.id}`;
+    if(!sessionStorage.getItem(seenKey)){
+      setTimeout(()=>openFlashModal(),1200);
+      sessionStorage.setItem(seenKey,'1');
+    }
+  }catch(e){renderFlashBanner(null);}
+}
+
+function renderFlashBanner(f){
+  const slot=document.getElementById('flash-banner-slot');
+  if(!slot)return;
+  if(_flashCdInterval){clearInterval(_flashCdInterval);_flashCdInterval=null;}
+  if(!f){slot.innerHTML='';return;}
+
+  slot.innerHTML=`<div class="flash-banner" onclick="openFlashModal()">
+    <span class="flash-banner-icon">🔥</span>
+    <div class="flash-banner-text"><strong>Flash Sale ativa</strong> · ${f.produto_nome}${f.desconto_pct?` · ${f.desconto_pct}% OFF`:''}</div>
+    <span class="flash-banner-cd" id="flash-banner-cd">--:--:--</span>
+    <span class="flash-banner-arrow">›</span>
+  </div>`;
+
+  // Countdown ao vivo
+  const tick=()=>{
+    const ms=new Date(f.fim_at)-new Date();
+    if(ms<=0){
+      clearInterval(_flashCdInterval);
+      slot.innerHTML='';
+      _flashAtiva=null;
+      return;
+    }
+    const h=Math.floor(ms/3600000);
+    const m=Math.floor((ms%3600000)/60000);
+    const s=Math.floor((ms%60000)/1000);
+    const cdEl=document.getElementById('flash-banner-cd');
+    if(cdEl) cdEl.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const cdMod=document.getElementById('flash-modal-cd');
+    if(cdMod) cdMod.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  };
+  tick();
+  _flashCdInterval=setInterval(tick,1000);
+}
+
+function openFlashModal(){
+  if(!_flashAtiva)return;
+  const f=_flashAtiva;
+  const desc=f.desconto_pct?`${f.desconto_pct}% OFF`:'';
+  const briefing=f.briefing||'Aproveite enquanto está rolando — repassa pra sua audiência com seu link de afiliada Rhode.';
+  document.getElementById('flash-modal-content').innerHTML=`
+    <div class="flash-modal-header">
+      <button class="flash-modal-close" onclick="closeFlashModal()">×</button>
+      <div class="flash-modal-eyebrow">🔥 Flash Sale Rhode</div>
+      <div class="flash-modal-title">${f.produto_nome}</div>
+    </div>
+    <div class="flash-modal-body">
+      ${f.produto_foto?`<div class="flash-modal-foto"><img src="${f.produto_foto}" alt=""></div>`:''}
+      ${desc?`<span class="flash-modal-desconto">${desc}</span>`:''}
+      <div class="flash-modal-precos">
+        ${f.preco_de?`<span class="de">R$ ${(+f.preco_de).toFixed(2)}</span>`:''}
+        ${f.preco_por?`<span class="por">R$ ${(+f.preco_por).toFixed(2)}</span>`:''}
+      </div>
+      <div class="flash-modal-briefing">${briefing}</div>
+      <div class="flash-modal-cd-block">
+        <div class="flash-modal-cd-label">Termina em</div>
+        <div class="flash-modal-cd-time" id="flash-modal-cd">--:--:--</div>
+      </div>
+      <div class="flash-modal-actions">
+        <button class="flash-modal-btn flash-modal-btn-primary" onclick="closeFlashModal()">Vou aproveitar agora</button>
+        <button class="flash-modal-btn flash-modal-btn-secondary" onclick="closeFlashModal()">Lembrar depois</button>
+      </div>
+    </div>`;
+  document.getElementById('flash-modal').classList.add('on');
+}
+
+function closeFlashModal(){
+  document.getElementById('flash-modal').classList.remove('on');
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeFlashModal();
+});
+
 // ── Tarefas Rhode (campanhas + amostras enviadas)
 async function loadTarefasRhode(affId){
   try{

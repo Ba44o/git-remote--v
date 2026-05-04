@@ -89,39 +89,26 @@ _(nada no momento)_
 
 ---
 
-### 2. Flash Sales (admin + pop-up no hub)
+### ✅ ~~2. Flash Sales (admin + pop-up no hub)~~ — concluído mai/2026
 
-**Por que:** sistematizar promoções relâmpago que hoje vivem só na cabeça do time.
+**Entregue:**
+- Tabela Supabase `flash_sales` + view `flash_sales_ativas` (computa status em runtime)
+- Admin sub-aba "Flash Sales" em Operação:
+  - Lista com filtros (Todas / Ativas agora / Agendadas / Expiradas)
+  - Form modal de criação com SKU + janela datetime + tier mínimo + briefing
+  - Atalhos de duração (2h / 6h / 12h / 24h / 48h / 7d)
+  - Cálculo automático preço↔desconto bidirecional
+  - Toggle pause/ativar sem apagar
+- Hub das creators:
+  - **Banner sticky vermelho** abaixo da global nav com countdown ao vivo (HH:MM:SS)
+  - **Modal pop-up automático** na primeira visita da sessão (sessionStorage)
+  - Filtra por `tier_minimo` da creator + `creators_convidadas` (se especificado)
+  - Banner desaparece automaticamente quando expira
 
-**Schema Supabase:**
-```sql
-CREATE TABLE flash_sales (
-  id BIGSERIAL PRIMARY KEY,
-  sku TEXT NOT NULL,
-  sku_descricao TEXT,
-  desconto_pct NUMERIC,
-  preco_de NUMERIC,
-  preco_por NUMERIC,
-  inicio_at TIMESTAMPTZ NOT NULL,
-  fim_at TIMESTAMPTZ NOT NULL,
-  tier_minimo TEXT DEFAULT 'Bronze',
-  creators_convidadas TEXT[],  -- null = todas que atendem tier_minimo
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**Admin:**
-- Aba "Flash Sales" com lista (status: agendada / ativa / expirada)
-- Form de criação (SKU, desconto, janela, tier mínimo)
-- Histórico com performance (vendas geradas por sale)
-
-**Hub:**
-- Pop-up modal automático quando creator entra e tem flash ativa para o tier dela
-- Countdown timer regressivo (`setInterval` lendo `fim_at`)
-- Botão "Solicitar próxima" quando expirar (dispara WhatsApp pré-preenchido)
-- Status discreto no Painel se houver flash ativa
-
-**Esforço:** ~2 dias.
+**Pendente (não-bloqueante):**
+- Flash sale multi-SKU (hoje 1 flash = 1 SKU; pra promover N SKUs cria N flashes)
+- Notificação Z-API quando flash é criada/iniciada
+- Tracking: vendas atribuídas ao link da creator durante a flash
 
 ---
 

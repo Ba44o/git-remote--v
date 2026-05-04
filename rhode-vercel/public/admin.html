@@ -412,6 +412,27 @@ tr:hover td{background:rgba(254,44,85,0.015)}
 .campanha-card .stats .lbl{color:var(--ink-48);text-transform:uppercase;font-size:9px;letter-spacing:0.14em;font-weight:500}
 .campanha-card .stats .val{font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:var(--ink);letter-spacing:-0.011em;margin-top:2px}
 
+/* ── Flash Sales ── */
+.flash-card{
+  background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;
+  padding:20px 22px;margin-bottom:10px;display:grid;
+  grid-template-columns:48px 1fr auto auto auto;gap:18px;align-items:center;
+}
+.flash-card.ativa{border-color:var(--rhode-red);background:linear-gradient(135deg,rgba(254,44,85,0.04) 0%,#fff 60%)}
+.flash-card.expirada{opacity:.55}
+.flash-thumb{width:48px;height:48px;border-radius:11px;background:var(--parchment);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.flash-thumb img{width:100%;height:100%;object-fit:cover}
+.flash-info .nome{font-weight:600;font-size:15px;letter-spacing:-0.022em;color:var(--ink);margin-bottom:4px}
+.flash-info .precos{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-48);letter-spacing:0.02em}
+.flash-info .precos .de{text-decoration:line-through;color:var(--ink-48);margin-right:6px}
+.flash-info .precos .por{color:var(--rhode-red);font-weight:600;font-size:13px}
+.flash-status{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 11px;border-radius:99px;font-weight:500;white-space:nowrap}
+.flash-status.agendada{background:rgba(3,105,161,0.08);color:var(--cyan)}
+.flash-status.ativa{background:var(--rhode-red);color:#fff}
+.flash-status.expirada{background:var(--parchment);color:var(--ink-48)}
+.flash-window{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.04em;text-align:right;line-height:1.5;white-space:nowrap}
+.flash-window strong{color:var(--ink);font-weight:600}
+
 /* ── Mobile ── */
 @media(max-width:780px){
   .amostra-form-grid{grid-template-columns:1fr 1fr;gap:8px}
@@ -419,6 +440,8 @@ tr:hover td{background:rgba(254,44,85,0.015)}
   .amostra-form-row.row-2{grid-template-columns:1fr}
   .lote-item{grid-template-columns:1fr 60px auto}
   .modal-form-grid{grid-template-columns:1fr}
+  .flash-card{grid-template-columns:48px 1fr;gap:12px}
+  .flash-status,.flash-window{grid-column:2}
 }
 
 /* ── Analyst quadrants ── */
@@ -726,8 +749,8 @@ tr:hover td{background:rgba(254,44,85,0.015)}
     <div class="op-subnav">
       <button class="op-subtab on" onclick="opTab('amostras',this)">Amostras</button>
       <button class="op-subtab" onclick="opTab('campanhas',this)">Campanhas</button>
+      <button class="op-subtab" onclick="opTab('flash',this)">Flash Sales</button>
       <button class="op-subtab" onclick="opTab('catalogo',this)">Catálogo</button>
-      <button class="op-subtab" disabled title="Em breve · item #2 do roadmap">Flash Sales · em breve</button>
       <button class="op-subtab" disabled title="Em breve · item #3 do roadmap">Pagamentos · em breve</button>
     </div>
 
@@ -853,6 +876,28 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div id="campanhas-list" style="padding:18px 20px">
             <div class="empty">Carregando...</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sub-aba: Flash Sales ── -->
+    <div class="op-section" id="op-flash">
+      <div class="main">
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div>
+              <div class="tbl-title">Flash Sales</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.04em">Promoções relâmpago direcionadas por tier · aparecem como pop-up no hub das creators elegíveis</div>
+            </div>
+            <button class="btn-amostra-add" onclick="openModalNovaFlash()">+ Nova flash sale</button>
+          </div>
+          <div style="padding:14px 20px;border-bottom:1px solid var(--divider-soft);display:flex;flex-wrap:wrap;gap:6px;background:var(--pearl)">
+            <span class="pill-filter on" data-flashf="todas" onclick="filterFlash(this,'todas')">Todas</span>
+            <span class="pill-filter" data-flashf="ativas" onclick="filterFlash(this,'ativas')">Ativas agora</span>
+            <span class="pill-filter" data-flashf="agendadas" onclick="filterFlash(this,'agendadas')">Agendadas</span>
+            <span class="pill-filter" data-flashf="expiradas" onclick="filterFlash(this,'expiradas')">Expiradas</span>
+          </div>
+          <div id="flash-list" style="padding:18px 20px"><div class="empty">Carregando...</div></div>
         </div>
       </div>
     </div>
@@ -984,6 +1029,77 @@ tr:hover td{background:rgba(254,44,85,0.015)}
       <div class="modal-box-foot">
         <button class="btn-lote-secondary" onclick="closeModalNovaCampanha()">Cancelar</button>
         <button class="btn-amostra-add" onclick="saveNovaCampanha()">Criar campanha</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-nova-flash">
+    <div class="modal-box">
+      <div class="modal-box-head">
+        <div class="modal-box-title">Nova Flash Sale</div>
+        <div class="modal-box-x" onclick="closeModalNovaFlash()">×</div>
+      </div>
+      <div class="modal-box-body">
+        <div class="modal-form-grid">
+          <div class="modal-form-field full">
+            <label>SKU em promoção *</label>
+            <select id="nf-sku" onchange="onFlashSkuChange()">
+              <option value="">Selecione um produto...</option>
+            </select>
+          </div>
+          <div class="modal-form-field">
+            <label>Preço normal (R$)</label>
+            <input id="nf-preco-de" type="number" step="0.01" placeholder="auto" oninput="recalcFlashPreco()">
+          </div>
+          <div class="modal-form-field">
+            <label>Desconto %</label>
+            <input id="nf-desconto" type="number" step="0.5" min="0" max="90" placeholder="20" oninput="recalcFlashPreco('pct')">
+          </div>
+          <div class="modal-form-field full">
+            <label>Preço por (R$) — calculado, mas pode editar</label>
+            <input id="nf-preco-por" type="number" step="0.01" oninput="recalcFlashPreco('por')">
+          </div>
+          <div class="modal-form-field">
+            <label>Início (data + hora)</label>
+            <input id="nf-inicio" type="datetime-local">
+          </div>
+          <div class="modal-form-field">
+            <label>Fim (data + hora) *</label>
+            <input id="nf-fim" type="datetime-local">
+          </div>
+          <div class="modal-form-field">
+            <label>Tier mínimo</label>
+            <select id="nf-tier">
+              <option value="Iniciante">Todas (sem restrição)</option>
+              <option value="Bronze" selected>Bronze+</option>
+              <option value="Silver">Silver+</option>
+              <option value="Gold">Gold+</option>
+              <option value="Diamond">Diamond+</option>
+              <option value="Black">Apenas Black</option>
+            </select>
+          </div>
+          <div class="modal-form-field">
+            <label>Atalho de duração</label>
+            <select onchange="setFlashDuracao(this.value)">
+              <option value="">—</option>
+              <option value="2h">2 horas</option>
+              <option value="6h">6 horas</option>
+              <option value="12h">12 horas</option>
+              <option value="24h">24 horas</option>
+              <option value="48h">48 horas</option>
+              <option value="7d">7 dias</option>
+            </select>
+          </div>
+          <div class="modal-form-field full">
+            <label>Briefing pra creator (aparece no pop-up)</label>
+            <textarea id="nf-briefing" rows="2" placeholder="Ex: 24h de desconto. Compre rápido — repassa pra sua audiência com link de afiliada."></textarea>
+          </div>
+        </div>
+        <div id="nf-feedback" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;min-height:14px"></div>
+      </div>
+      <div class="modal-box-foot">
+        <button class="btn-lote-secondary" onclick="closeModalNovaFlash()">Cancelar</button>
+        <button class="btn-amostra-add" onclick="saveNovaFlash()">Criar flash sale</button>
       </div>
     </div>
   </div>
@@ -1856,6 +1972,7 @@ function opTab(id,btn){
   el('op-'+id).classList.add('on');
   if(id==='campanhas') renderCampanhasList();
   if(id==='catalogo')  renderCatalogo();
+  if(id==='flash')     renderFlashList();
 }
 
 async function loadAmostrasInit(){
@@ -2403,6 +2520,188 @@ document.addEventListener('keydown',e=>{
     document.querySelectorAll('.modal-overlay.on').forEach(m=>m.classList.remove('on'));
   }
 });
+
+// ═══════════════════════════════════════════════════════════════════════
+//   FLASH SALES
+// ═══════════════════════════════════════════════════════════════════════
+
+let FLASH_SALES=[];
+let FLASH_FILTRO='todas';
+
+function classifyFlash(f){
+  const now=new Date();
+  const ini=new Date(f.inicio_at);
+  const fim=new Date(f.fim_at);
+  if(!f.ativo) return 'expirada';
+  if(now<ini)  return 'agendada';
+  if(now>fim)  return 'expirada';
+  return 'ativa';
+}
+
+async function renderFlashList(){
+  try{
+    FLASH_SALES=await sbGet('flash_sales?select=*&order=inicio_at.desc');
+  }catch(e){
+    el('flash-list').innerHTML=`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message} · execute rhode-vercel/sql/flash_sales.sql</div>`;
+    return;
+  }
+  let lista=FLASH_SALES.map(f=>({...f,_status:classifyFlash(f)}));
+  if(FLASH_FILTRO!=='todas') lista=lista.filter(f=>f._status===FLASH_FILTRO);
+
+  if(!lista.length){
+    el('flash-list').innerHTML='<div class="empty">Nenhuma flash sale com esse filtro. Clique em <strong>+ Nova flash sale</strong> para criar.</div>';
+    return;
+  }
+
+  el('flash-list').innerHTML=lista.map(f=>{
+    const prod=PRODUTOS.find(p=>p.sku===f.sku);
+    const nome=prod?prod.nome:f.sku;
+    const foto=prod?.foto_url||'';
+    const desconto=f.desconto_pct?`${f.desconto_pct}% OFF`:'';
+    const ini=new Date(f.inicio_at);
+    const fim=new Date(f.fim_at);
+    const fmtDt=d=>d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' · '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    let janela='';
+    if(f._status==='ativa'){
+      const ms=fim-new Date();
+      const h=Math.floor(ms/3600000);
+      const m=Math.floor((ms%3600000)/60000);
+      janela=`<strong>${h>0?h+'h ':''}${m}m</strong> restantes<br><span style="color:var(--ink-48)">termina ${fmtDt(fim)}</span>`;
+    }else if(f._status==='agendada'){
+      janela=`começa em<br><strong>${fmtDt(ini)}</strong>`;
+    }else{
+      janela=`expirada<br><span style="color:var(--ink-48)">${fmtDt(fim)}</span>`;
+    }
+    return`<div class="flash-card ${f._status}">
+      <div class="flash-thumb">${foto?`<img src="${foto}" alt="">`:''}</div>
+      <div class="flash-info">
+        <div class="nome">${nome}</div>
+        <div class="precos">
+          ${f.preco_de?`<span class="de">R$ ${(+f.preco_de).toFixed(2)}</span>`:''}
+          ${f.preco_por?`<span class="por">R$ ${(+f.preco_por).toFixed(2)}</span>`:''}
+          ${desconto?`<span style="color:var(--rhode-red);margin-left:8px">${desconto}</span>`:''}
+          <span style="color:var(--ink-48);margin-left:8px">· ${f.tier_minimo}+</span>
+        </div>
+      </div>
+      <span class="flash-status ${f._status}">${f._status}</span>
+      <div class="flash-window">${janela}</div>
+      <button onclick="toggleFlashAtivo(${f.id},${f.ativo})" title="${f.ativo?'Desativar':'Reativar'}" style="background:transparent;border:1px solid var(--hairline);border-radius:99px;padding:5px 10px;font-size:11px;cursor:pointer;color:var(--ink-48)">${f.ativo?'⏸ Pausar':'▶ Ativar'}</button>
+    </div>`;
+  }).join('');
+}
+
+function filterFlash(btn,f){
+  document.querySelectorAll('[data-flashf]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  FLASH_FILTRO=f;
+  renderFlashList();
+}
+
+async function toggleFlashAtivo(id,atual){
+  try{
+    await fetch(`${SB_URL}/rest/v1/flash_sales?id=eq.${id}`,{
+      method:'PATCH',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({ativo:!atual})
+    });
+    await renderFlashList();
+  }catch(e){alert('Erro: '+e.message);}
+}
+
+// ── Modal nova flash sale
+function openModalNovaFlash(){
+  el('modal-nova-flash').classList.add('on');
+  const sel=el('nf-sku');
+  const ativas=PRODUTOS.filter(p=>p.ativo!==false);
+  const porCat={};ativas.forEach(p=>{const c=p.categoria||'outro';(porCat[c]=porCat[c]||[]).push(p)});
+  const ordemCat=['wide_leg','mom_jeans','skinny','reta','shorts','body','saia','bata','top','vestido','acessorio','outro'];
+  const ordCats=[...ordemCat.filter(c=>porCat[c]),...Object.keys(porCat).filter(c=>!ordemCat.includes(c))];
+  sel.innerHTML='<option value="">Selecione um produto...</option>'+ordCats.map(cat=>{
+    const lbl=cat.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+    return `<optgroup label="${lbl}">${porCat[cat].map(p=>`<option value="${p.sku}" data-preco="${p.preco_venda||''}">${p.nome}</option>`).join('')}</optgroup>`;
+  }).join('');
+
+  const now=new Date();
+  const fmt=d=>{const o=new Date(d);o.setMinutes(o.getMinutes()-o.getTimezoneOffset());return o.toISOString().slice(0,16)};
+  el('nf-inicio').value=fmt(now);
+  el('nf-fim').value=fmt(new Date(now.getTime()+24*3600000));
+  el('nf-desconto').value='20';
+
+  setTimeout(()=>el('nf-sku').focus(),50);
+}
+function closeModalNovaFlash(){
+  el('modal-nova-flash').classList.remove('on');
+  ['nf-sku','nf-preco-de','nf-desconto','nf-preco-por','nf-inicio','nf-fim','nf-briefing'].forEach(id=>{const e=el(id);if(e)e.value=''});
+  el('nf-tier').value='Bronze';
+  el('nf-feedback').textContent='';
+}
+
+function onFlashSkuChange(){
+  const sel=el('nf-sku');
+  const opt=sel.options[sel.selectedIndex];
+  const preco=opt?.dataset?.preco;
+  if(preco){
+    el('nf-preco-de').value=preco;
+    recalcFlashPreco('pct');
+  }
+}
+
+function recalcFlashPreco(origem){
+  const de=parseFloat(el('nf-preco-de').value);
+  const pct=parseFloat(el('nf-desconto').value);
+  const por=parseFloat(el('nf-preco-por').value);
+  if(origem==='por' && de>0 && por>0){
+    el('nf-desconto').value=((1-por/de)*100).toFixed(1);
+  }else if((origem==='pct'||!origem) && de>0 && pct>0){
+    el('nf-preco-por').value=(de*(1-pct/100)).toFixed(2);
+  }
+}
+
+function setFlashDuracao(d){
+  if(!d) return;
+  const mult={'2h':2,'6h':6,'12h':12,'24h':24,'48h':48,'7d':24*7}[d];
+  if(!mult) return;
+  let ini=new Date(el('nf-inicio').value);
+  if(isNaN(ini.getTime())) ini=new Date();
+  const fim=new Date(ini.getTime()+mult*3600000);
+  const fmt=d=>{const o=new Date(d);o.setMinutes(o.getMinutes()-o.getTimezoneOffset());return o.toISOString().slice(0,16)};
+  el('nf-inicio').value=fmt(ini);
+  el('nf-fim').value=fmt(fim);
+}
+
+async function saveNovaFlash(){
+  const fb=el('nf-feedback');fb.textContent='';
+  const sku=el('nf-sku').value;
+  const inicio=el('nf-inicio').value;
+  const fim=el('nf-fim').value;
+  if(!sku){return failFb(fb,'Selecione um SKU.');}
+  if(!inicio||!fim){return failFb(fb,'Datas obrigatórias.');}
+  if(new Date(fim)<=new Date(inicio)){return failFb(fb,'Fim tem que ser depois do início.');}
+
+  const payload={
+    sku,
+    desconto_pct:parseFloat(el('nf-desconto').value)||null,
+    preco_de:parseFloat(el('nf-preco-de').value)||null,
+    preco_por:parseFloat(el('nf-preco-por').value)||null,
+    inicio_at:new Date(inicio).toISOString(),
+    fim_at:new Date(fim).toISOString(),
+    tier_minimo:el('nf-tier').value,
+    briefing:el('nf-briefing').value.trim()||null,
+    ativo:true,
+  };
+
+  fb.textContent='Criando...';fb.style.color='var(--ink-48)';
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/flash_sales`,{
+      method:'POST',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify(payload)
+    });
+    if(!r.ok){throw new Error((await r.text()).slice(0,200));}
+    closeModalNovaFlash();
+    await renderFlashList();
+  }catch(e){failFb(fb,'Erro: '+e.message);}
+}
 
 // Hook: quando entrar na aba Operação, carrega amostras
 const _tabBeforeAmostras=tab;
