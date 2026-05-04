@@ -250,6 +250,7 @@ CREATE TABLE notificacoes (
 
 | Item | Por que está aqui |
 |------|-------------------|
+| **Coach proativo no hub das creators** | Sistema detecta padrões e sinaliza pra creator: *"Suas lives estão convertendo melhor que vídeos — produza mais lives essa semana"*, *"Você recebeu 2 amostras semana passada e ainda não postou"*, *"Seu refund está em 22% — revise o tamanho que está indicando no link"*. Requer engine de regras + UI de cards de insight no hub. Conversado com user mai/2026, fica para depois das integrações operacionais (amostras, flash sales, pagamentos) maduras. |
 | TikTok Analytics nativo | Depende OAuth do TikTok. 2-3 semanas de trabalho. ROI baixo (creator já vê no painel dela) |
 | Order List ETL (granularidade diária + por-SKU) | Depende de novo export que não está sendo baixado. Útil quando precisarmos de "qual SKU vende mais por creator" |
 | Remover alias antigo `dash.rhodejeans.com.br` do projeto Vercel | URL não usada oficialmente — usuário pediu para nunca mencionar/testar contra ela. Alias ainda existe tecnicamente. Remover quando for prudente. |

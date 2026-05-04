@@ -276,6 +276,151 @@ tr:hover td{background:rgba(254,44,85,0.015)}
 /* ── Live dot animation ── */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
+/* ── Operação · sub-nav ── */
+.op-subnav{display:flex;gap:6px;padding:14px 24px 0;border-bottom:1px solid var(--divider-soft);overflow-x:auto;scrollbar-width:none}
+.op-subnav::-webkit-scrollbar{display:none}
+.op-subtab{
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;letter-spacing:-0.011em;
+  padding:8px 16px 12px;color:var(--ink-48);cursor:pointer;
+  border:none;background:transparent;border-bottom:2px solid transparent;
+  transition:color .15s ease,border-color .15s ease;flex-shrink:0;
+}
+.op-subtab.on{color:var(--ink);border-bottom-color:var(--rhode-red)}
+.op-subtab:hover:not(.on):not(:disabled){color:var(--ink)}
+.op-subtab:disabled{cursor:not-allowed;opacity:.4}
+.op-section{display:none}.op-section.on{display:block}
+
+/* ── Quick-add form (Amostras) ── */
+.amostra-form-card{
+  background:var(--canvas);border:1px solid rgba(0,0,0,0.05);border-radius:14px;
+  padding:20px 24px;margin-bottom:16px;
+}
+.amostra-form-grid{display:grid;grid-template-columns:140px 1fr 200px 80px auto;gap:10px;align-items:end}
+.amostra-form-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);margin-bottom:6px;font-weight:500}
+.amostra-form-field input,.amostra-form-field select{
+  width:100%;padding:9px 12px;background:var(--canvas);border:1px solid var(--hairline);
+  border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;
+  transition:border-color .15s ease;letter-spacing:-0.006em;
+}
+.amostra-form-field input:focus,.amostra-form-field select:focus{border-color:var(--rhode-red)}
+.amostra-form-field.creator{position:relative}
+.creator-suggestions{
+  position:absolute;top:100%;left:0;right:0;
+  background:var(--canvas);border:1px solid var(--hairline);border-radius:9px;
+  margin-top:4px;max-height:240px;overflow-y:auto;z-index:50;
+  box-shadow:0 4px 16px rgba(0,0,0,0.05);display:none;
+}
+.creator-suggestions.on{display:block}
+.creator-suggestion{
+  padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--divider-soft);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.creator-suggestion:hover{background:var(--parchment)}
+.creator-suggestion:last-child{border-bottom:none}
+.creator-suggestion .meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-48);letter-spacing:0.04em}
+.btn-amostra-add{
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;letter-spacing:-0.011em;
+  padding:9px 18px;background:var(--rhode-red);color:#fff;border:none;border-radius:9px;cursor:pointer;
+  transition:background .15s ease;white-space:nowrap;
+}
+.btn-amostra-add:hover{background:#e8264c}
+.btn-amostra-add:active{transform:scale(.97)}
+.btn-amostra-add:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── Filtros ── */
+.amostra-filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.amostra-filtros .pill-filter{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;
+  padding:6px 12px;border:1px solid var(--hairline);border-radius:99px;
+  background:var(--canvas);color:var(--ink-48);cursor:pointer;font-weight:500;
+  transition:all .15s ease;
+}
+.amostra-filtros .pill-filter.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.amostra-filtros .pill-filter:hover:not(.on){border-color:var(--ink);color:var(--ink)}
+
+/* ── Lote multi-SKU ── */
+.lote-itens{
+  background:var(--pearl);border:1px dashed var(--hairline);border-radius:11px;
+  padding:14px;margin-top:14px;
+}
+.lote-itens-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.lote-itens-titulo{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500}
+.lote-item{
+  display:grid;grid-template-columns:1fr 80px auto;gap:8px;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--divider-soft);
+}
+.lote-item:last-child{border-bottom:none}
+.lote-item select,.lote-item input{
+  width:100%;padding:7px 10px;background:var(--canvas);border:1px solid var(--hairline);
+  border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;
+}
+.lote-item select:focus,.lote-item input:focus{border-color:var(--rhode-red)}
+.lote-item-rm{background:transparent;border:none;color:var(--ink-48);cursor:pointer;font-size:18px;padding:4px 8px;line-height:1}
+.lote-item-rm:hover{color:var(--rhode-red)}
+.lote-add-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn-lote-secondary{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;letter-spacing:-0.011em;
+  padding:7px 14px;background:var(--canvas);color:var(--ink);border:1px solid var(--hairline);
+  border-radius:99px;cursor:pointer;transition:all .15s ease;
+}
+.btn-lote-secondary:hover{border-color:var(--ink)}
+
+.amostra-form-row{display:grid;grid-template-columns:140px 1fr 1fr 140px;gap:10px;align-items:end;margin-bottom:10px}
+.amostra-form-row.row-2{grid-template-columns:1fr 140px}
+
+/* ── Modal genérico ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(29,29,31,0.55);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;z-index:1000;padding:16px;
+}
+.modal-overlay.on{display:flex}
+.modal-box{
+  background:var(--canvas);border:1px solid rgba(0,0,0,0.05);border-radius:18px;
+  max-width:520px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;
+}
+.modal-box-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--divider-soft)}
+.modal-box-title{font-family:'Inter',sans-serif;font-weight:600;font-size:16px;letter-spacing:-0.022em;color:var(--ink)}
+.modal-box-x{
+  width:30px;height:30px;border:1px solid var(--hairline);border-radius:99px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--ink-48);font-size:16px;background:var(--canvas);
+}
+.modal-box-x:hover{border-color:var(--ink);color:var(--ink)}
+.modal-box-body{padding:22px;overflow-y:auto}
+.modal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-form-grid .full{grid-column:1/-1}
+.modal-form-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);margin-bottom:5px;font-weight:500}
+.modal-form-field input,.modal-form-field select,.modal-form-field textarea{
+  width:100%;padding:9px 12px;background:var(--canvas);border:1px solid var(--hairline);
+  border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;
+  letter-spacing:-0.006em;
+}
+.modal-form-field input:focus,.modal-form-field select:focus,.modal-form-field textarea:focus{border-color:var(--rhode-red)}
+.modal-box-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--divider-soft);background:var(--pearl)}
+
+/* ── Campanhas list ── */
+.campanha-card{
+  background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;
+  padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  transition:border-color .15s ease;
+}
+.campanha-card:hover{border-color:rgba(254,44,85,0.3)}
+.campanha-card.concluida{opacity:.65}
+.campanha-card .nome{font-weight:600;font-size:15px;letter-spacing:-0.022em;color:var(--ink);min-width:200px}
+.campanha-card .meta-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:3px 9px;border-radius:99px;background:var(--parchment);color:var(--ink-48);font-weight:500}
+.campanha-card .stats{display:flex;gap:18px;margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em}
+.campanha-card .stats .lbl{color:var(--ink-48);text-transform:uppercase;font-size:9px;letter-spacing:0.14em;font-weight:500}
+.campanha-card .stats .val{font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:var(--ink);letter-spacing:-0.011em;margin-top:2px}
+
+/* ── Mobile ── */
+@media(max-width:780px){
+  .amostra-form-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .amostra-form-row{grid-template-columns:1fr 1fr;gap:8px}
+  .amostra-form-row.row-2{grid-template-columns:1fr}
+  .lote-item{grid-template-columns:1fr 60px auto}
+  .modal-form-grid{grid-template-columns:1fr}
+}
+
 /* ── Analyst quadrants ── */
 .quad{
   background:var(--canvas);border:1px solid var(--hairline);border-radius:14px;
@@ -413,6 +558,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
     <button class="tab" onclick="tab('alertas',this)">Alertas</button>
     <button class="tab" onclick="tab('evolucao',this)">Evolução</button>
     <button class="tab" onclick="tab('analista',this)">Analista IA</button>
+    <button class="tab" onclick="tab('operacao',this)">Operação</button>
     <button class="tab" onclick="tab('evento',this)">Evento 13/04</button>
   </div>
 
@@ -572,6 +718,266 @@ tr:hover td{background:rgba(254,44,85,0.015)}
             <tbody id="mov-body"></tbody>
           </table></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-operacao">
+    <div class="op-subnav">
+      <button class="op-subtab on" onclick="opTab('amostras',this)">Amostras</button>
+      <button class="op-subtab" onclick="opTab('campanhas',this)">Campanhas</button>
+      <button class="op-subtab" onclick="opTab('catalogo',this)">Catálogo</button>
+      <button class="op-subtab" disabled title="Em breve · item #2 do roadmap">Flash Sales · em breve</button>
+      <button class="op-subtab" disabled title="Em breve · item #3 do roadmap">Pagamentos · em breve</button>
+    </div>
+
+    <!-- ── Sub-aba: Amostras ── -->
+    <div class="op-section on" id="op-amostras">
+      <div class="main">
+
+        <!-- KPIs -->
+        <div class="kgrid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+          <div class="kcard"><div class="klabel">Amostras este mês</div><div class="kval" id="amk-mes">—</div><div class="ksub" id="amk-mes-s"></div></div>
+          <div class="kcard"><div class="klabel">Custo estimado</div><div class="kval" id="amk-custo" style="color:var(--rhode-red)">—</div><div class="ksub">peças × custo unitário</div></div>
+          <div class="kcard"><div class="klabel">Acumulado 2026</div><div class="kval" id="amk-ano">—</div><div class="ksub" id="amk-ano-s"></div></div>
+          <div class="kcard"><div class="klabel">SKU mais enviado</div><div class="kval" id="amk-top" style="font-size:16px">—</div><div class="ksub" id="amk-top-s"></div></div>
+        </div>
+
+        <!-- Form lote multi-SKU -->
+        <div class="amostra-form-card">
+          <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;margin-bottom:14px;letter-spacing:-0.011em">Registrar lote de amostras</div>
+
+          <div class="amostra-form-row">
+            <div class="amostra-form-field">
+              <label>Data envio</label>
+              <input type="date" id="am-data">
+            </div>
+            <div class="amostra-form-field creator">
+              <label>Creator</label>
+              <input type="text" id="am-creator" placeholder="Digite o @ ou nome..." autocomplete="off" oninput="searchCreatorAmostra(this.value)">
+              <div class="creator-suggestions" id="am-creator-sug"></div>
+            </div>
+            <div class="amostra-form-field">
+              <label>Campanha (opcional)</label>
+              <select id="am-campanha"><option value="">— Sem campanha vinculada —</option></select>
+            </div>
+            <div class="amostra-form-field">
+              <label>Prazo do vídeo</label>
+              <input type="date" id="am-prazo-video">
+            </div>
+          </div>
+
+          <div class="amostra-form-row row-2" style="margin-bottom:0">
+            <div class="amostra-form-field">
+              <label>Briefing pra creator (aparece no hub dela)</label>
+              <input type="text" id="am-briefing" placeholder="Ex: grava conteúdo natural com a peça, cintura alta, foco no caimento...">
+            </div>
+            <div class="amostra-form-field">
+              <label>Obs interna</label>
+              <input type="text" id="am-obs" placeholder="Notas internas (não vai pra creator)">
+            </div>
+          </div>
+
+          <!-- Itens do lote -->
+          <div class="lote-itens">
+            <div class="lote-itens-head">
+              <span class="lote-itens-titulo">Produtos neste lote</span>
+              <span class="lote-itens-titulo" id="lote-summary">0 itens · 0 peças</span>
+            </div>
+            <div id="lote-items-list">
+              <!-- linhas adicionadas dinamicamente -->
+            </div>
+            <div class="lote-add-btns">
+              <button class="btn-lote-secondary" onclick="addLoteItem()">+ Adicionar produto</button>
+              <button class="btn-lote-secondary" onclick="openModalNovoProduto()">+ Cadastrar SKU novo</button>
+              <button class="btn-lote-secondary" onclick="openModalNovaCampanha()" style="margin-left:auto">+ Criar campanha</button>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <button class="btn-amostra-add" onclick="saveLote()">Salvar lote →</button>
+            <div id="am-form-feedback" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;flex:1"></div>
+          </div>
+        </div>
+
+        <!-- Lista -->
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-title">Histórico de Amostras</div>
+            <div class="tbl-meta" id="am-meta">—</div>
+          </div>
+          <div style="padding:14px 20px;border-bottom:1px solid var(--divider-soft);display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--pearl)">
+            <div class="amostra-filtros" id="am-filtros-periodo">
+              <span class="pill-filter on" data-periodo="todos" onclick="filterAmostraPeriodo(this,'todos')">Todos</span>
+              <span class="pill-filter" data-periodo="30" onclick="filterAmostraPeriodo(this,'30')">Últimos 30d</span>
+              <span class="pill-filter" data-periodo="mes" onclick="filterAmostraPeriodo(this,'mes')">Mês atual</span>
+            </div>
+            <input type="text" id="am-search" placeholder="Buscar creator ou SKU..." class="search-input" oninput="filterAmostraSearch(this.value)" style="margin-left:auto">
+          </div>
+          <div class="tw"><table>
+            <thead><tr>
+              <th>Data envio</th><th>Creator</th><th>SKU</th><th>Qtd</th><th>Origem</th><th>Tier no envio</th><th>Recebido em</th><th>Obs</th><th></th>
+            </tr></thead>
+            <tbody id="am-body"><tr><td colspan="9" class="spin">Carregando...</td></tr></tbody>
+          </table></div>
+        </div>
+
+        <!-- ROI por SKU -->
+        <div class="tbl-card" style="margin-top:16px">
+          <div class="tbl-head">
+            <div>
+              <div class="tbl-title">ROI de Seeding · por SKU</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.06em">GMV médio gerado pelos creators que receberam amostra do SKU (período seguinte ao envio · até 60d)</div>
+            </div>
+          </div>
+          <div class="tw"><table>
+            <thead><tr><th>SKU</th><th>Creators c/ amostra</th><th>GMV médio pós-amostra</th><th>GMV total atribuído</th></tr></thead>
+            <tbody id="am-roi-body"><tr><td colspan="4" class="empty">Sem amostras registradas ainda</td></tr></tbody>
+          </table></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Sub-aba: Campanhas ── -->
+    <div class="op-section" id="op-campanhas">
+      <div class="main">
+        <div class="tbl-card" style="margin-bottom:16px">
+          <div class="tbl-head">
+            <div>
+              <div class="tbl-title">Campanhas de Seeding</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.04em">Agrupador estratégico — ex: lançamento Mom Jeans · Dia das Mães</div>
+            </div>
+            <button class="btn-amostra-add" onclick="openModalNovaCampanha()">+ Nova campanha</button>
+          </div>
+          <div id="campanhas-list" style="padding:18px 20px">
+            <div class="empty">Carregando...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sub-aba: Catálogo ── -->
+    <div class="op-section" id="op-catalogo">
+      <div class="main">
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div>
+              <div class="tbl-title">Catálogo de Produtos</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);margin-top:4px;letter-spacing:0.04em">SKUs disponíveis para envio · adicione novos conforme cadastrar Mom Jeans, batas, tops, etc</div>
+            </div>
+            <button class="btn-amostra-add" onclick="openModalNovoProduto()">+ Novo produto</button>
+          </div>
+          <div class="tw"><table>
+            <thead><tr><th>SKU</th><th>Nome</th><th>Categoria</th><th>Coleção</th><th>Preço venda</th><th>Custo unit.</th><th>Ativo</th></tr></thead>
+            <tbody id="catalogo-body"><tr><td colspan="7" class="spin">Carregando...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Modais ═══ -->
+  <div class="modal-overlay" id="modal-novo-produto">
+    <div class="modal-box">
+      <div class="modal-box-head">
+        <div class="modal-box-title">Cadastrar novo produto</div>
+        <div class="modal-box-x" onclick="closeModalNovoProduto()">×</div>
+      </div>
+      <div class="modal-box-body">
+        <div class="modal-form-grid">
+          <div class="modal-form-field full">
+            <label>SKU *</label>
+            <input id="np-sku" type="text" placeholder="Ex: MOM-STONE">
+          </div>
+          <div class="modal-form-field full">
+            <label>Nome *</label>
+            <input id="np-nome" type="text" placeholder="Ex: Mom Jeans Stone Used">
+          </div>
+          <div class="modal-form-field">
+            <label>Categoria</label>
+            <select id="np-categoria">
+              <option value="">—</option>
+              <option value="wide_leg">Wide Leg</option>
+              <option value="mom_jeans">Mom Jeans</option>
+              <option value="skinny">Skinny</option>
+              <option value="reta">Reta</option>
+              <option value="bata">Bata</option>
+              <option value="top">Top / Cropped</option>
+              <option value="vestido">Vestido</option>
+              <option value="saia">Saia</option>
+              <option value="acessorio">Acessório</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+          <div class="modal-form-field">
+            <label>Coleção</label>
+            <input id="np-colecao" type="text" placeholder="Ex: Verão 26">
+          </div>
+          <div class="modal-form-field">
+            <label>Preço venda (R$)</label>
+            <input id="np-preco" type="number" step="0.01" placeholder="99.90">
+          </div>
+          <div class="modal-form-field">
+            <label>Custo unitário (R$)</label>
+            <input id="np-custo" type="number" step="0.01" placeholder="35.00">
+          </div>
+          <div class="modal-form-field full">
+            <label>Foto URL (opcional)</label>
+            <input id="np-foto" type="text" placeholder="https://...">
+          </div>
+          <div class="modal-form-field full">
+            <label>Descrição (opcional)</label>
+            <textarea id="np-desc" rows="2" placeholder="Detalhes do produto"></textarea>
+          </div>
+        </div>
+        <div id="np-feedback" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;min-height:14px"></div>
+      </div>
+      <div class="modal-box-foot">
+        <button class="btn-lote-secondary" onclick="closeModalNovoProduto()">Cancelar</button>
+        <button class="btn-amostra-add" onclick="saveNovoProduto()">Salvar produto</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-nova-campanha">
+    <div class="modal-box">
+      <div class="modal-box-head">
+        <div class="modal-box-title">Nova campanha</div>
+        <div class="modal-box-x" onclick="closeModalNovaCampanha()">×</div>
+      </div>
+      <div class="modal-box-body">
+        <div class="modal-form-grid">
+          <div class="modal-form-field full">
+            <label>Nome *</label>
+            <input id="nc-nome" type="text" placeholder="Ex: Lançamento Mom Jeans · Dia das Mães">
+          </div>
+          <div class="modal-form-field full">
+            <label>Meta / contexto interno</label>
+            <input id="nc-meta" type="text" placeholder="Ex: testar tração de Mom Jeans com creators top">
+          </div>
+          <div class="modal-form-field full">
+            <label>Briefing pra creator (vai aparecer no hub dela)</label>
+            <textarea id="nc-briefing" rows="3" placeholder="Ex: grava 1 vídeo natural com a peça, focando no caimento e na cintura alta. Tag @rhodejeans."></textarea>
+          </div>
+          <div class="modal-form-field">
+            <label>Início</label>
+            <input id="nc-inicio" type="date">
+          </div>
+          <div class="modal-form-field">
+            <label>Fim do envio</label>
+            <input id="nc-fim-envio" type="date">
+          </div>
+          <div class="modal-form-field full">
+            <label>Prazo do vídeo</label>
+            <input id="nc-prazo-video" type="date">
+          </div>
+        </div>
+        <div id="nc-feedback" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;min-height:14px"></div>
+      </div>
+      <div class="modal-box-foot">
+        <button class="btn-lote-secondary" onclick="closeModalNovaCampanha()">Cancelar</button>
+        <button class="btn-amostra-add" onclick="saveNovaCampanha()">Criar campanha</button>
       </div>
     </div>
   </div>
@@ -1425,6 +1831,544 @@ async function openModal(id){
     htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`);
   }
 }
+
+// ═════════════════════════════════════════════════════════════════════════════
+//   OPERAÇÃO · AMOSTRAS · CAMPANHAS · CATÁLOGO
+// ═════════════════════════════════════════════════════════════════════════════
+
+let AMOSTRAS=[],AMOSTRAS_FILTRADAS=[],PRODUTOS=[],CAMPANHAS=[];
+let AM_PERIODO_FILTER='todos';
+let AM_SEARCH='';
+let AM_SELECTED_CREATOR=null;
+let AM_CREATOR_CACHE=null;
+let LOTE_ITENS=[]; // [{sku, qtd}, ...] linhas atuais do form
+
+function opTab(id,btn){
+  document.querySelectorAll('.op-subtab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.op-section').forEach(s=>s.classList.remove('on'));
+  btn.classList.add('on');
+  el('op-'+id).classList.add('on');
+  if(id==='campanhas') renderCampanhasList();
+  if(id==='catalogo')  renderCatalogo();
+}
+
+async function loadAmostrasInit(){
+  el('am-data').value=new Date().toISOString().split('T')[0];
+
+  try{
+    PRODUTOS=await sbGet('produtos?select=sku,nome,categoria,colecao,preco_venda,custo_unitario,ativo&order=categoria.asc,nome.asc');
+    CAMPANHAS=await sbGet('campanhas?select=*&order=created_at.desc');
+  }catch(e){
+    el('am-form-feedback').textContent='⚠️ Erro ao carregar catálogo: '+e.message;
+    el('am-form-feedback').style.color='var(--rhode-red)';
+    return;
+  }
+
+  populateCampanhaDropdown();
+  if(LOTE_ITENS.length===0) addLoteItem();
+  await refreshAmostras();
+}
+
+function populateCampanhaDropdown(){
+  const sel=el('am-campanha');
+  if(!sel) return;
+  const ativas=CAMPANHAS.filter(c=>c.status==='ativa');
+  sel.innerHTML='<option value="">— Sem campanha vinculada —</option>'+
+    ativas.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+}
+
+// ── Itens do lote (multi-SKU)
+function addLoteItem(){
+  LOTE_ITENS.push({sku:'',qtd:1});
+  renderLoteItens();
+}
+function removeLoteItem(idx){
+  LOTE_ITENS.splice(idx,1);
+  if(LOTE_ITENS.length===0) addLoteItem(); // mantém pelo menos 1
+  else renderLoteItens();
+}
+function updateLoteItemSku(idx,sku){LOTE_ITENS[idx].sku=sku;renderLoteSummary();}
+function updateLoteItemQtd(idx,qtd){LOTE_ITENS[idx].qtd=Math.max(1,parseInt(qtd||'1',10));renderLoteSummary();}
+
+function renderLoteItens(){
+  const ativas=PRODUTOS.filter(p=>p.ativo!==false);
+  // Agrupa por categoria pro optgroup
+  const porCat={};
+  ativas.forEach(p=>{const c=p.categoria||'outro';(porCat[c]=porCat[c]||[]).push(p)});
+  const ordemCat=['wide_leg','mom_jeans','skinny','reta','bata','top','vestido','saia','acessorio','outro'];
+  const ordCats=[...ordemCat.filter(c=>porCat[c]),...Object.keys(porCat).filter(c=>!ordemCat.includes(c))];
+
+  const optsByCat=ordCats.map(cat=>{
+    const lbl=cat.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+    return `<optgroup label="${lbl}">${porCat[cat].map(p=>`<option value="${p.sku}">${p.nome}</option>`).join('')}</optgroup>`;
+  }).join('');
+
+  el('lote-items-list').innerHTML=LOTE_ITENS.map((it,i)=>`
+    <div class="lote-item">
+      <select onchange="updateLoteItemSku(${i},this.value)">
+        <option value="">Selecione um produto...</option>
+        ${optsByCat.replace(`value="${it.sku}"`,`value="${it.sku}" selected`)}
+      </select>
+      <input type="number" min="1" value="${it.qtd}" onchange="updateLoteItemQtd(${i},this.value)">
+      <button class="lote-item-rm" onclick="removeLoteItem(${i})" title="Remover">×</button>
+    </div>
+  `).join('');
+  renderLoteSummary();
+}
+
+function renderLoteSummary(){
+  const valid=LOTE_ITENS.filter(it=>it.sku);
+  const totalItens=valid.length;
+  const totalPecas=valid.reduce((s,it)=>s+(+it.qtd||0),0);
+  const sum=el('lote-summary');
+  if(sum) sum.textContent=`${totalItens} ${totalItens===1?'item':'itens'} · ${totalPecas} ${totalPecas===1?'peça':'peças'}`;
+}
+
+async function refreshAmostras(){
+  try{
+    AMOSTRAS=await sbGetPaged('amostras_enviadas?select=*&order=data_envio.desc');
+    AMOSTRAS_FILTRADAS=[...AMOSTRAS];
+    renderAmostrasKPIs();
+    renderAmostrasTabela();
+    renderRoiPorSku();
+  }catch(e){
+    el('am-meta').textContent='Erro ao carregar';
+    el('am-body').innerHTML=`<tr><td colspan="9" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`;
+  }
+}
+
+function renderAmostrasKPIs(){
+  const hoje=new Date();
+  const inicioMes=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+  const inicioAno=new Date(hoje.getFullYear(),0,1);
+  const noMes=AMOSTRAS.filter(a=>new Date(a.data_envio)>=inicioMes);
+  const noAno=AMOSTRAS.filter(a=>new Date(a.data_envio)>=inicioAno);
+
+  const qtdMes=noMes.reduce((s,a)=>s+(+a.quantidade||0),0);
+  const qtdAno=noAno.reduce((s,a)=>s+(+a.quantidade||0),0);
+  const custoMes=noMes.reduce((s,a)=>s+((+a.custo_unitario_snapshot||0)*(+a.quantidade||0)),0);
+
+  set('amk-mes',qtdMes.toLocaleString('pt-BR'));
+  set('amk-mes-s',`${noMes.length} envios · meta 50/mês`);
+  set('amk-custo',custoMes>0?fmtR(custoMes):'—');
+  set('amk-ano',qtdAno.toLocaleString('pt-BR'));
+  set('amk-ano-s',`${noAno.length} envios em 2026`);
+
+  // Top SKU (por quantidade enviada nos últimos 90d)
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-90);
+  const recentes=AMOSTRAS.filter(a=>new Date(a.data_envio)>=cutoff);
+  const porSku={};
+  recentes.forEach(a=>{porSku[a.sku]=(porSku[a.sku]||0)+(+a.quantidade||0)});
+  const top=Object.entries(porSku).sort((a,b)=>b[1]-a[1])[0];
+  if(top){
+    const prod=PRODUTOS.find(p=>p.sku===top[0]);
+    set('amk-top',prod?prod.nome:top[0]);
+    set('amk-top-s',`${top[1]} peças últimos 90d`);
+  }else{
+    set('amk-top','—');set('amk-top-s','sem envios recentes');
+  }
+}
+
+function applyAmostraFilters(){
+  const hoje=new Date();
+  let lista=[...AMOSTRAS];
+  if(AM_PERIODO_FILTER==='30'){
+    const c=new Date(); c.setDate(c.getDate()-30);
+    lista=lista.filter(a=>new Date(a.data_envio)>=c);
+  }else if(AM_PERIODO_FILTER==='mes'){
+    const c=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+    lista=lista.filter(a=>new Date(a.data_envio)>=c);
+  }
+  if(AM_SEARCH){
+    const s=AM_SEARCH.toLowerCase();
+    lista=lista.filter(a=>(a.creator_id||'').toLowerCase().includes(s)||(a.sku||'').toLowerCase().includes(s));
+  }
+  AMOSTRAS_FILTRADAS=lista;
+}
+
+function filterAmostraPeriodo(btn,p){
+  document.querySelectorAll('#am-filtros-periodo .pill-filter').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  AM_PERIODO_FILTER=p;
+  applyAmostraFilters();
+  renderAmostrasTabela();
+}
+
+function filterAmostraSearch(q){
+  AM_SEARCH=q||'';
+  applyAmostraFilters();
+  renderAmostrasTabela();
+}
+
+function renderAmostrasTabela(){
+  // Agrupa por lote_id (registros sem lote = lote individual)
+  const lotes={};
+  AMOSTRAS_FILTRADAS.forEach(a=>{
+    const k=a.lote_id||`solo-${a.id}`;
+    if(!lotes[k]) lotes[k]={key:k,creator_id:a.creator_id,data_envio:a.data_envio,campanha_id:a.campanha_id,tier_no_envio:a.tier_no_envio,briefing:a.briefing_creator,prazo:a.prazo_video,confirmada_em:a.confirmada_em,video_url:a.video_url,obs:a.obs,itens:[]};
+    lotes[k].itens.push(a);
+    if(a.confirmada_em && !lotes[k].confirmada_em) lotes[k].confirmada_em=a.confirmada_em;
+    if(a.video_url && !lotes[k].video_url) lotes[k].video_url=a.video_url;
+  });
+  const lotesArr=Object.values(lotes).sort((a,b)=>(b.data_envio||'').localeCompare(a.data_envio||''));
+
+  set('am-meta',`${lotesArr.length} ${lotesArr.length===1?'lote':'lotes'} · ${AMOSTRAS_FILTRADAS.length} itens`);
+  if(!lotesArr.length){
+    el('am-body').innerHTML='<tr><td colspan="9" class="empty">Nenhum lote registrado com esse filtro</td></tr>';
+    return;
+  }
+  el('am-body').innerHTML=lotesArr.slice(0,200).map(L=>{
+    const dt=L.data_envio?new Date(L.data_envio+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}):'—';
+    const tierBadge=L.tier_no_envio?`<span class="badge b-gray">${L.tier_no_envio}</span>`:'';
+    const camp=L.campanha_id?CAMPANHAS.find(c=>c.id===L.campanha_id):null;
+    const campLbl=camp?`<span class="badge b-cyan" title="${(camp.nome||'').replace(/"/g,'&quot;')}">${camp.nome.length>22?camp.nome.slice(0,22)+'…':camp.nome}</span>`:'<span style="color:var(--ink-48)">—</span>';
+    const totPecas=L.itens.reduce((s,i)=>s+(+i.quantidade||0),0);
+    const skusLbl=L.itens.map(it=>{
+      const prod=PRODUTOS.find(p=>p.sku===it.sku);
+      return `${prod?prod.nome:it.sku}${it.quantidade>1?` (${it.quantidade})`:''}`;
+    }).join(' · ');
+    const status=L.video_url?'<span class="badge b-green">✓ Vídeo</span>':L.confirmada_em?'<span class="badge b-cyan">Recebido</span>':'<span class="badge b-gray">Aguardando</span>';
+    const ids=L.itens.map(i=>i.id).join(',');
+    return`<tr>
+      <td class="mono">${dt}</td>
+      <td><a class="lk" onclick="openModal('${L.creator_id}')">${L.creator_id}</a></td>
+      <td style="font-size:12.5px;max-width:300px;white-space:normal;line-height:1.4">${skusLbl}</td>
+      <td class="mono">${totPecas}</td>
+      <td>${campLbl}</td>
+      <td>${tierBadge}</td>
+      <td>${status}</td>
+      <td style="font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(L.briefing||L.obs||'').replace(/"/g,'&quot;')}">${L.briefing||L.obs||'—'}</td>
+      <td><button onclick="deleteLote('${ids}')" style="background:transparent;border:none;color:var(--ink-48);cursor:pointer;padding:4px 8px;font-size:14px" title="Apagar lote">×</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function renderRoiPorSku(){
+  try{
+    const data=await sbGet('amostra_roi_por_sku?select=*');
+    if(!data||!data.length){
+      el('am-roi-body').innerHTML='<tr><td colspan="4" class="empty">Sem amostras registradas ainda</td></tr>';
+      return;
+    }
+    el('am-roi-body').innerHTML=data.map(r=>{
+      const prod=PRODUTOS.find(p=>p.sku===r.sku);
+      return`<tr>
+        <td>${prod?prod.nome:r.sku}</td>
+        <td class="mono">${r.creators_com_amostra||0}</td>
+        <td class="mono">${fmtR(r.gmv_medio_pos_amostra||0)}</td>
+        <td class="mono" style="color:var(--green);font-weight:500">${fmtK(r.gmv_total_pos_amostra||0)}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    el('am-roi-body').innerHTML=`<tr><td colspan="4" class="empty" style="color:var(--rhode-red)">Erro ao carregar ROI: ${e.message}</td></tr>`;
+  }
+}
+
+// ── Autocomplete de creator
+async function searchCreatorAmostra(q){
+  const sug=el('am-creator-sug');
+  AM_SELECTED_CREATOR=null;
+  if(!q||q.length<2){sug.classList.remove('on');return;}
+
+  // Carrega cache de affiliates uma única vez
+  if(!AM_CREATOR_CACHE){
+    try{
+      AM_CREATOR_CACHE=await sbGetPaged('affiliates?select=affiliate_id,tiktok_handle,gmv_live_mtd,gmv_video_mtd,current_tier&order=affiliate_id.asc');
+    }catch(e){AM_CREATOR_CACHE=[];}
+  }
+
+  const norm=q.toLowerCase().replace(/^[@.]+/,'');
+  const matches=AM_CREATOR_CACHE.filter(a=>{
+    const id=(a.affiliate_id||'').toLowerCase();
+    const h=(a.tiktok_handle||'').toLowerCase();
+    return id.includes(norm)||h.includes(norm);
+  }).slice(0,8);
+
+  if(!matches.length){sug.classList.remove('on');return;}
+
+  sug.innerHTML=matches.map(a=>{
+    const gmv=(+a.gmv_live_mtd||0)+(+a.gmv_video_mtd||0);
+    return`<div class="creator-suggestion" onclick="selectCreatorAmostra('${a.affiliate_id}','${a.current_tier||''}',${gmv})">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px">${a.affiliate_id}</span>
+      <span class="meta">${a.current_tier||'—'} · GMV ${fmtK(gmv)}</span>
+    </div>`;
+  }).join('');
+  sug.classList.add('on');
+}
+
+function selectCreatorAmostra(id,tier,gmv){
+  el('am-creator').value=id;
+  el('am-creator-sug').classList.remove('on');
+  AM_SELECTED_CREATOR={affiliate_id:id,tier:tier||'Iniciante',gmv:gmv};
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.amostra-form-field.creator')){
+    const sug=el('am-creator-sug');
+    if(sug)sug.classList.remove('on');
+  }
+});
+
+// ── Salvar lote multi-SKU
+async function saveLote(){
+  const fb=el('am-form-feedback');
+  fb.textContent='';
+  const data=el('am-data').value;
+  const creatorInput=el('am-creator').value.trim();
+  const campanhaId=el('am-campanha').value||null;
+  const briefing=el('am-briefing').value.trim();
+  const obs=el('am-obs').value.trim();
+  const prazo=el('am-prazo-video').value||null;
+  const itensValidos=LOTE_ITENS.filter(it=>it.sku && it.qtd>0);
+
+  if(!data){return failFb(fb,'Selecione a data de envio.');}
+  if(!creatorInput){return failFb(fb,'Informe a creator.');}
+  if(!itensValidos.length){return failFb(fb,'Adicione ao menos 1 produto ao lote.');}
+
+  const creatorId=(AM_SELECTED_CREATOR?.affiliate_id||creatorInput).toUpperCase().replace(/^[@.]+/,'');
+  const tier=AM_SELECTED_CREATOR?.tier||null;
+  const loteId=crypto.randomUUID();
+
+  const briefingFinal=briefing||(campanhaId?(CAMPANHAS.find(c=>c.id==campanhaId)?.briefing_creator||null):null);
+
+  const rows=itensValidos.map(it=>{
+    const prod=PRODUTOS.find(p=>p.sku===it.sku);
+    return {
+      creator_id:creatorId,
+      sku:it.sku,
+      quantidade:it.qtd,
+      custo_unitario_snapshot:prod?.custo_unitario||null,
+      data_envio:data,
+      origem:'manual',
+      tier_no_envio:tier,
+      lote_id:loteId,
+      campanha_id:campanhaId,
+      briefing_creator:briefingFinal,
+      prazo_video:prazo,
+      obs:obs||null,
+    };
+  });
+
+  fb.textContent='Salvando lote...';fb.style.color='var(--ink-48)';
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/amostras_enviadas`,{
+      method:'POST',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify(rows)
+    });
+    if(!r.ok){throw new Error((await r.text()).slice(0,200));}
+    fb.textContent=`✓ Lote registrado · ${rows.length} ${rows.length===1?'item':'itens'} → ${creatorId}`;
+    fb.style.color='var(--green)';
+    // Limpa form
+    el('am-creator').value='';el('am-briefing').value='';el('am-obs').value='';el('am-prazo-video').value='';el('am-campanha').value='';
+    AM_SELECTED_CREATOR=null;
+    LOTE_ITENS=[];addLoteItem();
+    await refreshAmostras();
+  }catch(e){failFb(fb,'Erro: '+e.message);}
+}
+
+function failFb(el,msg){el.textContent=msg;el.style.color='var(--rhode-red)';}
+
+async function deleteLote(idsStr){
+  const ids=idsStr.split(',').map(Number).filter(Boolean);
+  if(!ids.length)return;
+  if(!confirm(`Apagar este lote (${ids.length} ${ids.length===1?'item':'itens'})? Não desfaz.`))return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=in.(${ids.join(',')})`,{
+      method:'DELETE',
+      headers:{...SB_H,'Prefer':'return=minimal'}
+    });
+    await refreshAmostras();
+  }catch(e){alert('Erro ao apagar: '+e.message);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//   CAMPANHAS
+// ═══════════════════════════════════════════════════════════════════════
+
+async function loadCampanhas(){
+  CAMPANHAS=await sbGet('campanhas?select=*&order=created_at.desc');
+  populateCampanhaDropdown();
+}
+
+async function renderCampanhasList(){
+  await loadCampanhas();
+  const wrap=el('campanhas-list');
+  if(!CAMPANHAS.length){
+    wrap.innerHTML='<div class="empty">Nenhuma campanha criada ainda. Clique em <strong>+ Nova campanha</strong> para começar.</div>';
+    return;
+  }
+  // Conta envios por campanha
+  const todosEnvios=await sbGetPaged('amostras_enviadas?select=campanha_id,creator_id,video_url,confirmada_em');
+  const stats={};
+  todosEnvios.forEach(e=>{
+    if(!e.campanha_id)return;
+    if(!stats[e.campanha_id])stats[e.campanha_id]={creators:new Set(),videos:0,recebidos:0,total:0};
+    stats[e.campanha_id].creators.add(e.creator_id);
+    stats[e.campanha_id].total++;
+    if(e.confirmada_em)stats[e.campanha_id].recebidos++;
+    if(e.video_url)stats[e.campanha_id].videos++;
+  });
+
+  wrap.innerHTML=CAMPANHAS.map(c=>{
+    const s=stats[c.id]||{creators:new Set(),videos:0,recebidos:0,total:0};
+    const dt=c.prazo_video?` · prazo vídeo ${new Date(c.prazo_video+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`:'';
+    return`<div class="campanha-card ${c.status==='concluida'?'concluida':''}">
+      <div>
+        <div class="nome">${c.nome}</div>
+        <div style="font-size:12px;color:var(--ink-48);margin-top:4px;letter-spacing:-0.006em">${c.meta||'—'}${dt}</div>
+      </div>
+      <span class="meta-tag">${c.status}</span>
+      <div class="stats">
+        <div><div class="lbl">Creators</div><div class="val">${s.creators.size}</div></div>
+        <div><div class="lbl">Itens</div><div class="val">${s.total}</div></div>
+        <div><div class="lbl">Recebidos</div><div class="val">${s.recebidos}</div></div>
+        <div><div class="lbl">Vídeos</div><div class="val" style="color:${s.videos>0?'var(--green)':'var(--ink-48)'}">${s.videos}</div></div>
+        <button class="btn-lote-secondary" onclick="toggleCampanhaStatus(${c.id},'${c.status}')" style="align-self:center">${c.status==='ativa'?'Concluir':'Reativar'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function toggleCampanhaStatus(id,statusAtual){
+  const novo=statusAtual==='ativa'?'concluida':'ativa';
+  try{
+    await fetch(`${SB_URL}/rest/v1/campanhas?id=eq.${id}`,{
+      method:'PATCH',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({status:novo})
+    });
+    await renderCampanhasList();
+  }catch(e){alert('Erro: '+e.message);}
+}
+
+function openModalNovaCampanha(){
+  el('modal-nova-campanha').classList.add('on');
+  el('nc-inicio').value=new Date().toISOString().split('T')[0];
+  setTimeout(()=>el('nc-nome').focus(),50);
+}
+function closeModalNovaCampanha(){
+  el('modal-nova-campanha').classList.remove('on');
+  ['nc-nome','nc-meta','nc-briefing','nc-fim-envio','nc-prazo-video'].forEach(id=>{const e=el(id);if(e)e.value=''});
+  el('nc-feedback').textContent='';
+}
+
+async function saveNovaCampanha(){
+  const fb=el('nc-feedback');
+  fb.textContent='';
+  const nome=el('nc-nome').value.trim();
+  if(!nome){return failFb(fb,'Nome é obrigatório.');}
+  const payload={
+    nome,
+    meta:el('nc-meta').value.trim()||null,
+    briefing_creator:el('nc-briefing').value.trim()||null,
+    data_inicio:el('nc-inicio').value||null,
+    data_fim_envio:el('nc-fim-envio').value||null,
+    prazo_video:el('nc-prazo-video').value||null,
+  };
+  fb.textContent='Criando...';fb.style.color='var(--ink-48)';
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/campanhas`,{
+      method:'POST',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify(payload)
+    });
+    if(!r.ok){throw new Error((await r.text()).slice(0,200));}
+    const created=(await r.json())[0];
+    CAMPANHAS.unshift(created);
+    populateCampanhaDropdown();
+    el('am-campanha').value=created.id; // pré-seleciona no form
+    closeModalNovaCampanha();
+    if(el('op-campanhas').classList.contains('on')) renderCampanhasList();
+  }catch(e){failFb(fb,'Erro: '+e.message);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//   CATÁLOGO · PRODUTOS
+// ═══════════════════════════════════════════════════════════════════════
+
+async function renderCatalogo(){
+  PRODUTOS=await sbGet('produtos?select=*&order=categoria.asc,nome.asc');
+  const tbody=el('catalogo-body');
+  if(!PRODUTOS.length){
+    tbody.innerHTML='<tr><td colspan="7" class="empty">Nenhum produto cadastrado</td></tr>';
+    return;
+  }
+  tbody.innerHTML=PRODUTOS.map(p=>{
+    const catLbl=(p.categoria||'—').replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+    return`<tr>
+      <td class="mono" style="font-size:12px">${p.sku}</td>
+      <td style="font-size:13px">${p.nome}</td>
+      <td><span class="badge b-gray">${catLbl}</span></td>
+      <td class="mono" style="font-size:12px">${p.colecao||'—'}</td>
+      <td class="mono">${p.preco_venda?fmtR(p.preco_venda):'—'}</td>
+      <td class="mono" style="color:${p.custo_unitario?'var(--ink)':'var(--ink-48)'}">${p.custo_unitario?fmtR(p.custo_unitario):'configure →'}</td>
+      <td>${p.ativo?'<span class="badge b-green">Ativo</span>':'<span class="badge b-gray">Inativo</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openModalNovoProduto(){
+  el('modal-novo-produto').classList.add('on');
+  setTimeout(()=>el('np-sku').focus(),50);
+}
+function closeModalNovoProduto(){
+  el('modal-novo-produto').classList.remove('on');
+  ['np-sku','np-nome','np-colecao','np-preco','np-custo','np-foto','np-desc'].forEach(id=>{const e=el(id);if(e)e.value=''});
+  el('np-categoria').value='';
+  el('np-feedback').textContent='';
+}
+
+async function saveNovoProduto(){
+  const fb=el('np-feedback');
+  fb.textContent='';
+  const sku=el('np-sku').value.trim().toUpperCase();
+  const nome=el('np-nome').value.trim();
+  if(!sku){return failFb(fb,'SKU é obrigatório.');}
+  if(!nome){return failFb(fb,'Nome é obrigatório.');}
+
+  const payload={
+    sku,nome,
+    categoria:el('np-categoria').value||null,
+    colecao:el('np-colecao').value.trim()||null,
+    preco_venda:parseFloat(el('np-preco').value)||null,
+    custo_unitario:parseFloat(el('np-custo').value)||null,
+    foto_url:el('np-foto').value.trim()||null,
+    descricao:el('np-desc').value.trim()||null,
+    ativo:true,
+  };
+  fb.textContent='Salvando...';fb.style.color='var(--ink-48)';
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/produtos`,{
+      method:'POST',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify(payload)
+    });
+    if(!r.ok){throw new Error((await r.text()).slice(0,200));}
+    const created=(await r.json())[0];
+    PRODUTOS.push(created);
+    closeModalNovoProduto();
+    renderLoteItens(); // re-renderiza dropdown do lote
+    if(el('op-catalogo').classList.contains('on')) renderCatalogo();
+  }catch(e){failFb(fb,'Erro: '+e.message);}
+}
+
+// ── Fecha modais ao clicar fora
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m){m.classList.remove('on');}});
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.on').forEach(m=>m.classList.remove('on'));
+  }
+});
+
+// Hook: quando entrar na aba Operação, carrega amostras
+const _tabBeforeAmostras=tab;
+tab=function(id,elBtn){
+  _tabBeforeAmostras(id,elBtn);
+  if(id==='operacao')loadAmostrasInit();
+};
 
 if(sessionStorage.getItem('rhode-admin')==='1')syncAll();
 </script>

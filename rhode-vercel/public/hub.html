@@ -179,6 +179,56 @@ body{
 .kpi-val .accent{color:var(--rhode-red)}
 .kpi-sub{font-size:14px;color:var(--ink-48);font-weight:400;letter-spacing:-0.006em}
 
+/* ── Tarefas Rhode (campanhas + amostras enviadas) ── */
+.tarefas-section{padding:0 24px;max-width:980px;margin:0 auto}
+.tarefas-card{
+  background:linear-gradient(135deg,rgba(254,44,85,0.04) 0%,rgba(254,44,85,0) 60%),var(--canvas);
+  border:1.5px solid rgba(254,44,85,0.25);border-radius:18px;
+  padding:22px 24px;margin-top:20px;position:relative;overflow:hidden;
+}
+.tarefas-card::before{
+  content:'';position:absolute;top:0;left:24px;right:24px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--rhode-red),transparent);
+  opacity:.55;
+}
+.tarefa-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--rhode-red);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.tarefa-eyebrow .gift{font-size:16px}
+.tarefa-titulo{font-weight:600;font-size:22px;letter-spacing:-0.022em;line-height:1.2;color:var(--ink);margin-bottom:8px}
+.tarefa-meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tarefa-pill{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;background:var(--parchment);color:var(--ink-48);font-weight:500;
+}
+.tarefa-pill.urgent{background:rgba(254,44,85,0.08);color:var(--rhode-red)}
+.tarefa-pill.done{background:rgba(0,121,107,0.08);color:var(--green)}
+.tarefa-itens{
+  background:var(--parchment);border-radius:11px;padding:12px 14px;margin-bottom:14px;
+  display:flex;flex-direction:column;gap:6px;
+}
+.tarefa-item-row{display:flex;align-items:center;gap:10px;font-size:14px;letter-spacing:-0.011em}
+.tarefa-item-row .ck{color:var(--rhode-red);font-size:13px;flex-shrink:0;width:14px}
+.tarefa-briefing{
+  font-size:14px;line-height:1.5;color:var(--ink-80);letter-spacing:-0.006em;
+  padding:12px 14px;background:var(--canvas);border-left:3px solid var(--rhode-red);border-radius:6px;
+  margin-bottom:14px;font-style:italic;
+}
+.tarefa-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.tarefa-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:-0.011em;
+  padding:9px 18px;border-radius:9999px;border:none;cursor:pointer;
+  transition:transform .12s ease,background .15s ease;
+}
+.tarefa-btn-primary{background:var(--rhode-red);color:#fff}
+.tarefa-btn-primary:hover{background:var(--rhode-red-hover)}
+.tarefa-btn-primary:active{transform:scale(.97)}
+.tarefa-btn-secondary{background:var(--canvas);color:var(--ink);border:1px solid var(--hairline)}
+.tarefa-btn-secondary:hover{border-color:var(--ink)}
+.tarefa-btn-done{background:rgba(0,121,107,0.08);color:var(--green);border:1px solid rgba(0,121,107,0.2);cursor:default}
+
 /* Announce tile (parchment with subtle red accent) */
 .announce-tile{background:var(--parchment);padding:64px 24px;border-top:1px solid rgba(0,0,0,0.06);border-bottom:1px solid rgba(0,0,0,0.06)}
 .announce-inner{max-width:680px;margin:0 auto;text-align:center}
@@ -1306,6 +1356,7 @@ async function loadPerf(handle,row){
     renderPerf(rows,stats,tier);
     renderEntregaveis();
     loadLeaderboard(handle,rows[0]?.periodo);
+    loadTarefasRhode(affId);
   }catch(e){
     document.getElementById('perf-main').innerHTML='<div class="empty">ERRO AO CARREGAR<br>Tente recarregar a página.</div>';
   }
@@ -1624,6 +1675,8 @@ function renderPainelBody(){
   const maxC=Math.max(...hist.map(r=>+(r.comissao||0)),1);
 
   let html=filterRow+`
+  <div class="tarefas-section" id="tarefas-rhode-slot"></div>
+
   <div class="section" style="padding-top:32px">
     <div class="sec-head">
       <div><div class="sec-title">${filter.label}.</div></div>
@@ -1754,6 +1807,118 @@ function renderPainelBody(){
 }
 
 // Disparado uma vez quando os dados carregam — escreve no slot e cacheia
+// ── Tarefas Rhode (campanhas + amostras enviadas)
+async function loadTarefasRhode(affId){
+  try{
+    // Busca os envios da creator que ainda têm vídeo pendente OU recente (últimos 30d)
+    const cutoff=new Date(Date.now()-30*86400000).toISOString().split('T')[0];
+    const r=await fetch(`${SB_URL}/rest/v1/amostras_enviadas?creator_id=eq.${encodeURIComponent(affId)}&or=(video_url.is.null,data_envio.gte.${cutoff})&order=data_envio.desc&limit=20`,{headers:SBH});
+    const rows=await r.json();
+    if(!rows||!rows.length){renderTarefas([]);return;}
+
+    // Carrega catálogo + campanhas pra montar labels
+    const [prods,camps]=await Promise.all([
+      fetch(`${SB_URL}/rest/v1/produtos?select=sku,nome`,{headers:SBH}).then(r=>r.json()),
+      fetch(`${SB_URL}/rest/v1/campanhas?select=*`,{headers:SBH}).then(r=>r.json()),
+    ]);
+    const prodMap={};(prods||[]).forEach(p=>prodMap[p.sku]=p);
+    const campMap={};(camps||[]).forEach(c=>campMap[c.id]=c);
+
+    // Agrupa por lote
+    const lotes={};
+    rows.forEach(a=>{
+      const k=a.lote_id||`solo-${a.id}`;
+      if(!lotes[k])lotes[k]={key:k,ids:[],itens:[],campanha:campMap[a.campanha_id]||null,
+        data_envio:a.data_envio,briefing:a.briefing_creator,prazo:a.prazo_video,
+        confirmada_em:a.confirmada_em,video_url:a.video_url};
+      lotes[k].ids.push(a.id);
+      lotes[k].itens.push({sku:a.sku,nome:prodMap[a.sku]?.nome||a.sku,qtd:a.quantidade});
+      if(a.confirmada_em && !lotes[k].confirmada_em)lotes[k].confirmada_em=a.confirmada_em;
+      if(a.video_url && !lotes[k].video_url)lotes[k].video_url=a.video_url;
+    });
+    renderTarefas(Object.values(lotes));
+  }catch(e){renderTarefas([]);}
+}
+
+function renderTarefas(lotes){
+  const slot=document.getElementById('tarefas-rhode-slot');
+  if(!slot)return;
+  if(!lotes.length){slot.innerHTML='';return;}
+
+  slot.innerHTML=lotes.map(L=>{
+    const dt=L.data_envio?new Date(L.data_envio+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
+    let prazoPill='';
+    if(L.prazo){
+      const prazoD=new Date(L.prazo+'T12:00:00');
+      const dias=Math.ceil((prazoD-new Date())/86400000);
+      const lbl=dias<0?`Atrasado ${Math.abs(dias)}d`:dias===0?'Hoje':dias===1?'1 dia':`${dias} dias`;
+      const cls=dias<3?'urgent':'';
+      prazoPill=`<span class="tarefa-pill ${cls}">⏱ ${lbl}</span>`;
+    }
+    const campanhaPill=L.campanha?`<span class="tarefa-pill" style="background:rgba(254,44,85,0.06);color:var(--rhode-red)">${L.campanha.nome}</span>`:'';
+    const dataPill=`<span class="tarefa-pill">📦 Enviado ${dt}</span>`;
+    const statusPill=L.video_url?'<span class="tarefa-pill done">✓ Vídeo enviado</span>':L.confirmada_em?'<span class="tarefa-pill done">✓ Recebido</span>':'';
+
+    const itensHTML=L.itens.map(it=>`<div class="tarefa-item-row"><span class="ck">●</span><span><strong>${it.qtd}× ${it.nome}</strong></span></div>`).join('');
+
+    const titulo=L.campanha?L.campanha.nome:'Você recebeu amostras Rhode';
+    const briefing=L.briefing||L.campanha?.briefing_creator||'';
+
+    let actions='';
+    if(L.video_url){
+      actions=`<a class="tarefa-btn tarefa-btn-done" href="${L.video_url}" target="_blank" rel="noopener">✓ Vídeo postado · ver</a>`;
+    }else if(L.confirmada_em){
+      actions=`<button class="tarefa-btn tarefa-btn-primary" onclick="anexarVideoTarefa('${L.ids.join(',')}')">📎 Anexar link do vídeo</button>`;
+    }else{
+      actions=`
+        <button class="tarefa-btn tarefa-btn-primary" onclick="confirmarRecebimentoTarefa('${L.ids.join(',')}')">✓ Confirmar recebimento</button>
+        <button class="tarefa-btn tarefa-btn-secondary" onclick="anexarVideoTarefa('${L.ids.join(',')}')">📎 Já gravei o vídeo</button>`;
+    }
+
+    return`<div class="tarefas-card">
+      <div class="tarefa-eyebrow"><span class="gift">🎁</span>Tarefa Rhode pra você</div>
+      <div class="tarefa-titulo">${titulo}</div>
+      <div class="tarefa-meta-row">${dataPill}${prazoPill}${campanhaPill}${statusPill}</div>
+      <div class="tarefa-itens">${itensHTML}</div>
+      ${briefing?`<div class="tarefa-briefing">${briefing}</div>`:''}
+      <div class="tarefa-actions">${actions}</div>
+    </div>`;
+  }).join('');
+}
+
+async function confirmarRecebimentoTarefa(idsStr){
+  const ids=idsStr.split(',').map(Number).filter(Boolean);
+  if(!ids.length)return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=in.(${ids.join(',')})`,{
+      method:'PATCH',
+      headers:{...SBH,'Prefer':'return=minimal'},
+      body:JSON.stringify({confirmada_em:new Date().toISOString()})
+    });
+    loadTarefasRhode((_creator?.row?.affiliate_id||_creator?.row?.tiktok_handle||_creator?.handle||'').toUpperCase());
+  }catch(e){alert('Erro ao confirmar: '+e.message);}
+}
+
+async function anexarVideoTarefa(idsStr){
+  const ids=idsStr.split(',').map(Number).filter(Boolean);
+  if(!ids.length)return;
+  const url=prompt('Cola o link do TikTok do vídeo que você postou:');
+  if(!url||!url.trim())return;
+  if(!url.match(/^https?:\/\//)){alert('Cola o link completo (com https://)');return;}
+  try{
+    await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=in.(${ids.join(',')})`,{
+      method:'PATCH',
+      headers:{...SBH,'Prefer':'return=minimal'},
+      body:JSON.stringify({
+        video_url:url.trim(),
+        video_postado_em:new Date().toISOString(),
+        confirmada_em:new Date().toISOString(),
+      })
+    });
+    loadTarefasRhode((_creator?.row?.affiliate_id||_creator?.row?.tiktok_handle||_creator?.handle||'').toUpperCase());
+  }catch(e){alert('Erro ao salvar: '+e.message);}
+}
+
 async function loadLeaderboard(handle,periodo){
   if(!periodo||!handle)return;
   try{
