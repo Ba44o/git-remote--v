@@ -614,6 +614,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
     <button class="tab" onclick="tab('evolucao',this)">Evolução</button>
     <button class="tab" onclick="tab('analista',this)">Analista IA</button>
     <button class="tab" onclick="tab('operacao',this)">Operação</button>
+    <button class="tab" onclick="tab('comunicacao',this)">Comunicação</button>
     <button class="tab" onclick="tab('evento',this)">Evento 13/04</button>
   </div>
 
@@ -1157,6 +1158,125 @@ tr:hover td{background:rgba(254,44,85,0.015)}
     </div>
   </div>
 
+  <div class="panel" id="panel-comunicacao">
+    <div class="main">
+
+      <div class="kgrid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="kcard"><div class="klabel">Disparos este mês</div><div class="kval" id="cm-k-mes">—</div><div class="ksub" id="cm-k-mes-s"></div></div>
+        <div class="kcard"><div class="klabel">Mensagens enviadas</div><div class="kval" id="cm-k-env" style="color:var(--green)">—</div><div class="ksub">soma do mês</div></div>
+        <div class="kcard"><div class="klabel">Falhas</div><div class="kval" id="cm-k-fal" style="color:var(--rhode-red)">—</div><div class="ksub">phone inválido / Z-API down</div></div>
+        <div class="kcard"><div class="klabel">Último disparo</div><div class="kval" id="cm-k-ult" style="font-size:16px">—</div><div class="ksub" id="cm-k-ult-s"></div></div>
+      </div>
+
+      <div class="amostra-form-card">
+        <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;margin-bottom:14px;letter-spacing:-0.011em">Novo disparo segmentado</div>
+
+        <div class="amostra-form-row" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="amostra-form-field">
+            <label>Template</label>
+            <select id="cm-template" onchange="renderTemplatePreview()">
+              <option value="">— Selecione um template —</option>
+            </select>
+          </div>
+          <div class="amostra-form-field">
+            <label>Categoria do template</label>
+            <input type="text" id="cm-template-cat" readonly placeholder="—" style="background:var(--pearl)">
+          </div>
+          <div class="amostra-form-field">
+            <label>Variáveis disponíveis</label>
+            <div id="cm-template-vars" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-48);letter-spacing:0.04em;padding:10px 12px;background:var(--pearl);border:1px solid var(--hairline);border-radius:9px;line-height:1.5">{{nome}} · {{handle}} · {{tier}} · {{tier_comissao}} · {{gmv_total}} · {{refund_pct}} · {{link_hub}}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <label style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;display:block;margin-bottom:6px">Filtros de público</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start">
+
+            <div class="amostra-form-field">
+              <label style="text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--ink)">Tiers</label>
+              <div id="cm-tiers" style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0">
+                <span class="pill-filter" data-tier="Iniciante" onclick="toggleTier(this,'Iniciante')">Iniciante</span>
+                <span class="pill-filter" data-tier="Bronze" onclick="toggleTier(this,'Bronze')">Bronze</span>
+                <span class="pill-filter" data-tier="Silver" onclick="toggleTier(this,'Silver')">Silver</span>
+                <span class="pill-filter" data-tier="Gold" onclick="toggleTier(this,'Gold')">Gold</span>
+                <span class="pill-filter" data-tier="Diamond" onclick="toggleTier(this,'Diamond')">Diamond</span>
+                <span class="pill-filter" data-tier="Black" onclick="toggleTier(this,'Black')">Black</span>
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-48);letter-spacing:0.04em">Vazio = todos os tiers</div>
+            </div>
+
+            <div class="amostra-form-field">
+              <label style="text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--ink)">GMV acumulado (R$)</label>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input type="number" id="cm-gmv-min" placeholder="mínimo" min="0" step="1000">
+                <span style="color:var(--ink-48)">→</span>
+                <input type="number" id="cm-gmv-max" placeholder="máximo" min="0" step="1000">
+              </div>
+            </div>
+
+            <div class="amostra-form-field">
+              <label style="text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--ink)">Refund mínimo (%)</label>
+              <input type="number" id="cm-refund-min" placeholder="ex: 25" min="0" max="100" step="0.1">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-48);letter-spacing:0.04em;margin-top:4px">Pra alertas de refund alto</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 2fr;gap:14px;align-items:start;margin-top:14px">
+            <div class="amostra-form-field">
+              <label style="text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--ink)">Apenas inativas</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);padding:9px 0;cursor:pointer">
+                <input type="checkbox" id="cm-apenas-inativas">
+                <span>Creators sem GMV (reativação)</span>
+              </label>
+            </div>
+            <div class="amostra-form-field">
+              <label style="text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--ink)">Handles específicos (opcional)</label>
+              <input type="text" id="cm-handles" placeholder="ex: @natmarquesvi, @joaosilva — separados por vírgula">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-48);letter-spacing:0.04em;margin-top:4px">Se preenchido, ignora outros filtros</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--divider-soft);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <button class="btn-lote-secondary" onclick="cmPreview()">👁 Preview (dry-run)</button>
+          <button class="btn-amostra-add" onclick="cmConfirmarDisparo()" style="background:var(--rhode-red)">📤 Disparar agora</button>
+          <div id="cm-feedback" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;flex:1"></div>
+        </div>
+      </div>
+
+      <div id="cm-preview-card" class="tbl-card" style="margin-bottom:16px;display:none">
+        <div class="tbl-head">
+          <div class="tbl-title">Preview do disparo</div>
+          <div class="tbl-meta" id="cm-preview-meta">—</div>
+        </div>
+        <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-bottom:8px">Mensagem renderizada</div>
+            <div id="cm-preview-msg" style="white-space:pre-wrap;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);line-height:1.6;padding:14px;background:var(--pearl);border:1px solid var(--hairline);border-radius:11px;min-height:100px">—</div>
+          </div>
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-bottom:8px">Amostra dos alvos (3 primeiros)</div>
+            <div id="cm-preview-alvos" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);line-height:1.7"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tbl-card">
+        <div class="tbl-head">
+          <div class="tbl-title">Histórico de disparos</div>
+          <div class="tbl-meta" id="cm-hist-meta">—</div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>Quando</th><th>Template</th><th>Filtro</th><th>Alvos</th><th>Enviados</th><th>Falhas</th><th>Duração</th>
+          </tr></thead>
+          <tbody id="cm-hist-body"><tr><td colspan="7" class="spin">Carregando histórico...</td></tr></tbody>
+        </table></div>
+      </div>
+
+    </div>
+  </div>
+
   <div class="panel" id="panel-evento">
     <div class="main">
 
@@ -1598,6 +1718,7 @@ function tab(id,elBtn){
   else if(id==='alertas')renderAlertas();
   else if(id==='evolucao')renderEvolucao();
   else if(id==='analista')renderAnalista();
+  else if(id==='comunicacao'){loadComunicacaoInit();}
   else if(id==='evento'){loadEvento().then(()=>renderVIP());startVIPRefresh();}
   if(id!=='evento')stopVIPRefresh();
 }
@@ -2933,6 +3054,171 @@ async function saveNovaFlash(){
     closeModalNovaFlash();
     await renderFlashList();
   }catch(e){failFb(fb,'Erro: '+e.message);}
+}
+
+// ═════════════════════════════════════════════════════════════
+//   COMUNICAÇÃO (Disparo Segmentado via Z-API)
+// ═════════════════════════════════════════════════════════════
+
+let CM_TEMPLATES=[],CM_HIST=[],CM_TIERS_SEL=new Set(),CM_INIT=false;
+
+async function loadComunicacaoInit(){
+  if(CM_INIT){renderHistorico();return;}
+  CM_INIT=true;
+  try{
+    CM_TEMPLATES=await sbGet('mensagens_templates?select=id,nome,categoria,corpo,ativo&ativo=eq.true&order=categoria.asc,nome.asc');
+    const sel=el('cm-template');
+    sel.innerHTML='<option value="">— Selecione um template —</option>'+
+      CM_TEMPLATES.map(t=>`<option value="${t.id}">${t.nome}</option>`).join('');
+  }catch(e){
+    el('cm-feedback').style.color='var(--rhode-red)';
+    el('cm-feedback').textContent='Erro ao carregar templates: '+e.message;
+  }
+  await renderHistorico();
+}
+
+function toggleTier(elPill,tier){
+  if(CM_TIERS_SEL.has(tier)){CM_TIERS_SEL.delete(tier);elPill.classList.remove('on');}
+  else{CM_TIERS_SEL.add(tier);elPill.classList.add('on');}
+}
+
+function renderTemplatePreview(){
+  const id=el('cm-template').value;
+  const tpl=CM_TEMPLATES.find(t=>t.id===id);
+  if(!tpl){el('cm-template-cat').value='';el('cm-preview-card').style.display='none';return;}
+  el('cm-template-cat').value=tpl.categoria||'—';
+}
+
+function getFiltros(){
+  const handlesRaw=el('cm-handles').value.trim();
+  const handles=handlesRaw?handlesRaw.split(',').map(h=>h.trim()).filter(Boolean):null;
+  return {
+    tiers: CM_TIERS_SEL.size?Array.from(CM_TIERS_SEL):null,
+    gmv_min: el('cm-gmv-min').value||null,
+    gmv_max: el('cm-gmv-max').value||null,
+    refund_min: el('cm-refund-min').value||null,
+    apenas_inativas: el('cm-apenas-inativas').checked,
+    handles: handles,
+  };
+}
+
+async function callDisparo(body){
+  const r=await fetch('/api/disparo',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-admin-pass':ADM_PASS},
+    body:JSON.stringify(body)
+  });
+  const data=await r.json();
+  if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);
+  return data;
+}
+
+async function cmPreview(){
+  const fb=el('cm-feedback');
+  const tplId=el('cm-template').value;
+  if(!tplId){fb.style.color='var(--rhode-red)';fb.textContent='Selecione um template primeiro';return;}
+  fb.style.color='var(--ink-48)';fb.textContent='Buscando alvos...';
+  try{
+    const data=await callDisparo({template_id:tplId,filtros:getFiltros(),dry_run:true});
+    if(!data.total_alvos){
+      el('cm-preview-card').style.display='none';
+      fb.style.color='var(--rhode-red)';
+      fb.textContent='Nenhuma creator atende aos filtros';
+      return;
+    }
+    el('cm-preview-card').style.display='block';
+    el('cm-preview-meta').textContent=`${data.total_alvos} alvos · ${data.duracao_ms}ms`;
+    el('cm-preview-msg').textContent=data.preview||'(sem preview)';
+    el('cm-preview-alvos').innerHTML=(data.amostra||[]).map(a=>
+      `@${(a.id||'').toLowerCase()} · <span class="badge ${tier(a.gmv).c}">${a.tier}</span> · ${fmtR(a.gmv)} · ${a.phone||'<span style="color:var(--rhode-red)">sem phone</span>'}`
+    ).join('<br>');
+    fb.style.color='var(--green)';
+    fb.textContent=`✓ ${data.total_alvos} creators atendem aos filtros`;
+  }catch(e){
+    fb.style.color='var(--rhode-red)';
+    fb.textContent='Erro: '+e.message;
+  }
+}
+
+async function cmConfirmarDisparo(){
+  const fb=el('cm-feedback');
+  const tplId=el('cm-template').value;
+  if(!tplId){fb.style.color='var(--rhode-red)';fb.textContent='Selecione um template primeiro';return;}
+  // Faz dry-run pra mostrar quantas vão ser atingidas
+  fb.style.color='var(--ink-48)';fb.textContent='Verificando alvos...';
+  let preview;
+  try{preview=await callDisparo({template_id:tplId,filtros:getFiltros(),dry_run:true});}
+  catch(e){fb.style.color='var(--rhode-red)';fb.textContent='Erro: '+e.message;return;}
+  if(!preview.total_alvos){fb.style.color='var(--rhode-red)';fb.textContent='Nenhuma creator atende aos filtros';return;}
+
+  const tpl=CM_TEMPLATES.find(t=>t.id===tplId);
+  const total=preview.total_alvos;
+  const lote=Math.min(total,30);
+  const conf=confirm(`Disparar "${tpl.nome}" agora?\n\n• ${total} creators no filtro\n• ${lote} mensagens neste lote (limite por chamada)\n• ${total-lote} ficarão de fora\n\nMensagem renderizada (preview):\n${(preview.preview||'').slice(0,300)}\n\nConfirmar disparo?`);
+  if(!conf){fb.style.color='var(--ink-48)';fb.textContent='Disparo cancelado';return;}
+
+  fb.style.color='var(--ink-48)';fb.textContent='Disparando... (pode levar até 60s)';
+  try{
+    const data=await callDisparo({template_id:tplId,filtros:getFiltros(),dry_run:false});
+    fb.style.color='var(--green)';
+    fb.textContent=`✓ ${data.enviados} enviados · ${data.falhas} falhas · ${data.excedente?(data.excedente+' creators ficaram de fora'):''}`;
+    await renderHistorico();
+  }catch(e){
+    fb.style.color='var(--rhode-red)';
+    fb.textContent='Erro: '+e.message;
+  }
+}
+
+async function renderHistorico(){
+  try{
+    CM_HIST=await sbGet('disparos_log?select=*&order=created_at.desc&limit=30');
+  }catch(e){
+    htm('cm-hist-body',`<tr><td colspan="7" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`);
+    return;
+  }
+  if(!CM_HIST.length){
+    htm('cm-hist-body','<tr><td colspan="7" class="empty">Nenhum disparo registrado ainda</td></tr>');
+    el('cm-hist-meta').textContent='0 disparos';
+    el('cm-k-mes').textContent='0';el('cm-k-env').textContent='0';el('cm-k-fal').textContent='0';
+    el('cm-k-ult').textContent='—';el('cm-k-ult-s').textContent='';
+    return;
+  }
+  // KPIs do mês
+  const inicioMes=new Date();inicioMes.setDate(1);inicioMes.setHours(0,0,0,0);
+  const doMes=CM_HIST.filter(d=>new Date(d.created_at)>=inicioMes);
+  const totalEnv=doMes.reduce((s,d)=>s+(+d.total_enviados||0),0);
+  const totalFal=doMes.reduce((s,d)=>s+(+d.total_falhas||0),0);
+  el('cm-k-mes').textContent=doMes.length;
+  el('cm-k-mes-s').textContent=`${doMes.reduce((s,d)=>s+(+d.total_alvos||0),0)} alvos somados`;
+  el('cm-k-env').textContent=totalEnv;
+  el('cm-k-fal').textContent=totalFal;
+  const ult=CM_HIST[0];
+  const ultDt=new Date(ult.created_at);
+  el('cm-k-ult').textContent=ultDt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+ultDt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  el('cm-k-ult-s').textContent=`${ult.total_enviados||0} enviados`;
+  el('cm-hist-meta').textContent=`${CM_HIST.length} disparos (últimos 30)`;
+  htm('cm-hist-body',CM_HIST.map(d=>{
+    const dt=new Date(d.created_at);
+    const tplNome=(CM_TEMPLATES.find(t=>t.id===d.template_id)||{}).nome||d.template_id||'—';
+    const f=d.filtro_aplicado||{};
+    const filtroDesc=[
+      f.tiers&&f.tiers.length?`tiers: ${f.tiers.join('/')}`:null,
+      f.gmv_min?`GMV ≥ ${fmtK(f.gmv_min)}`:null,
+      f.gmv_max?`GMV ≤ ${fmtK(f.gmv_max)}`:null,
+      f.refund_min?`refund ≥ ${f.refund_min}%`:null,
+      f.apenas_inativas?'só inativas':null,
+      f.handles&&f.handles.length?`${f.handles.length} handles`:null,
+    ].filter(Boolean).join(' · ')||'sem filtro';
+    return `<tr>
+      <td class="mono">${dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} ${dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td>${tplNome}</td>
+      <td class="mono" style="font-size:11px;color:var(--ink-48)">${filtroDesc}</td>
+      <td class="mono">${d.total_alvos||0}</td>
+      <td class="mono" style="color:var(--green);font-weight:600">${d.total_enviados||0}</td>
+      <td class="mono" style="color:${(+d.total_falhas||0)>0?'var(--rhode-red)':'var(--ink-48)'}">${d.total_falhas||0}</td>
+      <td class="mono">${((d.duracao_ms||0)/1000).toFixed(1)}s</td>
+    </tr>`;
+  }).join(''));
 }
 
 // Hook: quando entrar na aba Operação, carrega amostras

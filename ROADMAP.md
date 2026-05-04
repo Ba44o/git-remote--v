@@ -2,7 +2,7 @@
 
 > **Como usar este arquivo:** fonte de verdade do projeto. Antes de iniciar trabalho novo, leia daqui em diante. Atualizar conforme features são concluídas ou repriorizadas.
 >
-> **Última atualização:** 2026-05-02
+> **Última atualização:** 2026-05-04
 
 ---
 
@@ -30,6 +30,7 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 ### Admin (`rhode-vercel/public/admin.html`)
 - Mesmo sistema visual
 - Aba **Analista IA**: resumo cognitivo (Claude) + matriz de oportunidade 4 quadrantes (Stars / Cash Cows / Hidden Gems / Dormentes) + anomalias z-score + movimento MoM + análise IA por creator individual
+- Aba **Comunicação**: disparo segmentado via Z-API com 7 templates pré-aprovados, filtros (tier, GMV range, refund, inativas, handles), preview dry-run, lote de 30/chamada, histórico auditável
 - Aba **Evento 13/04** com VIP feed live + check-in de kit/live/follow-up
 - Paginação automática (`sbGetPaged`) — não trunca mais em 1000 linhas
 - Tiers alinhados com o programa atual
@@ -59,6 +60,7 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 - `/api/copy.js` — geração de copy IA
 - `/api/relay.js` — Typebot bridge para Z-API
 - `/api/cron-tier-milestones.js` — cron de milestones de tier
+- `/api/disparo.js` — disparo segmentado via Z-API com filtros (tier, GMV, refund) e templates pré-aprovados
 - Z-API integrado para envio de WhatsApp
 
 ---
@@ -138,30 +140,17 @@ _(nada no momento)_
 
 ---
 
-### 4. Disparo Segmentado via Z-API (admin)
+### ✅ 4. Disparo Segmentado via Z-API (admin) — concluído mai/2026
 
-**Por que:** Z-API já funciona (`request-access.js`, `disparar_hub.py`). Falta UI e templates pra escalar comunicação.
+**Entregue:**
+- Schema `mensagens_templates` com 7 templates pré-aprovados (acesso_hub, boas_vindas, tier_up, alerta_refund, briefing_live, lancamento_sku, reativacao) + `disparos_log` pra auditoria · `rhode-vercel/sql/comunicacao.sql`
+- Endpoint `POST /api/disparo` com modo `dry_run` (preview sem disparar) e modo real · `rhode-vercel/api/disparo.js`
+- Filtros aplicados server-side: tiers (multi-select), GMV range (min/max), refund mínimo, apenas inativas, handles específicos
+- Renderização de templates com variáveis `{{nome}} {{handle}} {{tier}} {{tier_comissao}} {{gmv_total}} {{refund_pct}} {{link_hub}}` (gera `access_token` automaticamente se template usar `{{link_hub}}`)
+- Rate limit de 5min entre disparos + lote máximo de 30 envios por chamada (limite Vercel) com pausa de 1.5s entre cada
+- Aba "Comunicação" no admin: template picker, filtros visuais com pills, dry-run preview com 3 alvos de amostra, confirmação antes de disparar, histórico dos últimos 30 disparos com KPIs do mês
 
-**Admin:**
-- Tela "Comunicação" com filtros: tier, GMV range, refund crítico, status missão
-- Templates pré-aprovados (lançamento, parabéns tier, alerta refund, briefing live)
-- Preview antes de enviar
-- Histórico de disparos (auditoria de quem recebeu o quê)
-
-**Schema:**
-```sql
-CREATE TABLE disparos_log (
-  id BIGSERIAL PRIMARY KEY,
-  template_id TEXT,
-  filtro_aplicado JSONB,
-  total_enviados INT,
-  total_falhas INT,
-  enviado_por TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**Esforço:** ~2 dias.
+**Decisão arquitetural:** opção por enviar em lotes pequenos (30/chamada) ao invés de queue async — simplicidade > volume. Se algum dia precisar disparar pra 500+ creators de uma vez, migrar pra Vercel Queue ou Inngest.
 
 ---
 

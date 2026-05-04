@@ -18,7 +18,8 @@
     "api/cron-reminder.js": { "maxDuration": 60 },
     "api/cron-tier-milestones.js": { "maxDuration": 60 },
     "api/sync-catalogo.js": { "maxDuration": 60 },
-    "api/sync-flash-sales.js": { "maxDuration": 30 }
+    "api/sync-flash-sales.js": { "maxDuration": 30 },
+    "api/disparo.js": { "maxDuration": 60 }
   },
   "crons": [
     {
