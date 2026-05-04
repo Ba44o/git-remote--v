@@ -206,6 +206,49 @@ ls -lt dados/creators/exports/Transaction_Analysis_Creator_List_*.xlsx | head -3
 
 ---
 
+## 5a. Painel mostra dados antigos mesmo após sync rodar
+
+### Sintoma
+- ETL rodou, Supabase tem dados novos (audit confirma)
+- Mas admin/hub no navegador mostra dados antigos
+
+### Diagnóstico
+
+```bash
+# Hash do servido vs local
+curl -s "https://creators.rhodejeans.com.br/admin.html" | shasum | cut -c1-12
+shasum "/Users/user/Documents/VS Claude Teste/rhode-vercel/public/admin.html" | cut -c1-12
+# Iguais → deploy OK, é cache do browser
+# Diferentes → deploy não propagou ou rollback automático
+
+# Headers de cache
+curl -sI "https://creators.rhodejeans.com.br/admin.html" | grep -iE "cache-control|age|x-vercel-cache"
+# Se "x-vercel-cache: HIT" e "age" > 60 → CDN está servindo antigo
+```
+
+### Fixes
+
+**Caso A — Hashes batem, problema é cache do browser.**
+- Pedir hard refresh (Cmd+Shift+R / Ctrl+Shift+R)
+- Ou aba anônima
+
+**Caso B — CDN está cacheando agressivamente.**
+- Verificar `vercel.json` tem o header `Cache-Control: no-cache, no-store, must-revalidate` para arquivos HTML
+- Se faltar, adicionar:
+  ```json
+  "headers": [
+    {
+      "source": "/(admin|hub|acesso|cadastro|index)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ]
+  ```
+- Deploy novo (`npx vercel --prod`) — o header só ativa em deploy novo
+
+---
+
 ## 5. Deploy quebrou / página em branco
 
 ### Diagnóstico
