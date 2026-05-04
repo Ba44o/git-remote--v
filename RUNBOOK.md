@@ -22,7 +22,7 @@ npx vercel ls | head -3
 
 # 3. APIs respondem?
 curl -sI https://creators.rhodejeans.com.br/hub.html | head -1   # 200 OK?
-curl -sI https://dash.rhodejeans.com.br/admin.html | head -1     # 200 OK?
+curl -sI https://creators.rhodejeans.com.br/admin.html | head -1 # 200 OK?
 
 # 4. Supabase responde e tem dados?
 curl -sI "https://ivzpykuluxcxefhyzfsf.supabase.co/rest/v1/performance_periods?select=periodo&limit=1" \

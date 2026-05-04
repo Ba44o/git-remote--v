@@ -8,7 +8,7 @@
 
 ## 📍 Estado atual
 
-Operação ativa: 4.926 creators afiliadas, 4 períodos no warehouse (2026-01 a 2026-04), domínios `creators.rhodejeans.com.br` (hub) e `dash.rhodejeans.com.br` (admin) servidos pelo mesmo projeto Vercel `rhode-vercel`. Auditoria de integridade (`audit_data.py`) confirmou 0 divergências entre exports do TikTok Shop e Supabase nos 4 períodos.
+Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 2026-05). URLs únicas: `creators.rhodejeans.com.br/hub.html` (hub) e `creators.rhodejeans.com.br/admin.html` (admin), servidos pelo projeto Vercel `rhode-vercel`. Auditoria de integridade (`audit_data.py`) confirma 0 divergências entre exports do TikTok Shop e Supabase em todos os períodos.
 
 ---
 
@@ -269,7 +269,7 @@ CREATE TABLE notificacoes (
 |------|-------------------|
 | TikTok Analytics nativo | Depende OAuth do TikTok. 2-3 semanas de trabalho. ROI baixo (creator já vê no painel dela) |
 | Order List ETL (granularidade diária + por-SKU) | Depende de novo export que não está sendo baixado. Útil quando precisarmos de "qual SKU vende mais por creator" |
-| Separação Vercel: hub e admin em projetos diferentes | Hoje compartilham. Decisão arquitetural pendente — usuário sinalizou que `dash` é "outro contexto" |
+| Remover alias antigo `dash.rhodejeans.com.br` do projeto Vercel | URL não usada oficialmente — usuário pediu para nunca mencionar/testar contra ela. Alias ainda existe tecnicamente. Remover quando for prudente. |
 | OTP via WhatsApp na primeira vez | Custo R$ 0,03/acesso. Mata vetor TOFU. Implementar quando aparecer caso real de hijack |
 | Rede social creator-creator | Custo de moderação alto. Risco de virar tóxico. Sem ROI claro |
 | Gamificação avançada (badges, streaks) | Sistema de tier+missões já cobre 80%. Mais badges = ruído visual |
@@ -286,7 +286,7 @@ CREATE TABLE notificacoes (
 | 3 | Cor de identidade por tier (Bronze copper, Silver slate, Gold amber, Diamond cyan, Black dark) | Diferenciação visual sem competir com Rhode Red (que sinaliza ESTADO, não tier) | abr/26 |
 | 4 | Supabase como fonte de verdade, não localStorage | localStorage não sincroniza entre dispositivos; data não fica auditável | mar/26 |
 | 5 | Granularidade mensal (não diária) | Export `Creator_List` do TikTok não tem `transactionDate`. Order List teria mas não está na pipeline | abr/26 |
-| 6 | 1 projeto Vercel para 2 domínios | Simplicidade. Mas o user sinalizou que pode separar dash/creators no futuro | abr/26 |
+| 6 | URL canônica única: `creators.rhodejeans.com.br/...` | User definiu como regra firme. Não usar ou referenciar outros domínios mesmo que tecnicamente alcancem o mesmo projeto. | mai/26 |
 | 7 | Trust-on-first-use no auth (sem OTP) | Custo zero, complexidade baixa. Risco aceito até primeiro caso de hijack | mai/26 |
 | 8 | ETL processa 1 arquivo canônico por mês | Snapshots intermediários geravam duplicatas e o dedup pegava o errado | mai/26 |
 | 9 | DELETE-then-UPSERT no sync_supabase | Sem isso, creators que somem do export ficavam fantasmas | mai/26 |
