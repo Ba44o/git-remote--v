@@ -154,20 +154,34 @@ _(nada no momento)_
 
 ---
 
-### ✅ 4.1. Performance Diária da Loja (admin · Evolução) — concluído mai/2026
+### 🟡 4.1. Performance Diária da Loja — **código no main, ativação adiada** (mai/2026)
 
-**Entregue:**
-- Tabela Supabase `performance_diario` (1 linha por dia, loja toda) com GMV bruto/líq, pedidos, cancelados, itens, clientes, ticket, taxa_cancel · `rhode-vercel/sql/performance_diario.sql`
-- ETL `agente_rhode/etl_diario.py`: lê aba "Diario" dos `Overview_*.xlsx` consolidados, dedup por data (mantém snapshot mais recente), exporta `warehouse/raw_diario.csv`
-- Sync `agente_rhode/sync_supabase.py::sync_performance_diario` (UPSERT por `data` PK)
-- Admin: sub-aba "Diário (loja toda)" em Evolução, ao lado da existente "Mensal (por creator)" — chart SVG bar (60d default, filtros 30/60/90/Tudo) + tabela com Δ vs dia anterior + KPIs do recorte (total · média/dia · pedidos)
+**Status:** código merged em `main` e deployado, mas **inerte** porque a tabela
+`performance_diario` ainda não foi criada no Supabase e o sync não rodou.
+A sub-aba "Diário" no admin existe e mostra erro (`relation does not exist`)
+até a ativação acontecer. Decisão de adiar: economia de tempo operacional —
+retomar em sprint dedicada.
+
+**Código pronto (commit `c14aea3`):**
+- SQL idempotente: [rhode-vercel/sql/performance_diario.sql](rhode-vercel/sql/performance_diario.sql) — 1 linha/dia, loja toda, com GMV bruto/líq, pedidos, cancelados, itens, clientes, ticket, taxa_cancel
+- ETL: [agente_rhode/etl_diario.py](agente_rhode/etl_diario.py) — lê aba "Diario" dos `Overview_*.xlsx`, dedup por data (mantém snapshot mais recente do mtime), exporta `warehouse/raw_diario.csv`
+- Sync: `sync_performance_diario()` em [agente_rhode/sync_supabase.py](agente_rhode/sync_supabase.py) — UPSERT por `data` PK
+- Admin UI: sub-aba "Diário (loja toda)" em Evolução, ao lado de "Mensal (por creator)" — chart SVG bar (filtros 30/60/90/Tudo) + tabela com Δ vs dia anterior + KPIs do recorte
+
+**Pra ativar quando der (3 passos manuais):**
+1. Aplicar o SQL no Supabase SQL Editor (cola conteúdo de `rhode-vercel/sql/performance_diario.sql`)
+2. Rodar ETL local com `python3 agente_rhode/etl_diario.py` (já testado: 34 dias 18/02→23/03)
+3. Sync com `python3 agente_rhode/sync_supabase.py --only performance_diario` (precisa `SUPABASE_SERVICE_KEY` no env)
+
+**Janela coberta hoje:** apenas 18/02→23/03 (Overview xlsx em `dados/marketplace/tiktokshop/`). Pra estender, rodar `python3 coletar_dados.py --dias N` ou exportar manualmente do painel TikTok antes do passo 2.
 
 **Decisão arquitetural (escopo):** granularidade *shop-wide diária* — NÃO é por creator/dia. Pra ter creator×dia precisaria de outro coletor (TikTok Order List API com timestamps individuais), trade-off não compensava esta sprint. O Transaction_Analysis export do TikTok não traz coluna de data — vem agregado da janela.
 
-**Pendente (não-bloqueante):**
-- Trigger automático: rodar `etl_diario.py + sync_supabase --only performance_diario` em GitHub Actions quando push de `Overview_*.xlsx` em `dados/marketplace/tiktokshop/`
+**Polimentos pra próxima sprint:**
+- Trigger automático em GitHub Actions ao push de `Overview_*.xlsx` (mesmo padrão do `etl_v2.py`)
 - Comparação YoY no chart (overlay do mesmo dia ano anterior)
 - KPI "MTD vs MoM-pace" no Dashboard (projeção do mês baseada nos dias decorridos)
+- UX: detectar `42P01` no admin e mostrar mensagem amigável ("feature aguarda ativação — ver ROADMAP 4.1") em vez do erro cru
 
 ---
 
