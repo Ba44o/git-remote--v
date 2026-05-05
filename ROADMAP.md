@@ -2,7 +2,7 @@
 
 > **Como usar este arquivo:** fonte de verdade do projeto. Antes de iniciar trabalho novo, leia daqui em diante. Atualizar conforme features são concluídas ou repriorizadas.
 >
-> **Última atualização:** 2026-05-04
+> **Última atualização:** 2026-05-05
 
 ---
 
@@ -185,29 +185,29 @@ retomar em sprint dedicada.
 
 ---
 
-### 5. Catálogo de Lançamentos (hub)
+### ✅ 5. Catálogo de Lançamentos (hub) — concluído mai/2026
 
-**Por que:** hoje creator descobre lançamento por WhatsApp. Conecta com #1 (Amostras).
+**Entregue:**
+- Migration `rhode-vercel/sql/lancamentos.sql`: adiciona `aprovada BOOLEAN DEFAULT TRUE` + `solicitada_em TIMESTAMPTZ` em `amostras_enviadas` (existing rows preservadas como aprovadas=true) + index parcial pra pendentes + RLS hardened
+- **Hub** ganha 6ª aba "Novidades" na bottom-nav (3ª posição, entre Performance e Copy):
+  - Lista produtos com `created_at >= hoje-30d` e `ativo=true`, ordenados desc
+  - Card por produto: foto, nome, categoria, preço, **comissão da creator aplicada** (calculada via `TIER_COMM_PCT` do disparo.js — Bronze 10% / Silver 11% / Gold-Diamond-Black 12%)
+  - Tag "Novo · Xd" (vermelho se ≤7d, cinza ≥8d)
+  - Botão "Pedir amostra" → POST direto via anon key, idempotente (cache local de SKUs já solicitados → botão fica "✓ Solicitada")
+- **Admin** (Operação > Amostras) ganha banner "🔔 X solicitações pendentes" no topo, antes dos KPIs:
+  - Lista de pedidos vindos do hub com creator, tier, SKU+nome do produto, idade do pedido (Xmin / Xh / Xd)
+  - **Aprovar:** UPDATE aprovada=true + data_envio=hoje (admin pode editar depois pela tabela normal)
+  - **Recusar:** UPDATE dispensada=true (preserva histórico, some das listas)
+- Reusa `data_lancamento` como `created_at` da tabela `produtos` — quando o sync_catalogo puxa SKU novo do `rhodejeans.com.br`, é o "lançamento" pro hub
 
-**Hub:**
-- Aba ou seção "Lançamentos" com SKUs novos dos últimos 30 dias
-- Foto, preço, comissão dela aplicada
-- Botão "Pedir amostra" → grava em `amostras_enviadas` com `origem='solicitacao_creator'`
-- Aparece no admin para aprovação/envio
+**Decisão arquitetural:** sem tabela `solicitacoes_amostra` separada — o roadmap original sugeria reusar `amostras_enviadas` com `origem='solicitacao_creator'` (o CHECK constraint já permitia). Adicionei só `aprovada` + `solicitada_em` em vez de criar tabela nova, simplificando o admin. Item 4.1 dos pendentes desbloqueia: ROI por SKU já cruza com performance_periods, então pedidos aprovados entram no funil sem mudança.
 
-**Schema:** reusa `amostras_enviadas` + tabela `produtos`:
-```sql
-CREATE TABLE produtos (
-  sku TEXT PRIMARY KEY,
-  nome TEXT,
-  foto_url TEXT,
-  preco NUMERIC,
-  data_lancamento DATE,
-  ativo BOOLEAN DEFAULT TRUE
-);
-```
+**Pra ativar:** rodar `rhode-vercel/sql/lancamentos.sql` no SQL Editor do Supabase. Sem isso, a 6ª aba do hub vai 404 ao tentar inserir e o admin vai mostrar a query falhando (graceful — erro visível, não quebra outras features).
 
-**Esforço:** ~1.5 dias.
+**Pendente (não-bloqueante):**
+- Notificação Z-API quando admin aprova ("@creator, sua amostra foi aprovada!") — reusar template engine de #4
+- Filtro no admin: ver pendentes por tier ou por idade do pedido
+- Card de "Novidades" também no Painel (home) com 3-4 destaques + link "ver todos"
 
 ---
 

@@ -194,6 +194,30 @@ body{
   .prange-meta{width:100%;font-size:10px;order:99}
 }
 
+/* ── Solicitações pendentes (Op > Amostras) ── */
+.sol-card{border:1px solid rgba(192,94,0,0.25);background:rgba(192,94,0,0.04);border-radius:10px;padding:14px 18px}
+.sol-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.sol-icon{font-size:18px}
+.sol-title{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;letter-spacing:-0.011em;color:var(--ink);flex:1;min-width:160px}
+.sol-title strong{color:var(--orange)}
+.sol-list{display:flex;flex-direction:column;gap:8px}
+.sol-row{display:grid;grid-template-columns:1fr 1.4fr 1fr auto auto;gap:10px;align-items:center;padding:10px 12px;background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.02em}
+.sol-row .sol-creator{font-weight:600;color:var(--rhode-red)}
+.sol-row .sol-sku{color:var(--ink-48)}
+.sol-row .sol-when{color:var(--ink-48);font-size:10px}
+.sol-btn{padding:6px 12px;border:1px solid var(--hairline);border-radius:99px;background:var(--canvas);color:var(--ink);font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:-0.011em;cursor:pointer;transition:all .15s ease;white-space:nowrap}
+.sol-btn:hover{border-color:var(--ink)}
+.sol-btn.approve{background:var(--green);border-color:var(--green);color:#fff}
+.sol-btn.approve:hover{filter:brightness(1.1)}
+.sol-btn.reject{color:var(--rhode-red);border-color:rgba(254,44,85,0.3)}
+.sol-btn.reject:hover{background:var(--rhode-red);color:#fff;border-color:var(--rhode-red)}
+.sol-btn:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:640px){
+  .sol-row{grid-template-columns:1fr 1fr;gap:6px}
+  .sol-row .sol-when,.sol-row .sol-sku{grid-column:1/-1}
+  .sol-btn{font-size:10px;padding:5px 10px}
+}
+
 /* ── Tabs ── */
 .tabs-nav{
   display:flex;border-bottom:1px solid rgba(0,0,0,0.05);
@@ -911,6 +935,9 @@ tr:hover td{background:rgba(254,44,85,0.015)}
     <!-- ── Sub-aba: Amostras ── -->
     <div class="op-section on" id="op-amostras">
       <div class="main">
+
+        <!-- Solicitações pendentes (vindas do hub das creators) -->
+        <div id="solicitacoes-slot" style="margin-bottom:20px"></div>
 
         <!-- KPIs -->
         <div class="kgrid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
@@ -2852,6 +2879,88 @@ async function loadAmostrasInit(){
   if(LOTE_ITENS.length===0) addLoteItem();
   onTipoChange(); // ajusta UI conforme tipo selecionado
   await refreshAmostras();
+  await loadSolicitacoesPendentes();
+}
+
+// ── Solicitações vindas do hub (origem='solicitacao_creator', aprovada=false)
+async function loadSolicitacoesPendentes(){
+  const slot=el('solicitacoes-slot');if(!slot)return;
+  try{
+    const rows=await sbGetPaged(`amostras_enviadas?select=id,creator_id,sku,quantidade,solicitada_em,tier_no_envio&origem=eq.solicitacao_creator&aprovada=eq.false&dispensada=is.null&order=solicitada_em.desc.nullslast`);
+    renderSolicitacoesPendentes(rows);
+  }catch(e){
+    slot.innerHTML=`<div class="sol-card" style="border-color:rgba(254,44,85,0.25);background:rgba(254,44,85,0.04)"><div class="sol-title">Erro ao carregar pendentes: ${e.message}</div></div>`;
+  }
+}
+
+function renderSolicitacoesPendentes(rows){
+  const slot=el('solicitacoes-slot');if(!slot)return;
+  if(!rows||!rows.length){slot.innerHTML='';return}
+  // Lookup nome do produto pra tooltip
+  const skuMap={};(PRODUTOS||[]).forEach(p=>{skuMap[p.sku]={nome:p.nome,preco:p.preco_venda}});
+  const fmtWhen=ts=>{
+    if(!ts)return'—';
+    const d=new Date(ts);const now=new Date();const diffH=(now-d)/3600000;
+    if(diffH<1)return Math.round(diffH*60)+'min';
+    if(diffH<24)return Math.round(diffH)+'h';
+    return Math.round(diffH/24)+'d';
+  };
+  const items=rows.map(r=>{
+    const meta=skuMap[r.sku]||{};
+    const nomeProduto=meta.nome?(meta.nome.length>40?meta.nome.slice(0,40)+'…':meta.nome):r.sku;
+    const tier=r.tier_no_envio||'';
+    return`<div class="sol-row" data-sol-id="${r.id}">
+      <span class="sol-creator">${r.creator_id}${tier?` <span style="color:var(--ink-48);font-weight:400">·${tier}</span>`:''}</span>
+      <span class="sol-sku" title="${(meta.nome||'').replace(/"/g,'&quot;')}">${nomeProduto}</span>
+      <span class="sol-when">há ${fmtWhen(r.solicitada_em)}</span>
+      <button class="sol-btn approve" onclick="aprovarSolicitacao(${r.id},this)">✓ Aprovar</button>
+      <button class="sol-btn reject" onclick="recusarSolicitacao(${r.id},this)">Recusar</button>
+    </div>`;
+  }).join('');
+  slot.innerHTML=`<div class="sol-card">
+    <div class="sol-head">
+      <div class="sol-icon">🔔</div>
+      <div class="sol-title"><strong>${rows.length} solicitaç${rows.length===1?'ão':'ões'} pendente${rows.length===1?'':'s'}</strong> — pedidos vindos do hub das creators</div>
+    </div>
+    <div class="sol-list">${items}</div>
+  </div>`;
+}
+
+async function aprovarSolicitacao(id,btn){
+  if(!confirm('Aprovar este pedido? A amostra será marcada como envio efetivo (data de hoje).'))return;
+  const row=btn.closest('.sol-row');row.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const today=new Date().toISOString().split('T')[0];
+    const r=await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=eq.${id}`,{
+      method:'PATCH',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({aprovada:true,data_envio:today})
+    });
+    if(!r.ok)throw new Error(`${r.status}: ${await r.text()}`);
+    row.style.opacity='.4';row.style.pointerEvents='none';
+    setTimeout(()=>{loadSolicitacoesPendentes();refreshAmostras()},400);
+  }catch(e){
+    alert('Falha ao aprovar: '+e.message);
+    row.querySelectorAll('button').forEach(b=>b.disabled=false);
+  }
+}
+
+async function recusarSolicitacao(id,btn){
+  if(!confirm('Recusar este pedido? Será marcado como dispensado (some das listas mas mantém histórico).'))return;
+  const row=btn.closest('.sol-row');row.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=eq.${id}`,{
+      method:'PATCH',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({dispensada:true})
+    });
+    if(!r.ok)throw new Error(`${r.status}: ${await r.text()}`);
+    row.style.opacity='.4';row.style.pointerEvents='none';
+    setTimeout(()=>loadSolicitacoesPendentes(),400);
+  }catch(e){
+    alert('Falha ao recusar: '+e.message);
+    row.querySelectorAll('button').forEach(b=>b.disabled=false);
+  }
 }
 
 const TIPO_META = {
