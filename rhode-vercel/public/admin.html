@@ -2886,7 +2886,8 @@ async function loadAmostrasInit(){
 async function loadSolicitacoesPendentes(){
   const slot=el('solicitacoes-slot');if(!slot)return;
   try{
-    const rows=await sbGetPaged(`amostras_enviadas?select=id,creator_id,sku,quantidade,solicitada_em,tier_no_envio&origem=eq.solicitacao_creator&aprovada=eq.false&dispensada=is.null&order=solicitada_em.desc.nullslast`);
+    // dispensada=not.eq.true cobre TANTO false (default novo) QUANTO null (rows legadas pré-v2)
+    const rows=await sbGetPaged(`amostras_enviadas?select=id,creator_id,sku,quantidade,solicitada_em,tier_no_envio&origem=eq.solicitacao_creator&aprovada=eq.false&dispensada=not.eq.true&order=solicitada_em.desc.nullslast`);
     renderSolicitacoesPendentes(rows);
   }catch(e){
     slot.innerHTML=`<div class="sol-card" style="border-color:rgba(254,44,85,0.25);background:rgba(254,44,85,0.04)"><div class="sol-title">Erro ao carregar pendentes: ${e.message}</div></div>`;

@@ -2653,7 +2653,8 @@ async function loadNovidades(){
     // Carrega solicitações pendentes da creator pra mostrar estado "já pediu"
     const handle = (_creator?.row?.affiliate_id || _creator?.row?.tiktok_handle || _creator?.handle || '').toUpperCase();
     if(handle){
-      const r2 = await fetch(`${SB_URL}/rest/v1/amostras_enviadas?select=sku&creator_id=eq.${encodeURIComponent(handle)}&aprovada=eq.false&dispensada=is.null&origem=eq.solicitacao_creator`,{headers:SBH});
+      // dispensada=not.eq.true cobre default FALSE + null legado (vide bug debug 2026-05-05)
+      const r2 = await fetch(`${SB_URL}/rest/v1/amostras_enviadas?select=sku&creator_id=eq.${encodeURIComponent(handle)}&aprovada=eq.false&dispensada=not.eq.true&origem=eq.solicitacao_creator`,{headers:SBH});
       const pend = await r2.json();
       _solicitadasCache = new Set((pend||[]).map(p=>p.sku));
     }
