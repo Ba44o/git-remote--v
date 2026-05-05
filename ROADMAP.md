@@ -154,6 +154,23 @@ _(nada no momento)_
 
 ---
 
+### ✅ 4.1. Performance Diária da Loja (admin · Evolução) — concluído mai/2026
+
+**Entregue:**
+- Tabela Supabase `performance_diario` (1 linha por dia, loja toda) com GMV bruto/líq, pedidos, cancelados, itens, clientes, ticket, taxa_cancel · `rhode-vercel/sql/performance_diario.sql`
+- ETL `agente_rhode/etl_diario.py`: lê aba "Diario" dos `Overview_*.xlsx` consolidados, dedup por data (mantém snapshot mais recente), exporta `warehouse/raw_diario.csv`
+- Sync `agente_rhode/sync_supabase.py::sync_performance_diario` (UPSERT por `data` PK)
+- Admin: sub-aba "Diário (loja toda)" em Evolução, ao lado da existente "Mensal (por creator)" — chart SVG bar (60d default, filtros 30/60/90/Tudo) + tabela com Δ vs dia anterior + KPIs do recorte (total · média/dia · pedidos)
+
+**Decisão arquitetural (escopo):** granularidade *shop-wide diária* — NÃO é por creator/dia. Pra ter creator×dia precisaria de outro coletor (TikTok Order List API com timestamps individuais), trade-off não compensava esta sprint. O Transaction_Analysis export do TikTok não traz coluna de data — vem agregado da janela.
+
+**Pendente (não-bloqueante):**
+- Trigger automático: rodar `etl_diario.py + sync_supabase --only performance_diario` em GitHub Actions quando push de `Overview_*.xlsx` em `dados/marketplace/tiktokshop/`
+- Comparação YoY no chart (overlay do mesmo dia ano anterior)
+- KPI "MTD vs MoM-pace" no Dashboard (projeção do mês baseada nos dias decorridos)
+
+---
+
 ### 5. Catálogo de Lançamentos (hub)
 
 **Por que:** hoje creator descobre lançamento por WhatsApp. Conecta com #1 (Amostras).

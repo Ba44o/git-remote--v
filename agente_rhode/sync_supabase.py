@@ -96,9 +96,38 @@ def sync_performance_periods():
 
     upsert("performance_periods", rows, on_conflict="affiliate_id,periodo")
 
+
+def sync_performance_diario():
+    """Sincroniza warehouse/raw_diario.csv → performance_diario (1 linha/dia, loja toda).
+    Estratégia: UPSERT por data (PK). Não usa DELETE-then-UPSERT porque
+    cada (data) é unicamente determinada e snapshots novos sempre prevalecem.
+    """
+    src = WAREHOUSE / "raw_diario.csv"
+    if not src.exists():
+        print(f"  [AVISO] {src} não existe. Rode 'python agente_rhode/etl_diario.py' antes.")
+        return
+    df = pd.read_csv(src).fillna(0)
+    rows = []
+    for _, r in df.iterrows():
+        rows.append({
+            "data":            str(r["data"]),
+            "gmv_bruto":       float(r.get("gmv_bruto", 0) or 0),
+            "gmv_liquido":     float(r.get("gmv_liquido", 0) or 0),
+            "pedidos":         int(r.get("pedidos", 0) or 0),
+            "cancelados":      int(r.get("cancelados", 0) or 0),
+            "itens":           int(r.get("itens", 0) or 0),
+            "clientes":        int(r.get("clientes", 0) or 0),
+            "ticket":          float(r.get("ticket", 0) or 0),
+            "taxa_cancel_pct": float(r.get("taxa_cancel_pct", 0) or 0),
+        })
+    rows = [r for r in rows if r["data"] and r["data"] != "0"]
+    upsert("performance_diario", rows, on_conflict="data")
+
+
 JOBS = {
     "affiliates":           sync_affiliates,
     "performance_periods":  sync_performance_periods,
+    "performance_diario":   sync_performance_diario,
 }
 
 def main():

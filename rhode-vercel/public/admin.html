@@ -765,13 +765,38 @@ tr:hover td{background:rgba(254,44,85,0.015)}
 
   <div class="panel" id="panel-evolucao">
     <div class="main">
-      <div class="evo-tl" id="evo-timeline" style="margin-bottom:20px"></div>
-      <div class="tbl-card">
-        <div class="tbl-head"><div class="tbl-title">Evolução por Período</div><div class="tbl-meta" id="evo-meta"></div></div>
-        <div class="tw"><table>
-          <thead><tr><th>Período</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Δ</th><th>Refund</th><th>Pedidos</th><th>Creators</th><th>AOV</th></tr></thead>
-          <tbody id="evo-body"><tr><td colspan="8" class="spin">Sincronize para carregar</td></tr></tbody>
-        </table></div>
+      <div class="op-subnav" style="margin-bottom:18px">
+        <button class="op-subtab on" data-evosub="mensal" onclick="evoSubtab('mensal',this)">Mensal (por creator)</button>
+        <button class="op-subtab" data-evosub="diario" onclick="evoSubtab('diario',this)">Diário (loja toda)</button>
+      </div>
+
+      <div id="evo-sub-mensal">
+        <div class="evo-tl" id="evo-timeline" style="margin-bottom:20px"></div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Evolução por Período</div><div class="tbl-meta" id="evo-meta"></div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Período</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Δ</th><th>Refund</th><th>Pedidos</th><th>Creators</th><th>AOV</th></tr></thead>
+            <tbody id="evo-body"><tr><td colspan="8" class="spin">Sincronize para carregar</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="evo-sub-diario" style="display:none">
+        <div class="diario-controls" style="margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label" style="margin-right:4px">Janela</span>
+          <span class="pill-filter" data-diaf="30" onclick="filterDiario(this,30)">30d</span>
+          <span class="pill-filter on" data-diaf="60" onclick="filterDiario(this,60)">60d</span>
+          <span class="pill-filter" data-diaf="90" onclick="filterDiario(this,90)">90d</span>
+          <span class="pill-filter" data-diaf="all" onclick="filterDiario(this,'all')">Tudo</span>
+        </div>
+        <div id="diario-chart" style="margin-bottom:20px"></div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Diário — Loja Toda</div><div class="tbl-meta" id="diario-meta"></div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Data</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Δ</th><th>Pedidos</th><th>Cancel.</th><th>Cancel %</th><th>Itens</th><th>Clientes</th><th>Ticket</th></tr></thead>
+            <tbody id="diario-body"><tr><td colspan="10" class="spin">Carregando…</td></tr></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1729,6 +1754,7 @@ async function syncAll(){
   btn.disabled=true;btn.textContent='Carregando...';st.textContent='';st.style.color='var(--ink-48)';
   try{
     Object.keys(PERIOD_CACHE).forEach(k=>delete PERIOD_CACHE[k]);
+    DIARIO_DATA=[];                                    // invalida cache do diário
     const pRows=await sbGetPaged('performance_periods?select=periodo&order=periodo.desc');
     PERIODS=[...new Set(pRows.map(r=>r.periodo))];
     populateCustomSelects();
@@ -1830,6 +1856,72 @@ function renderRankingPage(p){PAGE=p;const list=FILTERED,total=list.length,pages
 function filterRanking(q){const n=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');FILTERED=n?ALL_RANKED.filter(r=>(r.affiliate_id||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)):[...ALL_RANKED];renderRankingPage(1)}
 function renderAlertas(){const ativos=ALL_DATA.filter(r=>r.gmv_bruto>0);const criticos=ativos.filter(r=>r.refund_pct>25).slice(0,30);set('al-ref-meta',`${criticos.length} creators`);htm('al-ref-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="color:var(--rhode-red)">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const pot=ativos.filter(r=>(+r.aov||0)>80&&((+r.videos||0)+(+r.lives||0))<5).slice(0,15);htm('al-pot-body',pot.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td class="mono" style="color:var(--cyan)">${fmtR(r.aov)}</td><td class="mono">${(+r.videos||0)+(+r.lives||0)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>');const inat=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0).slice(0,50);set('al-in-meta',`${inat.length} creators`);htm('al-in-body',inat.map(r=>`<tr><td class="mono">${r.affiliate_id}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>')}
 function renderEvolucao(){if(!EVO_DATA.length){htm('evo-body','<tr><td colspan="8" class="spin">Sincronize primeiro.</td></tr>');return}const map={};EVO_DATA.forEach(r=>{const p=r.periodo;if(!map[p])map[p]={periodo:p,gmv_bruto:0,gmv_liquido:0,reembolso:0,pedidos:0,creators:0};map[p].gmv_bruto+=(+r.gmv_bruto||0);map[p].gmv_liquido+=(+r.gmv_liquido||0);map[p].reembolso+=(+r.reembolso||0);map[p].pedidos+=(+r.pedidos||0);if(r.gmv_liquido>0)map[p].creators++});const rows=Object.values(map).sort((a,b)=>b.periodo.localeCompare(a.periodo));htm('evo-timeline',[...rows].reverse().map(p=>`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 14px;border:1px solid ${p.periodo===CUR_PERIOD?'var(--rhode-red)':'var(--hairline)'};border-radius:99px;background:${p.periodo===CUR_PERIOD?'rgba(254,44,85,0.05)':'var(--canvas)'};color:${p.periodo===CUR_PERIOD?'var(--rhode-red)':'var(--ink-48)'};white-space:nowrap;letter-spacing:0.04em;font-weight:500">${p.periodo}</div>`).join(''));set('evo-meta',`${rows.length} períodos`);htm('evo-body',rows.map((r,i)=>{const prev=rows[i+1];const d=prev&&prev.gmv_liquido>0?((r.gmv_liquido-prev.gmv_liquido)/prev.gmv_liquido*100).toFixed(1):null;const ref=r.gmv_bruto>0?r.reembolso/r.gmv_bruto*100:0;const aov=r.pedidos>0?r.gmv_liquido/r.pedidos:0;return`<tr ${r.periodo===CUR_PERIOD?'style="background:rgba(254,44,85,0.025)"':''}><td class="mono" style="font-weight:600;color:var(--rhode-red)">${r.periodo}</td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600">${fmtK(r.gmv_liquido)}</td><td>${dlt(d)}</td><td>${refBadge(ref)}</td><td class="mono">${r.pedidos.toLocaleString('pt-BR')}</td><td class="mono">${r.creators}</td><td class="mono">${fmtR(aov)}</td></tr>`}).join(''))}
+
+// ── Sub-aba Diário (loja toda, granularidade dia)
+let DIARIO_DATA=[];
+let DIARIO_WIN=60;                                     // janela default em dias
+
+function evoSubtab(which,btn){
+  document.querySelectorAll('.op-subtab[data-evosub]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const m=el('evo-sub-mensal'),d=el('evo-sub-diario');
+  if(which==='diario'){m.style.display='none';d.style.display='block';loadDiario()}
+  else                {m.style.display='block';d.style.display='none';renderEvolucao()}
+}
+
+function filterDiario(btn,win){
+  document.querySelectorAll('.diario-controls .pill-filter').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  DIARIO_WIN=win;
+  renderDiario();
+}
+
+async function loadDiario(){
+  if(DIARIO_DATA.length){renderDiario();return}
+  htm('diario-body','<tr><td colspan="10" class="spin">Carregando…</td></tr>');
+  try{
+    DIARIO_DATA=await sbGetPaged('performance_diario?select=data,gmv_bruto,gmv_liquido,pedidos,cancelados,itens,clientes,ticket,taxa_cancel_pct&order=data.desc');
+    renderDiario();
+  }catch(e){
+    htm('diario-body',`<tr><td colspan="10" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`);
+  }
+}
+
+// SVG bar chart simples (GMV líquido por dia, cronológico, asc)
+function renderDiarioChart(rows){
+  const W=720,H=180,P={t:10,r:10,b:24,l:42};
+  if(!rows.length){htm('diario-chart','');return}
+  const sorted=[...rows].sort((a,b)=>a.data.localeCompare(b.data));
+  const max=Math.max(...sorted.map(r=>+r.gmv_liquido||0),1);
+  const innerW=W-P.l-P.r,innerH=H-P.t-P.b;
+  const barW=innerW/sorted.length;
+  const yTicks=[0,max/2,max];
+  const yLabels=yTicks.map(v=>{const y=P.t+innerH-(v/max*innerH);return`<line x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}" stroke="var(--hairline)" stroke-width="1"/><text x="${P.l-6}" y="${y+3}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="var(--ink-48)">${fmtK(v)}</text>`}).join('');
+  const bars=sorted.map((r,i)=>{const v=+r.gmv_liquido||0;const h=v/max*innerH;const x=P.l+i*barW+1;const y=P.t+innerH-h;return`<rect x="${x}" y="${y}" width="${Math.max(1,barW-2)}" height="${h}" fill="var(--rhode-red)" opacity="0.85"><title>${r.data}: ${fmtK(v)} líq · ${(r.pedidos||0)} pedidos</title></rect>`}).join('');
+  // X labels: mostra primeiro, último, e a cada ~7 dias
+  const step=Math.max(1,Math.ceil(sorted.length/8));
+  const xLabels=sorted.map((r,i)=>{if(i%step!==0&&i!==sorted.length-1)return'';const x=P.l+i*barW+barW/2;const lbl=r.data.slice(5);return`<text x="${x}" y="${H-8}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ink-48)">${lbl}</text>`}).join('');
+  htm('diario-chart',`<div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:12px;overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:480px;display:block">${yLabels}${bars}${xLabels}</svg></div>`);
+}
+
+function renderDiario(){
+  if(!DIARIO_DATA.length){htm('diario-body','<tr><td colspan="10" class="empty">Sem dados. Rode <code>python agente_rhode/etl_diario.py &amp;&amp; python agente_rhode/sync_supabase.py --only performance_diario</code> e clica Sincronizar.</td></tr>');htm('diario-chart','');set('diario-meta','');return}
+  const sliced=DIARIO_WIN==='all'?DIARIO_DATA:DIARIO_DATA.slice(0,DIARIO_WIN);
+  // KPIs do recorte
+  const totLiq=sliced.reduce((s,r)=>s+(+r.gmv_liquido||0),0);
+  const totPed=sliced.reduce((s,r)=>s+(+r.pedidos||0),0);
+  const avg=sliced.length?totLiq/sliced.length:0;
+  set('diario-meta',`${sliced.length} dias · ${fmtK(totLiq)} líq · ${fmtK(avg)}/dia · ${totPed.toLocaleString('pt-BR')} pedidos`);
+  renderDiarioChart(sliced);
+  // Tabela em ordem cronológica desc, com Δ vs dia anterior (no array desc → próximo elemento é o dia anterior)
+  htm('diario-body',sliced.map((r,i)=>{
+    const prev=sliced[i+1];
+    const d=prev&&prev.gmv_liquido>0?((r.gmv_liquido-prev.gmv_liquido)/prev.gmv_liquido*100).toFixed(1):null;
+    const cancelPct=+r.taxa_cancel_pct||0;
+    const cancelCls=cancelPct>25?'b-red':cancelPct>15?'b-orange':'b-green';
+    return`<tr><td class="mono" style="font-weight:600;color:var(--rhode-red)">${r.data}</td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600">${fmtK(r.gmv_liquido)}</td><td>${dlt(d)}</td><td class="mono">${(r.pedidos||0).toLocaleString('pt-BR')}</td><td class="mono">${(r.cancelados||0).toLocaleString('pt-BR')}</td><td><span class="badge ${cancelCls}">${cancelPct.toFixed(1)}%</span></td><td class="mono">${(r.itens||0).toLocaleString('pt-BR')}</td><td class="mono">${(r.clientes||0).toLocaleString('pt-BR')}</td><td class="mono">${fmtR(r.ticket)}</td></tr>`;
+  }).join(''));
+}
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
 
