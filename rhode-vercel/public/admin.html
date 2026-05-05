@@ -1451,7 +1451,23 @@ async function loadPeriod(p){
   }
   ALL_RANKED=[...ALL_DATA];FILTERED=[...ALL_RANKED];
   renderPeriodBar();
-  renderDashboard();
+  refreshActiveTab(); // re-renderiza a aba que está visível agora (não só dashboard)
+}
+
+// Detecta qual aba está ativa e re-renderiza com os dados do período atual.
+// Usado quando o usuário troca de período enquanto está numa aba que não é Dashboard.
+function refreshActiveTab(){
+  const onTab=document.querySelector('.tab.on');
+  const m=onTab&&onTab.getAttribute('onclick').match(/tab\('(\w+)'/);
+  const id=m?m[1]:'dashboard';
+  // Limpa busca do ranking se trocou de período (novo conjunto de dados)
+  const search=el('search');if(search)search.value='';
+  if(id==='dashboard')      renderDashboard();
+  else if(id==='ranking')   renderRankingPage(1);
+  else if(id==='alertas')   renderAlertas();
+  else if(id==='evolucao')  renderEvolucao();
+  else if(id==='analista')  renderAnalista();
+  else                      renderDashboard(); // fallback (operacao/comunicacao/evento não dependem do período)
 }
 
 // ── Alerta de Renovação de Flash Sales (Dashboard)
