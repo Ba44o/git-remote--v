@@ -2926,9 +2926,24 @@ function renderSolicitacoesPendentes(rows){
   </div>`;
 }
 
+// Cria 1 notificação no inbox do hub. Best-effort: erros não quebram fluxo.
+async function createNotif(creatorId, tipo, titulo, corpo, link){
+  if(!creatorId)return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/notificacoes`,{
+      method:'POST',
+      headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({creator_id:creatorId.toUpperCase(),tipo,titulo,corpo:corpo||null,link:link||null})
+    });
+  }catch(_){}
+}
+
 async function aprovarSolicitacao(id,btn){
   if(!confirm('Aprovar este pedido? A amostra será marcada como envio efetivo (data de hoje).'))return;
   const row=btn.closest('.sol-row');row.querySelectorAll('button').forEach(b=>b.disabled=true);
+  // Captura contexto da row pra notificação (evita refetch)
+  const creatorId=row.querySelector('.sol-creator').textContent.trim().split(' ')[0];
+  const skuTxt=row.querySelector('.sol-sku').textContent.trim();
   try{
     const today=new Date().toISOString().split('T')[0];
     const r=await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=eq.${id}`,{
@@ -2937,6 +2952,9 @@ async function aprovarSolicitacao(id,btn){
       body:JSON.stringify({aprovada:true,data_envio:today})
     });
     if(!r.ok)throw new Error(`${r.status}: ${await r.text()}`);
+    createNotif(creatorId,'amostra_aprovada','Amostra aprovada! 📦',
+      `Seu pedido de "${skuTxt}" foi aprovado. A equipe vai enviar nos próximos dias e te avisa pelo WhatsApp.`,
+      'novidades');
     row.style.opacity='.4';row.style.pointerEvents='none';
     setTimeout(()=>{loadSolicitacoesPendentes();refreshAmostras()},400);
   }catch(e){
@@ -2948,6 +2966,8 @@ async function aprovarSolicitacao(id,btn){
 async function recusarSolicitacao(id,btn){
   if(!confirm('Recusar este pedido? Será marcado como dispensado (some das listas mas mantém histórico).'))return;
   const row=btn.closest('.sol-row');row.querySelectorAll('button').forEach(b=>b.disabled=true);
+  const creatorId=row.querySelector('.sol-creator').textContent.trim().split(' ')[0];
+  const skuTxt=row.querySelector('.sol-sku').textContent.trim();
   try{
     const r=await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=eq.${id}`,{
       method:'PATCH',
@@ -2955,6 +2975,9 @@ async function recusarSolicitacao(id,btn){
       body:JSON.stringify({dispensada:true})
     });
     if(!r.ok)throw new Error(`${r.status}: ${await r.text()}`);
+    createNotif(creatorId,'amostra_recusada','Pedido de amostra não aprovado',
+      `Seu pedido de "${skuTxt}" não foi aprovado nesta rodada. Continua acompanhando os lançamentos no hub — toda semana entra produto novo.`,
+      'novidades');
     row.style.opacity='.4';row.style.pointerEvents='none';
     setTimeout(()=>loadSolicitacoesPendentes(),400);
   }catch(e){

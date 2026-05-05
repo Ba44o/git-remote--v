@@ -211,34 +211,32 @@ retomar em sprint dedicada.
 
 ---
 
-### 6. Inbox de Notificações (hub)
+### ✅ 6. Inbox de Notificações (hub) — concluído mai/2026
 
-**Por que:** reduz dependência de WhatsApp para comms operacionais.
+**Entregue:**
+- Schema `rhode-vercel/sql/notificacoes.sql`: tabela `notificacoes(id, creator_id, tipo, titulo, corpo, link, lida, created_at, read_at)` + index principal `(creator_id, lida, created_at desc)` + RLS anon all
+- **Hub** ganha botão sininho `position:fixed` top-right (sempre visível em qualquer aba):
+  - Badge vermelho com contador de não-lidas (pulsa via `notifPulse` 2s)
+  - Drawer slide-in da direita (90vw mobile, 420px desktop) com lista
+  - Item lê: ícone categorizado (🏆 tier, 📦 amostra, ⚡ flash, ✨ lançamento, ⚠️ alerta, 🤍 sistema), título, corpo, label de tempo (agora/min/h/d/data)
+  - Click no item: PATCH lida=true + read_at + se tem `link` interno (regex `^[a-z]+$`) chama `goTab(link)`, senão abre URL externa
+  - "Marcar todas" no header → bulk PATCH WHERE lida=false
+  - Polling: setInterval 60s + listener `visibilitychange` (recarrega quando volta pra aba)
+  - Bootstrap automático no fim de `boot()` após creator identificado
+- **Disparador piloto** plugado no admin (Operação > Amostras):
+  - `aprovarSolicitacao` → cria notif `tipo='amostra_aprovada'`, link='novidades'
+  - `recusarSolicitacao` → cria notif `tipo='amostra_recusada'`
+  - Helper `createNotif(creatorId, tipo, titulo, corpo, link)` é best-effort (try/catch silent), não quebra o fluxo de aprovação se a tabela não existir ou o POST falhar
+- Tipos canônicos definidos no SQL header: `amostra_aprovada · amostra_recusada · tier_up · flash_sale · lancamento · alerta_refund · sistema`
 
-**Schema:**
-```sql
-CREATE TABLE notificacoes (
-  id BIGSERIAL PRIMARY KEY,
-  creator_id TEXT NOT NULL,
-  tipo TEXT,
-  titulo TEXT,
-  corpo TEXT,
-  link TEXT,
-  lida BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
+**Pra ativar:** rodar `rhode-vercel/sql/notificacoes.sql` no SQL Editor do Supabase. Sem isso, sininho vai mostrar "Nada por aqui ainda" (a query falha silenciosa) e o admin vai aprovar/recusar normalmente — só perde a notificação no inbox.
 
-**Hub:**
-- Sininho no topo com contador de não-lidas
-- Drawer com lista
-- Persistência por creator
-
-**Disparadores:**
-- `cron-tier-milestones.js` (já existe) — "Você subiu pra Silver"
-- Novo cron: refund alto, live oficial agendada, novo lançamento
-
-**Esforço:** ~1.5 dias.
+**Pendente (não-bloqueante, próximas sprints):**
+- Disparador automático no `cron-tier-milestones.js`: criar notif `tipo='tier_up'` ao detectar marco (hoje só notifica operador via Z-API; estende para criar notif do creator também)
+- Disparador no cron de flash sales: notif `tipo='flash_sale'` quando flash entra em janela
+- Disparador no `sync_catalogo.js`: notif `tipo='lancamento'` em batch quando N produtos novos forem criados num sync
+- Cron de alertas: refund>25% por creator → notif `tipo='alerta_refund'` (deduplicação semanal pra não spammar)
+- Push real (FCM/APNS) — drawer in-hub já cobre 80%, push é next-level
 
 ---
 
