@@ -119,6 +119,8 @@ body{
 }
 .pbtn.on{background:var(--rhode-red);border-color:var(--rhode-red);color:#fff}
 .pbtn:hover:not(.on){border-color:var(--ink);color:var(--ink)}
+.pbtn.loading{opacity:.6;cursor:wait;animation:pulse 1.2s ease-in-out infinite}
+.pbtn:disabled{cursor:not-allowed}
 
 /* ── Tabs ── */
 .tabs-nav{
@@ -1411,8 +1413,46 @@ async function sbGetPaged(path, pageSize=1000){
   return out;
 }
 
-async function syncAll(){const btn=el('btn-sync'),st=el('st');btn.disabled=true;btn.textContent='Carregando...';st.textContent='';st.style.color='var(--ink-48)';try{const pRows=await sbGetPaged('performance_periods?select=periodo&order=periodo.desc');PERIODS=[...new Set(pRows.map(r=>r.periodo))];if(!CUR_PERIOD||!PERIODS.includes(CUR_PERIOD))CUR_PERIOD=PERIODS[0];EVO_DATA=await sbGetPaged('performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,pedidos,aov,refund_pct&order=periodo.asc');await loadPeriod(CUR_PERIOD);st.style.color='var(--green)';st.textContent=`✓ ${ALL_DATA.length} creators · ${new Date().toLocaleTimeString('pt-BR')}`}catch(e){st.style.color='var(--rhode-red)';st.textContent='✗ '+e.message}finally{btn.disabled=false;btn.textContent='↻ Sincronizar'}}
-async function loadPeriod(p){CUR_PERIOD=p;ALL_DATA=await sbGetPaged(`performance_periods?select=affiliate_id,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&periodo=eq.${p}&order=gmv_liquido.desc`);ALL_RANKED=[...ALL_DATA];FILTERED=[...ALL_RANKED];renderPeriodBar();renderDashboard();renderRenovacoesAlert();}
+// Cache de períodos em memória — clicar num período já visto é instantâneo.
+// syncAll() limpa o cache pra forçar re-fetch.
+const PERIOD_CACHE={};
+
+async function syncAll(){
+  const btn=el('btn-sync'),st=el('st');
+  btn.disabled=true;btn.textContent='Carregando...';st.textContent='';st.style.color='var(--ink-48)';
+  try{
+    // sync invalida cache
+    Object.keys(PERIOD_CACHE).forEach(k=>delete PERIOD_CACHE[k]);
+    const pRows=await sbGetPaged('performance_periods?select=periodo&order=periodo.desc');
+    PERIODS=[...new Set(pRows.map(r=>r.periodo))];
+    if(!CUR_PERIOD||!PERIODS.includes(CUR_PERIOD))CUR_PERIOD=PERIODS[0];
+    EVO_DATA=await sbGetPaged('performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,pedidos,aov,refund_pct&order=periodo.asc');
+    await loadPeriod(CUR_PERIOD);
+    renderRenovacoesAlert(); // 1x por sync, não por período
+    st.style.color='var(--green)';
+    st.textContent=`✓ ${ALL_DATA.length} creators · ${new Date().toLocaleTimeString('pt-BR')}`;
+  }catch(e){
+    st.style.color='var(--rhode-red)';st.textContent='✗ '+e.message;
+  }finally{
+    btn.disabled=false;btn.textContent='↻ Sincronizar';
+  }
+}
+
+async function loadPeriod(p){
+  CUR_PERIOD=p;
+  if(PERIOD_CACHE[p]){
+    // cache hit — instantâneo
+    ALL_DATA=PERIOD_CACHE[p];
+  }else{
+    // cache miss — fetch + render barra com loading state
+    renderPeriodBar(p); // mostra qual está em loading
+    ALL_DATA=await sbGetPaged(`performance_periods?select=affiliate_id,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&periodo=eq.${p}&order=gmv_liquido.desc`);
+    PERIOD_CACHE[p]=ALL_DATA;
+  }
+  ALL_RANKED=[...ALL_DATA];FILTERED=[...ALL_RANKED];
+  renderPeriodBar();
+  renderDashboard();
+}
 
 // ── Alerta de Renovação de Flash Sales (Dashboard)
 async function renderRenovacoesAlert(){
@@ -1478,7 +1518,7 @@ function goToFlashSales(){
     },150);
   },100);
 }
-function renderPeriodBar(){htm('period-bar',PERIODS.map(p=>`<button class="pbtn ${p===CUR_PERIOD?'on':''}" onclick="loadPeriod('${p}')">${p}</button>`).join(''))}
+function renderPeriodBar(loadingP){htm('period-bar',PERIODS.map(p=>{const isOn=p===CUR_PERIOD;const isLoading=p===loadingP;return`<button class="pbtn ${isOn?'on':''} ${isLoading?'loading':''}" onclick="loadPeriod('${p}')" ${isLoading?'disabled':''}>${isLoading?'⏳ ':''}${p}${PERIOD_CACHE[p]&&!isLoading?' ✓':''}</button>`}).join(''))}
 function renderDashboard(){const ativos=ALL_DATA.filter(r=>r.gmv_liquido>0);const inativos=ALL_DATA.filter(r=>!r.gmv_liquido||r.gmv_liquido===0);const totLiq=ativos.reduce((s,r)=>s+(+r.gmv_liquido||0),0);const totBruto=ativos.reduce((s,r)=>s+(+r.gmv_bruto||0),0);const totReimb=ativos.reduce((s,r)=>s+(+r.reembolso||0),0);const totPed=ativos.reduce((s,r)=>s+(+r.pedidos||0),0);const refRate=totBruto>0?totReimb/totBruto*100:0;const aovReal=totPed>0?totLiq/totPed:0;const top10=ativos.slice(0,10).reduce((s,r)=>s+(+r.gmv_liquido||0),0);const conc=totLiq>0?top10/totLiq*100:0;set('k-liq',fmtK(totLiq));set('k-liq-s',`${ativos.length} creators ativas`);set('k-gmv',fmtK(totBruto));set('k-gmv-s',`reimb: ${fmtK(totReimb)}`);const refEl=el('k-ref');refEl.textContent=refRate.toFixed(1)+'%';refEl.className='kval '+(refRate>25?'dn':refRate>15?'or':'up');set('k-aov',fmtR(aovReal));set('k-at',ativos.length);set('k-at-s',`${inativos.length} sem GMV`);set('k-ped',totPed.toLocaleString('pt-BR'));set('k-ped-s',CUR_PERIOD);const als=[];if(conc>70)als.push({c:'alert-r',t:`Concentração: top 10 = ${conc.toFixed(1)}% do GMV`,s:'Dependência excessiva. Escalar micro-creators.'});if(refRate>25)als.push({c:'alert-r',t:`Refund rate ${refRate.toFixed(1)}% — acima de 25%`,s:'Investigar creators com alto chargeback.'});if(!als.length)als.push({c:'alert-g',t:'Base saudável — refund e concentração OK',s:''});htm('dash-alerts',als.map(a=>`<div class="alert ${a.c}"><div><strong>${a.t}</strong>${a.s?`<span>${a.s}</span>`:''}</div></div>`).join(''));set('top-meta',`${ativos.length} ativas`);htm('top-body',ativos.slice(0,10).map((r,i)=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono" style="color:var(--ink-48)">${i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td><span class="badge ${t.c}">${t.l}</span></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Sem dados</td></tr>');htm('conc-body',ativos.slice(0,5).map((r,i)=>{const p=totLiq>0?(+r.gmv_liquido||0)/totLiq*100:0;const col=i===0?'var(--rhode-red)':i<3?'var(--orange)':'var(--ink-48)';return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="font-family:'JetBrains Mono',monospace;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0.02em">${i+1}. ${r.affiliate_id}</span><span style="color:var(--ink-48);font-family:'JetBrains Mono',monospace;letter-spacing:0.02em">${p.toFixed(1)}% · ${fmtK(r.gmv_liquido)}</span></div><div class="bar"><div class="bar-fill" style="width:${Math.min(p*2.5,100)}%;background:${col}"></div></div></div>`}).join('')||'<div class="empty">—</div>');set('conc-meta',`top 5 / ${conc.toFixed(1)}% GMV`);const criticos=ALL_DATA.filter(r=>r.refund_pct>25&&r.gmv_bruto>0).slice(0,20);set('crit-meta',`${criticos.length} creators`);htm('crit-body',criticos.map(r=>`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td>${refBadge(r.refund_pct)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma</td></tr>');const upgrades=ativos.map(r=>({...r,nt:nextTier(+r.gmv_liquido||0)})).filter(r=>r.nt&&r.nt.diff/r.nt.need<0.15).sort((a,b)=>a.nt.diff-b.nt.diff).slice(0,10);set('up-meta',`${upgrades.length} creators`);htm('up-body',upgrades.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td class="mono">${fmtK(r.gmv_liquido)}</td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono" style="color:var(--orange)">+${fmtK(r.nt.diff)}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty">Nenhuma</td></tr>')}
 function renderRankingPage(p){PAGE=p;const list=FILTERED,total=list.length,pages=Math.max(1,Math.ceil(total/PG_SIZE));const start=(p-1)*PG_SIZE,slice=list.slice(start,start+PG_SIZE);set('rank-meta',`${total} creators`);requestAnimationFrame(()=>{const frag=document.createDocumentFragment();slice.forEach((r,i)=>{const t=tier(+r.gmv_liquido||0);const tr=document.createElement('tr');tr.innerHTML=`<td class="mono" style="color:var(--ink-48)">${start+i+1}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">${r.affiliate_id}</a></td><td><span class="badge ${t.c}">${t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono">${fmtK(r.reembolso)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono" style="color:var(--green)">${fmtR(r.comissao||0)}</td><td><a class="lk" onclick="openModal('${r.affiliate_id}')">→</a></td>`;frag.appendChild(tr)});const tbody=el('rank-body');tbody.innerHTML='';tbody.appendChild(frag);htm('rank-pag',`<button onclick="renderRankingPage(${p-1})" ${p<=1?'disabled':''}>← Ant</button><span class="pag-info">${start+1}–${Math.min(start+PG_SIZE,total)} de ${total}</span><button onclick="renderRankingPage(${p+1})" ${p>=pages?'disabled':''}>Próx →</button>`)})}
 function filterRanking(q){const n=(q||'').toLowerCase().replace(/[^a-z0-9]/g,'');FILTERED=n?ALL_RANKED.filter(r=>(r.affiliate_id||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)):[...ALL_RANKED];renderRankingPage(1)}
@@ -2212,7 +2252,10 @@ function opTab(id,btn){
   el('op-'+id).classList.add('on');
   if(id==='campanhas') renderCampanhasList();
   if(id==='catalogo')  renderCatalogo();
-  if(id==='flash')     renderFlashList();
+  if(id==='flash'){
+    el('flash-list').innerHTML='<div class="empty">Carregando...</div>';
+    loadFlashSales().then(renderFlashList);
+  }
 }
 
 async function loadAmostrasInit(){
@@ -2837,13 +2880,17 @@ function classifyFlash(f){
   return 'ativa';
 }
 
-async function renderFlashList(){
+async function loadFlashSales(){
   try{
     FLASH_SALES=await sbGet('flash_sales?select=*&order=inicio_at.desc');
   }catch(e){
     el('flash-list').innerHTML=`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message} · execute rhode-vercel/sql/flash_sales.sql</div>`;
-    return;
+    FLASH_SALES=[];
   }
+}
+
+// Render-only: usa FLASH_SALES já em memória. Filtro é instantâneo.
+function renderFlashList(){
   let lista=FLASH_SALES.map(f=>({...f,_status:classifyFlash(f)}));
   if(FLASH_FILTRO==='vencendo'){
     const cutoff=new Date(Date.now()+7*86400000);
@@ -2929,7 +2976,7 @@ async function toggleFlashAtivo(id,atual){
       headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},
       body:JSON.stringify({ativo:!atual})
     });
-    await renderFlashList();
+    await loadFlashSales();renderFlashList();
   }catch(e){alert('Erro: '+e.message);}
 }
 
@@ -2952,7 +2999,7 @@ async function syncFlashSheets(){
 
     status.style.color='var(--green)';
     status.innerHTML=`✓ Sincronizado em ${(data.duracao_ms/1000).toFixed(1)}s · ${data.processadas} linhas processadas · ${data.sincronizadas} sincronizadas${data.erros_parsing?` · ${data.erros_parsing} erros parsing`:''}`;
-    await renderFlashList();
+    await loadFlashSales();renderFlashList();
   }catch(e){
     status.style.color='var(--rhode-red)';
     status.textContent='✗ Erro: '+e.message;
@@ -3053,7 +3100,7 @@ async function saveNovaFlash(){
     });
     if(!r.ok){throw new Error((await r.text()).slice(0,200));}
     closeModalNovaFlash();
-    await renderFlashList();
+    await loadFlashSales();renderFlashList();
   }catch(e){failFb(fb,'Erro: '+e.message);}
 }
 
