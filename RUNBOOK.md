@@ -180,6 +180,17 @@ curl -s "https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/2
 - Verificar no Z-API dashboard se mensagem foi marcada como `delivered` / `read`
 - Pode ter caído no spam do WhatsApp se conta Z-API for nova
 
+**Caso D — Disparo segmentado (admin → Comunicação) volta com 0 alvos.**
+- `affiliates.phone` é **sempre NULL** — nunca foi populada. Não filtre por ela.
+- A fonte de phone é `eventos_creators.whatsapp` (tabela compartilhada por evento + cadastro.html + acesso.html).
+- Validar:
+  ```bash
+  curl -s "https://ivzpykuluxcxefhyzfsf.supabase.co/rest/v1/eventos_creators?select=count&whatsapp=not.is.null" \
+    -H "apikey: <SB_ANON>" -H "Prefer: count=exact" -I | grep content-range
+  # Esperado: content-range: 0-0/N (onde N ~= 200 mai/2026)
+  ```
+- Se o N estiver caindo: `cadastro.html` pode estar quebrado no front (POST falhando) ou validação de schema rejeitando inserts.
+
 ---
 
 ## 4. Hub mostra GMV diferente do que a creator vê no painel TikTok
