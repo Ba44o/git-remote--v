@@ -151,6 +151,41 @@ body{
 .kdelta.up{color:var(--green)}
 .kdelta.dn{color:var(--rhode-red)}
 .kdelta.flat{color:var(--ink-48)}
+.kproj{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.02em;font-weight:500;color:var(--ink-48);margin-top:4px;line-height:1.5}
+.kproj.empty{display:none}
+.kproj .kproj-arrow{color:var(--ink);font-weight:600;margin-right:3px}
+.kproj .kproj-val{color:var(--ink);font-weight:600}
+.kproj .kproj-bar{display:block;height:3px;background:var(--hairline);border-radius:2px;margin-top:3px;overflow:hidden;position:relative}
+.kproj .kproj-bar::after{content:'';position:absolute;left:0;top:0;height:100%;width:var(--proj-pct,0%);background:var(--proj-color,var(--ink-48));transition:width .3s ease}
+/* ── Dashboard Status Header ── */
+.dash-status{
+  border-radius:10px;padding:16px 20px;margin-bottom:20px;
+  display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+  border:1px solid var(--hairline);background:var(--canvas);
+}
+.dash-status.s-good{border-color:rgba(0,121,107,0.25);background:rgba(0,121,107,0.04)}
+.dash-status.s-warn{border-color:rgba(192,94,0,0.25);background:rgba(192,94,0,0.04)}
+.dash-status.s-bad{border-color:rgba(254,44,85,0.25);background:rgba(254,44,85,0.04)}
+.dash-status.s-neutral{border-color:var(--hairline);background:var(--canvas)}
+.dash-status .ds-icon{font-size:22px;flex-shrink:0;line-height:1}
+.dash-status .ds-main{flex:1;min-width:200px}
+.dash-status .ds-title{font-size:14px;font-weight:600;letter-spacing:-0.011em;line-height:1.4;color:var(--ink)}
+.dash-status .ds-title strong{color:inherit}
+.dash-status.s-good .ds-title strong{color:var(--green)}
+.dash-status.s-warn .ds-title strong{color:var(--orange)}
+.dash-status.s-bad .ds-title strong{color:var(--rhode-red)}
+.dash-status .ds-sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.04em;color:var(--ink-48);margin-top:4px;font-weight:500}
+.dash-status .ds-progress{flex-shrink:0;min-width:160px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.04em;color:var(--ink-48);font-weight:500}
+.dash-status .ds-progress .ds-bar{display:block;height:6px;background:rgba(0,0,0,0.06);border-radius:3px;margin-top:4px;overflow:hidden;position:relative}
+.dash-status .ds-progress .ds-bar-fill{position:absolute;left:0;top:0;height:100%;background:var(--ink);border-radius:3px;transition:width .3s ease}
+.dash-status.s-good .ds-bar-fill{background:var(--green)}
+.dash-status.s-warn .ds-bar-fill{background:var(--orange)}
+.dash-status.s-bad .ds-bar-fill{background:var(--rhode-red)}
+@media(max-width:640px){
+  .dash-status{padding:12px 14px;gap:10px}
+  .dash-status .ds-title{font-size:13px}
+  .dash-status .ds-progress{width:100%;min-width:0}
+}
 @media(max-width:640px){
   .pbar-wrap{flex-wrap:wrap;padding:10px 14px;gap:8px;overflow-x:visible}
   .prange{width:100%;gap:6px}
@@ -679,13 +714,14 @@ tr:hover td{background:rgba(254,44,85,0.015)}
 
   <div class="panel on" id="panel-dashboard">
     <div class="main">
+      <div id="dash-status-slot"></div>
       <div class="kgrid">
-        <div class="kcard"><div class="klabel">GMV Líquido</div><div class="kval" id="k-liq">—</div><div class="kdelta" id="k-liq-d"></div><div class="ksub" id="k-liq-s"></div></div>
-        <div class="kcard"><div class="klabel">GMV Bruto</div><div class="kval" id="k-gmv">—</div><div class="kdelta" id="k-gmv-d"></div><div class="ksub" id="k-gmv-s"></div></div>
-        <div class="kcard"><div class="klabel">Refund Rate</div><div class="kval" id="k-ref">—</div><div class="kdelta" id="k-ref-d"></div></div>
-        <div class="kcard"><div class="klabel">AOV Médio</div><div class="kval" id="k-aov">—</div><div class="kdelta" id="k-aov-d"></div></div>
-        <div class="kcard"><div class="klabel">Creators Ativas</div><div class="kval" id="k-at">—</div><div class="kdelta" id="k-at-d"></div><div class="ksub" id="k-at-s"></div></div>
-        <div class="kcard"><div class="klabel">Pedidos</div><div class="kval" id="k-ped">—</div><div class="kdelta" id="k-ped-d"></div><div class="ksub" id="k-ped-s"></div></div>
+        <div class="kcard"><div class="klabel">GMV Líquido</div><div class="kval" id="k-liq">—</div><div class="kproj" id="k-liq-p"></div><div class="kdelta" id="k-liq-d"></div><div class="ksub" id="k-liq-s"></div></div>
+        <div class="kcard"><div class="klabel">GMV Bruto</div><div class="kval" id="k-gmv">—</div><div class="kproj" id="k-gmv-p"></div><div class="kdelta" id="k-gmv-d"></div><div class="ksub" id="k-gmv-s"></div></div>
+        <div class="kcard"><div class="klabel">Refund Rate</div><div class="kval" id="k-ref">—</div><div class="kproj" id="k-ref-p"></div><div class="kdelta" id="k-ref-d"></div></div>
+        <div class="kcard"><div class="klabel">AOV Médio</div><div class="kval" id="k-aov">—</div><div class="kproj" id="k-aov-p"></div><div class="kdelta" id="k-aov-d"></div></div>
+        <div class="kcard"><div class="klabel">Creators Ativas</div><div class="kval" id="k-at">—</div><div class="kproj" id="k-at-p"></div><div class="kdelta" id="k-at-d"></div><div class="ksub" id="k-at-s"></div></div>
+        <div class="kcard"><div class="klabel">Pedidos</div><div class="kval" id="k-ped">—</div><div class="kproj" id="k-ped-p"></div><div class="kdelta" id="k-ped-d"></div><div class="ksub" id="k-ped-s"></div></div>
       </div>
       <div id="dash-renov-slot"></div>
       <div id="dash-alerts" style="margin-bottom:20px"></div>
@@ -1468,6 +1504,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const SB_H={'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`};
 let ALL_DATA=[],ALL_RANKED=[],FILTERED=[],PERIODS=[],CUR_PERIOD='',EVO_DATA=[],PAGE=1;
 let CUR_RANGE=null,PREV_DATA=[];
+const PERIOD_META={};                                  // 'YYYY-MM' → {inicio, fim, days_with_data, days_in_month, is_open, lag_days}
 const PG_SIZE=100;
 const fmtK=n=>{const v=+n||0;if(v>=1e6)return'R$'+(v/1e6).toFixed(1)+'M';if(v>=1e3)return'R$'+(v/1e3).toFixed(1)+'K';return'R$'+v.toFixed(0)};
 const fmtR=n=>'R$'+(+n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1733,20 +1770,162 @@ function deltaBadge(curVal,prevVal,mode){
   return`<span class="kdelta ${cls}">${arrow} ${Math.abs(d).toFixed(1)}% vs anterior</span>`;
 }
 
-// Renderiza deltas dos KPIs do Dashboard quando comparePrev está on.
-// Limpa as células se compare estiver off.
+// Carrega periodo_inicio/periodo_fim de cada período em paralelo (1 row por período).
+// Calcula days_with_data, days_in_month, is_open, lag_days. Usado pra projeção MTD.
+async function loadPeriodMeta(periods){
+  Object.keys(PERIOD_META).forEach(k=>delete PERIOD_META[k]);
+  const today=new Date();today.setHours(0,0,0,0);
+  await Promise.all(periods.map(async p=>{
+    const rows=await sbGet(`performance_periods?select=periodo_inicio,periodo_fim&periodo=eq.${p}&limit=1`);
+    if(!rows.length||!rows[0].periodo_inicio||!rows[0].periodo_fim)return;
+    const inicio=new Date(rows[0].periodo_inicio+'T00:00:00');
+    const fim=new Date(rows[0].periodo_fim+'T00:00:00');
+    const days_with_data=Math.round((fim-inicio)/86400000)+1;
+    const[y,m]=p.split('-').map(Number);
+    const days_in_month=new Date(y,m,0).getDate();   // último dia do mês
+    const last_of_month=new Date(y,m-1,days_in_month);
+    PERIOD_META[p]={
+      inicio:rows[0].periodo_inicio,
+      fim:rows[0].periodo_fim,
+      days_with_data,days_in_month,
+      is_open:fim<last_of_month,
+      lag_days:Math.max(0,Math.round((today-fim)/86400000)),
+    };
+  }));
+}
+
+// Span efetivo de uma janela de períodos (soma dos days_with_data por mês cobertos).
+// Usado pra normalizar comparações pace-vs-pace quando os dois períodos têm
+// quantidade de dias diferente (ex: mês atual parcial vs mês anterior fechado).
+function periodSpan(periods){
+  let total=0;
+  for(const p of periods){
+    const m=PERIOD_META[p];
+    total+=m?m.days_with_data:30;                    // fallback 30 se sem meta
+  }
+  return total||1;
+}
+
+// Retorna info de projeção pro range atual quando o último mês está aberto.
+// Só projeta se TIPO=mes_atual (uma janela de mês cheio sendo medida agora).
+function computeProjection(){
+  if(!CUR_RANGE||CUR_RANGE.type!=='mes_atual'||!CUR_RANGE.periods.length)return null;
+  const p=CUR_RANGE.periods[0];
+  const meta=PERIOD_META[p];
+  if(!meta||!meta.is_open)return null;
+  return{
+    periodo:p,fim:meta.fim,inicio:meta.inicio,
+    days_with_data:meta.days_with_data,
+    days_in_month:meta.days_in_month,
+    completion_pct:meta.days_with_data/meta.days_in_month*100,
+    lag_days:meta.lag_days,
+    factor:meta.days_in_month/meta.days_with_data,    // multiplicador pra projetar
+  };
+}
+
+// Linha "→ proj R$ X (4/30d, 13%)" abaixo do kval. Para refund/aov a projeção
+// é o MESMO valor (são taxas/médias — não escalam com tempo).
+function projLine(kpiKind,curVal,proj){
+  if(!proj)return'';
+  const isRate=kpiKind==='rate';                      // refund_rate, aov não escalam
+  const projVal=isRate?curVal:curVal*proj.factor;
+  const fmt=kpiKind==='money'?fmtK:(kpiKind==='int'?(v=>Math.round(v).toLocaleString('pt-BR')):(v=>(+v).toFixed(1)+'%'));
+  const arrow=isRate?'∼':'→';
+  // Barra de progresso do mês (% do mês decorrido)
+  const pct=Math.min(100,proj.completion_pct).toFixed(0);
+  return`<span class="kproj-arrow">${arrow}</span>${isRate?'média ':'proj '}<span class="kproj-val">${fmt(projVal)}</span> · ${proj.days_with_data}/${proj.days_in_month}d <span class="kproj-bar" style="--proj-pct:${pct}%;--proj-color:var(--ink-48)"></span>`;
+}
+
+function renderDashProj(){
+  const proj=computeProjection();
+  const ids=[['k-liq-p','money'],['k-gmv-p','money'],['k-ref-p','rate'],['k-aov-p','money'],['k-at-p','int'],['k-ped-p','int']];
+  if(!proj){ids.forEach(([id])=>{const e=el(id);if(e){e.innerHTML='';e.classList.add('empty')}});return}
+  const cur=sumKpis(ALL_DATA);
+  const vals={'k-liq-p':cur.gmvLiq,'k-gmv-p':cur.gmvBruto,'k-ref-p':cur.refRate,'k-aov-p':cur.aov,'k-at-p':cur.ativos,'k-ped-p':cur.ped};
+  ids.forEach(([id,kind])=>{
+    const e=el(id);if(!e)return;
+    e.classList.remove('empty');
+    e.innerHTML=projLine(kind,vals[id],proj);
+  });
+}
+
+// Status header — banner principal contando a história do período em 1 linha.
+// Cor pelo gap de pace: verde no/acima pace, laranja -10/-20%, vermelho >20% atrás.
+// Só aparece quando: range='mes_atual' + período aberto + tem prevPeriods pra comparar.
+function renderDashStatus(){
+  const slot=el('dash-status-slot');if(!slot)return;
+  const proj=computeProjection();
+  if(!proj){slot.innerHTML='';return}
+  const cur=sumKpis(ALL_DATA);
+  // Pace atual (R$/dia) vs pace do período anterior fechado
+  const prevPeriods=CUR_RANGE.prevPeriods||[];
+  let pacePrev=null,prevLabel='';
+  if(prevPeriods.length&&PREV_DATA.length){
+    const prevSum=sumKpis(PREV_DATA);
+    const prevDays=periodSpan(prevPeriods);
+    pacePrev=prevDays>0?prevSum.gmvLiq/prevDays:null;
+    prevLabel=fmtMonth(prevPeriods[0]);
+  }else if(prevPeriods.length){
+    // PREV_DATA não está carregado (compare off) — pega EVO_DATA
+    const prevP=prevPeriods[0];
+    const evoPrev=EVO_DATA.filter(r=>r.periodo===prevP);
+    const prevTot=evoPrev.reduce((s,r)=>s+(+r.gmv_liquido||0),0);
+    const prevMeta=PERIOD_META[prevP];
+    const prevDays=prevMeta?prevMeta.days_with_data:30;
+    pacePrev=prevDays>0?prevTot/prevDays:null;
+    prevLabel=fmtMonth(prevP);
+  }
+  const paceCur=proj.days_with_data>0?cur.gmvLiq/proj.days_with_data:0;
+  const projected=cur.gmvLiq*proj.factor;
+  let statusCls='s-neutral',icon='⏱',title='';
+  if(pacePrev){
+    const gap=((paceCur-pacePrev)/pacePrev)*100;
+    const absGap=Math.abs(gap).toFixed(1);
+    if(gap>=5){statusCls='s-good';icon='🟢';title=`<strong>+${absGap}% à frente do pace</strong> de ${prevLabel}`}
+    else if(gap>-10){statusCls='s-good';icon='✓';title=`<strong>No pace</strong> de ${prevLabel} (${gap>=0?'+':''}${absGap}%)`}
+    else if(gap>-20){statusCls='s-warn';icon='⚠';title=`<strong>${absGap}% atrás do pace</strong> de ${prevLabel}`}
+    else{statusCls='s-bad';icon='🔴';title=`<strong>${absGap}% atrás do pace</strong> de ${prevLabel}`}
+  }else{
+    title=`<strong>${fmtMonth(proj.periodo)}</strong> em curso`;
+  }
+  const projCmp=pacePrev?`Projeção fim do mês: <strong>${fmtK(projected)}</strong> · ${prevLabel} fechou em ${fmtK(pacePrev*PERIOD_META[prevPeriods[0]].days_in_month)}`:`Projeção fim do mês: <strong>${fmtK(projected)}</strong>`;
+  const lagTxt=proj.lag_days>0?` · sync defasado ${proj.lag_days}d`:'';
+  const pct=Math.min(100,proj.completion_pct);
+  slot.innerHTML=`<div class="dash-status ${statusCls}">
+    <div class="ds-icon">${icon}</div>
+    <div class="ds-main">
+      <div class="ds-title">${title}</div>
+      <div class="ds-sub">${projCmp}</div>
+    </div>
+    <div class="ds-progress">
+      ${proj.days_with_data}/${proj.days_in_month}d · ${pct.toFixed(0)}% do mês${lagTxt}
+      <span class="ds-bar"><span class="ds-bar-fill" style="width:${pct}%"></span></span>
+    </div>
+  </div>`;
+}
+
+// Deltas por KPI: usa pace-based comparison quando o período corrente está aberto
+// (R$/dia atual vs R$/dia anterior). Quando ambos estão fechados, usa raw delta.
 function renderDashboardDeltas(){
   const ids=['k-liq-d','k-gmv-d','k-ref-d','k-aov-d','k-at-d','k-ped-d'];
   if(!CUR_RANGE||!CUR_RANGE.compare||!PREV_DATA.length){
     ids.forEach(i=>htm(i,''));return;
   }
   const cur=sumKpis(ALL_DATA),prev=sumKpis(PREV_DATA);
-  htm('k-liq-d',deltaBadge(cur.gmvLiq,prev.gmvLiq));
-  htm('k-gmv-d',deltaBadge(cur.gmvBruto,prev.gmvBruto));
-  htm('k-ref-d',deltaBadge(cur.refRate,prev.refRate,'negative'));
-  htm('k-aov-d',deltaBadge(cur.aov,prev.aov));
+  const proj=computeProjection();
+  // Para período aberto, normaliza pace por dia
+  const curDays=proj?proj.days_with_data:periodSpan(CUR_RANGE.periods);
+  const prevDays=periodSpan(CUR_RANGE.prevPeriods);
+  const norm=v=>v/curDays;
+  const normPrev=v=>v/prevDays;
+  const paceMode=!!proj;                              // verdadeiro = comparação por dia
+  const sfx=paceMode?'/dia':'';
+  htm('k-liq-d',deltaBadge(paceMode?norm(cur.gmvLiq):cur.gmvLiq,paceMode?normPrev(prev.gmvLiq):prev.gmvLiq).replace('vs anterior','vs anterior'+sfx));
+  htm('k-gmv-d',deltaBadge(paceMode?norm(cur.gmvBruto):cur.gmvBruto,paceMode?normPrev(prev.gmvBruto):prev.gmvBruto).replace('vs anterior','vs anterior'+sfx));
+  htm('k-ref-d',deltaBadge(cur.refRate,prev.refRate,'negative'));   // taxa não normaliza
+  htm('k-aov-d',deltaBadge(cur.aov,prev.aov));                       // média não normaliza
   htm('k-at-d',deltaBadge(cur.ativos,prev.ativos));
-  htm('k-ped-d',deltaBadge(cur.ped,prev.ped));
+  htm('k-ped-d',deltaBadge(paceMode?norm(cur.ped):cur.ped,paceMode?normPrev(prev.ped):prev.ped).replace('vs anterior','vs anterior'+sfx));
 }
 
 async function syncAll(){
@@ -1758,6 +1937,7 @@ async function syncAll(){
     const pRows=await sbGetPaged('performance_periods?select=periodo&order=periodo.desc');
     PERIODS=[...new Set(pRows.map(r=>r.periodo))];
     populateCustomSelects();
+    await loadPeriodMeta(PERIODS);                   // carrega periodo_inicio/fim pra projeção
     EVO_DATA=await sbGetPaged('performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,pedidos,aov,refund_pct&order=periodo.asc');
     // Re-resolve range usando spec atual (default mes_atual no primeiro load)
     await loadRange(getCurrentSpec());
@@ -1779,12 +1959,12 @@ function refreshActiveTab(){
   const id=m?m[1]:'dashboard';
   // Limpa busca do ranking se trocou de período (novo conjunto de dados)
   const search=el('search');if(search)search.value='';
-  if(id==='dashboard'){     renderDashboard();renderDashboardDeltas()}
+  if(id==='dashboard'){     renderDashboard();renderDashStatus();renderDashProj();renderDashboardDeltas()}
   else if(id==='ranking')   renderRankingPage(1);
   else if(id==='alertas')   renderAlertas();
   else if(id==='evolucao')  renderEvolucao();
   else if(id==='analista')  renderAnalista();
-  else{                     renderDashboard();renderDashboardDeltas()} // fallback (operacao/comunicacao/evento não dependem do período)
+  else{                     renderDashboard();renderDashStatus();renderDashProj();renderDashboardDeltas()} // fallback (operacao/comunicacao/evento não dependem do período)
 }
 
 // ── Alerta de Renovação de Flash Sales (Dashboard)
