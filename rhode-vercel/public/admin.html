@@ -3069,7 +3069,10 @@ function renderLoteSummary(){
 
 async function refreshAmostras(){
   try{
-    AMOSTRAS=await sbGetPaged('amostras_enviadas?select=*&order=data_envio.desc');
+    // Lista principal = só aprovadas. Pendentes (aprovada=false) aparecem no
+    // banner "Solicitações Pendentes" acima dos KPIs. Sem esse filtro, a row
+    // aparecia em ambos os lugares parecendo já enviada (data_envio=hoje no INSERT).
+    AMOSTRAS=await sbGetPaged('amostras_enviadas?select=*&aprovada=eq.true&order=data_envio.desc');
     AMOSTRAS_FILTRADAS=[...AMOSTRAS];
     renderAmostrasKPIs();
     renderAmostrasTabela();
