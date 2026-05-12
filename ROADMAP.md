@@ -293,7 +293,7 @@ retomar em sprint dedicada.
   - "📦 Pedir uma amostra grátis" (não tenho peça) → formulário → card `analise` (perfil pra análise)
   - "✨ Aplicar pra receber mais modelos" → tela `screenMaisModelos` explicando que **é sujeito ao desempenho e às metas** + botão "Aplicar — mandar meu perfil pra análise" → formulário → card `analise`
   - "⚡ Solicitar uma flash sale pra minha live" → redireciona direto pro WhatsApp do suporte (`CONFIG.whatsappEquipe`) com `CONFIG.flashSaleWhatsMsg`. *(Antes era opção do Passo 1; movido pra cá porque flash sale é coisa de quem já é afiliada.)*
-- **Formulário (identidade):** nome + @ TikTok + WhatsApp → grava em Google Sheets via Apps Script (`CONFIG.sheetsTriagemURL`, mesmo padrão de `cadastro.html`; vazio = não grava). É o "formulário rápido" — quem pede amostra/mais modelos preenche aqui.
+- **Formulário (identidade):** nome + @ TikTok + WhatsApp → `saveTriagem()` faz INSERT na tabela Supabase **`triagem`** (`rhode-vercel/sql/triagem.sql`; campos: nome, handle, whatsapp, relacao, gmv_faixa, **pedido** (`ver_lugar`/`amostra_gratis`/`mais_modelos`/`quero_ser_creator`), tem_peca, diagnostico, origem, status, referrer, user_agent) — best-effort, igual `eventos_creators`/`hub_eventos`. Também faz POST opcional pro Google Sheets se `CONFIG.sheetsTriagemURL` estiver preenchido. É o "formulário rápido" — quem pede amostra/mais modelos/virar creator preenche aqui.
 - **Cards de resultado:**
   - `analise` ("🤍 Na fila de análise") — "Recebemos teu cadastro, você entrou na fila. A equipe analisa teu perfil no TikTok…" + 4 passos. **Sem botão** (é confirmação, não tem ação).
   - `ativar` ("🚀 Bora ativar", afiliada R$0 + tem peça) — "grava e faz tua 1ª venda — ela destrava grupo + painel" (CTA "falar com a equipe"). *(A variante "sem peça" do card só aparece via `?diagnostico=ativar` sem `peca=sim` — no fluxo real, "sem peça" → `analise`.)*
@@ -301,16 +301,17 @@ retomar em sprint dedicada.
   - `parceira_track` ("🔥 Quase Parceira", R$20k+) — grupo Rhode em Ação + hub + flag p/ time avaliar VIP.
   - `vip` ("⭐ Parceira VIP") — **só via `classifyKnown`** (token c/ `modelo=parceira` ou GMV-60d ≥ 80k), não auto-declarável. Fallback `onboarding` (cadastro + WhatsApp).
 - **Princípio de gating:** hub e amostra só pra quem já vendeu (`fechado`/`parceira_track`/`vip`). Quem não vendeu ou não tem peça → vai pra `analise` (fila/análise do time). Amostra/peça de graça nunca é self-serve na triagem — sempre passa por análise (ou via missão/campanha). Cards `nova_com_peca`/`nova_sem_peca` removidos. `CONFIG.linkLojaRhode` = `rhodejeans.com.br` (usado só na variante de preview de `ativar`).
+- **Admin → aba "Triagem"** (`admin.html`): lista das submissões (mais recentes primeiro) — nome, @ TikTok (link pro perfil + `·hist` que abre o histórico Rhode via `openModal`), WhatsApp (link wa.me), pedido, GMV declarado, badge "✓ R$X/mês" se a handle bate com uma afiliada no `performance_periods` do mês atual, e `<select>` de status (novo/em_analise/aprovada/recusada → PATCH na tabela). Filtros por tipo de pedido + busca por @ · 4 KPIs (total / 7d / pedidos de amostra / quer ser creator). Carregamento lazy via `loadTriagem()`.
 - **Token de afiliada já cadastrada** (`?token=`) → pula a triagem, classifica direto por `modelo`/GMV-60d real (`classifyKnown`); token de `eventos_creators` → pré-preenche e roda a triagem; token inválido / sem token → triagem normal
 - Modos de teste: `?triagem=1` força o questionário · `?diagnostico=analise|ativar|fechado|parceira_track|vip|onboarding` (`&peca=sim` p/ a variante de `ativar`) · `?gmv=&nome=&modelo=` compat com o teste antigo
 - `bem-vinda.html` adicionado ao regex de `no-cache` em `vercel.json`
 
-**Pendente (não-bloqueante — preencher e redeployar):**
+**Pendente (não-bloqueante):**
+- **Rodar `rhode-vercel/sql/triagem.sql` no SQL Editor do Supabase** pra ativar a persistência + a aba do admin (sem isso, o INSERT falha em silêncio e a aba mostra erro amigável).
 - `CONFIG.linkGrupoVIP` — convite do grupo "Rhode VIP" (top creators) — ainda vazio (`linkGrupoAcao`, grupo geral, já preenchido)
 - `CONFIG.linkAfiliacaoTikTok` — link do convite de colaboração da Rhode no TikTok Shop
 - `CONFIG.linkFormAmostra` — Google Form / página de solicitação de amostra (hoje cai no WhatsApp da equipe)
-- `CONFIG.sheetsTriagemURL` — Apps Script `doPost` da planilha de Triagem (campos: tipo, nome, tiktok/handle, whatsapp, relacao, gmv_faixa, tem_peca, diagnostico, origem, ts)
-- Admin: aba/visão "Triagem" lendo a planilha (ou tabela própria) — quem caiu em cada bucket, conversão por diagnóstico
+- `CONFIG.sheetsTriagemURL` — opcional, Apps Script `doPost` se quiser espelhar numa planilha além do Supabase
 - Auto-disparo Z-API pós-triagem (boas-vindas + link do grupo) reusando o template engine do #4
 - Promover automaticamente `parceira_track` → criar alerta no admin pra avaliar entrada no grupo VIP
 

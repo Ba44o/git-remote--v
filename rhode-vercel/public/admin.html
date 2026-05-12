@@ -734,6 +734,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
     <button class="tab" onclick="tab('operacao',this)">Operação</button>
     <button class="tab" onclick="tab('comunicacao',this)">Comunicação</button>
     <button class="tab" onclick="tab('comportamento',this)">Comportamento</button>
+    <button class="tab" onclick="tab('triagem',this)">Triagem</button>
     <button class="tab" onclick="tab('evento',this)">Evento 13/04</button>
   </div>
 
@@ -1500,6 +1501,38 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <div class="panel" id="panel-triagem">
+    <div class="main">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap">
+        <div class="amostra-filtros" id="tr-filtros-pedido" style="margin-bottom:0">
+          <span class="pill-filter on" data-trpedido="" onclick="trSetPedido(this,'')">Todas</span>
+          <span class="pill-filter" data-trpedido="amostra_gratis" onclick="trSetPedido(this,'amostra_gratis')">📦 Amostra grátis</span>
+          <span class="pill-filter" data-trpedido="mais_modelos" onclick="trSetPedido(this,'mais_modelos')">✨ Mais modelos</span>
+          <span class="pill-filter" data-trpedido="quero_ser_creator" onclick="trSetPedido(this,'quero_ser_creator')">🆕 Quer ser creator</span>
+          <span class="pill-filter" data-trpedido="ver_lugar" onclick="trSetPedido(this,'ver_lugar')">👖 Ver meu lugar</span>
+        </div>
+        <input class="finput" id="tr-busca" placeholder="Buscar por @ ou nome..." oninput="renderTriagem()" style="max-width:230px;margin-left:auto">
+        <button class="btn-lote-secondary" onclick="loadTriagem(true)">↻ Atualizar</button>
+      </div>
+      <div class="kgrid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="kcard"><div class="klabel">Submissões</div><div class="kval" id="tr-k-total">—</div><div class="ksub">no total</div></div>
+        <div class="kcard"><div class="klabel">Últimos 7 dias</div><div class="kval" id="tr-k-7d" style="color:var(--rhode-red)">—</div><div class="ksub">novas inscrições</div></div>
+        <div class="kcard"><div class="klabel">Pedidos de amostra grátis</div><div class="kval" id="tr-k-amostra">—</div><div class="ksub">pra analisar</div></div>
+        <div class="kcard"><div class="klabel">Quer ser creator</div><div class="kval" id="tr-k-creator">—</div><div class="ksub">não-afiliadas, na fila</div></div>
+      </div>
+      <div class="tbl-card">
+        <div class="tbl-head">
+          <div class="tbl-title">Triagem — submissões do <span class="mono">bem-vinda.html</span></div>
+          <div class="tbl-meta" id="tr-meta">—</div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Quando</th><th>Nome</th><th>@ TikTok</th><th>WhatsApp</th><th>Pedido</th><th>GMV declarado</th><th>Já é afiliada?</th><th>Status</th></tr></thead>
+          <tbody id="tr-body"><tr><td colspan="8" class="spin">Carregando...</td></tr></tbody>
+        </table></div>
+      </div>
     </div>
   </div>
 
@@ -2444,8 +2477,59 @@ function tab(id,elBtn){
   else if(id==='analista')renderAnalista();
   else if(id==='comunicacao'){loadComunicacaoInit();}
   else if(id==='comportamento'){loadComportamento();}
+  else if(id==='triagem'){loadTriagem();}
   else if(id==='evento'){loadEvento().then(()=>renderVIP());startVIPRefresh();}
   if(id!=='evento')stopVIPRefresh();
+}
+
+// ═════════════════════════════════════════════════════════════
+//   TRIAGEM  (submissões do bem-vinda.html → tabela `triagem`)
+// ═════════════════════════════════════════════════════════════
+let TR_DATA=[], TR_PEDIDO='';
+const TR_PEDIDO_LABEL={amostra_gratis:'📦 Amostra grátis',mais_modelos:'✨ Mais modelos',quero_ser_creator:'🆕 Quer ser creator',ver_lugar:'👖 Ver meu lugar'};
+const TR_GMV_LABEL={'0':'R$ 0','ate5k':'até R$ 5k','5a20k':'R$ 5–20k','20a80k':'R$ 20k+'};
+const TR_STATUS=['novo','em_analise','aprovada','recusada'];
+function trSetPedido(elBtn,p){document.querySelectorAll('#tr-filtros-pedido .pill-filter').forEach(x=>x.classList.remove('on'));elBtn.classList.add('on');TR_PEDIDO=p;renderTriagem();}
+function trAge(ts){if(!ts)return'—';const d=new Date(ts),mn=(Date.now()-d.getTime())/60000;if(mn<1)return'agora';if(mn<60)return Math.floor(mn)+'min';if(mn<1440)return Math.floor(mn/60)+'h';const dd=Math.floor(mn/1440);return dd<8?dd+'d':d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}
+async function loadTriagem(force){
+  if(TR_DATA.length&&!force){renderTriagem();return;}
+  el('tr-body').innerHTML='<tr><td colspan="8" class="spin">Carregando...</td></tr>';
+  try{ TR_DATA=await sbGetPaged('triagem?select=id,nome,handle,whatsapp,relacao,gmv_faixa,pedido,tem_peca,diagnostico,origem,status,created_at&order=created_at.desc'); }
+  catch(e){ el('tr-body').innerHTML=`<tr><td colspan="8" class="empty" style="color:var(--rhode-red)">Não consegui ler a tabela <span class="mono">triagem</span> (${e.message}). Rode <span class="mono">rhode-vercel/sql/triagem.sql</span> no Supabase pra criar.</td></tr>`; ['tr-k-total','tr-k-7d','tr-k-amostra','tr-k-creator'].forEach(i=>set(i,'—')); return; }
+  renderTriagem();
+}
+function renderTriagem(){
+  if(!Array.isArray(TR_DATA)) return;
+  const q=((el('tr-busca')&&el('tr-busca').value)||'').trim().toLowerCase();
+  const affMap={}; ALL_DATA.forEach(r=>{ if(r.affiliate_id) affMap[(''+r.affiliate_id).toUpperCase()]=+r.gmv_liquido||0; });
+  let rows=TR_DATA.slice();
+  if(TR_PEDIDO) rows=rows.filter(r=>(r.pedido||'')===TR_PEDIDO);
+  if(q) rows=rows.filter(r=>(((r.handle||'')+' '+(r.nome||'')).toLowerCase().indexOf(q)!==-1));
+  const wk=Date.now()-7*864e5;
+  set('tr-k-total',TR_DATA.length);
+  set('tr-k-7d',TR_DATA.filter(r=>new Date(r.created_at).getTime()>=wk).length);
+  set('tr-k-amostra',TR_DATA.filter(r=>r.pedido==='amostra_gratis').length);
+  set('tr-k-creator',TR_DATA.filter(r=>r.pedido==='quero_ser_creator').length);
+  set('tr-meta',`${rows.length} de ${TR_DATA.length}`);
+  if(!rows.length){ el('tr-body').innerHTML='<tr><td colspan="8" class="empty">Nenhuma submissão'+(TR_PEDIDO||q?' com esse filtro.':' ainda. Quando uma creator preencher o formulário do bem-vinda.html, aparece aqui.')+'</td></tr>'; return; }
+  el('tr-body').innerHTML=rows.map(r=>{
+    const h=(''+(r.handle||'')).replace(/^@+/,'').trim();
+    const hUp=h.toUpperCase();
+    const ehAff=!!h&&(hUp in affMap);
+    const ped=TR_PEDIDO_LABEL[r.pedido]||r.pedido||'—';
+    const gmvD=TR_GMV_LABEL[r.gmv_faixa]||(r.gmv_faixa||'—');
+    const wppDigits=(''+(r.whatsapp||'')).replace(/\D/g,'');
+    const wppLk=wppDigits?`<a class="lk" href="https://wa.me/55${wppDigits.replace(/^55/,'')}" target="_blank" rel="noopener">${r.whatsapp}</a>`:(r.whatsapp||'—');
+    const ttLk=h?`<a class="lk" href="https://www.tiktok.com/@${encodeURIComponent(h)}" target="_blank" rel="noopener">@${h}</a> <a class="lk" onclick="openModal('${hUp.replace(/[^A-Z0-9._-]/g,'')}')" title="histórico Rhode" style="color:var(--ink-48);font-size:11px">·hist</a>`:'—';
+    const affBadge=ehAff?`<span class="badge b-green" title="GMV líquido do mês atual">✓ ${fmtK(affMap[hUp])}/mês</span>`:'<span style="color:var(--ink-48)">—</span>';
+    const cur=(r.status||'novo');
+    const statusSel=`<select onchange="trSetStatus(${r.id},this.value)" style="padding:3px 6px;font-size:11px;border:1px solid rgba(0,0,0,0.14);border-radius:6px;background:#fff">${TR_STATUS.map(s=>`<option value="${s}"${cur===s?' selected':''}>${s}</option>`).join('')}</select>`;
+    return `<tr><td class="mono" style="color:var(--ink-48)" title="${r.created_at||''}">${trAge(r.created_at)}</td><td>${(r.nome||'—')}</td><td>${ttLk}</td><td class="mono">${wppLk}</td><td>${ped}</td><td class="mono">${gmvD}</td><td>${affBadge}</td><td>${statusSel}</td></tr>`;
+  }).join('');
+}
+async function trSetStatus(id,status){
+  try{ const res=await fetch(`${SB_URL}/rest/v1/triagem?id=eq.${id}`,{method:'PATCH',headers:{...SB_H,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({status})}); if(!res.ok)throw new Error(res.status); const row=TR_DATA.find(r=>r.id===id); if(row)row.status=status; }
+  catch(e){ alert('Erro ao atualizar status: '+e.message); }
 }
 
 // ═════════════════════════════════════════════════════════════

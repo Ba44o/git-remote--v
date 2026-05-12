@@ -130,6 +130,7 @@ const ST={
   relacao:null,   // afiliada_ativa | quero_ser_creator  (flash sale: opção no Passo 3 que redireciona pro WhatsApp, sem setar relacao)
   gmvFaixa:null,  // 0 | ate5k | 5a20k | 20a80k
   temPeca:null,   // sim | nao | quer_mais
+  pedido:null,    // ver_lugar | amostra_gratis | mais_modelos | quero_ser_creator
   nome:'', handle:'', whatsapp:'',
   diagnostico:null,
   origem:'cold',  // cold | token
@@ -170,19 +171,22 @@ function classifyKnown(d){
 
 /* ───────────────── PERSISTÊNCIA (Google Sheets via Apps Script) ───────────────── */
 function saveTriagem(){
-  if(!CONFIG.sheetsTriagemURL) return;
-  const p=new URLSearchParams();
-  p.append('tipo','triagem');
-  p.append('nome',ST.nome);
-  p.append('tiktok',ST.handle); p.append('handle',ST.handle);
-  p.append('whatsapp',ST.whatsapp);
-  p.append('relacao',ST.relacao||'');
-  p.append('gmv_faixa',ST.gmvFaixa||'');
-  p.append('tem_peca',ST.temPeca||'');
-  p.append('diagnostico',ST.diagnostico||'');
-  p.append('origem',ST.origem);
-  p.append('ts',new Date().toISOString());
-  fetch(CONFIG.sheetsTriagemURL,{method:'POST',mode:'no-cors',body:p}).catch(()=>{});
+  const payload={
+    nome:ST.nome, handle:ST.handle, whatsapp:ST.whatsapp,
+    relacao:ST.relacao||'', gmv_faixa:ST.gmvFaixa||'',
+    pedido:ST.pedido||'', tem_peca:ST.temPeca||'',
+    diagnostico:ST.diagnostico||'', origem:ST.origem,
+    referrer:document.referrer||'', user_agent:navigator.userAgent||'',
+  };
+  // Supabase — fonte de verdade (alimenta a aba "Triagem" do admin). Best-effort, não trava o fluxo.
+  // Precisa da tabela `triagem` criada (rhode-vercel/sql/triagem.sql); se não existir, falha em silêncio.
+  fetch(`${SB_URL}/rest/v1/triagem`,{method:'POST',headers:{...SBH,'Prefer':'return=minimal'},body:JSON.stringify(payload)}).catch(()=>{});
+  // Google Sheets — opcional, só se CONFIG.sheetsTriagemURL preenchido
+  if(CONFIG.sheetsTriagemURL){
+    const p=new URLSearchParams(); p.append('tipo','triagem'); p.append('tiktok',ST.handle); p.append('ts',new Date().toISOString());
+    Object.entries(payload).forEach(([k,v])=>p.append(k,v));
+    fetch(CONFIG.sheetsTriagemURL,{method:'POST',mode:'no-cors',body:p}).catch(()=>{});
+  }
 }
 
 /* ───────────────── SHELL / RENDER ───────────────── */
@@ -223,7 +227,7 @@ function screenRelacao(){
       <p class="help">Qual é a sua relação com a Rhode hoje?</p>
       <div class="opts">
         ${optBtn('💸','Já sou afiliada da Rhode no TikTok Shop','Tenho meu link de afiliada da Rhode — vendendo ou ainda começando',()=>{ST.relacao='afiliada_ativa';screenGmv();})}
-        ${optBtn('✨','Quero me tornar uma Creator Rhode','Preenche o formulário e manda teu perfil pra análise — entra na fila',()=>{ST.relacao='quero_ser_creator';screenIdentity();})}
+        ${optBtn('✨','Quero me tornar uma Creator Rhode','Preenche o formulário e manda teu perfil pra análise — entra na fila',()=>{ST.relacao='quero_ser_creator';ST.pedido='quero_ser_creator';screenIdentity();})}
       </div>
     </div>`);
 }
@@ -253,9 +257,9 @@ function screenPeca(){
       ${backBtn(ST.relacao==='afiliada_ativa'?screenGmv:screenRelacao)}
       <p class="help">Pra te direcionar — e pra equipe avaliar teu pedido na hora certa.</p>
       <div class="opts">
-        ${optBtn('👖','Ver meu lugar no programa','Tenho peça, já tô gravando — me mostra grupo, hub e benefícios',()=>{ST.temPeca='sim';screenIdentity();})}
-        ${optBtn('📦','Pedir uma amostra grátis','Não tenho peça — preenche o formulário e a equipe analisa teu perfil',()=>{ST.temPeca='nao';screenIdentity();})}
-        ${optBtn('✨','Aplicar pra receber mais modelos','Sujeito ao teu desempenho e às metas',()=>{ST.temPeca='quer_mais';screenMaisModelos();})}
+        ${optBtn('👖','Ver meu lugar no programa','Tenho peça, já tô gravando — me mostra grupo, hub e benefícios',()=>{ST.temPeca='sim';ST.pedido='ver_lugar';screenIdentity();})}
+        ${optBtn('📦','Pedir uma amostra grátis','Não tenho peça — preenche o formulário e a equipe analisa teu perfil',()=>{ST.temPeca='nao';ST.pedido='amostra_gratis';screenIdentity();})}
+        ${optBtn('✨','Aplicar pra receber mais modelos','Sujeito ao teu desempenho e às metas',()=>{ST.temPeca='quer_mais';ST.pedido='mais_modelos';screenMaisModelos();})}
         ${optBtn('⚡','Solicitar uma flash sale pra minha live','Vai direto pro WhatsApp do suporte',()=>{location.href=waLink(CONFIG.flashSaleWhatsMsg);})}
       </div>
     </div>`);
