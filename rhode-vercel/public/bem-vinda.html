@@ -111,6 +111,7 @@ const CONFIG={
   linkCadastro:        '/cadastro.html',
   linkHub:             '/hub.html',
   linkAcesso:          '/acesso.html',
+  linkLojaRhode:       'https://rhodejeans.com.br',   // loja — pra quem ainda não tem peça (compra ou espera campanha; amostra de graça só via missão/campanha)
   // ── Persistência: Apps Script doPost da planilha de Triagem ─────────
   //    deixe vazio p/ não gravar; recebe os mesmos campos do payload de saveTriagem()
   sheetsTriagemURL:    '',
@@ -140,7 +141,8 @@ const ST={
 // "quero vender Rhode" → nova (entrar no programa + amostra grátis).
 // "só quero flash sales" não passa por aqui — redireciona direto pro WhatsApp do suporte.
 // vip não é auto-declarável — vem de classifyKnown (token c/ modelo=parceira ou GMV-60d ≥ 80k).
-// nova_com_peca/nova_sem_peca seguem definidos mas só acessíveis via ?diagnostico=.
+// Sem hub/amostra de graça pra quem não tem peça nem vendas: ativar(sem peça) e nova mandam pra
+// loja / análise de perfil; amostra grátis só via missão/campanha (controle do time).
 function computeDiag(){
   if(ST.relacao==='quer_vender') return 'nova';
   switch(ST.gmvFaixa){            // afiliada_ativa → faixa de GMV declarada
@@ -319,22 +321,19 @@ function screenResult(){
     fechado:{cor:'#00796b',badge:'✅ Creator ativa',label:'Seu lugar no programa',
       desc:'Você já está no jogo. Entra no grupo Rhode em Ação pra receber briefings, os ganchos que estão convertendo e os lançamentos antes de todo mundo. Acompanha sua performance pelo Creator Hub.',
       ctas:[grupoAcaoCTA(),{label:'Abrir Creator Hub',href:hubHref(),cls:'cta-dark'},semPeca?amostraCTA():null]},
-    ativar:{cor:'#FE2C55',badge:'🚀 Bora ativar',label:'Próximo passo: sua primeira venda',
-      desc:'Você já tem o link de afiliada da Rhode — falta a primeira venda. Ela destrava o grupo Rhode em Ação e o painel completo. O caminho está aqui embaixo.',
-      steps:['Garante uma peça Rhode'+(ST.temPeca==='sim'?' — você já tem ✓':' — pede uma amostra abaixo'),'Grava um vídeo marcando o produto no TikTok','Posta com o seu link de afiliada — a primeira venda te promove'],
-      ctas:[ ST.temPeca==='sim'?{label:'Abrir Creator Hub',href:hubHref(),cls:'cta-dark'}:amostraCTA(), grupoAcaoCTA(), ST.temPeca==='sim'?null:{label:'Abrir Creator Hub',href:hubHref(),cls:'cta-outline'}, {label:'Dúvidas? Falar com a equipe',href:waLink(`Oi! Sou afiliada Rhode (@${ST.handle}) mas ainda não fiz minha primeira venda — me ajuda? 🤍`),cls:'cta-outline',ext:true} ]},
-    nova:{cor:'#222',badge:'🤍 Nova creator',label:'Como entrar no programa',
-      desc:'Boa! Você ainda não é afiliada da Rhode no TikTok Shop. O caminho é rápido: aceita o convite de colaboração, completa seu cadastro e solicita sua amostra grátis pra começar a gravar.',
-      steps:['Aceitar o convite de colaboração da Rhode no TikTok Shop','Completar seu cadastro Rhode','Solicitar sua amostra grátis Rhode','Gravar e postar com o seu link de afiliada — a primeira venda já te coloca no programa'],
-      ctas:[afiliacaoCTA(),{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},amostraCTA('Solicitar amostra grátis'),{label:'Quero ajuda pra começar',href:waLink(`Oi! Quero virar creator afiliada da Rhode e receber uma amostra grátis 🤍 — meu @ no TikTok é @${ST.handle}`),cls:'cta-outline',ext:true}]},
-    nova_com_peca:{cor:'#222',badge:'🤍 Nova creator',label:'Como entrar no programa',
-      desc:'Bem-vinda! Você ainda não é afiliada da Rhode no TikTok Shop. Como já tem peça pra gravar, é rápido: aceita o convite de colaboração, completa seu cadastro e já pode postar.',
-      steps:['Aceitar o convite de colaboração da Rhode no TikTok Shop','Completar seu cadastro Rhode','Gravar com a sua peça e postar com o link de afiliada'],
-      ctas:[afiliacaoCTA(),{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},{label:'Quero ajuda pra começar',href:waLink(`Oi! Quero virar creator afiliada da Rhode 🤍 — já tenho peça pra gravar. Meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
-    nova_sem_peca:{cor:'#222',badge:'🤍 Nova creator',label:'Como entrar no programa',
-      desc:'Bem-vinda! Você ainda não é afiliada da Rhode no TikTok Shop. O caminho: aceita o convite de colaboração, completa seu cadastro e solicita sua amostra pra começar a gravar.',
-      steps:['Aceitar o convite de colaboração da Rhode no TikTok Shop','Completar seu cadastro Rhode','Solicitar sua amostra Rhode','Gravar e postar com o link de afiliada'],
-      ctas:[afiliacaoCTA(),{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},amostraCTA(),{label:'Quero ajuda pra começar',href:waLink(`Oi! Quero virar creator afiliada da Rhode 🤍 Meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
+    ativar: (ST.temPeca==='sim')
+      ? {cor:'#FE2C55',badge:'🚀 Bora ativar',label:'Próximo passo: sua primeira venda',
+         desc:'Você já tem o link de afiliada da Rhode e uma peça pra gravar — falta a primeira venda. É ela que destrava o grupo Rhode em Ação e o painel completo. Grava marcando o produto e posta com o teu link.',
+         steps:['Grava um vídeo marcando o produto Rhode no TikTok','Posta com o teu link de afiliada','A primeira venda te coloca no grupo e libera o painel'],
+         ctas:[{label:'Dúvidas? Falar com a equipe',href:waLink(`Oi! Sou afiliada Rhode (@${ST.handle}), já tenho peça mas ainda não fiz minha primeira venda — me ajuda? 🤍`),cls:'cta-outline',ext:true}]}
+      : {cor:'#FE2C55',badge:'🚀 Bora ativar',label:'Próximo passo: conseguir uma peça',
+         desc:'Você já tem o link de afiliada da Rhode, mas pra gravar precisa de uma peça Rhode. A gente envia amostra só pelas missões e campanhas — fica de olho. Ou compra uma peça na loja e já começa: a primeira venda destrava o grupo e o painel.',
+         steps:['Consiga uma peça Rhode — comprando na loja ou numa missão/campanha','Grava um vídeo marcando o produto no TikTok','Posta com o teu link de afiliada — a primeira venda te coloca no programa'],
+         ctas:[{label:'Ver a loja Rhode',href:CONFIG.linkLojaRhode,cls:'cta-dark',ext:true},{label:'Falar com a equipe',href:waLink(`Oi! Sou afiliada Rhode (@${ST.handle}), quero começar a gravar mas ainda não tenho peça — como faço? 🤍`),cls:'cta-outline',ext:true}]},
+    nova:{cor:'#222',badge:'🤍 Perfil em análise',label:'Como funciona',
+      desc:'Boa! Recebemos teu cadastro. Agora a equipe Rhode vai analisar teu perfil no TikTok pra ver se faz sentido te chamar pra uma campanha — é aí que entram amostra, briefing e link de afiliada. A gente não libera peça de graça pra todo mundo: escolhe quem combina com a marca. Fica de olho no WhatsApp.',
+      steps:['Você preencheu o formulário rápido ✓','A equipe analisa teu perfil no TikTok (audiência, conteúdo, fit com a marca)','Se fizer sentido, a gente te chama pra uma campanha — aí entram amostra, briefing e o link de afiliada','Suas primeiras vendas destravam o grupo e o painel completo'],
+      ctas:[{label:'Falar com a equipe',href:waLink(`Oi! Acabei de mandar meu perfil pra análise da Rhode 🤍 — meu @ no TikTok é @${ST.handle}. Pode dar uma olhada?`),cls:'cta-outline',ext:true}]},
     onboarding:{cor:'#222',badge:'🤍 Bem-vinda',label:'Vamos te direcionar',
       desc:'Completa seu cadastro abaixo ou fala direto com a nossa equipe que a gente te encaixa no caminho certo.',
       ctas:[{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},{label:'Falar com a equipe',href:waLink(`Oi! Quero saber mais sobre o programa de creators da Rhode 🤍 — meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
@@ -383,7 +382,7 @@ async function getByToken(token){
 
 (async()=>{
   const q=new URLSearchParams(location.search);
-  // preview: ?diagnostico=vip|parceira_track|fechado|ativar|nova|nova_com_peca|nova_sem_peca|onboarding  (&peca=sim|nao)
+  // preview: ?diagnostico=vip|parceira_track|fechado|ativar|nova|onboarding  (&peca=sim|nao)
   if(q.get('diagnostico')){ ST.diagnostico=q.get('diagnostico'); ST.nome=q.get('nome')||'Preview'; ST.handle=q.get('handle')||'preview'; ST.temPeca=q.get('peca')||null; screenResult(); return; }
   // compat com teste antigo: ?gmv=10000&nome=Julia&modelo=parceira
   if(q.get('modelo')){

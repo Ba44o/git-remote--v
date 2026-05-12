@@ -278,12 +278,17 @@ retomar em sprint dedicada.
 - Máquina de estado client-side, 2–4 passos conforme o caminho, visual Plus Jakarta (consistente com o hub)
 - **Pergunta 1 — relação com a Rhode (3 opções):**
   - "💸 Já sou afiliada da Rhode no TikTok Shop" → vai pro Passo 2 (GMV)
-  - "✨ Já vendo no TikTok e quero vender Rhode" → pula GMV/peça, vai direto pra identidade → card `nova` (afiliação TikTok Shop + cadastro + **amostra grátis** + ajuda da equipe)
+  - "✨ Já vendo no TikTok e quero vender Rhode" → pula GMV/peça, vai direto pra identidade → card `nova` ("perfil em análise": preencheu o formulário rápido → equipe avalia o perfil no TikTok → se fizer sentido, te chama pra uma campanha com amostra/briefing/link). **Sem amostra de graça self-serve** — controle do time.
   - "⚡ Só quero ser avisada das flash sales" → **NÃO entra no questionário** — redireciona direto pro WhatsApp do suporte (`CONFIG.whatsappEquipe`) com mensagem padrão editável em `CONFIG.flashSaleWhatsMsg`. Sem identidade, sem card de resultado.
 - **Pergunta 2 (só "já sou afiliada") — faixa de GMV declarado:** R$0 (ainda não vendi) / até 5k / 5–20k / R$20k ou mais
 - **Pergunta 3 — tem peça Rhode em casa:** sim / não / quero modelos novos (controla o CTA de amostra)
 - **Identidade no fim:** nome + @ TikTok + WhatsApp → grava em Google Sheets via Apps Script (`CONFIG.sheetsTriagemURL`, mesmo padrão de `cadastro.html`; vazio = não grava)
-- **Diagnósticos da triagem (4):** `nova` (não-afiliada que quer vender Rhode → convite afiliada + cadastro + amostra grátis) · `parceira_track` (R$20k+ → grupo Rhode em Ação + hub + flag p/ time avaliar VIP) · `fechado` (até R$20k → grupo Rhode em Ação + hub + amostra se precisar) · `ativar` (R$0 → passo a passo da 1ª venda + amostra + grupo + hub). Fallback `onboarding` (cadastro + WhatsApp). **`vip` não é auto-declarável** — só vem de `classifyKnown` (token c/ `modelo=parceira` ou GMV-60d ≥ 80k). Cards `nova_com_peca`/`nova_sem_peca` seguem definidos mas só acessíveis via `?diagnostico=`
+- **Diagnósticos da triagem (4) — gating: hub/amostra só pra quem provou (tem peça ou já vendeu); curiosa sem peça nem venda não ganha "moral":**
+  - `nova` (não-afiliada que quer vender Rhode) → "perfil em análise" — preencheu o formulário rápido, equipe avalia o perfil no TikTok, te chama se fizer sentido. **Sem hub, sem amostra self-serve.**
+  - `ativar` (afiliada, R$0 vendas) → ramifica pelo Passo 3: **com peça** = "grava e faz tua 1ª venda — ela destrava grupo + painel" (só CTA "falar com a equipe", sem hub ainda) · **sem peça** = "consiga uma peça (loja ou missão/campanha) primeiro" (CTA loja Rhode + falar com a equipe; **sem hub, sem amostra de graça**).
+  - `fechado` (vendeu até R$20k) → grupo Rhode em Ação + hub + amostra se precisar (já provou que converte).
+  - `parceira_track` (R$20k+) → grupo Rhode em Ação + hub + flag p/ time avaliar VIP.
+  - Fallback `onboarding` (cadastro + WhatsApp). `vip` só vem de `classifyKnown` (token c/ `modelo=parceira` ou GMV-60d ≥ 80k). Cards `nova_com_peca`/`nova_sem_peca` removidos. `CONFIG.linkLojaRhode` aponta pra `rhodejeans.com.br`. **Amostra de graça → só via missão/campanha (controle do time), nunca self-serve na triagem.**
 - Cada card tem `steps-list` (passo a passo numerado) quando faz sentido + CTAs priorizados
 - **Token de afiliada já cadastrada** (`?token=`) → pula a triagem, classifica direto por `modelo`/GMV-60d real (`classifyKnown`); token de `eventos_creators` → pré-preenche e roda a triagem; token inválido / sem token → triagem normal
 - Modos de teste: `?triagem=1` força o questionário · `?diagnostico=vip&peca=nao` faz preview de card · `?gmv=&nome=&modelo=` compat com o teste antigo
