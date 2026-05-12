@@ -99,6 +99,12 @@ _(nada no momento)_
    - Criar functions Postgres (`select sum(gmv_liquido) ... group by periodo`) e o admin pede 1 linha em vez de 5k. Reduz transferência e memória.
    - Esforço: ~1 dia. Faria junto com o passo 1.
 
+4. **Gate de acesso ao Hub por "1ª venda" (bloqueio duro, server-side):**
+   - Hoje qualquer creator afiliada loga no Hub via `/acesso.html` mesmo com R$0 em vendas — o `/api/get-hub.js` não checa nada além de PIN/handle. A triagem (`bem-vinda.html`) já parou de **empurrar** o link do Hub pra quem não tem peça nem vendas (cards `ativar`/`nova`), mas o bloqueio é só "não mostrar o botão" — não impede o acesso direto.
+   - **Regra a aplicar no `/api/get-hub.js`:** liberar o Hub só se a creator tiver ≥ 1 venda (algum `performance_periods.gmv_liquido > 0` OU `gmv_bruto > 0`) ou for parceira/VIP por `modelo`. Se não tiver, devolver uma resposta tipo `{ status: 'sem_acesso', motivo: 'primeira_venda' }` e o `acesso.html`/`hub.html` mostram a tela "faça sua primeira venda pra destravar o painel" (mesma mensagem do card `ativar` da triagem) em vez de carregar o dashboard.
+   - Faz junto com o passo 1 (já vai mexer no data layer do Hub de qualquer jeito). Esforço incremental: ~0.5 dia.
+   - Por que aqui: combina com a política da triagem ("não dar moral pra quem não provou") e o controle de amostra (amostra grátis só via missão/campanha) — fecha o loop pra não virar self-service de freebie.
+
 **Decisão arquitetural pendente:** caminho A (proxy `/api/*` + RLS `false` pra anon) escolhido sobre B (RPC de validação de token + RLS por linha) e C (migrar pra Supabase Auth nativo) — A reaproveita o padrão `/api/get-hub.js` que já existe e resolve o admin (que lê todo mundo) sem complicação de policy.
 
 ---
