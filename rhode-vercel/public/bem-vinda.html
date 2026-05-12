@@ -105,6 +105,8 @@ const CONFIG={
   linkFormAmostra:     '',   // Google Form / página de solicitação de amostra
   // ── WhatsApp da equipe (fallback universal + path "só flash sale") ──
   whatsappEquipe:      '5511952759126',
+  // mensagem padrão de quem escolhe "só quero ser avisada das flash sales" → redireciona direto pro WhatsApp do suporte
+  flashSaleWhatsMsg:   'Oi, equipe Rhode! 👋 Quero entrar na lista de avisos das flash sales — me avisem quando rolar uma promoção relâmpago. ⚡🤍',
   // ── Internos ────────────────────────────────────────────────────────
   linkCadastro:        '/cadastro.html',
   linkHub:             '/hub.html',
@@ -124,7 +126,7 @@ const uid=p=>p+Math.random().toString(36).slice(2,8);
 
 /* ───────────────── ESTADO ───────────────── */
 const ST={
-  relacao:null,   // afiliada_ativa | afiliada_zero | flash_only
+  relacao:null,   // afiliada_ativa | afiliada_zero  ("só quero flash sales" não chega aqui — redireciona pro WhatsApp)
   gmvFaixa:null,  // 0 | ate5k | 5a20k | 20a80k
   temPeca:null,   // sim | nao | quer_mais
   nome:'', handle:'', whatsapp:'',
@@ -134,11 +136,11 @@ const ST={
 };
 
 /* ───────────────── DIAGNÓSTICO ───────────────── */
-// Triagem self-service classifica só em: ativar · fechado · parceira_track · flash_only.
+// Triagem self-service classifica só em: ativar · fechado · parceira_track.
+// "Só quero flash sales" não passa por aqui — redireciona direto pro WhatsApp do suporte.
 // vip e nova_com_peca/nova_sem_peca não são auto-declaráveis — vip vem de classifyKnown
 // (token c/ modelo=parceira ou GMV-60d ≥ 80k); nova_* só ficam acessíveis via ?diagnostico=.
 function computeDiag(){
-  if(ST.relacao==='flash_only') return 'flash_only';
   if(ST.relacao==='afiliada_zero') return 'ativar';
   switch(ST.gmvFaixa){            // afiliada_ativa → faixa de GMV declarada
     case '20a80k':  return 'parceira_track';
@@ -193,7 +195,6 @@ function progressBar(n,total){
   return `<div class="progress">${s}</div>`;
 }
 function totalSteps(){
-  if(ST.relacao==='flash_only') return 2;          // relação → identidade
   if(ST.relacao==='afiliada_ativa') return 4;       // relação → gmv → peça → identidade
   return 3;                                         // relação → peça → identidade
 }
@@ -215,7 +216,7 @@ function screenRelacao(){
       <div class="opts">
         ${optBtn('💸','Já vendo pela Rhode no TikTok Shop','Tenho meu link de afiliada e já fiz vendas',()=>{ST.relacao='afiliada_ativa';screenGmv();})}
         ${optBtn('🆕','Já me afiliei à Rhode, mas ainda não vendi','Tenho o link de afiliada, falta começar',()=>{ST.relacao='afiliada_zero';screenPeca();})}
-        ${optBtn('⚡','Só quero ser avisada das flash sales','Não quero o programa completo agora — só as promoções',()=>{ST.relacao='flash_only';screenFlash();})}
+        ${optBtn('⚡','Só quero ser avisada das flash sales','Não quero o programa completo agora — vai direto pro WhatsApp do suporte',()=>{location.href=waLink(CONFIG.flashSaleWhatsMsg);})}
       </div>
     </div>`);
 }
@@ -252,28 +253,14 @@ function screenPeca(){
     </div>`);
 }
 
-function screenFlash(){   // path "só flash sale"
-  mount(`
-    <div class="card-header"><div class="kicker">Flash Sales Rhode ⚡</div><div class="headline">Promoção relâmpago, comissão turbinada</div></div>
-    <div class="card-body">
-      ${progressBar(2,2)}
-      ${backBtn(screenRelacao)}
-      <p class="help">Flash sale é uma janela curta (algumas horas) com preço especial e comissão maior pra creator. Sem cobrança de conteúdo recorrente — você decide na hora se entra quando rolar.</p>
-      <div class="opts">
-        ${optBtn('🔔','Quero entrar na lista de avisos','A equipe te avisa pelo WhatsApp quando rolar uma flash',()=>{screenIdentity();})}
-      </div>
-    </div>`);
-}
-
 /* ───────────────── IDENTIDADE ───────────────── */
 function screenIdentity(){
   ST.diagnostico=computeDiag();
-  const isFlash=ST.diagnostico==='flash_only';
   mount(`
-    <div class="card-header"><div class="kicker">Quase lá</div><div class="headline">${isFlash?'Pra te avisar das flash sales':'Pra te direcionar certinho'}</div></div>
+    <div class="card-header"><div class="kicker">Quase lá</div><div class="headline">Pra te direcionar certinho</div></div>
     <div class="card-body">
       ${progressBar(totalSteps(),totalSteps())}
-      ${backBtn(isFlash?screenFlash:screenPeca)}
+      ${backBtn(screenPeca)}
       <p class="help">Só o básico — leva 30 segundos.</p>
       <form id="idf" autocomplete="off">
         <div class="field"><label>Nome</label><input id="f_nome" type="text" placeholder="Seu nome" value="${(ST.nome||'').replace(/"/g,'&quot;')}" required></div>
@@ -342,9 +329,6 @@ function screenResult(){
       desc:'Bem-vinda! Você ainda não é afiliada da Rhode no TikTok Shop. O caminho: aceita o convite de colaboração, completa seu cadastro e solicita sua amostra pra começar a gravar.',
       steps:['Aceitar o convite de colaboração da Rhode no TikTok Shop','Completar seu cadastro Rhode','Solicitar sua amostra Rhode','Gravar e postar com o link de afiliada'],
       ctas:[afiliacaoCTA(),{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},amostraCTA(),{label:'Quero ajuda pra começar',href:waLink(`Oi! Quero virar creator afiliada da Rhode 🤍 Meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
-    flash_only:{cor:'#FE2C55',badge:'⚡ Flash Sales',label:'Lista de avisos',
-      desc:'Fechou! Toca no botão abaixo pra falar com a nossa equipe no WhatsApp e entrar na lista de avisos das flash sales. Você recebe o aviso quando rolar uma promoção relâmpago — e decide na hora se entra. Sem compromisso de conteúdo.',
-      ctas:[{label:'Entrar na lista de flash sales',href:waLink(`Oi! Quero entrar na lista de avisos das flash sales da Rhode ⚡🤍 — meu @ no TikTok é @${ST.handle}`),cls:'cta-primary',icon:WA_ICON,ext:true},{label:'Quero entender o programa completo',href:waLink(`Oi! Comecei interessada nas flash sales da Rhode, mas quero entender o programa de creators afiliadas 🤍 — meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
     onboarding:{cor:'#222',badge:'🤍 Bem-vinda',label:'Vamos te direcionar',
       desc:'Completa seu cadastro abaixo ou fala direto com a nossa equipe que a gente te encaixa no caminho certo.',
       ctas:[{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},{label:'Falar com a equipe',href:waLink(`Oi! Quero saber mais sobre o programa de creators da Rhode 🤍 — meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
@@ -393,7 +377,7 @@ async function getByToken(token){
 
 (async()=>{
   const q=new URLSearchParams(location.search);
-  // preview: ?diagnostico=vip|parceira_track|fechado|ativar|nova_com_peca|nova_sem_peca|flash_only|onboarding  (&peca=sim|nao)
+  // preview: ?diagnostico=vip|parceira_track|fechado|ativar|nova_com_peca|nova_sem_peca|onboarding  (&peca=sim|nao)
   if(q.get('diagnostico')){ ST.diagnostico=q.get('diagnostico'); ST.nome=q.get('nome')||'Preview'; ST.handle=q.get('handle')||'preview'; ST.temPeca=q.get('peca')||null; screenResult(); return; }
   // compat com teste antigo: ?gmv=10000&nome=Julia&modelo=parceira
   if(q.get('modelo')){
