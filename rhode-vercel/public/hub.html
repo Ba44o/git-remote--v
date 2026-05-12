@@ -2637,6 +2637,16 @@ function startNotifPolling(){
 
 // ── Novidades (lançamentos do catálogo) ─────────────────────────────
 const TIER_COMM_PCT = { Iniciante:0, Bronze:10, Silver:11, Gold:12, Diamond:12, Black:12 };
+// Curadoria manual dos lançamentos exibidos no painel Novidades.
+// Pra trocar: edite esta lista (ordem aqui = ordem exibida) e faça deploy.
+const NOVIDADES_SKUS = [
+  'REF587',  // Calça Baggy Jeans Feminina Cintura Média Marmorizada
+  'REF588',  // Calça Mom Jeans Feminina Cintura Alta Marmorizada
+  'REF582',  // Shorts Jeans Feminino Social Cintura Alta Grafite com Strass
+  'REF580',  // Bata Tomara Que Caia — Amarelo Manteiga
+  'REF585',  // Bata Tomara Que Caia — Chocolate
+  'REF579',  // Bata Tomara Que Caia — Rosa Bebê
+];
 let _novidadesCache = null;
 let _solicitadasCache = new Set();                    // SKUs já solicitadas pendentes (cache local)
 
@@ -2645,10 +2655,13 @@ async function loadNovidades(){
   if(_novidadesCache){renderNovidades(_novidadesCache);return}
   slot.innerHTML = '<div class="spin-wrap">CARREGANDO</div>';
   try{
-    const cutoff = new Date(Date.now() - 30*86400000).toISOString();
-    // Produtos criados nos últimos 30 dias, ativos, ordenados pelo mais recente
-    const r = await fetch(`${SB_URL}/rest/v1/produtos?select=sku,nome,preco_venda,foto_url,categoria,colecao,created_at&ativo=eq.true&created_at=gte.${cutoff}&order=created_at.desc&limit=60`,{headers:SBH});
-    const rows = await r.json();
+    // Lançamentos curados (lista NOVIDADES_SKUS) — ativos, ordem da lista
+    const inList = NOVIDADES_SKUS.map(s=>encodeURIComponent(s)).join(',');
+    const r = await fetch(`${SB_URL}/rest/v1/produtos?select=sku,nome,preco_venda,foto_url,categoria,colecao,created_at&ativo=eq.true&sku=in.(${inList})`,{headers:SBH});
+    const fetched = await r.json();
+    // Reordena conforme NOVIDADES_SKUS e descarta SKU que sumiu/inativou
+    const bySku = {}; (Array.isArray(fetched)?fetched:[]).forEach(p=>{bySku[p.sku]=p;});
+    const rows = NOVIDADES_SKUS.map(s=>bySku[s]).filter(Boolean);
     _novidadesCache = rows;
     // Carrega solicitações pendentes da creator pra mostrar estado "já pediu"
     const handle = (_creator?.row?.affiliate_id || _creator?.row?.tiktok_handle || _creator?.handle || '').toUpperCase();
