@@ -2,7 +2,7 @@
 
 > **Como usar este arquivo:** fonte de verdade do projeto. Antes de iniciar trabalho novo, leia daqui em diante. Atualizar conforme features são concluídas ou repriorizadas.
 >
-> **Última atualização:** 2026-05-11
+> **Última atualização:** 2026-05-12
 
 ---
 
@@ -75,6 +75,33 @@ _(nada no momento)_
 ---
 
 ## 🔜 Próximos — priorizados
+
+### 🔴 8. Hardening de Segurança e Escala — **PRIORIDADE · não iniciado** (mai/2026)
+
+**Contexto — risco conhecido e confirmado:** hoje todas as tabelas têm `RLS DISABLE` + policy `anon all (true)`, e a `anon key` do Supabase está no source de `hub.html`/`admin.html`. Consequência: qualquer pessoa que abrir o source, copiar a anon key e mandar `GET /rest/v1/affiliates?select=affiliate_id,access_token,pin_acesso` baixa **todos os `access_token` e `pin_acesso`** (= login bypass de qualquer creator), **todos os WhatsApp** (`eventos_creators.whatsapp`) e **GMV das 4.926 creators**. A auth PIN+token é cosmética — validação é client-side e os dados por baixo estão abertos. Testado: o GET funciona. ⚠️ **Não ligar RLS antes do proxy estar pronto — derruba hub e admin na hora** (os dois leem PostgREST direto com a anon key).
+
+**Plano (nesta ordem):**
+
+1. **Fechar o vazamento — proxy via `/api/*` (caminho A escolhido):**
+   - Toda leitura de dado sensível passa por serverless function que segura a `service_role` key no servidor e faz a checagem de token/PIN lá. Frontend nunca fala com PostgREST direto.
+   - Já existe o padrão: `/api/get-hub.js` faz auth com PIN. Estender pra cobrir tudo que `hub.html` lê hoje (perf, profile, novidades, amostras, notificações) e o que `admin.html` lê.
+   - Admin precisa de auth de verdade (hoje é `ADM_PASS='rhode2026'` checado client-side) — minimamente, mover o check pro servidor + rotas admin que exigem o header.
+   - Depois que o proxy estiver no ar: `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` + policy `false` pra anon nas tabelas sensíveis (`affiliates`, `eventos_creators`, `performance_periods`, `amostras_enviadas`, `disparos_log`, `mensagens_templates`). `hub_eventos` pode ficar com insert anônimo (é só analytics).
+   - Esforço: ~2-3 dias (reescrever data layer hub + admin + ~4-5 rotas novas).
+
+2. **Realtime nas notificações (substitui o polling):**
+   - Hoje `hub.html` faz `setInterval` 60s em `notificacoes` — escala linearmente com concorrência (hoje OK com dezenas de creators online; vira problema com centenas+).
+   - Trocar por Supabase Realtime (WebSocket ouvindo a tabela). Tráfego só quando há notificação nova de fato.
+   - Esforço: ~0.5-1 dia.
+
+3. **RPCs de agregação (limpa o admin):**
+   - Hoje o admin baixa ~5k linhas de `performance_periods` pra somar GMV client-side. Funciona (poucos MB, uso desktop por 1-2 pessoas) mas é sujo.
+   - Criar functions Postgres (`select sum(gmv_liquido) ... group by periodo`) e o admin pede 1 linha em vez de 5k. Reduz transferência e memória.
+   - Esforço: ~1 dia. Faria junto com o passo 1.
+
+**Decisão arquitetural pendente:** caminho A (proxy `/api/*` + RLS `false` pra anon) escolhido sobre B (RPC de validação de token + RLS por linha) e C (migrar pra Supabase Auth nativo) — A reaproveita o padrão `/api/get-hub.js` que já existe e resolve o admin (que lê todo mundo) sem complicação de policy.
+
+---
 
 ### ✅ ~~1. Amostras Enviadas (admin)~~ — concluído mai/2026
 
@@ -306,6 +333,7 @@ retomar em sprint dedicada.
 
 | Risco | Mitigação atual | Próximo passo |
 |-------|-----------------|---------------|
+| 🔴 **RLS desligado + anon key pública** → qualquer um baixa todos os `access_token`/`pin_acesso`/WhatsApp/GMV via `GET /rest/v1/affiliates` | **Nenhuma** — testado e confirmado vazável | **Item #8 do roadmap** (proxy `/api/*` + RLS `false` pra anon) |
 | TikTok renomear coluna do export silenciosamente | `etl_v2.py` aborta se >30% das creators ativas tiverem `gmv_bruto = 0` | Monitor das colunas no GitHub Actions |
 | Hijack de @ via TOFU no auth | Delay 1s no PIN errado + rate limit client-side 5/5min | OTP via WhatsApp se ocorrer caso real |
 | Deploy do hub afeta admin (mesmo projeto Vercel) | Documentado | Separar em 2 projetos quando user pedir |
