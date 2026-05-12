@@ -284,15 +284,15 @@ retomar em sprint dedicada.
 
 **Entregue (`rhode-vercel/public/bem-vinda.html` — reescrita):**
 - Máquina de estado client-side, visual Plus Jakarta (consistente com o hub)
-- **Pergunta 1 — relação com a Rhode (3 opções):**
+- **Pergunta 1 — relação com a Rhode (2 opções):**
   - "💸 Já sou afiliada da Rhode no TikTok Shop" → Passo 2 (faixa de GMV) → Passo 3
   - "✨ Quero me tornar uma Creator Rhode" (não-afiliada) → formulário (nome/@/WhatsApp) → card `analise` ("Na fila de análise" — equipe avalia o perfil no TikTok e te chama se fizer sentido pra uma campanha). **Fila de espera, não amostra de graça self-serve.**
-  - "⚡ Só quero ser avisada das flash sales" → **NÃO entra no questionário** — redireciona direto pro WhatsApp do suporte (`CONFIG.whatsappEquipe`) com mensagem padrão editável em `CONFIG.flashSaleWhatsMsg`.
 - **Pergunta 2 (só "já sou afiliada") — faixa de GMV declarado:** R$0 (ainda não vendi) / até 5k / 5–20k / R$20k ou mais — gravada na planilha pra a equipe ver na hora da análise
-- **Pergunta 3 (só "já sou afiliada") — "O que você precisa pra gravar agora?":**
-  - "👖 Tenho peça e já tô gravando" → formulário → card por GMV (`ativar` / `fechado` / `parceira_track`) — **seu lugar no programa**
-  - "📦 Não tenho peça — quero pedir uma amostra grátis" → formulário → card `analise` (perfil pra análise)
-  - "✨ Quero receber mais modelos da Rhode" → tela `screenMaisModelos` explicando que **é sujeito ao desempenho e às metas** + botão "Aplicar — mandar meu perfil pra análise" → formulário → card `analise`
+- **Pergunta 3 (só "já sou afiliada") — "O que você quer fazer agora?" (4 opções):**
+  - "👖 Ver meu lugar no programa" (tenho peça, já tô gravando) → formulário → card por GMV (`ativar` / `fechado` / `parceira_track`)
+  - "📦 Pedir uma amostra grátis" (não tenho peça) → formulário → card `analise` (perfil pra análise)
+  - "✨ Aplicar pra receber mais modelos" → tela `screenMaisModelos` explicando que **é sujeito ao desempenho e às metas** + botão "Aplicar — mandar meu perfil pra análise" → formulário → card `analise`
+  - "⚡ Solicitar uma flash sale pra minha live" → redireciona direto pro WhatsApp do suporte (`CONFIG.whatsappEquipe`) com `CONFIG.flashSaleWhatsMsg`. *(Antes era opção do Passo 1; movido pra cá porque flash sale é coisa de quem já é afiliada.)*
 - **Formulário (identidade):** nome + @ TikTok + WhatsApp → grava em Google Sheets via Apps Script (`CONFIG.sheetsTriagemURL`, mesmo padrão de `cadastro.html`; vazio = não grava). É o "formulário rápido" — quem pede amostra/mais modelos preenche aqui.
 - **Cards de resultado:**
   - `analise` ("🤍 Na fila de análise") — "Recebemos teu cadastro, você entrou na fila. A equipe analisa teu perfil no TikTok…" + 4 passos. **Sem botão** (é confirmação, não tem ação).
