@@ -97,7 +97,7 @@ Static HTML+CSS+JS, sem framework. Cada arquivo é monolítico (CSS e JS inline)
 | [`admin.html`](rhode-vercel/public/admin.html) | Painel operacional | Time Rhode |
 | [`acesso.html`](rhode-vercel/public/acesso.html) | Login PIN + auto-cadastro de phone | Creator |
 | [`cadastro.html`](rhode-vercel/public/cadastro.html) | Form do evento Missão Extra (13/04) | Creator de evento |
-| [`bem-vinda.html`](rhode-vercel/public/bem-vinda.html) | Landing pós-aprovação afiliada | Nova creator |
+| [`bem-vinda.html`](rhode-vercel/public/bem-vinda.html) | Triagem multi-step de creator nova → 8 diagnósticos + redirecionamento (grupos, afiliação, amostra, flash) | Nova creator / lead |
 | [`dash-live.html`](rhode-vercel/public/dash-live.html) | Painel live de evento (VIP feed) | Operador |
 | [`index.html`](rhode-vercel/public/index.html) | Redirect / landing | Geral |
 

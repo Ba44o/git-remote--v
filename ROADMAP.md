@@ -2,7 +2,7 @@
 
 > **Como usar este arquivo:** fonte de verdade do projeto. Antes de iniciar trabalho novo, leia daqui em diante. Atualizar conforme features são concluídas ou repriorizadas.
 >
-> **Última atualização:** 2026-05-05
+> **Última atualização:** 2026-05-11
 
 ---
 
@@ -240,16 +240,30 @@ retomar em sprint dedicada.
 
 ---
 
-### 7. Onboarding de Novas Afiliadas (admin)
+### ✅ 7. Triagem de Creators Novas + Redirecionamento (`bem-vinda.html`) — concluído mai/2026
 
-**Por que:** hoje há gap entre "TikTok aprovou" e "creator aparece no admin com 1 venda". Sem fluxo de bootstrap.
+**Por que:** havia gap entre "TikTok aprovou / creator chegou" e "creator no caminho certo". A `bem-vinda.html` antiga só classificava por `modelo`/GMV com `CONFIG` vazia e sem formulário — virou um fluxo de triagem multi-step de verdade.
 
-**Admin:**
-- Aba "Pendentes": creators recém-criadas em `affiliates` sem PIN ainda
-- Botão "enviar boas-vindas + link do hub" (Z-API)
-- Template de boas-vindas com link de `acesso.html`
+**Entregue (`rhode-vercel/public/bem-vinda.html` — reescrita):**
+- Máquina de estado client-side, 2–4 passos conforme o caminho, visual Plus Jakarta (consistente com o hub)
+- **Pergunta 1 — relação com a Rhode:** já vendo / já me afiliei mas não vendi / sou creator mas não me afiliei / só quero flash sale
+- **Pergunta 2 (só "já vendo") — faixa de GMV declarado:** R$0 / até 5k / 5–20k / 20–80k / +80k
+- **Pergunta 3 — tem peça Rhode em casa:** sim / não / quero modelos novos (controla o CTA de amostra)
+- **Identidade no fim:** nome + @ TikTok + WhatsApp → grava em Google Sheets via Apps Script (`CONFIG.sheetsTriagemURL`, mesmo padrão de `cadastro.html`; vazio = não grava)
+- **8 diagnósticos → cards de destino:** `vip` (grupo Rhode VIP + hub + contato direto) · `parceira_track` (grupo Rhode em Ação + hub + flag p/ time) · `fechado` (grupo Rhode em Ação + hub + amostra se precisar) · `ativar` (passo a passo da 1ª venda + amostra + grupo + hub) · `nova_com_peca` (convite afiliada TikTok Shop + cadastro + "grava já") · `nova_sem_peca` (convite + cadastro + solicitar amostra) · `flash_only` (WhatsApp da equipe com msg pré-preenchida → lista de avisos de flash) · `onboarding` (fallback: cadastro + WhatsApp)
+- Cada card tem `steps-list` (passo a passo numerado) quando faz sentido + CTAs priorizados
+- **Token de afiliada já cadastrada** (`?token=`) → pula a triagem, classifica direto por `modelo`/GMV-60d real (`classifyKnown`); token de `eventos_creators` → pré-preenche e roda a triagem; token inválido / sem token → triagem normal
+- Modos de teste: `?triagem=1` força o questionário · `?diagnostico=vip&peca=nao` faz preview de card · `?gmv=&nome=&modelo=` compat com o teste antigo
+- `bem-vinda.html` adicionado ao regex de `no-cache` em `vercel.json`
 
-**Esforço:** ~1 dia.
+**Pendente (não-bloqueante — preencher e redeployar):**
+- `CONFIG.linkGrupoVIP`, `CONFIG.linkGrupoAcao` — convites dos grupos de WhatsApp
+- `CONFIG.linkAfiliacaoTikTok` — link do convite de colaboração da Rhode no TikTok Shop
+- `CONFIG.linkFormAmostra` — Google Form / página de solicitação de amostra (hoje cai no WhatsApp da equipe)
+- `CONFIG.sheetsTriagemURL` — Apps Script `doPost` da planilha de Triagem (campos: tipo, nome, tiktok/handle, whatsapp, relacao, gmv_faixa, tem_peca, diagnostico, origem, ts)
+- Admin: aba/visão "Triagem" lendo a planilha (ou tabela própria) — quem caiu em cada bucket, conversão por diagnóstico
+- Auto-disparo Z-API pós-triagem (boas-vindas + link do grupo) reusando o template engine do #4
+- Promover automaticamente `parceira_track` → criar alerta no admin pra avaliar entrada no grupo VIP
 
 ---
 
