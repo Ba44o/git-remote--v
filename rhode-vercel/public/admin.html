@@ -733,6 +733,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
     <button class="tab" onclick="tab('analista',this)">Analista IA</button>
     <button class="tab" onclick="tab('operacao',this)">Operação</button>
     <button class="tab" onclick="tab('comunicacao',this)">Comunicação</button>
+    <button class="tab" onclick="tab('comportamento',this)">Comportamento</button>
     <button class="tab" onclick="tab('evento',this)">Evento 13/04</button>
   </div>
 
@@ -1420,6 +1421,83 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           </tr></thead>
           <tbody id="cm-hist-body"><tr><td colspan="7" class="spin">Carregando histórico...</td></tr></tbody>
         </table></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="panel" id="panel-comportamento">
+    <div class="main">
+
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap">
+        <div class="amostra-filtros" id="cp-filtros-periodo" style="margin-bottom:0">
+          <span class="pill-filter" data-cpdias="7" onclick="cpSetPeriodo(this,7)">Últimos 7d</span>
+          <span class="pill-filter on" data-cpdias="30" onclick="cpSetPeriodo(this,30)">Últimos 30d</span>
+          <span class="pill-filter" data-cpdias="90" onclick="cpSetPeriodo(this,90)">Últimos 90d</span>
+        </div>
+        <button class="btn-lote-secondary" onclick="loadComportamento(true)" style="margin-left:auto">↻ Atualizar</button>
+      </div>
+
+      <div class="kgrid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">
+        <div class="kcard"><div class="klabel">Sessões</div><div class="kval" id="cp-k-sessoes">—</div><div class="ksub" id="cp-k-sessoes-s"></div></div>
+        <div class="kcard"><div class="klabel">Creators únicas</div><div class="kval" id="cp-k-creators">—</div><div class="ksub">visitaram o hub</div></div>
+        <div class="kcard"><div class="klabel">Tempo médio/sessão</div><div class="kval" id="cp-k-tempo" style="color:var(--rhode-red)">—</div><div class="ksub">do início ao fim</div></div>
+        <div class="kcard"><div class="klabel">Aba mais vista</div><div class="kval" id="cp-k-aba" style="font-size:16px">—</div><div class="ksub" id="cp-k-aba-s"></div></div>
+        <div class="kcard"><div class="klabel">Sessões/creator</div><div class="kval" id="cp-k-recorr">—</div><div class="ksub">recorrência média</div></div>
+      </div>
+
+      <div class="g2">
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-title">Engajamento por aba</div>
+            <div class="tbl-meta" id="cp-abas-meta">—</div>
+          </div>
+          <div class="tw"><table>
+            <thead><tr><th>Aba</th><th>Views</th><th>Tempo médio</th><th>Tempo total</th><th>Creators</th><th>% das views</th></tr></thead>
+            <tbody id="cp-abas-body"><tr><td colspan="6" class="spin">Carregando...</td></tr></tbody>
+          </table></div>
+        </div>
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-title">Distribuição por horário</div>
+            <div class="tbl-meta">hora local · sessões iniciadas</div>
+          </div>
+          <div id="cp-horarios" style="padding:20px"><div class="empty">Carregando...</div></div>
+        </div>
+      </div>
+
+      <div class="tbl-card" style="margin-top:16px">
+        <div class="tbl-head">
+          <div class="tbl-title">Creators mais ativas</div>
+          <div class="tbl-meta" id="cp-creators-meta">—</div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Creator</th><th>Tier</th><th>Sessões</th><th>Tempo total</th><th>Abas (distintas)</th><th>Ações</th><th>Última visita</th></tr></thead>
+          <tbody id="cp-creators-body"><tr><td colspan="7" class="spin">Carregando...</td></tr></tbody>
+        </table></div>
+      </div>
+
+      <div class="g2" style="margin-top:16px">
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-title">Ações registradas</div>
+            <div class="tbl-meta">copy gerada · amostra solicitada · etc</div>
+          </div>
+          <div class="tw"><table>
+            <thead><tr><th>Tipo de ação</th><th>Qtd</th><th>Creators distintas</th></tr></thead>
+            <tbody id="cp-acoes-body"><tr><td colspan="3" class="spin">Carregando...</td></tr></tbody>
+          </table></div>
+        </div>
+        <div class="tbl-card">
+          <div class="tbl-head">
+            <div class="tbl-title">Últimas sessões</div>
+            <div class="tbl-meta" id="cp-sessoes-meta">—</div>
+          </div>
+          <div class="tw"><table>
+            <thead><tr><th>Quando</th><th>Creator</th><th>Duração</th><th>Abas</th><th>Ações</th></tr></thead>
+            <tbody id="cp-sessoes-body"><tr><td colspan="5" class="spin">Carregando...</td></tr></tbody>
+          </table></div>
+        </div>
       </div>
 
     </div>
@@ -2365,6 +2443,7 @@ function tab(id,elBtn){
   else if(id==='evolucao')renderEvolucao();
   else if(id==='analista')renderAnalista();
   else if(id==='comunicacao'){loadComunicacaoInit();}
+  else if(id==='comportamento'){loadComportamento();}
   else if(id==='evento'){loadEvento().then(()=>renderVIP());startVIPRefresh();}
   if(id!=='evento')stopVIPRefresh();
 }
@@ -3981,6 +4060,144 @@ async function renderHistorico(){
       <td class="mono">${((d.duracao_ms||0)/1000).toFixed(1)}s</td>
     </tr>`;
   }).join(''));
+}
+
+// ═════════════════════════════════════════════════════════════
+//   COMPORTAMENTO (Analytics do hub das creators)
+// ═════════════════════════════════════════════════════════════
+
+let CP_DIAS=30, CP_LOADED=false;
+const CP_ABA_LABEL={ perf:'Painel', perfdetail:'Performance', novidades:'Novidades', copy:'Copy IA', entregaveis:'Acessos', hist:'Scripts' };
+const CP_ACAO_LABEL={ copy_gerada:'Copy gerada (IA)', amostra_solicitada:'Amostra solicitada', flash_modal_aberto:'Flash sale aberta', script_marcado_venda:'Script marcado como venda' };
+const cpDur=ms=>{ms=+ms||0; if(ms<60000)return (ms/1000).toFixed(0)+'s'; const m=Math.floor(ms/60000); const s=Math.round((ms%60000)/1000); return s?`${m}m${s}s`:`${m}m`;};
+
+function cpSetPeriodo(elPill,dias){
+  document.querySelectorAll('[data-cpdias]').forEach(b=>b.classList.remove('on'));
+  elPill.classList.add('on');
+  CP_DIAS=dias;
+  loadComportamento(true);
+}
+
+async function loadComportamento(force){
+  if(CP_LOADED && !force) return;
+  CP_LOADED=true;
+  const cutoff=new Date(Date.now()-CP_DIAS*86400000).toISOString();
+  ['cp-abas-body','cp-creators-body','cp-acoes-body','cp-sessoes-body'].forEach(id=>htm(id,'<tr><td colspan="7" class="spin">Carregando...</td></tr>'));
+  htm('cp-horarios','<div class="spin">Carregando...</div>');
+  let ev;
+  try{
+    ev=await sbGetPaged(`hub_eventos?select=affiliate_id,session_id,evento,aba,duracao_ms,meta,created_at&created_at=gte.${cutoff}&order=created_at.desc`);
+  }catch(e){
+    htm('cp-abas-body',`<tr><td colspan="6" class="empty" style="color:var(--rhode-red)">Erro: ${e.message} · rode rhode-vercel/sql/analytics.sql</td></tr>`);
+    return;
+  }
+  if(!ev.length){
+    ['cp-abas-body','cp-creators-body','cp-acoes-body'].forEach(id=>htm(id,'<tr><td colspan="7" class="empty">Sem eventos ainda. Os dados aparecem conforme as creators acessam o hub.</td></tr>'));
+    htm('cp-sessoes-body','<tr><td colspan="5" class="empty">Sem sessões ainda.</td></tr>');
+    htm('cp-horarios','<div class="empty">—</div>');
+    ['cp-k-sessoes','cp-k-creators','cp-k-tempo','cp-k-aba','cp-k-recorr'].forEach(id=>set(id,'0'));
+    return;
+  }
+
+  const starts=ev.filter(e=>e.evento==='session_start');
+  const ends  =ev.filter(e=>e.evento==='session_end');
+  const tabs  =ev.filter(e=>e.evento==='tab_view' && e.aba && +e.duracao_ms>=500 && +e.duracao_ms<=1800000);
+  const acts  =ev.filter(e=>e.evento==='action');
+
+  const creatorsSet=new Set(starts.map(e=>e.affiliate_id).filter(Boolean));
+  const nSessoes=starts.length;
+  const nCreators=creatorsSet.size;
+
+  // tempo médio de sessão (usa session_end com duração razoável: 2s–2h)
+  const endDur=ends.map(e=>+e.duracao_ms||0).filter(d=>d>=2000 && d<=7200000);
+  const tempoMedio=endDur.length?endDur.reduce((a,b)=>a+b,0)/endDur.length:0;
+
+  set('cp-k-sessoes',nSessoes);
+  set('cp-k-sessoes-s',`${ev.length} eventos · ${CP_DIAS}d`);
+  set('cp-k-creators',nCreators);
+  set('cp-k-tempo',tempoMedio?cpDur(tempoMedio):'—');
+  set('cp-k-recorr',nCreators?(nSessoes/nCreators).toFixed(1):'—');
+
+  // ── Engajamento por aba ──
+  const abaMap={};
+  tabs.forEach(t=>{
+    const a=abaMap[t.aba]||(abaMap[t.aba]={views:0,total:0,creators:new Set()});
+    a.views++; a.total+=(+t.duracao_ms||0); if(t.affiliate_id)a.creators.add(t.affiliate_id);
+  });
+  const abaRows=Object.entries(abaMap).map(([aba,a])=>({aba,...a,medio:a.views?a.total/a.views:0})).sort((x,y)=>y.views-x.views);
+  const totalViews=abaRows.reduce((s,r)=>s+r.views,0);
+  if(abaRows.length){
+    set('cp-k-aba',CP_ABA_LABEL[abaRows[0].aba]||abaRows[0].aba);
+    set('cp-k-aba-s',`${abaRows[0].views} views`);
+  }
+  set('cp-abas-meta',`${totalViews} views em ${abaRows.length} abas`);
+  htm('cp-abas-body',abaRows.map(r=>{
+    const pct=totalViews?r.views/totalViews*100:0;
+    return `<tr>
+      <td>${CP_ABA_LABEL[r.aba]||r.aba}</td>
+      <td class="mono">${r.views}</td>
+      <td class="mono" style="font-weight:600;color:var(--rhode-red)">${cpDur(r.medio)}</td>
+      <td class="mono">${cpDur(r.total)}</td>
+      <td class="mono">${r.creators.size}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><div class="bar-fill" style="width:${Math.min(pct,100)}%;background:var(--rhode-red)"></div></div><span class="mono" style="font-size:11px;color:var(--ink-48);min-width:42px;text-align:right">${pct.toFixed(1)}%</span></div></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="6" class="empty">Sem tab_views válidos.</td></tr>');
+
+  // ── Distribuição por horário (hora local do admin) ──
+  const horas=new Array(24).fill(0);
+  starts.forEach(e=>{ const h=new Date(e.created_at).getHours(); horas[h]++; });
+  const maxH=Math.max(1,...horas);
+  htm('cp-horarios',`<div style="display:flex;align-items:flex-end;gap:3px;height:140px">${horas.map((c,h)=>{
+    const ht=Math.round(c/maxH*100);
+    const peak=c===maxH&&c>0;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end" title="${h}h: ${c} sessões"><div style="width:100%;background:${peak?'var(--rhode-red)':'var(--hairline)'};height:${ht}%;min-height:${c>0?'3px':'0'};border-radius:3px 3px 0 0;transition:height .2s"></div><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--ink-48)">${h%3===0?h:''}</span></div>`;
+  }).join('')}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-48);margin-top:8px;text-align:center">pico: ${horas.indexOf(maxH)}h–${(horas.indexOf(maxH)+1)%24}h</div>`);
+
+  // ── Creators mais ativas ──
+  const crMap={};
+  starts.forEach(e=>{ if(!e.affiliate_id)return; const c=crMap[e.affiliate_id]||(crMap[e.affiliate_id]={sessoes:0,tempo:0,abas:new Set(),acoes:0,ultima:e.created_at}); c.sessoes++; if(new Date(e.created_at)>new Date(c.ultima))c.ultima=e.created_at; });
+  ends.forEach(e=>{ const c=crMap[e.affiliate_id]; if(c){ const d=+e.duracao_ms||0; if(d>=2000&&d<=7200000)c.tempo+=d; } });
+  tabs.forEach(e=>{ const c=crMap[e.affiliate_id]; if(c)c.abas.add(e.aba); });
+  acts.forEach(e=>{ const c=crMap[e.affiliate_id]; if(c)c.acoes++; });
+  const crRows=Object.entries(crMap).map(([id,c])=>({id,...c})).sort((a,b)=>b.tempo-a.tempo||b.sessoes-a.sessoes).slice(0,25);
+  // tier lookup só pros que apareceram
+  let tierMap={};
+  const ids=crRows.map(r=>`"${r.id}"`).join(',');
+  if(ids){ try{ const aff=await sbGet(`affiliates?select=affiliate_id,current_tier&affiliate_id=in.(${ids})`); aff.forEach(a=>{ const t=(a.current_tier||'').toString(); tierMap[a.affiliate_id]= t? (t.charAt(0).toUpperCase()+t.slice(1).toLowerCase()) : '—'; }); }catch(e){} }
+  set('cp-creators-meta',`${Object.keys(crMap).length} creators · top 25`);
+  htm('cp-creators-body',crRows.map(r=>`<tr>
+    <td><a class="lk" onclick="openModal('${r.id}')">${r.id}</a></td>
+    <td><span class="badge b-gray">${tierMap[r.id]||'—'}</span></td>
+    <td class="mono">${r.sessoes}</td>
+    <td class="mono" style="font-weight:600;color:var(--rhode-red)">${cpDur(r.tempo)}</td>
+    <td class="mono">${r.abas.size}</td>
+    <td class="mono">${r.acoes||0}</td>
+    <td class="mono" style="color:var(--ink-48)">${new Date(r.ultima).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} ${new Date(r.ultima).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</td>
+  </tr>`).join('')||'<tr><td colspan="7" class="empty">Sem creators identificadas (sessões anônimas).</td></tr>');
+
+  // ── Ações ──
+  const acMap={};
+  acts.forEach(e=>{ const tipo=(e.meta&&e.meta.tipo)||'outro'; const a=acMap[tipo]||(acMap[tipo]={qtd:0,creators:new Set()}); a.qtd++; if(e.affiliate_id)a.creators.add(e.affiliate_id); });
+  const acRows=Object.entries(acMap).map(([tipo,a])=>({tipo,...a})).sort((x,y)=>y.qtd-x.qtd);
+  htm('cp-acoes-body',acRows.map(r=>`<tr><td>${CP_ACAO_LABEL[r.tipo]||r.tipo}</td><td class="mono">${r.qtd}</td><td class="mono">${r.creators.size}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhuma ação registrada ainda.</td></tr>');
+
+  // ── Últimas sessões ──
+  const endBySess={}; ends.forEach(e=>{ endBySess[e.session_id]=e; });
+  const tabsBySess={}; tabs.forEach(e=>{ (tabsBySess[e.session_id]||(tabsBySess[e.session_id]=new Set())).add(e.aba); });
+  const actsBySess={}; acts.forEach(e=>{ actsBySess[e.session_id]=(actsBySess[e.session_id]||0)+1; });
+  const sessRows=starts.slice(0,30).map(s=>{
+    const end=endBySess[s.session_id];
+    const dur=end?(+end.duracao_ms||0):null;
+    return {dt:s.created_at, who:s.affiliate_id||'(anônima)', dur, abas:(tabsBySess[s.session_id]||new Set()).size, acoes:actsBySess[s.session_id]||0};
+  });
+  set('cp-sessoes-meta',`${starts.length} sessões · últimas 30`);
+  htm('cp-sessoes-body',sessRows.map(r=>`<tr>
+    <td class="mono">${new Date(r.dt).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} ${new Date(r.dt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</td>
+    <td>${r.who==='(anônima)'?'<span style="color:var(--ink-48)">(anônima)</span>':`<a class="lk" onclick="openModal('${r.who}')">${r.who}</a>`}</td>
+    <td class="mono">${r.dur!=null?cpDur(r.dur):'<span style="color:var(--ink-48)">—</span>'}</td>
+    <td class="mono">${r.abas}</td>
+    <td class="mono">${r.acoes||0}</td>
+  </tr>`).join(''));
 }
 
 // Hook: quando entrar na aba Operação, carrega amostras

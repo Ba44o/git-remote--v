@@ -25,12 +25,15 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 - Aba **Copy IA** (Claude API)
 - Aba **Scripts** (histórico de copy gerada)
 - Banner Wide Leg Marmorizada (anúncio R$ 99,90 + comissão +25%)
+- Aba **Novidades**: catálogo de lançamentos curado (`NOVIDADES_SKUS` em hub.html) + botão "Pedir amostra" → fluxo de solicitação
 - Tabela responsiva (card-stacked no mobile via `data-label`)
+- **Tracking de comportamento**: `Track` (sendBeacon-like via fetch keepalive) grava `session_start`/`tab_view`/`session_end`/`action` em `hub_eventos` → consumido pela aba Comportamento do admin
 
 ### Admin (`rhode-vercel/public/admin.html`)
 - Mesmo sistema visual
 - Aba **Analista IA**: resumo cognitivo (Claude) + matriz de oportunidade 4 quadrantes (Stars / Cash Cows / Hidden Gems / Dormentes) + anomalias z-score + movimento MoM + análise IA por creator individual
 - Aba **Comunicação**: disparo segmentado via Z-API com 7 templates pré-aprovados, filtros (tier, GMV range, refund, inativas, handles), preview dry-run, lote de 30/chamada, histórico auditável
+- Aba **Comportamento**: analytics do hub das creators — tempo médio por sessão e por aba, abas mais vistas, distribuição por horário, creators mais ativas, ações registradas (copy gerada, amostra solicitada), últimas sessões. Dados de `hub_eventos` (tracking client-side no hub via fetch keepalive)
 - Aba **Evento 13/04** com VIP feed live + check-in de kit/live/follow-up
 - Paginação automática (`sbGetPaged`) — não trunca mais em 1000 linhas
 - Tiers alinhados com o programa atual

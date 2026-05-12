@@ -1219,6 +1219,52 @@ const SB_URL='https://ivzpykuluxcxefhyzfsf.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
 const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
+// ════════════════════════════════════════════════════════════════════
+//  ANALYTICS DE COMPORTAMENTO — tracking → hub_eventos (Supabase)
+//  Captura: session_start, tab_view (com duração), session_end, action.
+//  Usa fetch keepalive (funciona em pagehide). Silencioso: nunca quebra o hub.
+// ════════════════════════════════════════════════════════════════════
+const Track = (()=>{
+  const uuid = ()=> (crypto.randomUUID ? crypto.randomUUID()
+    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&0x3|0x8)).toString(16);}));
+  let sid;
+  try{ sid = sessionStorage.getItem('rhode_sid'); if(!sid){ sid = uuid(); sessionStorage.setItem('rhode_sid', sid); } }
+  catch(e){ sid = uuid(); }
+  const sessionStart = Date.now();
+  let curAba = null, abaStart = Date.now(), hidden = false, abaAcc = 0, ended = false;
+
+  function affId(){
+    try{ return (window._creator?.row?.affiliate_id || window._creator?.row?.tiktok_handle || window._creator?.handle || '').toString().toUpperCase().replace(/^[@.]+/,'') || null; }
+    catch(e){ return null; }
+  }
+  function send(payload){
+    try{
+      const body = JSON.stringify({ ...payload, session_id: sid, affiliate_id: affId(),
+        referrer: document.referrer || null, user_agent: navigator.userAgent });
+      fetch(`${SB_URL}/rest/v1/hub_eventos`, { method:'POST', headers:{...SBH,'Prefer':'return=minimal'}, body, keepalive:true }).catch(()=>{});
+    }catch(e){}
+  }
+  // Fecha o registro da aba atual e manda como tab_view. Não mexe na sessão.
+  function flushAba(){
+    if(!curAba) return;
+    const dur = abaAcc + (hidden ? 0 : (Date.now() - abaStart));
+    if(dur >= 500) send({ evento:'tab_view', aba:curAba, duracao_ms: dur });
+    abaAcc = 0; abaStart = Date.now();
+  }
+  return {
+    sessionId: sid,
+    start(){ send({ evento:'session_start', aba:null }); },
+    tab(id){ flushAba(); curAba = id; abaStart = Date.now(); hidden = false; abaAcc = 0; },
+    action(tipo, extra){ send({ evento:'action', aba:curAba, meta:{ tipo, ...(extra||{}) } }); },
+    _onHide(){ if(curAba && !hidden){ abaAcc += Date.now() - abaStart; hidden = true; } flushAba(); },
+    _onShow(){ if(curAba){ abaStart = Date.now(); hidden = false; } },
+    _end(){ if(ended) return; ended = true; flushAba(); send({ evento:'session_end', aba:curAba, duracao_ms: Date.now() - sessionStart }); },
+  };
+})();
+document.addEventListener('visibilitychange', ()=>{ document.visibilityState==='hidden' ? Track._onHide() : Track._onShow(); });
+window.addEventListener('pagehide', ()=> Track._end());
+window.addEventListener('beforeunload', ()=> Track._end());
+
 const TIERS=[
   { name:'Bronze', min:20000, max:50000, color:'#b45309', comm:10,
     tagline:'Automação total. Zero trabalho manual da sua equipe.',
@@ -1491,6 +1537,9 @@ async function boot(creator){
   // Inbox de notificações: badge inicial + polling a cada 60s
   loadNotifs();
   startNotifPolling();
+
+  // Analytics: marca início de sessão + aba inicial (perf é o default)
+  try{ Track.start(); Track.tab('perf'); }catch(e){}
 }
 
 function renderEventoBoot(row,nome){
@@ -2511,6 +2560,7 @@ function goTab(id){
   if(id==='perfdetail')renderPerfDetail();
   if(id==='novidades')loadNovidades();
   window.scrollTo({top:0,behavior:'instant'});
+  try{ Track.tab(id); }catch(e){}
 }
 
 // ── Inbox de notificações ───────────────────────────────────────────
@@ -2767,6 +2817,7 @@ async function pedirAmostra(sku, btnEl){
     _solicitadasCache.add(sku);
     btnEl.classList.add('requested');
     btnEl.textContent = '✓ Solicitada';
+    try{ Track.action('amostra_solicitada', { sku }); }catch(e){}
   }catch(e){
     btnEl.disabled = false;
     btnEl.textContent = original;
@@ -2788,7 +2839,7 @@ async function generateCopy(){
     const r=await fetch('/api/copy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,altura:document.getElementById('c-altura').value,peso:document.getElementById('c-peso').value.trim(),quadril:document.getElementById('c-quadril').value.trim(),tamanho:document.getElementById('c-tam').value,produto:_selProd,tipo:_selType,contexto:document.getElementById('c-ctx').value.trim()})});
     const data=await r.json();
     if(data.error){alert(data.error);}
-    else{renderResult(data);rb.classList.add('show');if(_creator?.handle) saveScript(data).catch(()=>{});}
+    else{renderResult(data);rb.classList.add('show');if(_creator?.handle) saveScript(data).catch(()=>{});try{ Track.action('copy_gerada', { produto:_selProd, tipo:_selType }); }catch(e){}}
   }catch(e){alert('Erro de conexão. Tente novamente.');}
   btn.disabled=false;btn.textContent='Gerar Copy com IA';
 }
