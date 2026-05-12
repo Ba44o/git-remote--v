@@ -301,7 +301,7 @@ retomar em sprint dedicada.
 - `bem-vinda.html` adicionado ao regex de `no-cache` em `vercel.json`
 
 **Pendente (não-bloqueante — preencher e redeployar):**
-- `CONFIG.linkGrupoVIP`, `CONFIG.linkGrupoAcao` — convites dos grupos de WhatsApp
+- `CONFIG.linkGrupoVIP` — convite do grupo "Rhode VIP" (top creators) — ainda vazio (`linkGrupoAcao`, grupo geral, já preenchido)
 - `CONFIG.linkAfiliacaoTikTok` — link do convite de colaboração da Rhode no TikTok Shop
 - `CONFIG.linkFormAmostra` — Google Form / página de solicitação de amostra (hoje cai no WhatsApp da equipe)
 - `CONFIG.sheetsTriagemURL` — Apps Script `doPost` da planilha de Triagem (campos: tipo, nome, tiktok/handle, whatsapp, relacao, gmv_faixa, tem_peca, diagnostico, origem, ts)

@@ -98,8 +98,8 @@ const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'appl
    WhatsApp da equipe. Preencher os links reais e rodar deploy de novo. */
 const CONFIG={
   // ── Grupos de WhatsApp ──────────────────────────────────────────────
-  linkGrupoVIP:        '',   // convite do grupo "Rhode VIP" (Parceiras / top creators)
-  linkGrupoAcao:       '',   // convite do grupo "Rhode em Ação" (creators ativas + em ativação)
+  linkGrupoVIP:        '',   // convite do grupo "Rhode VIP" (Parceiras / top creators) — preencher quando existir
+  linkGrupoAcao:       'https://chat.whatsapp.com/BbfTucMEcye8EgEwL59LEO',   // grupo geral das creators ("que todas vão")
   // ── Afiliação & amostras ────────────────────────────────────────────
   linkAfiliacaoTikTok: '',   // link do convite de colaboração da Rhode no TikTok Shop
   linkFormAmostra:     '',   // Google Form / página de solicitação de amostra
@@ -331,7 +331,7 @@ function screenResult(){
          steps:['Consiga uma peça Rhode — comprando na loja ou numa missão/campanha','Grava um vídeo marcando o produto no TikTok','Posta com o teu link de afiliada — a primeira venda te coloca no programa'],
          ctas:[{label:'Ver a loja Rhode',href:CONFIG.linkLojaRhode,cls:'cta-dark',ext:true},{label:'Falar com a equipe',href:waLink(`Oi! Sou afiliada Rhode (@${ST.handle}), quero começar a gravar mas ainda não tenho peça — como faço? 🤍`),cls:'cta-outline',ext:true}]},
     nova:{cor:'#222',badge:'🤍 Perfil em análise',label:'Como funciona',
-      desc:'Boa! Recebemos teu cadastro. Agora a equipe Rhode vai analisar teu perfil no TikTok pra ver se faz sentido te chamar pra uma campanha — é aí que entram amostra, briefing e link de afiliada. A gente não libera peça de graça pra todo mundo: escolhe quem combina com a marca. Fica de olho no WhatsApp.',
+      desc:'Boa! Recebemos teu cadastro. Agora a equipe Rhode vai analisar teu perfil no TikTok pra ver se faz sentido te chamar pra uma campanha. Fica de olho no WhatsApp.',
       steps:['Você preencheu o formulário rápido ✓','A equipe analisa teu perfil no TikTok (audiência, conteúdo, fit com a marca)','Se fizer sentido, a gente te chama pra uma campanha — aí entram amostra, briefing e o link de afiliada','Suas primeiras vendas destravam o grupo e o painel completo'],
       ctas:[{label:'Falar com a equipe',href:waLink(`Oi! Acabei de mandar meu perfil pra análise da Rhode 🤍 — meu @ no TikTok é @${ST.handle}. Pode dar uma olhada?`),cls:'cta-outline',ext:true}]},
     onboarding:{cor:'#222',badge:'🤍 Bem-vinda',label:'Vamos te direcionar',
