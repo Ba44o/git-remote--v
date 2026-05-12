@@ -126,7 +126,7 @@ const uid=p=>p+Math.random().toString(36).slice(2,8);
 
 /* ───────────────── ESTADO ───────────────── */
 const ST={
-  relacao:null,   // afiliada_ativa | afiliada_zero  ("só quero flash sales" não chega aqui — redireciona pro WhatsApp)
+  relacao:null,   // afiliada_ativa | quer_vender  ("só quero flash sales" não chega aqui — redireciona pro WhatsApp)
   gmvFaixa:null,  // 0 | ate5k | 5a20k | 20a80k
   temPeca:null,   // sim | nao | quer_mais
   nome:'', handle:'', whatsapp:'',
@@ -136,12 +136,13 @@ const ST={
 };
 
 /* ───────────────── DIAGNÓSTICO ───────────────── */
-// Triagem self-service classifica só em: ativar · fechado · parceira_track.
-// "Só quero flash sales" não passa por aqui — redireciona direto pro WhatsApp do suporte.
-// vip e nova_com_peca/nova_sem_peca não são auto-declaráveis — vip vem de classifyKnown
-// (token c/ modelo=parceira ou GMV-60d ≥ 80k); nova_* só ficam acessíveis via ?diagnostico=.
+// Triagem self-service: "já sou afiliada" → ativar/fechado/parceira_track (por GMV);
+// "quero vender Rhode" → nova (entrar no programa + amostra grátis).
+// "só quero flash sales" não passa por aqui — redireciona direto pro WhatsApp do suporte.
+// vip não é auto-declarável — vem de classifyKnown (token c/ modelo=parceira ou GMV-60d ≥ 80k).
+// nova_com_peca/nova_sem_peca seguem definidos mas só acessíveis via ?diagnostico=.
 function computeDiag(){
-  if(ST.relacao==='afiliada_zero') return 'ativar';
+  if(ST.relacao==='quer_vender') return 'nova';
   switch(ST.gmvFaixa){            // afiliada_ativa → faixa de GMV declarada
     case '20a80k':  return 'parceira_track';
     case '5a20k':   return 'fechado';
@@ -195,8 +196,9 @@ function progressBar(n,total){
   return `<div class="progress">${s}</div>`;
 }
 function totalSteps(){
+  if(ST.relacao==='quer_vender') return 2;          // relação → identidade
   if(ST.relacao==='afiliada_ativa') return 4;       // relação → gmv → peça → identidade
-  return 3;                                         // relação → peça → identidade
+  return 3;                                         // relação → peça → identidade (fallback)
 }
 
 /* ───────────────── COMPONENTES ───────────────── */
@@ -214,8 +216,8 @@ function screenRelacao(){
       ${progressBar(1,3)}
       <p class="help">Qual é a sua relação com a Rhode hoje?</p>
       <div class="opts">
-        ${optBtn('💸','Já vendo pela Rhode no TikTok Shop','Tenho meu link de afiliada e já fiz vendas',()=>{ST.relacao='afiliada_ativa';screenGmv();})}
-        ${optBtn('🆕','Já me afiliei à Rhode, mas ainda não vendi','Tenho o link de afiliada, falta começar',()=>{ST.relacao='afiliada_zero';screenPeca();})}
+        ${optBtn('💸','Já sou afiliada da Rhode no TikTok Shop','Tenho meu link de afiliada da Rhode — vendendo ou ainda começando',()=>{ST.relacao='afiliada_ativa';screenGmv();})}
+        ${optBtn('✨','Já vendo no TikTok e quero vender Rhode','Quero virar afiliada da Rhode e receber uma amostra grátis pra começar',()=>{ST.relacao='quer_vender';screenIdentity();})}
         ${optBtn('⚡','Só quero ser avisada das flash sales','Não quero o programa completo agora — vai direto pro WhatsApp do suporte',()=>{location.href=waLink(CONFIG.flashSaleWhatsMsg);})}
       </div>
     </div>`);
@@ -260,7 +262,7 @@ function screenIdentity(){
     <div class="card-header"><div class="kicker">Quase lá</div><div class="headline">Pra te direcionar certinho</div></div>
     <div class="card-body">
       ${progressBar(totalSteps(),totalSteps())}
-      ${backBtn(screenPeca)}
+      ${backBtn(ST.relacao==='quer_vender'?screenRelacao:screenPeca)}
       <p class="help">Só o básico — leva 30 segundos.</p>
       <form id="idf" autocomplete="off">
         <div class="field"><label>Nome</label><input id="f_nome" type="text" placeholder="Seu nome" value="${(ST.nome||'').replace(/"/g,'&quot;')}" required></div>
@@ -321,6 +323,10 @@ function screenResult(){
       desc:'Você já tem o link de afiliada da Rhode — falta a primeira venda. Ela destrava o grupo Rhode em Ação e o painel completo. O caminho está aqui embaixo.',
       steps:['Garante uma peça Rhode'+(ST.temPeca==='sim'?' — você já tem ✓':' — pede uma amostra abaixo'),'Grava um vídeo marcando o produto no TikTok','Posta com o seu link de afiliada — a primeira venda te promove'],
       ctas:[ ST.temPeca==='sim'?{label:'Abrir Creator Hub',href:hubHref(),cls:'cta-dark'}:amostraCTA(), grupoAcaoCTA(), ST.temPeca==='sim'?null:{label:'Abrir Creator Hub',href:hubHref(),cls:'cta-outline'}, {label:'Dúvidas? Falar com a equipe',href:waLink(`Oi! Sou afiliada Rhode (@${ST.handle}) mas ainda não fiz minha primeira venda — me ajuda? 🤍`),cls:'cta-outline',ext:true} ]},
+    nova:{cor:'#222',badge:'🤍 Nova creator',label:'Como entrar no programa',
+      desc:'Boa! Você ainda não é afiliada da Rhode no TikTok Shop. O caminho é rápido: aceita o convite de colaboração, completa seu cadastro e solicita sua amostra grátis pra começar a gravar.',
+      steps:['Aceitar o convite de colaboração da Rhode no TikTok Shop','Completar seu cadastro Rhode','Solicitar sua amostra grátis Rhode','Gravar e postar com o seu link de afiliada — a primeira venda já te coloca no programa'],
+      ctas:[afiliacaoCTA(),{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},amostraCTA('Solicitar amostra grátis'),{label:'Quero ajuda pra começar',href:waLink(`Oi! Quero virar creator afiliada da Rhode e receber uma amostra grátis 🤍 — meu @ no TikTok é @${ST.handle}`),cls:'cta-outline',ext:true}]},
     nova_com_peca:{cor:'#222',badge:'🤍 Nova creator',label:'Como entrar no programa',
       desc:'Bem-vinda! Você ainda não é afiliada da Rhode no TikTok Shop. Como já tem peça pra gravar, é rápido: aceita o convite de colaboração, completa seu cadastro e já pode postar.',
       steps:['Aceitar o convite de colaboração da Rhode no TikTok Shop','Completar seu cadastro Rhode','Gravar com a sua peça e postar com o link de afiliada'],
@@ -377,7 +383,7 @@ async function getByToken(token){
 
 (async()=>{
   const q=new URLSearchParams(location.search);
-  // preview: ?diagnostico=vip|parceira_track|fechado|ativar|nova_com_peca|nova_sem_peca|onboarding  (&peca=sim|nao)
+  // preview: ?diagnostico=vip|parceira_track|fechado|ativar|nova|nova_com_peca|nova_sem_peca|onboarding  (&peca=sim|nao)
   if(q.get('diagnostico')){ ST.diagnostico=q.get('diagnostico'); ST.nome=q.get('nome')||'Preview'; ST.handle=q.get('handle')||'preview'; ST.temPeca=q.get('peca')||null; screenResult(); return; }
   // compat com teste antigo: ?gmv=10000&nome=Julia&modelo=parceira
   if(q.get('modelo')){
