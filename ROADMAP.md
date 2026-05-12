@@ -280,24 +280,29 @@ retomar em sprint dedicada.
 
 **Por que:** havia gap entre "TikTok aprovou / creator chegou" e "creator no caminho certo". A `bem-vinda.html` antiga só classificava por `modelo`/GMV com `CONFIG` vazia e sem formulário — virou um fluxo de triagem multi-step de verdade.
 
+**Macro:** Manychat (capta a creator e manda o link) → **triagem** (`bem-vinda.html`, classifica) → **executável** (a ação concreta). A triagem é o roteador.
+
 **Entregue (`rhode-vercel/public/bem-vinda.html` — reescrita):**
-- Máquina de estado client-side, 2–4 passos conforme o caminho, visual Plus Jakarta (consistente com o hub)
+- Máquina de estado client-side, visual Plus Jakarta (consistente com o hub)
 - **Pergunta 1 — relação com a Rhode (3 opções):**
-  - "💸 Já sou afiliada da Rhode no TikTok Shop" → vai pro Passo 2 (GMV)
-  - "✨ Já vendo no TikTok e quero vender Rhode" → pula GMV/peça, vai direto pra identidade → card `nova` ("perfil em análise": preencheu o formulário rápido → equipe avalia o perfil no TikTok → se fizer sentido, te chama pra uma campanha com amostra/briefing/link). **Sem amostra de graça self-serve** — controle do time.
-  - "⚡ Só quero ser avisada das flash sales" → **NÃO entra no questionário** — redireciona direto pro WhatsApp do suporte (`CONFIG.whatsappEquipe`) com mensagem padrão editável em `CONFIG.flashSaleWhatsMsg`. Sem identidade, sem card de resultado.
-- **Pergunta 2 (só "já sou afiliada") — faixa de GMV declarado:** R$0 (ainda não vendi) / até 5k / 5–20k / R$20k ou mais
-- **Pergunta 3 — tem peça Rhode em casa:** sim / não / quero modelos novos (controla o CTA de amostra)
-- **Identidade no fim:** nome + @ TikTok + WhatsApp → grava em Google Sheets via Apps Script (`CONFIG.sheetsTriagemURL`, mesmo padrão de `cadastro.html`; vazio = não grava)
-- **Diagnósticos da triagem (4) — gating: hub/amostra só pra quem provou (tem peça ou já vendeu); curiosa sem peça nem venda não ganha "moral":**
-  - `nova` (não-afiliada que quer vender Rhode) → "perfil em análise" — preencheu o formulário rápido, equipe avalia o perfil no TikTok, te chama se fizer sentido. **Sem hub, sem amostra self-serve.**
-  - `ativar` (afiliada, R$0 vendas) → ramifica pelo Passo 3: **com peça** = "grava e faz tua 1ª venda — ela destrava grupo + painel" (só CTA "falar com a equipe", sem hub ainda) · **sem peça** = "consiga uma peça (loja ou missão/campanha) primeiro" (CTA loja Rhode + falar com a equipe; **sem hub, sem amostra de graça**).
-  - `fechado` (vendeu até R$20k) → grupo Rhode em Ação + hub + amostra se precisar (já provou que converte).
-  - `parceira_track` (R$20k+) → grupo Rhode em Ação + hub + flag p/ time avaliar VIP.
-  - Fallback `onboarding` (cadastro + WhatsApp). `vip` só vem de `classifyKnown` (token c/ `modelo=parceira` ou GMV-60d ≥ 80k). Cards `nova_com_peca`/`nova_sem_peca` removidos. `CONFIG.linkLojaRhode` aponta pra `rhodejeans.com.br`. **Amostra de graça → só via missão/campanha (controle do time), nunca self-serve na triagem.**
-- Cada card tem `steps-list` (passo a passo numerado) quando faz sentido + CTAs priorizados
+  - "💸 Já sou afiliada da Rhode no TikTok Shop" → Passo 2 (faixa de GMV) → Passo 3
+  - "✨ Quero me tornar uma Creator Rhode" (não-afiliada) → formulário (nome/@/WhatsApp) → card `analise` ("Na fila de análise" — equipe avalia o perfil no TikTok e te chama se fizer sentido pra uma campanha). **Fila de espera, não amostra de graça self-serve.**
+  - "⚡ Só quero ser avisada das flash sales" → **NÃO entra no questionário** — redireciona direto pro WhatsApp do suporte (`CONFIG.whatsappEquipe`) com mensagem padrão editável em `CONFIG.flashSaleWhatsMsg`.
+- **Pergunta 2 (só "já sou afiliada") — faixa de GMV declarado:** R$0 (ainda não vendi) / até 5k / 5–20k / R$20k ou mais — gravada na planilha pra a equipe ver na hora da análise
+- **Pergunta 3 (só "já sou afiliada") — "O que você precisa pra gravar agora?":**
+  - "👖 Tenho peça e já tô gravando" → formulário → card por GMV (`ativar` / `fechado` / `parceira_track`) — **seu lugar no programa**
+  - "📦 Não tenho peça — quero pedir uma amostra grátis" → formulário → card `analise` (perfil pra análise)
+  - "✨ Quero receber mais modelos da Rhode" → tela `screenMaisModelos` explicando que **é sujeito ao desempenho e às metas** + botão "Aplicar — mandar meu perfil pra análise" → formulário → card `analise`
+- **Formulário (identidade):** nome + @ TikTok + WhatsApp → grava em Google Sheets via Apps Script (`CONFIG.sheetsTriagemURL`, mesmo padrão de `cadastro.html`; vazio = não grava). É o "formulário rápido" — quem pede amostra/mais modelos preenche aqui.
+- **Cards de resultado:**
+  - `analise` ("🤍 Na fila de análise") — "Recebemos teu cadastro, você entrou na fila. A equipe analisa teu perfil no TikTok…" + 4 passos. **Sem botão** (é confirmação, não tem ação).
+  - `ativar` ("🚀 Bora ativar", afiliada R$0 + tem peça) — "grava e faz tua 1ª venda — ela destrava grupo + painel" (CTA "falar com a equipe"). *(A variante "sem peça" do card só aparece via `?diagnostico=ativar` sem `peca=sim` — no fluxo real, "sem peça" → `analise`.)*
+  - `fechado` ("✅ Creator ativa", vendeu até R$20k) — grupo Rhode em Ação + hub + amostra se precisar.
+  - `parceira_track` ("🔥 Quase Parceira", R$20k+) — grupo Rhode em Ação + hub + flag p/ time avaliar VIP.
+  - `vip` ("⭐ Parceira VIP") — **só via `classifyKnown`** (token c/ `modelo=parceira` ou GMV-60d ≥ 80k), não auto-declarável. Fallback `onboarding` (cadastro + WhatsApp).
+- **Princípio de gating:** hub e amostra só pra quem já vendeu (`fechado`/`parceira_track`/`vip`). Quem não vendeu ou não tem peça → vai pra `analise` (fila/análise do time). Amostra/peça de graça nunca é self-serve na triagem — sempre passa por análise (ou via missão/campanha). Cards `nova_com_peca`/`nova_sem_peca` removidos. `CONFIG.linkLojaRhode` = `rhodejeans.com.br` (usado só na variante de preview de `ativar`).
 - **Token de afiliada já cadastrada** (`?token=`) → pula a triagem, classifica direto por `modelo`/GMV-60d real (`classifyKnown`); token de `eventos_creators` → pré-preenche e roda a triagem; token inválido / sem token → triagem normal
-- Modos de teste: `?triagem=1` força o questionário · `?diagnostico=vip&peca=nao` faz preview de card · `?gmv=&nome=&modelo=` compat com o teste antigo
+- Modos de teste: `?triagem=1` força o questionário · `?diagnostico=analise|ativar|fechado|parceira_track|vip|onboarding` (`&peca=sim` p/ a variante de `ativar`) · `?gmv=&nome=&modelo=` compat com o teste antigo
 - `bem-vinda.html` adicionado ao regex de `no-cache` em `vercel.json`
 
 **Pendente (não-bloqueante — preencher e redeployar):**

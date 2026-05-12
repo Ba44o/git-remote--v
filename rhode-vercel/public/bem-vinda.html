@@ -127,7 +127,7 @@ const uid=p=>p+Math.random().toString(36).slice(2,8);
 
 /* ───────────────── ESTADO ───────────────── */
 const ST={
-  relacao:null,   // afiliada_ativa | quer_vender  ("só quero flash sales" não chega aqui — redireciona pro WhatsApp)
+  relacao:null,   // afiliada_ativa | quero_ser_creator  ("só quero flash sales" não chega aqui — redireciona pro WhatsApp)
   gmvFaixa:null,  // 0 | ate5k | 5a20k | 20a80k
   temPeca:null,   // sim | nao | quer_mais
   nome:'', handle:'', whatsapp:'',
@@ -137,15 +137,19 @@ const ST={
 };
 
 /* ───────────────── DIAGNÓSTICO ───────────────── */
-// Triagem self-service: "já sou afiliada" → ativar/fechado/parceira_track (por GMV);
-// "quero vender Rhode" → nova (entrar no programa + amostra grátis).
+// Macro: Manychat → triagem → executável.
+// "já sou afiliada" → faixa de GMV → Passo 3 ("o que precisa pra gravar?"):
+//   · "tenho peça e tô gravando" → card por GMV (ativar / fechado / parceira_track) — seu lugar no programa
+//   · "não tenho peça, quero amostra grátis" → formulário → card `analise` (perfil pra análise)
+//   · "quero mais modelos" → tela explicando que é sujeito a desempenho/metas → formulário → card `analise`
+// "quero me tornar Creator Rhode" (não-afiliada) → formulário → card `analise` (fila de espera).
 // "só quero flash sales" não passa por aqui — redireciona direto pro WhatsApp do suporte.
 // vip não é auto-declarável — vem de classifyKnown (token c/ modelo=parceira ou GMV-60d ≥ 80k).
-// Sem hub/amostra de graça pra quem não tem peça nem vendas: ativar(sem peça) e nova mandam pra
-// loja / análise de perfil; amostra grátis só via missão/campanha (controle do time).
+// Amostra/peça de graça nunca é self-serve aqui — sempre vai pra análise do time (ou via missão/campanha).
 function computeDiag(){
-  if(ST.relacao==='quer_vender') return 'nova';
-  switch(ST.gmvFaixa){            // afiliada_ativa → faixa de GMV declarada
+  if(ST.relacao==='quero_ser_creator') return 'analise';                     // não-afiliada que quer virar Creator → perfil pra análise / fila
+  if(ST.relacao==='afiliada_ativa' && ST.temPeca!=='sim') return 'analise';   // afiliada pediu amostra grátis OU aplicou pra mais modelos → análise
+  switch(ST.gmvFaixa){            // afiliada_ativa + tem peça → seu lugar no programa por GMV
     case '20a80k':  return 'parceira_track';
     case '5a20k':   return 'fechado';
     case 'ate5k':   return 'fechado';
@@ -198,7 +202,7 @@ function progressBar(n,total){
   return `<div class="progress">${s}</div>`;
 }
 function totalSteps(){
-  if(ST.relacao==='quer_vender') return 2;          // relação → identidade
+  if(ST.relacao==='quero_ser_creator') return 2;          // relação → identidade
   if(ST.relacao==='afiliada_ativa') return 4;       // relação → gmv → peça → identidade
   return 3;                                         // relação → peça → identidade (fallback)
 }
@@ -219,7 +223,7 @@ function screenRelacao(){
       <p class="help">Qual é a sua relação com a Rhode hoje?</p>
       <div class="opts">
         ${optBtn('💸','Já sou afiliada da Rhode no TikTok Shop','Tenho meu link de afiliada da Rhode — vendendo ou ainda começando',()=>{ST.relacao='afiliada_ativa';screenGmv();})}
-        ${optBtn('✨','Já vendo no TikTok e quero vender Rhode','Quero virar afiliada da Rhode e receber uma amostra grátis pra começar',()=>{ST.relacao='quer_vender';screenIdentity();})}
+        ${optBtn('✨','Quero me tornar uma Creator Rhode','Preenche o formulário e manda teu perfil pra análise — entra na fila',()=>{ST.relacao='quero_ser_creator';screenIdentity();})}
         ${optBtn('⚡','Só quero ser avisada das flash sales','Não quero o programa completo agora — vai direto pro WhatsApp do suporte',()=>{location.href=waLink(CONFIG.flashSaleWhatsMsg);})}
       </div>
     </div>`);
@@ -244,16 +248,26 @@ function screenGmv(){   // só afiliada_ativa
 function screenPeca(){
   const t=totalSteps(), n=(ST.relacao==='afiliada_ativa')?3:2;
   mount(`
-    <div class="card-header"><div class="kicker">Passo ${n}</div><div class="headline">Você já tem alguma peça Rhode em casa pra gravar?</div></div>
+    <div class="card-header"><div class="kicker">Passo ${n}</div><div class="headline">O que você precisa pra gravar agora?</div></div>
     <div class="card-body">
       ${progressBar(n,t)}
       ${backBtn(ST.relacao==='afiliada_ativa'?screenGmv:screenRelacao)}
-      <p class="help">A gente usa isso pra saber se precisa te enviar uma amostra antes de você começar a postar.</p>
+      <p class="help">Pra te direcionar — e pra equipe avaliar teu pedido na hora certa.</p>
       <div class="opts">
-        ${optBtn('👖','Sim, tenho peça(s) Rhode comigo','Posso gravar assim que estiver tudo certo',()=>{ST.temPeca='sim';screenIdentity();})}
-        ${optBtn('📦','Não tenho nenhuma peça ainda','Vou precisar de uma amostra',()=>{ST.temPeca='nao';screenIdentity();})}
-        ${optBtn('🆕','Tenho, mas quero modelos novos pra gravar','Já comecei — quero renovar o conteúdo',()=>{ST.temPeca='quer_mais';screenIdentity();})}
+        ${optBtn('👖','Tenho peça e já tô gravando','Só me mostra meu lugar no programa',()=>{ST.temPeca='sim';screenIdentity();})}
+        ${optBtn('📦','Não tenho peça — quero pedir uma amostra grátis','Preenche o formulário e a equipe analisa teu perfil',()=>{ST.temPeca='nao';screenIdentity();})}
+        ${optBtn('✨','Quero receber mais modelos da Rhode','Aplicar — sujeito ao teu desempenho e às metas',()=>{ST.temPeca='quer_mais';screenMaisModelos();})}
       </div>
+    </div>`);
+}
+
+function screenMaisModelos(){   // "Aplicar para receber mais modelos" → explica o critério antes do formulário
+  mount(`
+    <div class="card-header"><div class="kicker">Receber mais modelos</div><div class="headline">Como funciona a análise</div></div>
+    <div class="card-body">
+      ${backBtn(screenPeca)}
+      <p class="help">Pra receber mais modelos da Rhode, a equipe avalia o teu desempenho como creator e se você está batendo as metas — não é automático, é uma análise. Se você acha que se encaixa, manda a aplicação aí embaixo que a gente analisa teu perfil.</p>
+      ${ctaHTML({label:'Aplicar — mandar meu perfil pra análise',fn:()=>screenIdentity(),cls:'cta-red'})}
     </div>`);
 }
 
@@ -264,7 +278,7 @@ function screenIdentity(){
     <div class="card-header"><div class="kicker">Quase lá</div><div class="headline">Pra te direcionar certinho</div></div>
     <div class="card-body">
       ${progressBar(totalSteps(),totalSteps())}
-      ${backBtn(ST.relacao==='quer_vender'?screenRelacao:screenPeca)}
+      ${backBtn(ST.relacao==='quero_ser_creator'?screenRelacao:(ST.temPeca==='quer_mais'?screenMaisModelos:screenPeca))}
       <p class="help">Só o básico — leva 30 segundos.</p>
       <form id="idf" autocomplete="off">
         <div class="field"><label>Nome</label><input id="f_nome" type="text" placeholder="Seu nome" value="${(ST.nome||'').replace(/"/g,'&quot;')}" required></div>
@@ -330,10 +344,10 @@ function screenResult(){
          desc:'Você já tem o link de afiliada da Rhode, mas pra gravar precisa de uma peça Rhode. A gente envia amostra só pelas missões e campanhas — fica de olho. Ou compra uma peça na loja e já começa: a primeira venda destrava o grupo e o painel.',
          steps:['Consiga uma peça Rhode — comprando na loja ou numa missão/campanha','Grava um vídeo marcando o produto no TikTok','Posta com o teu link de afiliada — a primeira venda te coloca no programa'],
          ctas:[{label:'Ver a loja Rhode',href:CONFIG.linkLojaRhode,cls:'cta-dark',ext:true},{label:'Falar com a equipe',href:waLink(`Oi! Sou afiliada Rhode (@${ST.handle}), quero começar a gravar mas ainda não tenho peça — como faço? 🤍`),cls:'cta-outline',ext:true}]},
-    nova:{cor:'#222',badge:'🤍 Perfil em análise',label:'Como funciona',
-      desc:'Boa! Recebemos teu cadastro. Agora a equipe Rhode vai analisar teu perfil no TikTok pra ver se faz sentido te chamar pra uma campanha. Fica de olho no WhatsApp.',
+    analise:{cor:'#222',badge:'🤍 Na fila de análise',label:'Como funciona',
+      desc:'Boa! Recebemos teu cadastro — você entrou na fila. A equipe Rhode vai analisar teu perfil no TikTok pra ver se faz sentido te chamar pra uma campanha. Fica de olho no WhatsApp.',
       steps:['Você preencheu o formulário rápido ✓','A equipe analisa teu perfil no TikTok (audiência, conteúdo, fit com a marca)','Se fizer sentido, a gente te chama pra uma campanha — aí entram amostra, briefing e o link de afiliada','Suas primeiras vendas destravam o grupo e o painel completo'],
-      ctas:[{label:'Falar com a equipe',href:waLink(`Oi! Acabei de mandar meu perfil pra análise da Rhode 🤍 — meu @ no TikTok é @${ST.handle}. Pode dar uma olhada?`),cls:'cta-outline',ext:true}]},
+      ctas:[]},
     onboarding:{cor:'#222',badge:'🤍 Bem-vinda',label:'Vamos te direcionar',
       desc:'Completa seu cadastro abaixo ou fala direto com a nossa equipe que a gente te encaixa no caminho certo.',
       ctas:[{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},{label:'Falar com a equipe',href:waLink(`Oi! Quero saber mais sobre o programa de creators da Rhode 🤍 — meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
@@ -382,7 +396,7 @@ async function getByToken(token){
 
 (async()=>{
   const q=new URLSearchParams(location.search);
-  // preview: ?diagnostico=vip|parceira_track|fechado|ativar|nova|onboarding  (&peca=sim|nao)
+  // preview: ?diagnostico=vip|parceira_track|fechado|ativar|analise|onboarding  (&peca=sim|nao)
   if(q.get('diagnostico')){ ST.diagnostico=q.get('diagnostico'); ST.nome=q.get('nome')||'Preview'; ST.handle=q.get('handle')||'preview'; ST.temPeca=q.get('peca')||null; screenResult(); return; }
   // compat com teste antigo: ?gmv=10000&nome=Julia&modelo=parceira
   if(q.get('modelo')){
