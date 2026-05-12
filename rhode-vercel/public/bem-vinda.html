@@ -124,8 +124,8 @@ const uid=p=>p+Math.random().toString(36).slice(2,8);
 
 /* ───────────────── ESTADO ───────────────── */
 const ST={
-  relacao:null,   // afiliada_ativa | afiliada_zero | creator_nova | flash_only
-  gmvFaixa:null,  // 0 | ate5k | 5a20k | 20a80k | mais80k
+  relacao:null,   // afiliada_ativa | afiliada_zero | flash_only
+  gmvFaixa:null,  // 0 | ate5k | 5a20k | 20a80k
   temPeca:null,   // sim | nao | quer_mais
   nome:'', handle:'', whatsapp:'',
   diagnostico:null,
@@ -134,12 +134,13 @@ const ST={
 };
 
 /* ───────────────── DIAGNÓSTICO ───────────────── */
+// Triagem self-service classifica só em: ativar · fechado · parceira_track · flash_only.
+// vip e nova_com_peca/nova_sem_peca não são auto-declaráveis — vip vem de classifyKnown
+// (token c/ modelo=parceira ou GMV-60d ≥ 80k); nova_* só ficam acessíveis via ?diagnostico=.
 function computeDiag(){
   if(ST.relacao==='flash_only') return 'flash_only';
-  if(ST.relacao==='creator_nova') return ST.temPeca==='nao' ? 'nova_sem_peca' : 'nova_com_peca';
   if(ST.relacao==='afiliada_zero') return 'ativar';
   switch(ST.gmvFaixa){            // afiliada_ativa → faixa de GMV declarada
-    case 'mais80k': return 'vip';
     case '20a80k':  return 'parceira_track';
     case '5a20k':   return 'fechado';
     case 'ate5k':   return 'fechado';
@@ -214,7 +215,6 @@ function screenRelacao(){
       <div class="opts">
         ${optBtn('💸','Já vendo pela Rhode no TikTok Shop','Tenho meu link de afiliada e já fiz vendas',()=>{ST.relacao='afiliada_ativa';screenGmv();})}
         ${optBtn('🆕','Já me afiliei à Rhode, mas ainda não vendi','Tenho o link de afiliada, falta começar',()=>{ST.relacao='afiliada_zero';screenPeca();})}
-        ${optBtn('✨','Sou creator no TikTok, mas ainda não me afiliei','Quero entrar no programa de afiliadas da Rhode',()=>{ST.relacao='creator_nova';screenPeca();})}
         ${optBtn('⚡','Só quero ser avisada das flash sales','Não quero o programa completo agora — só as promoções',()=>{ST.relacao='flash_only';screenFlash();})}
       </div>
     </div>`);
@@ -231,8 +231,7 @@ function screenGmv(){   // só afiliada_ativa
         ${optBtn('🚀','Ainda não vendi nada','R$ 0 — bora ativar',()=>{ST.gmvFaixa='0';screenPeca();})}
         ${optBtn('🌱','Até R$ 5.000','Começando a engrenar',()=>{ST.gmvFaixa='ate5k';screenPeca();})}
         ${optBtn('📈','R$ 5.000 – R$ 20.000','Vendendo com consistência',()=>{ST.gmvFaixa='5a20k';screenPeca();})}
-        ${optBtn('🔥','R$ 20.000 – R$ 80.000','Top performer — quase Parceira',()=>{ST.gmvFaixa='20a80k';screenPeca();})}
-        ${optBtn('⭐','Mais de R$ 80.000','Faixa de Parceira VIP',()=>{ST.gmvFaixa='mais80k';screenPeca();})}
+        ${optBtn('🔥','R$ 20.000 ou mais','Top performer da Rhode',()=>{ST.gmvFaixa='20a80k';screenPeca();})}
       </div>
     </div>`);
 }
@@ -262,7 +261,6 @@ function screenFlash(){   // path "só flash sale"
       <p class="help">Flash sale é uma janela curta (algumas horas) com preço especial e comissão maior pra creator. Sem cobrança de conteúdo recorrente — você decide na hora se entra quando rolar.</p>
       <div class="opts">
         ${optBtn('🔔','Quero entrar na lista de avisos','A equipe te avisa pelo WhatsApp quando rolar uma flash',()=>{screenIdentity();})}
-        ${optBtn('📋','Na verdade quero entender o programa completo','Me mostra como virar creator afiliada da Rhode',()=>{ST.relacao='creator_nova';screenPeca();})}
       </div>
     </div>`);
 }
@@ -346,7 +344,7 @@ function screenResult(){
       ctas:[afiliacaoCTA(),{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},amostraCTA(),{label:'Quero ajuda pra começar',href:waLink(`Oi! Quero virar creator afiliada da Rhode 🤍 Meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
     flash_only:{cor:'#FE2C55',badge:'⚡ Flash Sales',label:'Lista de avisos',
       desc:'Fechou! Toca no botão abaixo pra falar com a nossa equipe no WhatsApp e entrar na lista de avisos das flash sales. Você recebe o aviso quando rolar uma promoção relâmpago — e decide na hora se entra. Sem compromisso de conteúdo.',
-      ctas:[{label:'Entrar na lista de flash sales',href:waLink(`Oi! Quero entrar na lista de avisos das flash sales da Rhode ⚡🤍 — meu @ no TikTok é @${ST.handle}`),cls:'cta-primary',icon:WA_ICON,ext:true},{label:'Na real, quero o programa completo',fn:()=>{ST.relacao='creator_nova';screenPeca();},cls:'cta-outline'}]},
+      ctas:[{label:'Entrar na lista de flash sales',href:waLink(`Oi! Quero entrar na lista de avisos das flash sales da Rhode ⚡🤍 — meu @ no TikTok é @${ST.handle}`),cls:'cta-primary',icon:WA_ICON,ext:true},{label:'Quero entender o programa completo',href:waLink(`Oi! Comecei interessada nas flash sales da Rhode, mas quero entender o programa de creators afiliadas 🤍 — meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},
     onboarding:{cor:'#222',badge:'🤍 Bem-vinda',label:'Vamos te direcionar',
       desc:'Completa seu cadastro abaixo ou fala direto com a nossa equipe que a gente te encaixa no caminho certo.',
       ctas:[{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},{label:'Falar com a equipe',href:waLink(`Oi! Quero saber mais sobre o programa de creators da Rhode 🤍 — meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},

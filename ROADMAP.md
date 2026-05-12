@@ -249,11 +249,11 @@ retomar em sprint dedicada.
 
 **Entregue (`rhode-vercel/public/bem-vinda.html` — reescrita):**
 - Máquina de estado client-side, 2–4 passos conforme o caminho, visual Plus Jakarta (consistente com o hub)
-- **Pergunta 1 — relação com a Rhode:** já vendo / já me afiliei mas não vendi / sou creator mas não me afiliei / só quero flash sale
-- **Pergunta 2 (só "já vendo") — faixa de GMV declarado:** R$0 / até 5k / 5–20k / 20–80k / +80k
+- **Pergunta 1 — relação com a Rhode:** já vendo / já me afiliei mas não vendi / só quero flash sale
+- **Pergunta 2 (só "já vendo") — faixa de GMV declarado:** R$0 / até 5k / 5–20k / R$20k ou mais
 - **Pergunta 3 — tem peça Rhode em casa:** sim / não / quero modelos novos (controla o CTA de amostra)
 - **Identidade no fim:** nome + @ TikTok + WhatsApp → grava em Google Sheets via Apps Script (`CONFIG.sheetsTriagemURL`, mesmo padrão de `cadastro.html`; vazio = não grava)
-- **8 diagnósticos → cards de destino:** `vip` (grupo Rhode VIP + hub + contato direto) · `parceira_track` (grupo Rhode em Ação + hub + flag p/ time) · `fechado` (grupo Rhode em Ação + hub + amostra se precisar) · `ativar` (passo a passo da 1ª venda + amostra + grupo + hub) · `nova_com_peca` (convite afiliada TikTok Shop + cadastro + "grava já") · `nova_sem_peca` (convite + cadastro + solicitar amostra) · `flash_only` (WhatsApp da equipe com msg pré-preenchida → lista de avisos de flash) · `onboarding` (fallback: cadastro + WhatsApp)
+- **Diagnósticos da triagem (4):** `parceira_track` (grupo Rhode em Ação + hub + flag p/ time avaliar VIP) · `fechado` (grupo Rhode em Ação + hub + amostra se precisar) · `ativar` (passo a passo da 1ª venda + amostra + grupo + hub) · `flash_only` (WhatsApp da equipe com msg pré-preenchida → lista de avisos de flash). Fallback `onboarding` (cadastro + WhatsApp). **`vip` não é auto-declarável** — só vem de `classifyKnown` (token c/ `modelo=parceira` ou GMV-60d ≥ 80k). Os cards `nova_com_peca`/`nova_sem_peca` continuam definidos mas sem caminho na triagem (acessíveis só via `?diagnostico=`) — opção "sou creator mas não me afiliei" foi removida do Passo 1 a pedido (recrutamento de não-afiliadas é tratado fora da triagem)
 - Cada card tem `steps-list` (passo a passo numerado) quando faz sentido + CTAs priorizados
 - **Token de afiliada já cadastrada** (`?token=`) → pula a triagem, classifica direto por `modelo`/GMV-60d real (`classifyKnown`); token de `eventos_creators` → pré-preenche e roda a triagem; token inválido / sem token → triagem normal
 - Modos de teste: `?triagem=1` força o questionário · `?diagnostico=vip&peca=nao` faz preview de card · `?gmv=&nome=&modelo=` compat com o teste antigo
