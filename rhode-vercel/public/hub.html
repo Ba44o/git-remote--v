@@ -1066,6 +1066,46 @@ tr:last-child td{border-bottom:none}
 .onb-overlay.onb-demo .onb-copy-btn{font-size:18px;padding:16px}
 .onb-overlay.onb-demo .onb-copy-output{font-size:18px;min-height:140px}
 .onb-overlay.onb-demo #onb-demo-cursor{width:42px !important;height:42px !important}
+
+/* Aspect 1:1 (1080x1080) — formato mais "natural" pra WhatsApp chat */
+.onb-overlay.onb-demo-square{padding:0}
+.onb-overlay.onb-demo .onb-scene{transition:opacity .55s ease,transform .55s cubic-bezier(.32,.72,.45,1)}
+.onb-overlay.onb-demo #onb-demo-cursor{transition:opacity .3s ease, top 1.1s cubic-bezier(.32,.72,.45,1), left 1.1s cubic-bezier(.32,.72,.45,1) !important}
+.onb-overlay.onb-demo-square .onb-progress{display:none} /* tira barra de tutorial */
+.onb-overlay.onb-demo-square .onb-scene{padding:80px 80px 60px;justify-content:center}
+.onb-overlay.onb-demo-square .onb-eyebrow{font-size:11px;letter-spacing:0.2em;margin-bottom:14px;opacity:.85}
+.onb-overlay.onb-demo-square .onb-title{font-size:34px;letter-spacing:-0.025em;line-height:1.12;margin-bottom:12px}
+.onb-overlay.onb-demo-square .onb-sub{font-size:16px;line-height:1.5;margin-bottom:32px;max-width:680px}
+.onb-overlay.onb-demo-square .onb-stagearea{align-items:center;flex:0 1 auto}
+.onb-overlay.onb-demo-square .onb-actions{margin-top:32px;max-width:380px}
+.onb-overlay.onb-demo-square .onb-btn{font-size:16px;padding:15px 28px}
+.onb-overlay.onb-demo-square .onb-hero-art{width:180px;height:180px}
+.onb-overlay.onb-demo-square .onb-hero-art .mark{font-size:50px}
+.onb-overlay.onb-demo-square .onb-tiers,
+.onb-overlay.onb-demo-square .onb-progress-card,
+.onb-overlay.onb-demo-square .onb-deliv-list,
+.onb-overlay.onb-demo-square .onb-copy-mock{max-width:440px;width:100%}
+.onb-overlay.onb-demo-square .onb-tier-row{padding:12px 16px;border-radius:14px}
+.onb-overlay.onb-demo-square .onb-tier-icon{width:36px;height:36px}
+.onb-overlay.onb-demo-square .onb-tier-icon svg{width:22px;height:22px}
+.onb-overlay.onb-demo-square .onb-tier-name{font-size:15px}
+.onb-overlay.onb-demo-square .onb-tier-range{font-size:10px}
+.onb-overlay.onb-demo-square .onb-tier-comm{font-size:13px}
+.onb-overlay.onb-demo-square .onb-tier-comm small{font-size:9px}
+.onb-overlay.onb-demo-square .onb-pg-label{font-size:11px}
+.onb-overlay.onb-demo-square .onb-pg-val{font-size:32px}
+.onb-overlay.onb-demo-square .onb-pg-bar{height:8px;margin-top:14px}
+.onb-overlay.onb-demo-square .onb-pg-marks{font-size:10px;margin-top:10px}
+.onb-overlay.onb-demo-square .onb-deliv{padding:11px 14px;border-radius:12px}
+.onb-overlay.onb-demo-square .onb-deliv-ic svg{width:22px;height:22px}
+.onb-overlay.onb-demo-square .onb-deliv-tx{font-size:13px}
+.onb-overlay.onb-demo-square .onb-deliv-tx small{font-size:10px;margin-top:2px}
+.onb-overlay.onb-demo-square .onb-deliv-state{font-size:9px;padding:3px 9px}
+.onb-overlay.onb-demo-square .onb-copy-head-lbl{font-size:10px}
+.onb-overlay.onb-demo-square .onb-chip{font-size:11px;padding:5px 11px}
+.onb-overlay.onb-demo-square .onb-copy-btn{font-size:13px;padding:11px}
+.onb-overlay.onb-demo-square .onb-copy-output{font-size:13px;min-height:96px}
+.onb-overlay.onb-demo-square #onb-demo-cursor{width:30px !important;height:30px !important}
 .onb-skip{
   position:absolute;top:14px;right:14px;z-index:5;
   background:rgba(0,0,0,0.08);border:none;color:var(--ink-48);
@@ -1856,9 +1896,12 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
     const mockCreator={source:'eventos',handle:'demo',row:{nome:'Taci',handle:'demo'}};
     await boot(mockCreator);
     try{ localStorage.removeItem(ONB_KEY_PREFIX+'demo'); }catch(e){}
+    const aspect=new URLSearchParams(location.search).get('aspect')||'9x16';
     setTimeout(()=>{
-      document.getElementById('onb-modal')?.classList.add('onb-demo');
-      _onbDemoMode=true; // FIX: setar antes de onbOpen pra showScene(0) não agendar auto-advance
+      const m=document.getElementById('onb-modal');
+      m?.classList.add('onb-demo');
+      if(aspect==='1x1') m?.classList.add('onb-demo-square');
+      _onbDemoMode=true;
       onbOpen();
       startDemoAutopilot();
     }, 800);
@@ -2172,8 +2215,8 @@ function startDemoAutopilot(){
   }
 
   // sequência: espera animação de cada cena terminar, move cursor pro botão primário, clica
-  // tempos pensados pra vídeo WhatsApp (~30s total): cena 0 menor, cenas com animação maiores
-  const stepDelays=[4200, 6200, 5500, 6500]; // 4 cliques (cena 0→1, 1→2, 2→3, 3→4)
+  // tempos pensados pra ritmo natural (~35s total): respira mais entre cenas
+  const stepDelays=[5200, 7800, 6800, 7500]; // 4 cliques (cena 0→1, 1→2, 2→3, 3→4)
   let curStep=0;
   function doStep(){
     if(curStep>=4) return;
@@ -2192,10 +2235,11 @@ function startDemoAutopilot(){
     cur.style.opacity='1';
     cur.style.left=x+'px';
     cur.style.top=y+'px';
+    // ritmo natural: hover sobre o botão antes do tap (como se a pessoa "olhasse" antes de clicar)
     setTimeout(()=>{
       cur.classList.add('tap');
-      setTimeout(()=>{ cur.classList.remove('tap'); cb&&cb(); }, 500);
-    }, 850);
+      setTimeout(()=>{ cur.classList.remove('tap'); cb&&cb(); }, 600);
+    }, 1200);
   }
   // primeiro step dispara depois da animação inicial da cena 0
   setTimeout(doStep, stepDelays[0]);
