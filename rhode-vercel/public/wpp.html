@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abrindo WhatsApp…</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+  body{background:#f7f5f2;color:#222;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+  .logo{font-weight:800;font-size:28px;letter-spacing:-1px;margin-bottom:32px}
+  .logo span{color:#FE2C55}
+  .spinner{width:40px;height:40px;border:3px solid #e5e1da;border-top-color:#25D366;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  h1{font-size:18px;font-weight:600;margin-bottom:10px}
+  p{font-size:14px;color:#666;line-height:1.5;max-width:320px;margin-bottom:24px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:#25D366;color:#fff;text-decoration:none;border-radius:12px;font-size:15px;font-weight:600;box-shadow:0 4px 16px rgba(37,211,102,.25)}
+  .copy{margin-top:18px;font-size:12px;color:#999}
+  .num{font-family:monospace;font-weight:700;color:#222}
+</style>
+</head>
+<body>
+<div class="logo">Rhode<span>.</span></div>
+<div class="spinner"></div>
+<h1>Abrindo WhatsApp…</h1>
+<p>Se não abrir automático, toca no botão verde aí embaixo 👇</p>
+<a id="btn" class="btn" href="#">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  Abrir WhatsApp
+</a>
+<div class="copy">Ou copia: <span class="num" id="num">—</span></div>
+
+<script>
+/* ════════════ destinos ════════════════════════════════════════════════════
+   adicione aqui novos atalhos. URL: /wpp.html?to=<chave>
+   ?p= e ?t= sobrescrevem (avançado). */
+const TARGETS = {
+  flash: {
+    phone: '5511952759126',
+    text:  'Oi, equipe Rhode! Quero solicitar a promoção relâmpago para minha live',
+  },
+  sac: {
+    phone: '5511959550649',
+    text:  'Oi, equipe Rhode! Tenho uma dúvida/reclamação sobre um pedido',
+  },
+  equipe: {
+    phone: '5511952759126',
+    text:  'Oi, equipe Rhode! 🤍',
+  },
+};
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+const q = new URLSearchParams(location.search);
+const to = (q.get('to') || 'equipe').toLowerCase();
+const target = TARGETS[to] || TARGETS.equipe;
+const phone = q.get('p') || target.phone;
+const text  = q.get('t') || target.text;
+
+const tEnc = encodeURIComponent(text);
+const deepLink  = `whatsapp://send?phone=${phone}&text=${tEnc}`;
+const webLink   = `https://wa.me/${phone}?text=${tEnc}`;
+
+// formata número pra exibição: +55 11 95275-9126
+function fmtPhone(n){
+  const d = (''+n).replace(/\D/g,'');
+  if(d.length>=13) return `+${d.slice(0,2)} ${d.slice(2,4)} ${d.slice(4,9)}-${d.slice(9)}`;
+  if(d.length>=12) return `+${d.slice(0,2)} ${d.slice(2,4)} ${d.slice(4,8)}-${d.slice(8)}`;
+  return '+'+d;
+}
+document.getElementById('num').textContent = fmtPhone(phone);
+document.getElementById('btn').href = deepLink;
+
+// tenta abrir o app direto; se falhar (browser bloqueia o whatsapp://),
+// cai pro wa.me em 1.4s. Se o usuário voltar pra cá depois do app abrir, nada acontece.
+let bounced = false;
+setTimeout(() => {
+  if(bounced) return;
+  bounced = true;
+  location.href = deepLink;
+}, 80);
+setTimeout(() => {
+  if(document.hidden) return;            // se o app abriu, a aba fica oculta — não bounce
+  location.href = webLink;
+}, 1400);
+</script>
+</body>
+</html>
