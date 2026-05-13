@@ -1006,6 +1006,207 @@ tr:last-child td{border-bottom:none}
   .pf-btn{padding:7px 12px;font-size:12px}
   .nav-label{font-size:9px;letter-spacing:0.1em}
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   ONBOARDING VIDEO-LIKE (mockup HTML/CSS didático — primeiro acesso)
+   Tese Seraleev: ensinar valor ANTES do CTA. Cenas animadas in-page.
+   ════════════════════════════════════════════════════════════════════ */
+.onb-overlay{
+  position:fixed;inset:0;background:rgba(15,15,17,0.88);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;z-index:300;padding:0;
+  animation:fadeIn .25s ease;
+}
+.onb-overlay.on{display:flex}
+.onb-stage{
+  position:relative;width:100%;max-width:420px;height:100%;max-height:760px;
+  background:var(--canvas);border-radius:26px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,0.5);
+  display:flex;flex-direction:column;
+  animation:popIn .3s cubic-bezier(.4,0,.2,1);
+}
+@media(max-width:520px){
+  .onb-stage{max-width:100%;max-height:100%;border-radius:0}
+}
+.onb-skip{
+  position:absolute;top:14px;right:14px;z-index:5;
+  background:rgba(0,0,0,0.08);border:none;color:var(--ink-48);
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;letter-spacing:-0.01em;
+  padding:7px 14px;border-radius:99px;cursor:pointer;
+  transition:background .15s ease,color .15s ease;
+}
+.onb-skip:hover{background:rgba(0,0,0,0.14);color:var(--ink)}
+
+.onb-progress{
+  position:absolute;top:0;left:0;right:0;height:3px;display:flex;gap:4px;padding:10px 14px 0;z-index:5;
+}
+.onb-progress-bar{flex:1;height:3px;background:rgba(0,0,0,0.08);border-radius:3px;overflow:hidden}
+.onb-progress-fill{height:100%;background:var(--ink);width:0;transition:width .25s linear}
+.onb-progress-bar.done .onb-progress-fill{width:100%}
+.onb-progress-bar.active .onb-progress-fill{animation:onbFill linear forwards}
+@keyframes onbFill{from{width:0}to{width:100%}}
+
+.onb-scenes{flex:1;position:relative;overflow:hidden}
+.onb-scene{
+  position:absolute;inset:0;padding:54px 28px 24px;
+  display:flex;flex-direction:column;
+  opacity:0;transform:translateX(20px);pointer-events:none;
+  transition:opacity .35s ease,transform .35s cubic-bezier(.4,0,.2,1);
+}
+.onb-scene.active{opacity:1;transform:translateX(0);pointer-events:auto}
+
+.onb-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--rhode-red);font-weight:600;margin-bottom:10px;
+}
+.onb-title{font-weight:700;font-size:26px;letter-spacing:-0.025em;line-height:1.15;color:var(--ink);margin-bottom:10px}
+.onb-title .accent{color:var(--rhode-red)}
+.onb-sub{font-size:14px;line-height:1.5;color:var(--ink-80);letter-spacing:-0.006em;margin-bottom:22px}
+
+.onb-stagearea{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:0}
+
+.onb-actions{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.onb-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'Inter',sans-serif;font-size:15px;font-weight:600;letter-spacing:-0.011em;
+  padding:14px 20px;border-radius:9999px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .12s ease,background .15s ease;
+}
+.onb-btn-primary{background:var(--ink);color:#fff}
+.onb-btn-primary:hover{background:#000}
+.onb-btn-primary:active{transform:scale(.97)}
+.onb-btn-ghost{background:transparent;color:var(--ink-48);font-size:13px;font-weight:500}
+.onb-btn-ghost:hover{color:var(--ink)}
+
+/* Cena 1 — boas-vindas */
+.onb-hero-art{
+  width:128px;height:128px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#fff,var(--parchment));
+  border:1.5px solid var(--hairline);
+  display:flex;align-items:center;justify-content:center;position:relative;
+  animation:onbBreath 2.6s ease-in-out infinite;
+}
+.onb-hero-art::before{
+  content:'';position:absolute;inset:-10px;border-radius:50%;
+  border:1px dashed rgba(254,44,85,0.35);animation:onbSpin 18s linear infinite;
+}
+.onb-hero-art .mark{font-weight:700;font-size:34px;letter-spacing:-0.03em;color:var(--ink)}
+.onb-hero-art .mark span{color:var(--rhode-red)}
+@keyframes onbBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes onbSpin{to{transform:rotate(360deg)}}
+
+/* Cena 2 — tiers (5 ladders) */
+.onb-tiers{display:flex;flex-direction:column;gap:8px;width:100%;max-width:340px}
+.onb-tier-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border:1px solid var(--hairline);border-radius:14px;background:var(--canvas);
+  opacity:0;transform:translateY(8px);
+  transition:opacity .35s ease,transform .35s ease,border-color .25s ease,background .25s ease;
+}
+.onb-tier-row.show{opacity:1;transform:translateY(0)}
+.onb-tier-row.glow{border-color:var(--rhode-red);background:rgba(254,44,85,0.04)}
+.onb-tier-icon{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;background:var(--parchment);
+}
+.onb-tier-icon svg{width:22px;height:22px}
+.onb-tier-row[data-tier="Bronze"] .onb-tier-icon{color:#b45309}
+.onb-tier-row[data-tier="Silver"] .onb-tier-icon{color:#6b7280}
+.onb-tier-row[data-tier="Gold"] .onb-tier-icon{color:#9a7030}
+.onb-tier-row[data-tier="Diamond"] .onb-tier-icon{color:#0ea5e9}
+.onb-tier-row[data-tier="Black"] .onb-tier-icon{color:#111;background:#ececef}
+.onb-tier-meta{flex:1;min-width:0}
+.onb-tier-name{font-size:14px;font-weight:600;letter-spacing:-0.011em;color:var(--ink);line-height:1.1}
+.onb-tier-range{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.05em;color:var(--ink-48);margin-top:2px}
+.onb-tier-comm{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.04em;color:var(--ink)}
+.onb-tier-comm small{font-weight:500;color:var(--ink-48);font-size:9px;letter-spacing:0.08em}
+
+/* Cena 3 — progress GMV */
+.onb-progress-card{
+  width:100%;max-width:340px;background:var(--canvas);border:1px solid var(--hairline);
+  border-radius:18px;padding:22px 20px;
+}
+.onb-pg-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-48);font-weight:600;margin-bottom:10px}
+.onb-pg-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:28px;letter-spacing:-0.02em;color:var(--ink);line-height:1}
+.onb-pg-val .cur{color:var(--rhode-red)}
+.onb-pg-bar{height:8px;background:var(--parchment);border-radius:6px;margin-top:14px;overflow:hidden;position:relative}
+.onb-pg-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#b45309,#6b7280 30%,#9a7030 55%,#0ea5e9 80%,#111 100%);border-radius:6px;transition:width 2.4s cubic-bezier(.4,0,.2,1)}
+.onb-pg-marks{display:flex;justify-content:space-between;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;color:var(--ink-48)}
+.onb-pg-marks span.hit{color:var(--ink);font-weight:700}
+
+/* Cena 4 — benefícios destravam */
+.onb-deliv-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px}
+.onb-deliv{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--hairline);border-radius:12px;
+  background:var(--canvas);
+  opacity:0;transform:translateX(-12px);
+  transition:opacity .3s ease,transform .3s ease,border-color .3s ease,background .3s ease;
+}
+.onb-deliv.show{opacity:1;transform:translateX(0)}
+.onb-deliv.unlock{border-color:var(--green);background:rgba(0,121,107,0.06)}
+.onb-deliv-ic{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--ink-48);flex-shrink:0}
+.onb-deliv-ic svg{width:22px;height:22px}
+.onb-deliv.unlock .onb-deliv-ic{color:var(--green)}
+.onb-deliv-tx{flex:1;font-size:13px;line-height:1.3;color:var(--ink);font-weight:500;letter-spacing:-0.008em}
+.onb-deliv-tx small{display:block;font-size:10px;color:var(--ink-48);font-weight:400;letter-spacing:0.02em;margin-top:2px;font-family:'JetBrains Mono',monospace}
+.onb-deliv-state{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:99px;background:var(--parchment);color:var(--ink-48);font-weight:600;
+}
+.onb-deliv.unlock .onb-deliv-state{background:rgba(0,121,107,0.12);color:var(--green)}
+
+/* Cena 5 — Copy IA (mockup) */
+.onb-copy-mock{
+  width:100%;max-width:340px;background:var(--canvas);border:1px solid var(--hairline);
+  border-radius:18px;overflow:hidden;position:relative;
+}
+.onb-copy-head{padding:14px 16px;border-bottom:1px solid var(--divider-soft);display:flex;align-items:center;justify-content:space-between}
+.onb-copy-head-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-48);font-weight:600}
+.onb-copy-head-dot{width:7px;height:7px;border-radius:50%;background:var(--rhode-red);animation:pulse 1.6s ease-in-out infinite}
+.onb-copy-chips{display:flex;gap:6px;padding:12px 16px 8px;flex-wrap:wrap}
+.onb-chip{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;
+  padding:5px 10px;border-radius:99px;border:1px solid var(--hairline);background:var(--canvas);color:var(--ink-48);font-weight:500;
+  transition:border-color .2s ease,color .2s ease,background .2s ease;
+}
+.onb-chip.sel{border-color:var(--ink);color:var(--ink);background:var(--parchment)}
+.onb-copy-btn-wrap{padding:6px 16px 14px;position:relative}
+.onb-copy-btn{
+  width:100%;background:var(--ink);color:#fff;border:none;border-radius:99px;padding:11px;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:-0.01em;
+  transition:transform .15s ease;
+}
+.onb-copy-btn.tap{transform:scale(.96)}
+.onb-copy-output{
+  margin:0 16px 16px;background:var(--parchment);border-radius:11px;padding:12px 14px;
+  font-size:12px;line-height:1.5;color:var(--ink-80);letter-spacing:-0.006em;
+  min-height:88px;position:relative;
+}
+.onb-copy-output .typed{display:inline}
+.onb-copy-output .caret{display:inline-block;width:7px;height:14px;background:var(--ink);vertical-align:-2px;margin-left:1px;animation:onbCaret .8s steps(1) infinite}
+@keyframes onbCaret{50%{opacity:0}}
+
+/* Cursor/pointer didático */
+.onb-cursor{
+  position:absolute;width:22px;height:22px;pointer-events:none;z-index:10;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  opacity:0;transition:opacity .25s ease,top .65s cubic-bezier(.4,0,.2,1),left .65s cubic-bezier(.4,0,.2,1);
+}
+.onb-cursor.on{opacity:1}
+.onb-cursor::after{
+  content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--rhode-red);
+  opacity:0;animation:onbRipple 1.2s ease-out;
+}
+.onb-cursor.tap::after{opacity:1}
+@keyframes onbRipple{0%{transform:scale(.3);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+
+/* Reabrir tour — link discreto */
+.onb-reopen{
+  display:inline-flex;align-items:center;gap:6px;
+  background:none;border:none;color:var(--ink-48);font-size:11px;font-weight:500;letter-spacing:-0.005em;
+  cursor:pointer;padding:6px 0;
+}
+.onb-reopen:hover{color:var(--ink)}
+
 </style>
 </head>
 <body>
@@ -1188,6 +1389,114 @@ tr:last-child td{border-bottom:none}
 <!-- Flash Sale Modal -->
 <div class="flash-modal-overlay" id="flash-modal" onclick="if(event.target===this)closeFlashModal()">
   <div class="flash-modal" id="flash-modal-content"></div>
+</div>
+
+<!-- Onboarding Modal — primeiro acesso, mostra valor antes do CTA -->
+<div class="onb-overlay" id="onb-modal" aria-hidden="true">
+  <div class="onb-stage" role="dialog" aria-labelledby="onb-title">
+    <div class="onb-progress" id="onb-progress"></div>
+    <button class="onb-skip" type="button" onclick="onbClose('skip')">Pular</button>
+    <div class="onb-scenes" id="onb-scenes">
+
+      <!-- Cena 1: boas-vindas -->
+      <div class="onb-scene" data-scene="0">
+        <div class="onb-eyebrow">Bem-vinda</div>
+        <h2 class="onb-title" id="onb-title">Você é parte<br>da Rhode<span class="accent">.</span></h2>
+        <p class="onb-sub">Este é o seu hub. Em 60 segundos a gente mostra como ele funciona — e como ele faz você ganhar mais.</p>
+        <div class="onb-stagearea">
+          <div class="onb-hero-art"><div class="mark">R<span>.</span></div></div>
+        </div>
+        <div class="onb-actions">
+          <button class="onb-btn onb-btn-primary" type="button" onclick="onbNext()">Começar</button>
+        </div>
+      </div>
+
+      <!-- Cena 2: os 5 tiers -->
+      <div class="onb-scene" data-scene="1">
+        <div class="onb-eyebrow">Programa de tiers</div>
+        <h2 class="onb-title">5 níveis.<br>Comissão sobe junto.</h2>
+        <p class="onb-sub">A cada faixa de GMV acumulado, você sobe de tier — e a comissão cresce automaticamente.</p>
+        <div class="onb-stagearea">
+          <div class="onb-tiers" id="onb-tiers"></div>
+        </div>
+        <div class="onb-actions">
+          <button class="onb-btn onb-btn-primary" type="button" onclick="onbNext()">Continuar</button>
+        </div>
+      </div>
+
+      <!-- Cena 3: como você sobe -->
+      <div class="onb-scene" data-scene="2">
+        <div class="onb-eyebrow">Como você sobe</div>
+        <h2 class="onb-title">GMV acumulado.<br>Sem reset mensal.</h2>
+        <p class="onb-sub">Tudo que você vende vai pra sua barra. Bateu o marco, subiu o tier — pra sempre.</p>
+        <div class="onb-stagearea">
+          <div class="onb-progress-card">
+            <div class="onb-pg-label">Seu GMV acumulado</div>
+            <div class="onb-pg-val">R$ <span class="cur" id="onb-pg-num">0</span></div>
+            <div class="onb-pg-bar"><div class="onb-pg-bar-fill" id="onb-pg-fill"></div></div>
+            <div class="onb-pg-marks">
+              <span id="onb-mk-bronze">20k</span>
+              <span id="onb-mk-silver">50k</span>
+              <span id="onb-mk-gold">80k</span>
+              <span id="onb-mk-diamond">150k</span>
+              <span id="onb-mk-black">500k</span>
+            </div>
+          </div>
+        </div>
+        <div class="onb-actions">
+          <button class="onb-btn onb-btn-primary" type="button" onclick="onbNext()">Continuar</button>
+        </div>
+      </div>
+
+      <!-- Cena 4: benefícios destravam -->
+      <div class="onb-scene" data-scene="3">
+        <div class="onb-eyebrow">O que destrava</div>
+        <h2 class="onb-title">Cada tier abre<br>novos acessos.</h2>
+        <p class="onb-sub">Placas físicas, Spark Ads no seu vídeo, Studio Day, vitrine no perfil oficial. Real, não decorativo.</p>
+        <div class="onb-stagearea">
+          <div class="onb-deliv-list" id="onb-deliv-list"></div>
+        </div>
+        <div class="onb-actions">
+          <button class="onb-btn onb-btn-primary" type="button" onclick="onbNext()">Continuar</button>
+        </div>
+      </div>
+
+      <!-- Cena 5: Copy IA -->
+      <div class="onb-scene" data-scene="4">
+        <div class="onb-eyebrow">Sua ferramenta diária</div>
+        <h2 class="onb-title">Copy IA. Roteiros<br>prontos pra gravar.</h2>
+        <p class="onb-sub">Escolhe o produto, escolhe o formato, gera. Roteiro no seu estilo, com a copy Rhode.</p>
+        <div class="onb-stagearea">
+          <div class="onb-copy-mock" id="onb-copy-mock">
+            <div class="onb-copy-head">
+              <span class="onb-copy-head-lbl">Copy IA</span>
+              <span class="onb-copy-head-dot"></span>
+            </div>
+            <div class="onb-copy-chips">
+              <span class="onb-chip" data-chip="prod">Wide Leg</span>
+              <span class="onb-chip" data-chip="prod2">Mom</span>
+              <span class="onb-chip" data-chip="prod3">Cargo</span>
+            </div>
+            <div class="onb-copy-chips">
+              <span class="onb-chip" data-chip="fmt">15s</span>
+              <span class="onb-chip" data-chip="fmt2">30s</span>
+              <span class="onb-chip" data-chip="fmt3">60s</span>
+            </div>
+            <div class="onb-copy-btn-wrap">
+              <button class="onb-copy-btn" id="onb-copy-btn" type="button">Gerar roteiro</button>
+            </div>
+            <div class="onb-copy-output" id="onb-copy-output"><span class="typed" id="onb-typed"></span><span class="caret" id="onb-caret" style="display:none"></span></div>
+            <div class="onb-cursor" id="onb-cursor"><svg viewBox="0 0 22 22" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path d="M2 2 L20 11 L11 13 L8 20 Z"/></svg></div>
+          </div>
+        </div>
+        <div class="onb-actions">
+          <button class="onb-btn onb-btn-primary" type="button" onclick="onbClose('finish');goTab('copy');Track.action('onb_cta_copy')">Gerar meu primeiro roteiro</button>
+          <button class="onb-btn onb-btn-ghost" type="button" onclick="onbClose('finish-explore')">Explorar o hub</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <!-- Sininho de notificações + drawer -->
@@ -1540,7 +1849,240 @@ async function boot(creator){
 
   // Analytics: marca início de sessão + aba inicial (perf é o default)
   try{ Track.start(); Track.tab('perf'); }catch(e){}
+
+  // Onboarding (1x por creator) — mostra valor antes do CTA
+  try{ maybeShowOnboarding(creator.handle); }catch(e){}
 }
+
+// ════════════════════════════════════════════════════════════════════
+//  ONBOARDING — mockup didático in-page (5 cenas)
+//  Flag: localStorage rhode_onb_v1_[handle]. Reabrir via window.onbOpen().
+// ════════════════════════════════════════════════════════════════════
+const ONB_KEY_PREFIX='rhode_onb_v1_';
+const ONB_SCENE_DUR=[5500, 6500, 6500, 6500, 8000]; // ms por cena
+let _onbIdx=0, _onbTimer=null, _onbAnimTimers=[];
+
+function maybeShowOnboarding(handle){
+  const k=ONB_KEY_PREFIX+(handle||'').toLowerCase();
+  let seen=false; try{ seen=!!localStorage.getItem(k); }catch(e){}
+  if(seen) return;
+  // pequeno delay pra não competir com flash sale modal
+  setTimeout(()=>{
+    if(document.getElementById('flash-modal')?.classList.contains('on')) return;
+    onbOpen();
+  }, 600);
+}
+
+function onbOpen(){
+  const m=document.getElementById('onb-modal'); if(!m) return;
+  _onbIdx=0;
+  renderOnbProgress();
+  buildOnbTiers();
+  buildOnbDeliv();
+  m.classList.add('on');
+  m.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  showScene(0);
+  try{ Track.action('onb_open'); }catch(e){}
+}
+
+function onbClose(reason){
+  const m=document.getElementById('onb-modal'); if(!m) return;
+  m.classList.remove('on');
+  m.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  clearTimeout(_onbTimer);
+  _onbAnimTimers.forEach(t=>clearTimeout(t)); _onbAnimTimers=[];
+  try{
+    const h=(_creator?.handle||'').toLowerCase();
+    if(h) localStorage.setItem(ONB_KEY_PREFIX+h,'1');
+  }catch(e){}
+  try{ Track.action('onb_close', {reason:reason||'unknown', last_scene:_onbIdx}); }catch(e){}
+}
+
+function onbNext(){
+  if(_onbIdx>=4){ onbClose('finish-next'); return; }
+  showScene(_onbIdx+1);
+}
+
+function renderOnbProgress(){
+  const p=document.getElementById('onb-progress'); if(!p) return;
+  p.innerHTML='';
+  for(let i=0;i<5;i++){
+    const bar=document.createElement('div'); bar.className='onb-progress-bar';
+    bar.innerHTML='<div class="onb-progress-fill"></div>';
+    p.appendChild(bar);
+  }
+}
+
+function showScene(i){
+  _onbIdx=i;
+  document.querySelectorAll('#onb-scenes .onb-scene').forEach(el=>{
+    el.classList.toggle('active', +el.dataset.scene===i);
+  });
+  // progress bars: marca anteriores como done, atual como active
+  document.querySelectorAll('#onb-progress .onb-progress-bar').forEach((bar,idx)=>{
+    bar.classList.remove('active','done');
+    const fill=bar.querySelector('.onb-progress-fill');
+    if(idx<i){ bar.classList.add('done'); fill.style.animation='none'; fill.style.width='100%'; }
+    else if(idx===i){
+      bar.classList.add('active');
+      fill.style.animation='none'; fill.offsetWidth; // reflow
+      fill.style.animation=`onbFill ${ONB_SCENE_DUR[i]}ms linear forwards`;
+    } else { fill.style.animation='none'; fill.style.width='0'; }
+  });
+  // anima conteúdo da cena
+  _onbAnimTimers.forEach(t=>clearTimeout(t)); _onbAnimTimers=[];
+  if(i===1) animateTiers();
+  else if(i===2) animateGmvBar();
+  else if(i===3) animateDeliv();
+  else if(i===4) animateCopy();
+  // auto-next só não força em cena final (deixa creator clicar CTA)
+  clearTimeout(_onbTimer);
+  if(i<4){
+    _onbTimer=setTimeout(()=>{ if(_onbIdx===i) showScene(i+1); }, ONB_SCENE_DUR[i]);
+  }
+  try{ Track.action('onb_scene', {scene:i}); }catch(e){}
+}
+
+function buildOnbTiers(){
+  const host=document.getElementById('onb-tiers'); if(!host) return;
+  const tiers=[
+    {n:'Bronze',  r:'R$ 20k – 50k',   c:'10%'},
+    {n:'Silver',  r:'R$ 50k – 80k',   c:'11%'},
+    {n:'Gold',    r:'R$ 80k – 150k',  c:'12%'},
+    {n:'Diamond', r:'R$ 150k – 500k', c:'12%'},
+    {n:'Black',   r:'R$ 500k +',      c:'12%'},
+  ];
+  host.innerHTML=tiers.map(t=>`
+    <div class="onb-tier-row" data-tier="${t.n}">
+      <div class="onb-tier-icon">${TIER_ICONS[t.n]||''}</div>
+      <div class="onb-tier-meta">
+        <div class="onb-tier-name">${t.n}</div>
+        <div class="onb-tier-range">${t.r}</div>
+      </div>
+      <div class="onb-tier-comm">${t.c}<br><small>comissão</small></div>
+    </div>`).join('');
+}
+
+function animateTiers(){
+  const rows=document.querySelectorAll('#onb-tiers .onb-tier-row');
+  rows.forEach((r,i)=>{
+    _onbAnimTimers.push(setTimeout(()=>{
+      r.classList.add('show');
+      _onbAnimTimers.push(setTimeout(()=>r.classList.add('glow'), 250));
+      _onbAnimTimers.push(setTimeout(()=>r.classList.remove('glow'), 900));
+    }, 200+i*420));
+  });
+}
+
+function animateGmvBar(){
+  const fill=document.getElementById('onb-pg-fill');
+  const num=document.getElementById('onb-pg-num');
+  const marks=['bronze','silver','gold','diamond','black'].map(t=>document.getElementById('onb-mk-'+t));
+  if(!fill||!num) return;
+  fill.style.width='0';
+  num.textContent='0';
+  const tgt=550000; // R$ 550k visual
+  const dur=2400; const start=performance.now();
+  function tick(t){
+    const p=Math.min(1,(t-start)/dur);
+    const eased=1-Math.pow(1-p,3);
+    const v=Math.round(tgt*eased);
+    num.textContent=(v>=1000?(v/1000).toFixed(0)+'k':v);
+    fill.style.width=Math.min(100, eased*100)+'%';
+    [20000,50000,80000,150000,500000].forEach((th,i)=>{ if(v>=th) marks[i]?.classList.add('hit'); });
+    if(p<1) _onbAnimTimers.push(requestAnimationFrame(tick));
+  }
+  _onbAnimTimers.push(requestAnimationFrame(tick));
+}
+
+function buildOnbDeliv(){
+  const host=document.getElementById('onb-deliv-list'); if(!host) return;
+  const items=[
+    {ic:'dashboard',tx:'Dashboard de performance',sub:'BRONZE · agora'},
+    {ic:'trophy',tx:'Placa Silver em acrílico',sub:'SILVER · R$ 50k'},
+    {ic:'spark',tx:'Spark Ads no seu vídeo',sub:'GOLD · R$ 80k'},
+    {ic:'studio',tx:'Studio Day na operação Rhode',sub:'DIAMOND · R$ 150k'},
+    {ic:'store',tx:'Vitrine no perfil oficial',sub:'BLACK · R$ 500k'},
+  ];
+  host.innerHTML=items.map(i=>`
+    <div class="onb-deliv">
+      <div class="onb-deliv-ic">${D_ICON[i.ic]||''}</div>
+      <div class="onb-deliv-tx">${i.tx}<small>${i.sub}</small></div>
+      <div class="onb-deliv-state">Locked</div>
+    </div>`).join('');
+}
+
+function animateDeliv(){
+  const items=document.querySelectorAll('#onb-deliv-list .onb-deliv');
+  items.forEach((el,i)=>{
+    _onbAnimTimers.push(setTimeout(()=>{
+      el.classList.add('show');
+      _onbAnimTimers.push(setTimeout(()=>{
+        el.classList.add('unlock');
+        const st=el.querySelector('.onb-deliv-state'); if(st) st.textContent='Aberto';
+      }, 350));
+    }, 150+i*380));
+  });
+}
+
+function animateCopy(){
+  const mock=document.getElementById('onb-copy-mock');
+  const cursor=document.getElementById('onb-cursor');
+  const btn=document.getElementById('onb-copy-btn');
+  const typed=document.getElementById('onb-typed');
+  const caret=document.getElementById('onb-caret');
+  if(!mock||!cursor||!btn||!typed) return;
+  const chipProd=mock.querySelector('[data-chip="prod"]');
+  const chipFmt=mock.querySelector('[data-chip="fmt2"]');
+  typed.textContent=''; caret.style.display='none';
+  cursor.classList.remove('on','tap');
+  function moveTo(target, cb){
+    const mr=mock.getBoundingClientRect();
+    const tr=target.getBoundingClientRect();
+    const x=tr.left-mr.left+tr.width/2-11;
+    const y=tr.top-mr.top+tr.height/2-11;
+    cursor.style.left=x+'px'; cursor.style.top=y+'px';
+    cursor.classList.add('on');
+    _onbAnimTimers.push(setTimeout(()=>{
+      cursor.classList.add('tap');
+      _onbAnimTimers.push(setTimeout(()=>{ cursor.classList.remove('tap'); cb&&cb(); }, 360));
+    }, 700));
+  }
+  // sequência: cursor aparece -> toca prod chip -> toca fmt chip -> toca botão -> digita
+  cursor.style.left='40px'; cursor.style.top='40px';
+  _onbAnimTimers.push(setTimeout(()=>{
+    moveTo(chipProd, ()=>{
+      chipProd.classList.add('sel');
+      moveTo(chipFmt, ()=>{
+        chipFmt.classList.add('sel');
+        moveTo(btn, ()=>{
+          btn.classList.add('tap');
+          _onbAnimTimers.push(setTimeout(()=>{
+            btn.classList.remove('tap');
+            cursor.classList.remove('on');
+            typeScript();
+          }, 200));
+        });
+      });
+    });
+  }, 250));
+
+  function typeScript(){
+    const txt='Você usa um jeans que afina, alonga e disfarça — e nem percebe. A Wide Leg Marmorizada Rhode faz isso. Só toca aqui no link.';
+    let i=0; caret.style.display='inline-block';
+    function step(){
+      typed.textContent=txt.slice(0,i);
+      if(i<txt.length){ i++; _onbAnimTimers.push(setTimeout(step, 22)); }
+      else { _onbAnimTimers.push(setTimeout(()=>{ caret.style.display='none'; }, 1200)); }
+    }
+    step();
+  }
+}
+
+// Expor pra reabrir tour manualmente (ex: link no menu)
+window.onbOpen=onbOpen;
 
 function renderEventoBoot(row,nome){
   const missaoOk=row?.missao_extra;
