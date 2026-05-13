@@ -1999,8 +1999,33 @@ function readToken(){
 function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
 
 (async()=>{
-  // Modo demo (gravação de vídeo para WhatsApp): ?demo=onboarding
-  const isDemo=new URLSearchParams(location.search).get('demo')==='onboarding';
+  // Modo demo TOUR: ?demo=tour — carrega hub real com dados, anonimiza nome, navega pelas abas
+  const demoMode=new URLSearchParams(location.search).get('demo');
+  if(demoMode==='tour'){
+    // força token preview da Taci (dados reais ricos), anonimiza no render
+    const PREVIEW_TOKEN='TACI-PREVIEW-2026';
+    try{ localStorage.setItem(TOKEN_KEY, PREVIEW_TOKEN); }catch(e){}
+    const creator=await validateToken(PREVIEW_TOKEN);
+    if(creator){
+      // suprime onboarding modal nesse handle (vamos mostrar o hub)
+      try{ localStorage.setItem(ONB_KEY_PREFIX+(creator.handle||''),'1'); }catch(e){}
+      // anonimização: troca o nome de exibição e zera o handle
+      const fakeName=new URLSearchParams(location.search).get('name')||'Júlia';
+      if(creator.row){
+        creator.row.nome=fakeName;
+        creator.row.name=fakeName;
+        creator.row.tiktok_handle='';
+      }
+      await boot(creator);
+      // mascara handles no DOM após render assíncrono
+      setTimeout(()=>maskHandlesInDOM(fakeName), 800);
+      setTimeout(()=>maskHandlesInDOM(fakeName), 2500);
+      setTimeout(()=>{ document.getElementById('onb-modal')?.classList.remove('on'); startHubTour(); }, 1800);
+      return;
+    }
+  }
+  // Modo demo onboarding (modal didático)
+  const isDemo=demoMode==='onboarding';
   if(isDemo){
     const mockCreator={source:'eventos',handle:'demo',row:{nome:'Taci',handle:'demo'}};
     await boot(mockCreator);
@@ -2293,6 +2318,113 @@ function animateCopy(){
 
 // Expor pra reabrir tour manualmente (ex: link no menu)
 window.onbOpen=onbOpen;
+
+// ════════════════════════════════════════════════════════════════════
+//  HUB TOUR (?demo=tour) — demonstra o hub real com cursor fantasma
+//  Anonimiza nome/handle e navega pelas abas: Painel → Copy → Acessos → Novidades
+// ════════════════════════════════════════════════════════════════════
+function maskHandlesInDOM(fakeName){
+  const TACI_PATTERNS=[/@tacianetorress/gi, /@tacinetorres/gi, /tacianetorress/gi, /\btaci\b/gi];
+  const firstName=(fakeName||'Júlia').split(' ')[0];
+  // troca t-name (global nav)
+  const tName=document.getElementById('t-name'); if(tName) tName.textContent=firstName;
+  // esconde gn-name (handle no top right)
+  document.querySelectorAll('.gn-name').forEach(el=>el.style.display='none');
+  // procura nos textos do hero e perf-main e substitui
+  ['hero-section','perf-main','perf-detail','copy-main','hist-main','entregaveis-main'].forEach(id=>{
+    const host=document.getElementById(id); if(!host) return;
+    const walker=document.createTreeWalker(host, NodeFilter.SHOW_TEXT);
+    let node;
+    while((node=walker.nextNode())){
+      let v=node.nodeValue;
+      let changed=false;
+      for(const p of TACI_PATTERNS){
+        if(p.test(v)){ v=v.replace(p, m=> m.startsWith('@')?'@'+firstName.toLowerCase():firstName); changed=true; }
+      }
+      if(changed) node.nodeValue=v;
+    }
+  });
+}
+
+function startHubTour(){
+  // cria cursor fantasma global no app
+  let cur=document.getElementById('hub-tour-cursor');
+  if(!cur){
+    cur=document.createElement('div');
+    cur.id='hub-tour-cursor';
+    cur.innerHTML='<svg viewBox="0 0 22 22" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path d="M2 2 L20 11 L11 13 L8 20 Z"/></svg>';
+    Object.assign(cur.style,{
+      position:'fixed', width:'30px', height:'30px', zIndex:'500',
+      pointerEvents:'none', opacity:'0',
+      filter:'drop-shadow(0 3px 6px rgba(0,0,0,0.3))',
+      transition:'opacity .4s ease, top 1.2s cubic-bezier(.32,.72,.45,1), left 1.2s cubic-bezier(.32,.72,.45,1)',
+      top:'50%', left:'50%',
+    });
+    document.body.appendChild(cur);
+    const s=document.createElement('style');
+    s.textContent=`#hub-tour-cursor::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid #FE2C55;opacity:0}
+    #hub-tour-cursor.tap::after{opacity:1;animation:hubTourRipple 1s ease-out}
+    @keyframes hubTourRipple{0%{transform:scale(.3);opacity:.9}100%{transform:scale(1.7);opacity:0}}
+    body.tour-mode .gn-name, body.tour-mode #notif-bell{display:none !important}`;
+    document.head.appendChild(s);
+    document.body.classList.add('tour-mode');
+  }
+
+  function moveTo(targetSel, cb){
+    const t=typeof targetSel==='string'?document.querySelector(targetSel):targetSel;
+    if(!t){ cb&&cb(); return; }
+    const r=t.getBoundingClientRect();
+    const x=r.left+r.width/2-15;
+    const y=r.top+r.height/2-15;
+    cur.style.opacity='1';
+    cur.style.left=x+'px';
+    cur.style.top=y+'px';
+    setTimeout(()=>{
+      cur.classList.add('tap');
+      setTimeout(()=>{ cur.classList.remove('tap'); cb&&cb(); }, 600);
+    }, 1300);
+  }
+  function smoothScrollTo(y, cb){
+    window.scrollTo({top:y, behavior:'smooth'});
+    setTimeout(()=>cb&&cb(), 1400);
+  }
+  function pause(ms, cb){ setTimeout(cb, ms); }
+  function tabBtn(name){ return document.getElementById('nav-'+name); }
+
+  // Sequência do tour
+  const steps=[
+    cb=>pause(2800, cb),                                   // 0: hero visível
+    cb=>smoothScrollTo(380, cb),                            // 1: scroll suave revelando KPIs
+    cb=>pause(3500, cb),
+    cb=>smoothScrollTo(0, cb),                              // 2: volta pro topo
+    cb=>pause(1200, cb),
+    cb=>moveTo(tabBtn('copy'), cb),                         // 3: aponta aba Copy
+    cb=>{ goTab('copy'); pause(2500, cb); },
+    cb=>{
+      // tenta apontar o primeiro produto chip
+      const chip=document.querySelector('#copy-main .prod-chip, #copy-main [data-prod], #copy-main button');
+      if(chip){ moveTo(chip, cb); } else { pause(1500, cb); }
+    },
+    cb=>pause(3000, cb),
+    cb=>moveTo(tabBtn('entregaveis'), cb),                  // 4: aponta aba Acessos
+    cb=>{ goTab('entregaveis'); pause(3500, cb); },
+    cb=>smoothScrollTo(window.scrollY+300, cb),
+    cb=>pause(3000, cb),
+    cb=>moveTo(tabBtn('novidades'), cb),                    // 5: aponta aba Novidades
+    cb=>{ goTab('novidades'); pause(4000, cb); },
+    cb=>moveTo(tabBtn('perf'), cb),                         // 6: volta pra Painel
+    cb=>{ goTab('perf'); smoothScrollTo(0, cb); },
+    cb=>pause(2500, cb),
+  ];
+  let i=0;
+  function next(){
+    if(i>=steps.length){ cur.style.opacity='0'; return; }
+    const step=steps[i++];
+    step(next);
+  }
+  next();
+}
+window.startHubTour=startHubTour;
 
 // ════════════════════════════════════════════════════════════════════
 //  DEMO AUTOPILOT — usado em ?demo=onboarding pra gravar vídeo do WhatsApp.
