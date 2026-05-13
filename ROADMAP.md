@@ -306,14 +306,25 @@ retomar em sprint dedicada.
 - Modos de teste: `?triagem=1` força o questionário · `?diagnostico=analise|ativar|fechado|parceira_track|vip|onboarding` (`&peca=sim` p/ a variante de `ativar`) · `?gmv=&nome=&modelo=` compat com o teste antigo
 - `bem-vinda.html` adicionado ao regex de `no-cache` em `vercel.json`
 
-**Pendente (não-bloqueante):**
-- **Rodar `rhode-vercel/sql/triagem.sql` no SQL Editor do Supabase** pra ativar a persistência + a aba do admin (sem isso, o INSERT falha em silêncio e a aba mostra erro amigável).
+**Status:** ✅ tabela `triagem` criada no Supabase (12/05), teste end-to-end passou (ver `relatorios/2026-05/2026-05-12_teste-triagem-bem-vinda.md`), em produção. Bug do `wa.me` corrompendo emoji no `?text=` → corrigido (`waLink()` usa `api.whatsapp.com/send` direto).
+
+**Pendente — config (não-bloqueante, degrada elegante):**
 - `CONFIG.linkGrupoVIP` — convite do grupo "Rhode VIP" (top creators) — ainda vazio (`linkGrupoAcao`, grupo geral, já preenchido)
-- `CONFIG.linkAfiliacaoTikTok` — link do convite de colaboração da Rhode no TikTok Shop
+- `CONFIG.linkAfiliacaoTikTok` — link do convite de colaboração no TikTok Shop (hoje nenhum card no fluxo real usa — só a variante de preview de `ativar`)
 - `CONFIG.linkFormAmostra` — Google Form / página de solicitação de amostra (hoje cai no WhatsApp da equipe)
 - `CONFIG.sheetsTriagemURL` — opcional, Apps Script `doPost` se quiser espelhar numa planilha além do Supabase
-- Auto-disparo Z-API pós-triagem (boas-vindas + link do grupo) reusando o template engine do #4
-- Promover automaticamente `parceira_track` → criar alerta no admin pra avaliar entrada no grupo VIP
+
+**Polimentos / próximas otimizações (priorizado — detalhe e frameworks em `relatorios/2026-05/2026-05-12_teste-triagem-bem-vinda.md`):**
+1. **Instrumentar o funil** — gravar `step_view` por tela (Passo 1/2/3, form aberto, form enviado) numa tabela leve (ou `hub_eventos` com `origem='triagem'`) + drop-off na aba Triagem. Sem isso não dá pra medir conversão (Manychat→submissão) nem onde vaza. ← maior gap. (~0.5–1d)
+2. **Soft CTA no card "Na fila de análise"** — terminar com "salva nosso WhatsApp" / "segue @rhodejeans" / "dá uma olhada nas peças" em vez de tela morta (peak-end; mantém a creator quente sem furar o gating). (~15min)
+3. **Rate-limit no formulário** — cooldown client-side (1 submissão/5min por sessão, igual `acesso.html`) + honeypot opcional. Blinda contra spam quando a URL vazar. (~30min)
+4. **Auto-notificar a equipe** numa submissão nova (Z-API pro número da equipe, ou digest diário via cron, reusando `disparo.js`). (~0.5d)
+5. **Validação leve do @** — strip de URL do TikTok, lowercase, regex. (~20min)
+6. **Flag de submissão repetida** no admin (mesmo `handle` já na `triagem`). (~20min)
+7. **Mover a opção de flash do meio do Passo 3** pra um link discreto abaixo das 3 opções (Hick's Law). (~15min)
+8. **`status_changed_at` na tabela** + "X dias na fila" no admin (mede SLA de processamento). (~20min)
+9. Auto-disparo Z-API pós-triagem (boas-vindas + link do grupo) reusando o template engine do #4
+10. Promover automaticamente `parceira_track` → alerta no admin pra avaliar entrada no grupo VIP
 
 ---
 

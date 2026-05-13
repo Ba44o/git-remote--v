@@ -120,7 +120,8 @@ const CONFIG={
 
 const $=s=>document.querySelector(s);
 const tokenFromURL=()=>new URLSearchParams(location.search).get('token')||'';
-const waLink=msg=>`https://wa.me/${CONFIG.whatsappEquipe}?text=${encodeURIComponent(msg)}`;
+// usa api.whatsapp.com/send em vez de wa.me — o redirect do wa.me corrompe emojis no ?text= (vira "�")
+const waLink=msg=>`https://api.whatsapp.com/send?phone=${CONFIG.whatsappEquipe}&text=${encodeURIComponent(msg)}`;
 const normHandle=h=>(h||'').trim().replace(/^@+/,'');
 const R=v=>'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const uid=p=>p+Math.random().toString(36).slice(2,8);
