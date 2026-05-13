@@ -2017,10 +2017,18 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
         creator.row.tiktok_handle='';
       }
       await boot(creator);
+      // suprime modais e elementos de chrome que distraem na demo
+      const supressorCSS=`#flash-modal,#flash-banner-slot,#notif-bell,#suporte-btn,.gn-name,.gn-tier{display:none !important}`;
+      const s=document.createElement('style'); s.id='tour-suppressor'; s.textContent=supressorCSS;
+      document.head.appendChild(s);
       // mascara handles no DOM após render assíncrono
       setTimeout(()=>maskHandlesInDOM(fakeName), 800);
       setTimeout(()=>maskHandlesInDOM(fakeName), 2500);
-      setTimeout(()=>{ document.getElementById('onb-modal')?.classList.remove('on'); startHubTour(); }, 1800);
+      setTimeout(()=>{
+        document.getElementById('onb-modal')?.classList.remove('on');
+        document.getElementById('flash-modal')?.classList.remove('on');
+        startHubTour();
+      }, 1800);
       return;
     }
   }
