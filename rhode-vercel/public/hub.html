@@ -1027,6 +1027,45 @@ tr:last-child td{border-bottom:none}
 @media(max-width:520px){
   .onb-stage{max-width:100%;max-height:100%;border-radius:0}
 }
+/* Modo demo de gravação: stage ocupa tela toda em qualquer viewport */
+.onb-overlay.onb-demo{padding:0}
+.onb-overlay.onb-demo .onb-stage{max-width:none;max-height:none;width:100%;height:100%;border-radius:0;box-shadow:none}
+.onb-overlay.onb-demo .onb-skip{display:none}
+.onb-overlay.onb-demo .onb-scene{padding:90px 48px 60px}
+.onb-overlay.onb-demo .onb-title{font-size:46px;letter-spacing:-0.03em}
+.onb-overlay.onb-demo .onb-eyebrow{font-size:14px;letter-spacing:0.22em;margin-bottom:16px}
+.onb-overlay.onb-demo .onb-sub{font-size:22px;margin-bottom:36px;line-height:1.45}
+.onb-overlay.onb-demo .onb-actions{margin-top:24px}
+.onb-overlay.onb-demo .onb-btn{font-size:22px;padding:22px 32px}
+.onb-overlay.onb-demo .onb-progress{padding:18px 28px 0;gap:6px}
+.onb-overlay.onb-demo .onb-progress-bar{height:4px}
+.onb-overlay.onb-demo .onb-hero-art{width:240px;height:240px}
+.onb-overlay.onb-demo .onb-hero-art .mark{font-size:64px}
+.onb-overlay.onb-demo .onb-tiers,
+.onb-overlay.onb-demo .onb-progress-card,
+.onb-overlay.onb-demo .onb-deliv-list,
+.onb-overlay.onb-demo .onb-copy-mock{max-width:580px}
+.onb-overlay.onb-demo .onb-tier-row{padding:18px 22px;border-radius:18px}
+.onb-overlay.onb-demo .onb-tier-icon{width:52px;height:52px}
+.onb-overlay.onb-demo .onb-tier-icon svg{width:34px;height:34px}
+.onb-overlay.onb-demo .onb-tier-name{font-size:22px}
+.onb-overlay.onb-demo .onb-tier-range{font-size:14px}
+.onb-overlay.onb-demo .onb-tier-comm{font-size:18px}
+.onb-overlay.onb-demo .onb-tier-comm small{font-size:11px}
+.onb-overlay.onb-demo .onb-pg-label{font-size:14px}
+.onb-overlay.onb-demo .onb-pg-val{font-size:44px}
+.onb-overlay.onb-demo .onb-pg-bar{height:12px;margin-top:20px}
+.onb-overlay.onb-demo .onb-pg-marks{font-size:13px;margin-top:14px}
+.onb-overlay.onb-demo .onb-deliv{padding:16px 20px;border-radius:16px}
+.onb-overlay.onb-demo .onb-deliv-ic svg{width:32px;height:32px}
+.onb-overlay.onb-demo .onb-deliv-tx{font-size:18px}
+.onb-overlay.onb-demo .onb-deliv-tx small{font-size:13px;margin-top:4px}
+.onb-overlay.onb-demo .onb-deliv-state{font-size:11px;padding:5px 12px}
+.onb-overlay.onb-demo .onb-copy-head-lbl{font-size:14px}
+.onb-overlay.onb-demo .onb-chip{font-size:14px;padding:8px 16px}
+.onb-overlay.onb-demo .onb-copy-btn{font-size:18px;padding:16px}
+.onb-overlay.onb-demo .onb-copy-output{font-size:18px;min-height:140px}
+.onb-overlay.onb-demo #onb-demo-cursor{width:42px !important;height:42px !important}
 .onb-skip{
   position:absolute;top:14px;right:14px;z-index:5;
   background:rgba(0,0,0,0.08);border:none;color:var(--ink-48);
@@ -1817,7 +1856,11 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
     const mockCreator={source:'eventos',handle:'demo',row:{nome:'Taci',handle:'demo'}};
     await boot(mockCreator);
     try{ localStorage.removeItem(ONB_KEY_PREFIX+'demo'); }catch(e){}
-    setTimeout(()=>{ onbOpen(); startDemoAutopilot(); }, 800);
+    setTimeout(()=>{
+      document.getElementById('onb-modal')?.classList.add('onb-demo');
+      onbOpen();
+      startDemoAutopilot();
+    }, 800);
     return;
   }
   const token=readToken();
