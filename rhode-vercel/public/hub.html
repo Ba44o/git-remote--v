@@ -1871,7 +1871,7 @@ async function boot(creator){
 // ════════════════════════════════════════════════════════════════════
 const ONB_KEY_PREFIX='rhode_onb_v1_';
 const ONB_SCENE_DUR=[5500, 6500, 6500, 6500, 8000]; // ms por cena
-let _onbIdx=0, _onbTimer=null, _onbAnimTimers=[];
+let _onbIdx=0, _onbTimer=null, _onbAnimTimers=[], _onbDemoMode=false;
 
 function maybeShowOnboarding(handle){
   const k=ONB_KEY_PREFIX+(handle||'').toLowerCase();
@@ -1949,8 +1949,9 @@ function showScene(i){
   else if(i===3) animateDeliv();
   else if(i===4) animateCopy();
   // auto-next só não força em cena final (deixa creator clicar CTA)
+  // no modo demo, autopilot controla — desliga auto-advance
   clearTimeout(_onbTimer);
-  if(i<4){
+  if(i<4 && !_onbDemoMode){
     _onbTimer=setTimeout(()=>{ if(_onbIdx===i) showScene(i+1); }, ONB_SCENE_DUR[i]);
   }
   try{ Track.action('onb_scene', {scene:i}); }catch(e){}
@@ -2100,6 +2101,7 @@ window.onbOpen=onbOpen;
 //  Cursor "fantasma" navega entre cenas clicando em Continuar/CTA.
 // ════════════════════════════════════════════════════════════════════
 function startDemoAutopilot(){
+  _onbDemoMode=true;
   // injeta cursor global do demo no stage
   const stage=document.querySelector('.onb-stage'); if(!stage) return;
   let cur=document.getElementById('onb-demo-cursor');
@@ -2126,8 +2128,8 @@ function startDemoAutopilot(){
   }
 
   // sequência: espera animação de cada cena terminar, move cursor pro botão primário, clica
-  // tempos baseados em ONB_SCENE_DUR mas com folga pra terminar a animação interna
-  const stepDelays=[4800, 5800, 5800, 5800]; // 4 cliques (cena 0→1, 1→2, 2→3, 3→4)
+  // tempos pensados pra vídeo WhatsApp (~30s total): cena 0 menor, cenas com animação maiores
+  const stepDelays=[4200, 6200, 5500, 6500]; // 4 cliques (cena 0→1, 1→2, 2→3, 3→4)
   let curStep=0;
   function doStep(){
     if(curStep>=4) return;
