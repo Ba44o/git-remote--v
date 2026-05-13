@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -1106,6 +1106,115 @@ tr:last-child td{border-bottom:none}
 .onb-overlay.onb-demo-square .onb-copy-btn{font-size:13px;padding:11px}
 .onb-overlay.onb-demo-square .onb-copy-output{font-size:13px;min-height:96px}
 .onb-overlay.onb-demo-square #onb-demo-cursor{width:30px !important;height:30px !important}
+
+/* Estilo Anthropic — cream, serif, slow, editorial */
+.onb-overlay.onb-demo-anthropic{background:rgba(20,17,13,0.92);backdrop-filter:blur(14px)}
+.onb-overlay.onb-demo-anthropic .onb-stage{background:#f5efe4}  /* cream paper */
+.onb-overlay.onb-demo-anthropic .onb-scene{
+  padding:96px 90px 80px;
+  transition:opacity .9s ease, transform .9s cubic-bezier(.32,.72,.45,1);
+}
+.onb-overlay.onb-demo-anthropic .onb-eyebrow{
+  font-family:'Inter',sans-serif;
+  font-size:10px;letter-spacing:0.24em;text-transform:uppercase;font-weight:500;
+  color:#8a7a5e;margin-bottom:24px;opacity:.85;
+}
+.onb-overlay.onb-demo-anthropic .onb-title{
+  font-family:'Crimson Pro','Tiempos',Georgia,serif;
+  font-weight:400;
+  font-size:42px;letter-spacing:-0.012em;line-height:1.08;
+  color:#1d1916;margin-bottom:18px;
+}
+.onb-overlay.onb-demo-anthropic .onb-title .accent{color:#c4612a}  /* rust accent */
+.onb-overlay.onb-demo-anthropic .onb-sub{
+  font-family:'Crimson Pro','Tiempos',Georgia,serif;
+  font-weight:300;font-style:italic;
+  font-size:20px;line-height:1.5;letter-spacing:0;
+  color:#5d544a;margin-bottom:48px;max-width:580px;
+}
+.onb-overlay.onb-demo-anthropic .onb-actions{margin-top:auto;max-width:340px}
+.onb-overlay.onb-demo-anthropic .onb-btn{
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:0.01em;
+  padding:13px 26px;border-radius:6px;
+}
+.onb-overlay.onb-demo-anthropic .onb-btn-primary{background:#1d1916;color:#f5efe4}
+.onb-overlay.onb-demo-anthropic .onb-btn-primary:hover{background:#000}
+.onb-overlay.onb-demo-anthropic .onb-btn-ghost{color:#8a7a5e}
+
+/* Cena 1 — logo cream + dashed circle delicado */
+.onb-overlay.onb-demo-anthropic .onb-hero-art{
+  width:140px;height:140px;
+  background:#eee5d4;border-color:#d8cab0;
+}
+.onb-overlay.onb-demo-anthropic .onb-hero-art::before{border-color:rgba(196,97,42,0.35)}
+.onb-overlay.onb-demo-anthropic .onb-hero-art .mark{font-family:'Crimson Pro',serif;font-weight:500;font-size:46px;color:#1d1916}
+.onb-overlay.onb-demo-anthropic .onb-hero-art .mark span{color:#c4612a}
+
+/* Tiers — paper card, sutil */
+.onb-overlay.onb-demo-anthropic .onb-tier-row{
+  background:#faf5ea;border:1px solid #e6dcc8;padding:14px 18px;border-radius:10px;
+}
+.onb-overlay.onb-demo-anthropic .onb-tier-row.glow{
+  background:#f0e4c8;border-color:#c4612a;
+}
+.onb-overlay.onb-demo-anthropic .onb-tier-icon{background:#eee5d4}
+.onb-overlay.onb-demo-anthropic .onb-tier-name{font-family:'Crimson Pro',serif;font-weight:500;font-size:18px;color:#1d1916}
+.onb-overlay.onb-demo-anthropic .onb-tier-range{color:#8a7a5e;font-size:10px}
+.onb-overlay.onb-demo-anthropic .onb-tier-comm{font-family:'JetBrains Mono',monospace;color:#1d1916;font-size:13px;font-weight:500}
+.onb-overlay.onb-demo-anthropic .onb-tier-comm small{color:#8a7a5e;font-size:9px}
+
+/* GMV card — paper */
+.onb-overlay.onb-demo-anthropic .onb-progress-card{
+  background:#faf5ea;border:1px solid #e6dcc8;border-radius:14px;padding:24px 22px;
+}
+.onb-overlay.onb-demo-anthropic .onb-pg-label{color:#8a7a5e;font-size:10px}
+.onb-overlay.onb-demo-anthropic .onb-pg-val{font-family:'Crimson Pro',serif;font-weight:500;color:#1d1916;font-size:38px}
+.onb-overlay.onb-demo-anthropic .onb-pg-val .cur{color:#c4612a}
+.onb-overlay.onb-demo-anthropic .onb-pg-bar{background:#eee5d4}
+.onb-overlay.onb-demo-anthropic .onb-pg-bar-fill{
+  background:linear-gradient(90deg,#a8835c,#8a7a5e 30%,#c4612a 60%,#1d1916 100%);
+}
+.onb-overlay.onb-demo-anthropic .onb-pg-marks{color:#8a7a5e}
+.onb-overlay.onb-demo-anthropic .onb-pg-marks span.hit{color:#1d1916}
+
+/* Entregáveis — paper */
+.onb-overlay.onb-demo-anthropic .onb-deliv{
+  background:#faf5ea;border:1px solid #e6dcc8;padding:13px 16px;border-radius:10px;
+}
+.onb-overlay.onb-demo-anthropic .onb-deliv.unlock{
+  background:#eef0e3;border-color:#a8a572;
+}
+.onb-overlay.onb-demo-anthropic .onb-deliv-ic{color:#8a7a5e}
+.onb-overlay.onb-demo-anthropic .onb-deliv.unlock .onb-deliv-ic{color:#5e6e3a}
+.onb-overlay.onb-demo-anthropic .onb-deliv-tx{font-family:'Crimson Pro',serif;font-weight:500;font-size:15px;color:#1d1916}
+.onb-overlay.onb-demo-anthropic .onb-deliv-tx small{font-family:'JetBrains Mono',monospace;color:#8a7a5e;font-size:9px;letter-spacing:0.08em}
+.onb-overlay.onb-demo-anthropic .onb-deliv-state{background:#eee5d4;color:#8a7a5e;font-size:9px}
+.onb-overlay.onb-demo-anthropic .onb-deliv.unlock .onb-deliv-state{background:rgba(94,110,58,0.15);color:#5e6e3a}
+
+/* Copy IA mock — paper */
+.onb-overlay.onb-demo-anthropic .onb-copy-mock{
+  background:#faf5ea;border:1px solid #e6dcc8;border-radius:14px;
+}
+.onb-overlay.onb-demo-anthropic .onb-copy-head{border-bottom-color:#e6dcc8}
+.onb-overlay.onb-demo-anthropic .onb-copy-head-lbl{color:#8a7a5e}
+.onb-overlay.onb-demo-anthropic .onb-copy-head-dot{background:#c4612a}
+.onb-overlay.onb-demo-anthropic .onb-chip{
+  background:#faf5ea;border-color:#e6dcc8;color:#8a7a5e;
+  font-family:'Inter',sans-serif;font-size:11px;
+}
+.onb-overlay.onb-demo-anthropic .onb-chip.sel{background:#eee5d4;border-color:#1d1916;color:#1d1916}
+.onb-overlay.onb-demo-anthropic .onb-copy-btn{background:#1d1916;color:#f5efe4;border-radius:6px}
+.onb-overlay.onb-demo-anthropic .onb-copy-output{
+  background:#eee5d4;color:#3d3530;
+  font-family:'Crimson Pro',serif;font-style:italic;font-size:14px;line-height:1.55;
+}
+.onb-overlay.onb-demo-anthropic .onb-copy-output .caret{background:#1d1916}
+
+/* Cursor mais sutil */
+.onb-overlay.onb-demo-anthropic #onb-demo-cursor{
+  filter:drop-shadow(0 2px 5px rgba(20,17,13,0.25)) !important;
+}
+.onb-overlay.onb-demo-anthropic #onb-demo-cursor::after{border-color:#c4612a !important}
 .onb-skip{
   position:absolute;top:14px;right:14px;z-index:5;
   background:rgba(0,0,0,0.08);border:none;color:var(--ink-48);
@@ -1897,10 +2006,12 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
     await boot(mockCreator);
     try{ localStorage.removeItem(ONB_KEY_PREFIX+'demo'); }catch(e){}
     const aspect=new URLSearchParams(location.search).get('aspect')||'9x16';
+    const style=new URLSearchParams(location.search).get('style')||'';
     setTimeout(()=>{
       const m=document.getElementById('onb-modal');
       m?.classList.add('onb-demo');
       if(aspect==='1x1') m?.classList.add('onb-demo-square');
+      if(style==='anthropic') m?.classList.add('onb-demo-anthropic');
       _onbDemoMode=true;
       onbOpen();
       startDemoAutopilot();
@@ -2215,8 +2326,11 @@ function startDemoAutopilot(){
   }
 
   // sequência: espera animação de cada cena terminar, move cursor pro botão primário, clica
-  // tempos pensados pra ritmo natural (~35s total): respira mais entre cenas
-  const stepDelays=[5200, 7800, 6800, 7500]; // 4 cliques (cena 0→1, 1→2, 2→3, 3→4)
+  // ritmo editorial (~42s total): respira muito entre cenas
+  const isAnthropic=document.getElementById('onb-modal')?.classList.contains('onb-demo-anthropic');
+  const stepDelays=isAnthropic
+    ? [6500, 9000, 8200, 8800]   // anthropic: bem lento, contemplativo
+    : [5200, 7800, 6800, 7500];  // padrão
   let curStep=0;
   function doStep(){
     if(curStep>=4) return;
