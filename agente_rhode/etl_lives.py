@@ -19,6 +19,26 @@ import pandas as pd
 import requests
 from pathlib import Path
 
+# ── Auto-carrega .env da raiz do projeto (procura subindo a árvore) ─────────
+def _load_dotenv():
+    here = Path(__file__).resolve().parent
+    for parent in [here, *here.parents]:
+        env = parent / ".env"
+        if env.exists():
+            for line in env.read_text().splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, _, v = line.partition("=")
+                k = k.strip()
+                v = v.strip().strip('"').strip("'")
+                # Não sobrescreve variáveis já definidas no shell
+                os.environ.setdefault(k, v)
+            return env
+    return None
+
+_load_dotenv()
+
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
 
