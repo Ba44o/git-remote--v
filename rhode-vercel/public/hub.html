@@ -2002,6 +2002,10 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
   // Modo demo TOUR: ?demo=tour — carrega hub real com dados, anonimiza nome, navega pelas abas
   const demoMode=new URLSearchParams(location.search).get('demo');
   if(demoMode==='tour'){
+    // CSS suppressor logo no início — esconde chrome distraindo durante boot
+    const supressorCSS=`#flash-modal,#flash-banner-slot,#notif-bell,#suporte-btn,.gn-name,.gn-tier{display:none !important}`;
+    const _s=document.createElement('style'); _s.id='tour-suppressor'; _s.textContent=supressorCSS;
+    document.head.appendChild(_s);
     // força token preview da Taci (dados reais ricos), anonimiza no render
     const PREVIEW_TOKEN='TACI-PREVIEW-2026';
     try{ localStorage.setItem(TOKEN_KEY, PREVIEW_TOKEN); }catch(e){}
@@ -2017,10 +2021,6 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
         creator.row.tiktok_handle='';
       }
       await boot(creator);
-      // suprime modais e elementos de chrome que distraem na demo
-      const supressorCSS=`#flash-modal,#flash-banner-slot,#notif-bell,#suporte-btn,.gn-name,.gn-tier{display:none !important}`;
-      const s=document.createElement('style'); s.id='tour-suppressor'; s.textContent=supressorCSS;
-      document.head.appendChild(s);
       // mascara handles no DOM após render assíncrono + observer contínuo
       setTimeout(()=>maskHandlesInDOM(fakeName), 800);
       setTimeout(()=>maskHandlesInDOM(fakeName), 2500);
@@ -2028,8 +2028,9 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
       setTimeout(()=>{
         document.getElementById('onb-modal')?.classList.remove('on');
         document.getElementById('flash-modal')?.classList.remove('on');
-        startHubTour();
-      }, 1800);
+      }, 800);
+      // espera o hero render com dados de performance (loadPerf é assíncrono)
+      setTimeout(()=>startHubTour(), 3500);
       return;
     }
   }
