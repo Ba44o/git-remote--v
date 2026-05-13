@@ -4,12 +4,12 @@
   "buildCommand": null,
   "rewrites": [
     { "source": "/flash", "destination": "/wpp.html" },
-    { "source": "/sac", "destination": "/wpp.html" },
+    { "source": "/sac", "destination": "/sac.html" },
     { "source": "/equipe", "destination": "/wpp.html" }
   ],
   "headers": [
     {
-      "source": "/(admin|hub|acesso|cadastro|bem-vinda|index)\\.html",
+      "source": "/(admin|hub|acesso|cadastro|bem-vinda|sac|index)\\.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]

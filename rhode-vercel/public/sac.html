@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<title>SAC Rhode · Atendimento</title>
+<meta name="description" content="Central de ajuda da Rhode Jeans — rastreio, troca, cancelamento e contato com a equipe.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f5f2;--surface:#ffffff;--text:#222;--dim:#6a6a6a;--dimmer:#a8a8a8;
+  --red:#FE2C55;--green:#25D366;--hairline:rgba(0,0,0,0.08);
+  --sh:rgba(0,0,0,0.02) 0px 0px 0px 1px,rgba(0,0,0,0.04) 0px 2px 6px,rgba(0,0,0,0.08) 0px 4px 8px;
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;padding:24px 16px 80px}
+
+.wrap{max-width:480px;margin:0 auto}
+.logo{font-weight:800;font-size:24px;letter-spacing:-.5px;text-align:center;margin-bottom:6px}
+.logo span{color:var(--red)}
+.kicker{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dimmer);text-align:center;margin-bottom:24px}
+
+.intro{background:var(--surface);box-shadow:var(--sh);border-radius:20px;padding:22px 22px 18px;margin-bottom:20px;text-align:center}
+.intro h1{font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.2;margin-bottom:8px}
+.intro p{font-size:14px;color:var(--dim);line-height:1.55}
+
+.section-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dimmer);padding:0 6px;margin:24px 0 10px}
+
+details{background:var(--surface);box-shadow:var(--sh);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:box-shadow .2s}
+details[open]{box-shadow:rgba(0,0,0,0.02) 0px 0px 0px 1px,rgba(0,0,0,0.06) 0px 4px 12px,rgba(0,0,0,0.1) 0px 6px 16px}
+summary{padding:16px 18px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;-webkit-tap-highlight-color:transparent}
+summary::-webkit-details-marker{display:none}
+.q-icon{font-size:20px;flex-shrink:0;width:26px;text-align:center}
+.q-title{flex:1;font-weight:700;font-size:14.5px;line-height:1.3}
+.q-arrow{color:var(--dimmer);font-size:18px;transition:transform .2s;flex-shrink:0}
+details[open] .q-arrow{transform:rotate(90deg)}
+
+.a-body{padding:0 18px 18px;border-top:1px solid var(--hairline);padding-top:14px;font-size:13.5px;color:var(--dim);line-height:1.6}
+.a-body p{margin-bottom:10px}
+.a-body p:last-child{margin-bottom:0}
+.a-body strong{color:var(--text);font-weight:600}
+.a-body ul,.a-body ol{margin:8px 0 10px;padding-left:20px}
+.a-body li{margin-bottom:5px}
+.a-body a{color:var(--red);text-decoration:none;font-weight:600}
+.a-body .tip{background:var(--bg);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12.5px;display:flex;gap:8px;align-items:flex-start}
+.a-body .tip-icon{font-size:14px;flex-shrink:0}
+
+.cta-wrap{margin-top:28px;padding:22px;background:var(--surface);box-shadow:var(--sh);border-radius:18px;text-align:center}
+.cta-wrap h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.cta-wrap p{font-size:13px;color:var(--dim);margin-bottom:16px;line-height:1.5}
+.btn-wpp{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 6px 20px rgba(37,211,102,.25);transition:transform .15s}
+.btn-wpp:active{transform:translateY(1px)}
+.num{margin-top:12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--dimmer)}
+.num b{color:var(--text);font-weight:700;letter-spacing:.5px}
+
+.foot{margin-top:24px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--dimmer);line-height:1.6}
+.foot a{color:var(--red);text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="logo">Rhode<span>.</span></div>
+  <div class="kicker">Central de Atendimento</div>
+
+  <div class="intro">
+    <h1>A gente te ajuda 🤍</h1>
+    <p>Acha tua dúvida embaixo. Se não encontrar, fala com a equipe pelo WhatsApp.</p>
+  </div>
+
+  <div class="section-label">Dúvidas mais comuns</div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       FAQ — edite os textos abaixo conforme as políticas reais da Rhode.
+       Cada <details> é uma pergunta acordeão. -->
+
+  <details>
+    <summary><span class="q-icon">📦</span><span class="q-title">Como rastrear meu pedido</span><span class="q-arrow">›</span></summary>
+    <div class="a-body">
+      <p>Você acompanha tudo pelo próprio <strong>app do TikTok</strong>:</p>
+      <ol>
+        <li>Abre o TikTok → toca no teu <strong>perfil</strong></li>
+        <li>Menu (≡) → <strong>"Pedidos no TikTok Shop"</strong></li>
+        <li>Toca no pedido pra ver o status e o código de rastreio</li>
+      </ol>
+      <p>O TikTok também te manda atualizações no chat dele quando muda alguma coisa (postado, em trânsito, entregue).</p>
+      <div class="tip"><span class="tip-icon">⏱️</span><span><strong>Prazo médio:</strong> de 5 a 10 dias úteis após o envio (pode variar conforme a região). Se passar disso sem chegar, fala com a gente lá embaixo.</span></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="q-icon">🔄</span><span class="q-title">Troca ou devolução</span><span class="q-arrow">›</span></summary>
+    <div class="a-body">
+      <p>Você tem <strong>até 7 dias após receber o pedido</strong> pra pedir troca ou devolução (Código de Defesa do Consumidor) — sem precisar justificar.</p>
+      <p><strong>Como solicitar:</strong></p>
+      <ol>
+        <li>No app do TikTok → Pedidos → toca no pedido → <strong>"Solicitar reembolso/devolução"</strong></li>
+        <li>Escolhe o motivo e anexa foto se for caso de defeito</li>
+        <li>O TikTok Shop processa e te avisa em até 48h</li>
+      </ol>
+      <p>Se preferir ou se travou em algum passo, fala com a equipe pelo WhatsApp.</p>
+      <div class="tip"><span class="tip-icon">👖</span><span>A peça precisa estar <strong>sem uso, com etiqueta e na embalagem original</strong> pra trocas que não sejam por defeito.</span></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="q-icon">❌</span><span class="q-title">Cancelar pedido</span><span class="q-arrow">›</span></summary>
+    <div class="a-body">
+      <p><strong>Cancelamento antes do envio:</strong> dá pra cancelar direto no app do TikTok → Pedidos → toca no pedido → <strong>"Cancelar pedido"</strong>. O reembolso volta automático pra forma de pagamento em alguns dias.</p>
+      <p><strong>Se o pedido já foi enviado:</strong> aí não rola mais cancelar — vira caso de devolução (ver o item acima). Quando chegar, você recusa o recebimento ou solicita devolução pelo app.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="q-icon">⚠️</span><span class="q-title">Recebi com problema (defeito, errado, tamanho)</span><span class="q-arrow">›</span></summary>
+    <div class="a-body">
+      <p>Sentimos muito 😔 vamos resolver. Pra agilizar, manda pelo WhatsApp da equipe:</p>
+      <ul>
+        <li><strong>Número do pedido</strong> (você acha em Pedidos no app do TikTok)</li>
+        <li><strong>Foto ou vídeo</strong> mostrando o problema</li>
+        <li>Conta o que aconteceu (defeito, tamanho errado, peça diferente da foto…)</li>
+      </ul>
+      <p>A gente analisa e te orienta sobre troca, reembolso ou reposição.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="q-icon">🚚</span><span class="q-title">Prazo de entrega e frete</span><span class="q-arrow">›</span></summary>
+    <div class="a-body">
+      <p><strong>Prazo:</strong> normalmente entre <strong>5 e 10 dias úteis</strong> após o envio. O TikTok Shop mostra a previsão no momento da compra, baseado no teu CEP.</p>
+      <p><strong>Frete:</strong> o valor aparece na hora de finalizar o pedido. Em algumas datas e promoções rola <strong>frete grátis</strong> — fica de olho nos cupons do TikTok Shop e nas nossas lives.</p>
+      <div class="tip"><span class="tip-icon">⚡</span><span>Pedido feito durante <strong>live ou flash sale</strong>: às vezes o envio acelera. Vale checar o status do pedido no app.</span></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="q-icon">💳</span><span class="q-title">Reembolso (quando volta o dinheiro?)</span><span class="q-arrow">›</span></summary>
+    <div class="a-body">
+      <p>Depende da forma de pagamento:</p>
+      <ul>
+        <li><strong>PIX</strong> ou <strong>boleto</strong> → até 5 dias úteis após o pedido de devolução aprovado</li>
+        <li><strong>Cartão de crédito</strong> → estorno na próxima fatura (ou nas seguintes, conforme a operadora)</li>
+      </ul>
+      <p>O TikTok Shop te avisa quando o reembolso for processado.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="q-icon">🔢</span><span class="q-title">Onde acho o número do meu pedido?</span><span class="q-arrow">›</span></summary>
+    <div class="a-body">
+      <ol>
+        <li>Abre o TikTok → vai no teu <strong>perfil</strong></li>
+        <li>Menu (≡) no canto superior → <strong>"Pedidos no TikTok Shop"</strong></li>
+        <li>Toca no pedido — o número aparece no topo, começa geralmente com letras + dígitos</li>
+      </ol>
+      <p>Salva esse número antes de falar com a gente, agiliza muito o atendimento.</p>
+    </div>
+  </details>
+
+  <!-- ═══════════════════════ CTA WhatsApp ═══════════════════════ -->
+  <div class="cta-wrap">
+    <h3>Não encontrou ou é outro assunto?</h3>
+    <p>Fala direto com nossa equipe de atendimento no WhatsApp — geralmente respondemos no mesmo dia (em horário comercial).</p>
+    <a class="btn-wpp" id="btn-wpp" href="#" onclick="abrirWpp(event)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Abrir WhatsApp da equipe
+    </a>
+    <div class="num">Ou copia o número: <b id="num">—</b></div>
+  </div>
+
+  <div class="foot">
+    Rhode Jeans · @rhodejeansoficial · <a href="https://rhodejeans.com.br" target="_blank" rel="noopener">rhodejeans.com.br</a>
+  </div>
+
+</div>
+
+<script>
+/* ════════════ CONFIG ═══════════════════════════════════════════════════════
+   Pra trocar o número do SAC ou a mensagem padrão, edita aqui. */
+const SAC_PHONE = '5511959550649';
+const SAC_TEXT  = 'Oi, equipe Rhode! Tenho uma dúvida sobre meu pedido.';
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+function fmtPhone(n){
+  const d = (''+n).replace(/\D/g,'');
+  if(d.length>=13) return `+${d.slice(0,2)} ${d.slice(2,4)} ${d.slice(4,9)}-${d.slice(9)}`;
+  if(d.length>=12) return `+${d.slice(0,2)} ${d.slice(2,4)} ${d.slice(4,8)}-${d.slice(8)}`;
+  return '+'+d;
+}
+document.getElementById('num').textContent = fmtPhone(SAC_PHONE);
+
+function abrirWpp(e){
+  if(e) e.preventDefault();
+  const t = encodeURIComponent(SAC_TEXT);
+  const deep = `whatsapp://send?phone=${SAC_PHONE}&text=${t}`;
+  const web  = `https://wa.me/${SAC_PHONE}?text=${t}`;
+  let fellBack = false;
+  // tenta o deep link nativo primeiro
+  location.href = deep;
+  // se em 1.4s ainda estiver visível, cai pro web (browser não respeitou whatsapp://)
+  setTimeout(() => {
+    if(document.hidden || fellBack) return;
+    fellBack = true;
+    location.href = web;
+  }, 1400);
+}
+// preenche o href como fallback acessível (caso JS falhe)
+document.getElementById('btn-wpp').href = `https://wa.me/${SAC_PHONE}?text=${encodeURIComponent(SAC_TEXT)}`;
+</script>
+
+</body>
+</html>
