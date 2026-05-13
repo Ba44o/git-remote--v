@@ -2021,9 +2021,10 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
       const supressorCSS=`#flash-modal,#flash-banner-slot,#notif-bell,#suporte-btn,.gn-name,.gn-tier{display:none !important}`;
       const s=document.createElement('style'); s.id='tour-suppressor'; s.textContent=supressorCSS;
       document.head.appendChild(s);
-      // mascara handles no DOM após render assíncrono
+      // mascara handles no DOM após render assíncrono + observer contínuo
       setTimeout(()=>maskHandlesInDOM(fakeName), 800);
       setTimeout(()=>maskHandlesInDOM(fakeName), 2500);
+      setTimeout(()=>startMaskObserver(fakeName), 600);
       setTimeout(()=>{
         document.getElementById('onb-modal')?.classList.remove('on');
         document.getElementById('flash-modal')?.classList.remove('on');
@@ -2332,26 +2333,42 @@ window.onbOpen=onbOpen;
 //  Anonimiza nome/handle e navega pelas abas: Painel → Copy → Acessos → Novidades
 // ════════════════════════════════════════════════════════════════════
 function maskHandlesInDOM(fakeName){
-  const TACI_PATTERNS=[/@tacianetorress/gi, /@tacinetorres/gi, /tacianetorress/gi, /\btaci\b/gi];
+  const TACI_PATTERNS=[/@tacianetorress/gi, /@tacinetorres/gi, /tacianetorress/gi, /tacianetorres/gi, /\btaci\b/gi];
   const firstName=(fakeName||'Júlia').split(' ')[0];
+  const lcName=firstName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  function maskText(v){
+    let out=v;
+    for(const p of TACI_PATTERNS){
+      out=out.replace(p, m=> m.startsWith('@') ? '@'+lcName : (m===m.toUpperCase()?lcName.toUpperCase():firstName));
+    }
+    return out;
+  }
   // troca t-name (global nav)
   const tName=document.getElementById('t-name'); if(tName) tName.textContent=firstName;
-  // esconde gn-name (handle no top right)
-  document.querySelectorAll('.gn-name').forEach(el=>el.style.display='none');
-  // procura nos textos do hero e perf-main e substitui
-  ['hero-section','perf-main','perf-detail','copy-main','hist-main','entregaveis-main'].forEach(id=>{
-    const host=document.getElementById(id); if(!host) return;
-    const walker=document.createTreeWalker(host, NodeFilter.SHOW_TEXT);
-    let node;
-    while((node=walker.nextNode())){
-      let v=node.nodeValue;
-      let changed=false;
-      for(const p of TACI_PATTERNS){
-        if(p.test(v)){ v=v.replace(p, m=> m.startsWith('@')?'@'+firstName.toLowerCase():firstName); changed=true; }
-      }
-      if(changed) node.nodeValue=v;
-    }
+  // varre todo o app
+  const app=document.getElementById('app')||document.body;
+  const walker=document.createTreeWalker(app, NodeFilter.SHOW_TEXT);
+  let node;
+  while((node=walker.nextNode())){
+    const v=node.nodeValue;
+    const nv=maskText(v);
+    if(nv!==v) node.nodeValue=nv;
+  }
+  // também varre atributos value/data de inputs
+  document.querySelectorAll('input,textarea').forEach(el=>{
+    if(el.value){ const nv=maskText(el.value); if(nv!==el.value) el.value=nv; }
   });
+}
+
+let _tourMaskObserver=null;
+function startMaskObserver(fakeName){
+  if(_tourMaskObserver) return;
+  _tourMaskObserver=new MutationObserver(()=>{
+    // throttle: máscara após um pequeno delay pra agrupar mutações
+    clearTimeout(window._tourMaskTimer);
+    window._tourMaskTimer=setTimeout(()=>maskHandlesInDOM(fakeName), 80);
+  });
+  _tourMaskObserver.observe(document.body, {childList:true, subtree:true, characterData:true});
 }
 
 function startHubTour(){
