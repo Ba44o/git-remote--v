@@ -1809,6 +1809,15 @@ function readToken(){
 function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
 
 (async()=>{
+  // Modo demo (gravação de vídeo para WhatsApp): ?demo=onboarding
+  const isDemo=new URLSearchParams(location.search).get('demo')==='onboarding';
+  if(isDemo){
+    const mockCreator={source:'eventos',handle:'demo',row:{nome:'Taci',handle:'demo'}};
+    await boot(mockCreator);
+    try{ localStorage.removeItem(ONB_KEY_PREFIX+'demo'); }catch(e){}
+    setTimeout(()=>{ onbOpen(); startDemoAutopilot(); }, 800);
+    return;
+  }
   const token=readToken();
   if(!token){window.location.replace('/acesso.html');return;}
   const creator=await validateToken(token);
@@ -2083,6 +2092,66 @@ function animateCopy(){
 
 // Expor pra reabrir tour manualmente (ex: link no menu)
 window.onbOpen=onbOpen;
+
+// ════════════════════════════════════════════════════════════════════
+//  DEMO AUTOPILOT — usado em ?demo=onboarding pra gravar vídeo do WhatsApp.
+//  Cursor "fantasma" navega entre cenas clicando em Continuar/CTA.
+// ════════════════════════════════════════════════════════════════════
+function startDemoAutopilot(){
+  // injeta cursor global do demo no stage
+  const stage=document.querySelector('.onb-stage'); if(!stage) return;
+  let cur=document.getElementById('onb-demo-cursor');
+  if(!cur){
+    cur=document.createElement('div');
+    cur.id='onb-demo-cursor';
+    cur.innerHTML='<svg viewBox="0 0 22 22" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path d="M2 2 L20 11 L11 13 L8 20 Z"/></svg>';
+    Object.assign(cur.style,{
+      position:'absolute', width:'26px', height:'26px', zIndex:'20',
+      pointerEvents:'none', opacity:'0',
+      filter:'drop-shadow(0 3px 6px rgba(0,0,0,0.3))',
+      transition:'opacity .3s ease, top .8s cubic-bezier(.4,0,.2,1), left .8s cubic-bezier(.4,0,.2,1)',
+      top:'50%', left:'50%',
+    });
+    stage.appendChild(cur);
+  }
+  // estilo do ripple no tap
+  if(!document.getElementById('onb-demo-style')){
+    const s=document.createElement('style'); s.id='onb-demo-style';
+    s.textContent=`#onb-demo-cursor::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid #FE2C55;opacity:0}
+    #onb-demo-cursor.tap::after{opacity:1;animation:onbDemoRipple 1s ease-out}
+    @keyframes onbDemoRipple{0%{transform:scale(.3);opacity:.95}100%{transform:scale(1.7);opacity:0}}`;
+    document.head.appendChild(s);
+  }
+
+  // sequência: espera animação de cada cena terminar, move cursor pro botão primário, clica
+  // tempos baseados em ONB_SCENE_DUR mas com folga pra terminar a animação interna
+  const stepDelays=[4800, 5800, 5800, 5800]; // 4 cliques (cena 0→1, 1→2, 2→3, 3→4)
+  let curStep=0;
+  function doStep(){
+    if(curStep>=4) return;
+    const sceneIdx=_onbIdx;
+    const activeScene=document.querySelector(`.onb-scene[data-scene="${sceneIdx}"]`);
+    if(!activeScene){ curStep++; setTimeout(doStep, 1500); return; }
+    const btn=activeScene.querySelector('.onb-btn-primary');
+    if(!btn){ curStep++; setTimeout(doStep, 1500); return; }
+    moveCursorTo(btn, ()=>{ btn.click(); curStep++; setTimeout(doStep, stepDelays[curStep] || 5000); });
+  }
+  function moveCursorTo(target, cb){
+    const sr=stage.getBoundingClientRect();
+    const tr=target.getBoundingClientRect();
+    const x=tr.left-sr.left+tr.width/2-13;
+    const y=tr.top-sr.top+tr.height/2-13;
+    cur.style.opacity='1';
+    cur.style.left=x+'px';
+    cur.style.top=y+'px';
+    setTimeout(()=>{
+      cur.classList.add('tap');
+      setTimeout(()=>{ cur.classList.remove('tap'); cb&&cb(); }, 500);
+    }, 850);
+  }
+  // primeiro step dispara depois da animação inicial da cena 0
+  setTimeout(doStep, stepDelays[0]);
+}
 
 function renderEventoBoot(row,nome){
   const missaoOk=row?.missao_extra;
