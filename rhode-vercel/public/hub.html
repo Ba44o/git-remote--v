@@ -1799,6 +1799,8 @@ const DELIVERABLES=[
 ];
 
 let _creator=null,_selProd='Wide Leg Marmorizada',_selType='60s';
+let _notifs = [];
+let _notifPollHandle = null;
 
 const TOKEN_KEY='rhode_creator_token';
 function readToken(){
@@ -3175,8 +3177,7 @@ function goTab(id){
 }
 
 // ── Inbox de notificações ───────────────────────────────────────────
-let _notifs = [];
-let _notifPollHandle = null;
+// (declaração movida pra topo do script — TDZ quebrava boot síncrono)
 
 function notifIconFor(tipo){
   const map={tier_up:{cls:'tier',ico:'🏆'},amostra_aprovada:{cls:'amostra',ico:'📦'},amostra_recusada:{cls:'amostra',ico:'✕'},flash_sale:{cls:'flash',ico:'⚡'},lancamento:{cls:'lancamento',ico:'✨'},alerta_refund:{cls:'alerta',ico:'⚠️'},sistema:{cls:'sistema',ico:'🤍'}};
