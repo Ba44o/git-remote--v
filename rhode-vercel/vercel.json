@@ -18,7 +18,7 @@
   "functions": {
     "api/relay.js": { "maxDuration": 10 },
     "api/copy.js": { "maxDuration": 60 },
-    "api/analyze.js": { "maxDuration": 30 },
+    "api/analyze.js": { "maxDuration": 60 },
     "api/cron-recovery.js": { "maxDuration": 60 },
     "api/cron-reminder.js": { "maxDuration": 60 },
     "api/cron-tier-milestones.js": { "maxDuration": 60 },

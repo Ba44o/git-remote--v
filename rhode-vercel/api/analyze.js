@@ -51,8 +51,8 @@ ${JSON.stringify(kpis, null, 2)}
 TENDÊNCIA MENSAL (mais antigo → mais recente):
 ${tendencia ? JSON.stringify(tendencia, null, 2) : 'não disponível'}
 
-AMOSTRA DE LIVES (top ${lives_amostra.length} mais recentes do período):
-${JSON.stringify(lives_amostra.slice(0, 50), null, 2)}
+AMOSTRA DE LIVES (top ${Math.min(20, lives_amostra.length)} mais recentes):
+${JSON.stringify(lives_amostra.slice(0, 20), null, 0)}
 
 CORRELAÇÕES PEARSON (variável vs GMV, pré-calculadas):
 ${JSON.stringify(drivers_calc, null, 2)}
@@ -70,9 +70,16 @@ BENCHMARKS DO SETOR (TikTok Shop BR · moda feminina):
 - Ads ROAS bom: ≥ 3× | aceitável: 2-3× | ruim: <2×
 ═══════════════════════════════════════════════════════════════
 
-Sua tarefa: gerar análise estruturada em 4 blocos. Use SEMPRE números concretos das amostras, nunca vagueza ("alguns", "muitas"). Quando citar lives específicas, use o título exato.
+Sua tarefa: gerar análise estruturada em 4 blocos. Use SEMPRE números concretos das amostras, nunca vagueza (alguns, muitas). Quando citar lives específicas, use o título exato.
 
-Retorne APENAS JSON válido (sem markdown, sem texto fora):
+IMPORTANTE — REGRAS DE JSON:
+- Retorne APENAS JSON válido. Sem markdown, sem cercas, sem texto fora.
+- Dentro de strings, NÃO use aspas duplas. Use aspas simples ' se precisar citar algo.
+- Não use vírgulas trailing antes de } ou ].
+- Strings em uma única linha (sem quebra de linha dentro).
+- Para listas vazias use [], para objetos vazios use null.
+
+Estrutura exata (preencher todos os campos, nunca omitir):
 
 {
   "score_geral": <0-100>,
@@ -83,23 +90,25 @@ Retorne APENAS JSON válido (sem markdown, sem texto fora):
     { "nome": <"Alcance"|"Engajamento"|"Conversão"|"Receita"|"Eficiência"|"Consistência">,
       "score": <0-100>,
       "status": <"excelente"|"bom"|"médio"|"atenção"|"crítico">,
-      "avaliacao": <1-2 frases com dado específico> }
+      "avaliacao": <1 frase curta com dado específico> }
   ],
 
-  "resumo_executivo": <3-4 frases. Tom direto. Cite 2+ números concretos.>,
+  "resumo_executivo": <2 frases. Tom direto. Cite 2 números concretos.>,
 
   "diagnostico_lives": {
-    "top_3": [
+    "top_3": [ // exatamente 3 lives
+
       { "titulo": <título exato da live>,
         "started_at": <ISO>,
         "gmv": <número>,
-        "por_que": <1-2 frases: o que essa live tem de diferente. Compare com média do período.> }
+        "por_que": <1 frase curta: o que essa live tem de diferente. Compare com média do período.> }
     ],
-    "bottom_3": [
+    "bottom_3": [ // exatamente 3 lives
+
       { "titulo": <título>,
         "started_at": <ISO>,
         "gmv": <número>,
-        "o_que_deu_errado": <1-2 frases: hipótese causal específica.> }
+        "o_que_deu_errado": <1 frase curta: hipótese causal específica.> }
     ],
     "outliers": [
       { "tipo": <"positivo"|"negativo">,
@@ -139,8 +148,8 @@ Retorne APENAS JSON válido (sem markdown, sem texto fora):
     ]
   },
 
-  "acoes_priorizadas": [
-    { "prioridade": <1-5>,
+  "acoes_priorizadas": [ // exatamente 3 ações, ordenadas por prioridade
+    { "prioridade": <1-3>,
       "titulo": <ação clara e curta>,
       "impacto_rs": <string ex: "+R$15-25k/mês">,
       "hipotese": <1 frase: por que isso deve funcionar baseado nos dados>,
@@ -178,8 +187,8 @@ Retorne APENAS JSON válido (sem markdown, sem texto fora):
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 6000,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 5500,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -192,17 +201,66 @@ Retorne APENAS JSON válido (sem markdown, sem texto fora):
     const data = await resp.json();
     const raw  = data.content?.[0]?.text || '';
 
-    // Extract JSON (mesmo se vier com cercas)
+    // Extract JSON (mesmo se vier com cercas/markdown)
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return res.status(502).json({ error: 'Resposta inválida da IA', raw: raw.slice(0, 600) });
     }
 
-    let analysis;
-    try {
-      analysis = JSON.parse(jsonMatch[0]);
-    } catch (e) {
-      return res.status(502).json({ error: 'JSON inválido da IA', detail: e.message, raw: raw.slice(0, 600) });
+    const tryParse = (s) => { try { return JSON.parse(s); } catch (e) { return null; } };
+
+    let analysis = tryParse(jsonMatch[0]);
+
+    if (!analysis) {
+      // Tentativas de auto-fix em erros comuns de JSON do LLM:
+      // 1) Trailing commas antes de } ou ]
+      let fixed = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
+      analysis = tryParse(fixed);
+
+      if (!analysis) {
+        // 2) Aspas curvas dentro de strings (″ ‟ ’) → escapar como ' simples
+        fixed = fixed.replace(/[""‟]/g, '"').replace(/['']/g, "'");
+        analysis = tryParse(fixed);
+      }
+
+      if (!analysis) {
+        // 3) Aspas duplas não-escapadas dentro de valores de string: troca por aspas simples.
+        // Heurística: encontra valores delimitados por " e escapa aspas internas.
+        // Padrão: "..." onde dentro tem outra " sem \ antes
+        fixed = fixed.replace(/:\s*"((?:[^"\\]|\\.)*?)"(\s*[,}\]])/g, (m, val, tail) => {
+          const safe = val.replace(/(?<!\\)"/g, "'");
+          return ': "' + safe + '"' + tail;
+        });
+        analysis = tryParse(fixed);
+      }
+    }
+
+    if (!analysis) {
+      // Última tentativa: pega só o início válido (trunca no último } balanceado).
+      let depth = 0, lastValid = -1;
+      const s = jsonMatch[0];
+      for (let i = 0; i < s.length; i++) {
+        if (s[i] === '{') depth++;
+        else if (s[i] === '}') { depth--; if (depth === 0) lastValid = i; }
+      }
+      if (lastValid > 0) analysis = tryParse(s.slice(0, lastValid + 1));
+    }
+
+    if (!analysis) {
+      // Debug detalhado — tenta parse final pra capturar position do erro
+      let parseErr = '';
+      try { JSON.parse(jsonMatch[0]); } catch (e) { parseErr = e.message; }
+      const m = parseErr.match(/position (\d+)/);
+      const pos = m ? parseInt(m[1]) : 0;
+      const snippet = pos ? jsonMatch[0].slice(Math.max(0, pos-80), pos+80) : '';
+      return res.status(502).json({
+        error: 'JSON inválido da IA — não foi possível auto-corrigir',
+        parse_error: parseErr,
+        error_position: pos,
+        snippet_around_error: snippet,
+        raw_length: raw.length,
+        raw_tail: raw.slice(-500),
+      });
     }
 
     return res.status(200).json(analysis);
