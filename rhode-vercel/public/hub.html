@@ -1858,6 +1858,7 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
     try{ localStorage.removeItem(ONB_KEY_PREFIX+'demo'); }catch(e){}
     setTimeout(()=>{
       document.getElementById('onb-modal')?.classList.add('onb-demo');
+      _onbDemoMode=true; // FIX: setar antes de onbOpen pra showScene(0) não agendar auto-advance
       onbOpen();
       startDemoAutopilot();
     }, 800);
