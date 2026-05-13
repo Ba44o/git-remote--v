@@ -50,7 +50,10 @@ const TARGETS = {
 /* ══════════════════════════════════════════════════════════════════════════ */
 
 const q = new URLSearchParams(location.search);
-const to = (q.get('to') || 'equipe').toLowerCase();
+// lê o destino do path (creators.rhodejeans.com.br/flash → 'flash') OU da query (?to=flash)
+const pathSeg = location.pathname.replace(/^\/+/,'').replace(/\.html$/,'').toLowerCase();
+const fromPath = (pathSeg && pathSeg !== 'wpp') ? pathSeg : '';
+const to = (q.get('to') || fromPath || 'equipe').toLowerCase();
 const target = TARGETS[to] || TARGETS.equipe;
 const phone = q.get('p') || target.phone;
 const text  = q.get('t') || target.text;
