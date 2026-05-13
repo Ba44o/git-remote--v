@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Rhode Jeans · Live Performance Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#07080f;--s1:#0f1120;--s2:#161929;--s3:#1d2238;
+  --border:#252a42;--border2:#2e3554;
+  --purple:#7c6dff;--teal:#2dd4bf;--pink:#f472b6;--orange:#fb923c;
+  --green:#4ade80;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;
+  --text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;
+  --font:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:linear-gradient(90deg,#0f1120 0%,#12152a 100%);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:40px;height:40px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-icon img{width:100%;height:100%;object-fit:contain}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.brand-sub{font-size:11px;color:var(--muted2)}
+.topbar-meta{display:flex;align-items:center;gap:16px}
+.meta-chip{background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted2)}
+.meta-chip b{color:var(--teal)}
+
+/* ── NAV ── */
+.nav{display:flex;gap:4px;padding:16px 32px 0;border-bottom:1px solid var(--border)}
+.nav-tab{padding:8px 16px;border-radius:8px 8px 0 0;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted2);border:1px solid transparent;border-bottom:none;transition:.15s}
+.nav-tab.active{background:var(--s1);border-color:var(--border);color:var(--text)}
+.nav-tab:hover:not(.active){color:var(--text)}
+
+/* ── PAGES ── */
+.page{display:none;padding:24px 32px 40px}
+.page.active{display:block}
+
+/* ── SECTION ── */
+.section-label{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+
+/* ── GRID ── */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+.g32{grid-template-columns:3fr 2fr}
+
+/* ── CARD ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.card-title{font-size:12px;font-weight:700;margin-bottom:4px}
+.card-sub{font-size:11px;color:var(--muted2);margin-bottom:16px}
+.card-accent{position:absolute;top:0;left:0;right:0;height:2px}
+
+/* ── KPI ── */
+.kpi{padding:18px 20px}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px}
+.kpi-value{font-size:28px;font-weight:800;letter-spacing:-1.5px;line-height:1}
+.kpi-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.kpi-delta{font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px}
+.delta-up{background:rgba(74,222,128,.12);color:var(--green)}
+.delta-down{background:rgba(248,113,113,.12);color:var(--red)}
+.delta-warn{background:rgba(251,146,60,.12);color:var(--orange)}
+.kpi-bench{font-size:10px;color:var(--muted);flex:1}
+
+/* ── BADGE ── */
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.3px}
+.b-green{background:rgba(74,222,128,.12);color:var(--green)}
+.b-red{background:rgba(248,113,113,.12);color:var(--red)}
+.b-orange{background:rgba(251,146,60,.12);color:var(--orange)}
+.b-blue{background:rgba(96,165,250,.12);color:var(--blue)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)}
+.tbl th.r{text-align:right}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(37,42,66,.5);font-size:12px;vertical-align:middle}
+.tbl td.r{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--s2)}
+.tbl-name{font-weight:600;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbl-muted{color:var(--muted2);font-size:11px}
+
+/* ── FUNIL ── */
+.funnel{display:flex;flex-direction:column;gap:6px;padding:4px 0}
+.funnel-step{display:flex;align-items:center;gap:12px}
+.funnel-bar-wrap{flex:1;background:var(--s3);border-radius:4px;height:26px;overflow:hidden;position:relative}
+.funnel-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;white-space:nowrap;transition:width .6s ease}
+.funnel-label{width:140px;font-size:11px;color:var(--muted2);flex-shrink:0}
+.funnel-pct{width:55px;text-align:right;font-size:10px;color:var(--muted);flex-shrink:0}
+.arrow-down{text-align:center;color:var(--muted);font-size:10px;margin:-2px 0;padding-left:152px}
+
+/* ── BENCHMARK ── */
+.bench-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bench-name{width:120px;font-size:11px;color:var(--muted2);flex-shrink:0}
+.bench-track{flex:1;background:var(--s3);border-radius:4px;height:18px;position:relative;overflow:hidden}
+.bench-fill-target{position:absolute;top:0;height:100%;background:rgba(124,109,255,.2);border-radius:4px;width:100%}
+.bench-fill-actual{position:absolute;top:0;height:100%;border-radius:4px}
+.bench-pct{width:45px;text-align:right;font-size:11px;font-weight:700;flex-shrink:0}
+
+/* ── ALERT ── */
+.alert{display:flex;gap:12px;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;align-items:flex-start}
+.alert-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.ai-red{background:rgba(248,113,113,.15)}
+.ai-orange{background:rgba(251,146,60,.15)}
+.ai-green{background:rgba(74,222,128,.15)}
+.ai-blue{background:rgba(96,165,250,.15)}
+.alert-body h4{font-size:12px;font-weight:700;margin-bottom:3px}
+.alert-body p{font-size:11px;color:var(--muted2);line-height:1.5}
+.sev{font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 6px;border-radius:4px;margin-left:6px;text-transform:uppercase}
+.sev-high{background:rgba(248,113,113,.2);color:var(--red)}
+.sev-mid{background:rgba(251,146,60,.2);color:var(--orange)}
+.sev-low{background:rgba(96,165,250,.2);color:var(--blue)}
+
+/* ── CHART WRAPS ── */
+.chart-wrap{position:relative;height:220px}
+.chart-wrap-lg{position:relative;height:280px}
+
+/* ── LOADING ── */
+#loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading-msg{font-size:13px;color:var(--muted2)}
+
+/* ── FUNIL INSIGHTS ── */
+.funil-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.f-chip{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.f-chip-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin-bottom:6px}
+.f-chip-val{font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.f-chip-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.f-chip-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;margin-top:6px}
+
+.dropoff-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dropoff-name{width:120px;font-size:11px;color:var(--muted2);flex-shrink:0}
+.dropoff-track{flex:1;background:var(--s3);border-radius:4px;height:22px;position:relative;overflow:hidden}
+.dropoff-fill{position:absolute;top:0;left:0;height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding:0 8px;font-size:10px;font-weight:700}
+.dropoff-lost{width:55px;text-align:right;font-size:11px;font-weight:700;flex-shrink:0}
+
+.insight-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.insight-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--s3);border-radius:8px;border-left:3px solid transparent}
+.insight-item.red{border-left-color:var(--red)}
+.insight-item.orange{border-left-color:var(--orange)}
+.insight-item.green{border-left-color:var(--green)}
+.insight-item.blue{border-left-color:var(--blue)}
+.insight-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.insight-body{font-size:11px;color:var(--muted2);line-height:1.5}
+.insight-body b{color:var(--text)}
+
+.sim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.sim-box{background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:14px;text-align:center}
+.sim-scenario{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin-bottom:8px}
+.sim-val{font-size:20px;font-weight:800;letter-spacing:-1px;color:var(--green)}
+.sim-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── PERIOD FILTER ── */
+.period-bar{display:flex;align-items:center;gap:6px;padding:10px 32px;background:var(--s1);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.period-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.period-btn{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted2);transition:.15s}
+.period-btn:hover{border-color:var(--purple);color:var(--text)}
+.period-btn.active{background:var(--purple);border-color:var(--purple);color:#fff}
+
+/* ── CUSTOM PERIOD PICKER ── */
+.custom-picker-wrap{position:relative}
+.custom-picker-pop{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:200;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:16px;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.custom-picker-pop.open{display:block}
+.custom-picker-pop::before{content:'';position:absolute;top:-6px;left:18px;width:12px;height:12px;background:var(--s2);border-left:1px solid var(--border2);border-top:1px solid var(--border2);transform:rotate(45deg)}
+.picker-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.picker-row label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2)}
+.picker-row input[type=date]{background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;width:100%;outline:none;cursor:pointer}
+.picker-row input[type=date]:focus{border-color:var(--purple)}
+.picker-row input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.5);cursor:pointer}
+.picker-actions{display:flex;gap:8px;margin-top:4px}
+.picker-apply{flex:1;padding:8px;background:var(--purple);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
+.picker-apply:hover{opacity:.85}
+.picker-cancel{padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted2);font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
+.picker-cancel:hover{border-color:var(--muted2);color:var(--text)}
+.picker-hint{font-size:10px;color:var(--muted);margin-top:10px;line-height:1.4;border-top:1px solid var(--border);padding-top:8px}
+
+/* ── IA PAGE ── */
+.score-ring-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.score-ring{position:relative;width:140px;height:140px}
+.score-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.score-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-size:42px;font-weight:900;letter-spacing:-3px;line-height:1}
+.score-grade{font-size:22px;font-weight:800;margin-top:2px}
+.score-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted2);margin-top:6px}
+.score-headline{font-size:13px;color:var(--muted2);margin-top:4px;text-align:center;max-width:200px;line-height:1.4}
+
+.dim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.dim-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.dim-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.dim-excelente::before{background:linear-gradient(90deg,#4ade80,#2dd4bf)}
+.dim-bom::before{background:linear-gradient(90deg,#60a5fa,#4ade80)}
+.dim-médio::before{background:linear-gradient(90deg,#facc15,#fb923c)}
+.dim-atenção::before{background:linear-gradient(90deg,#fb923c,#f87171)}
+.dim-crítico::before{background:linear-gradient(90deg,#f87171,#e11d48)}
+.dim-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin-bottom:8px}
+.dim-score{font-size:28px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:6px}
+.dim-bar{height:4px;background:var(--s3);border-radius:2px;margin-bottom:8px;overflow:hidden}
+.dim-bar-fill{height:100%;border-radius:2px;transition:width .8s ease}
+.dim-status{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;margin-bottom:6px}
+.dim-avaliacao{font-size:11px;color:var(--muted2);line-height:1.5}
+
+.ia-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:linear-gradient(135deg,#7c6dff,#f472b6);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:-.2px}
+.ia-btn:hover{opacity:.85;transform:translateY(-1px)}
+.ia-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.ia-btn .spin{animation:spin .8s linear infinite}
+
+.ia-section{margin-top:20px}
+.ia-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ia-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.diag-item{display:flex;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:8px;border:1px solid transparent}
+.diag-critico{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.25)}
+.diag-alerta{background:rgba(251,146,60,.07);border-color:rgba(251,146,60,.25)}
+.diag-positivo{background:rgba(74,222,128,.07);border-color:rgba(74,222,128,.25)}
+.diag-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.diag-body h4{font-size:12px;font-weight:700;margin-bottom:3px}
+.diag-body p{font-size:11px;color:var(--muted2);line-height:1.5}
+.diag-impacto{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;margin-top:6px;background:var(--s3);color:var(--muted2)}
+
+.rec-item{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:start;padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.rec-num{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;flex-shrink:0}
+.rec-titulo{font-size:12px;font-weight:700;margin-bottom:4px}
+.rec-como{font-size:11px;color:var(--muted2);line-height:1.5;margin-bottom:6px}
+.rec-prazo{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--s3);color:var(--muted2);white-space:nowrap}
+.rec-impacto{font-size:13px;font-weight:800;color:var(--green);text-align:right;white-space:nowrap}
+
+.proj-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:8px}
+.proj-card{border-radius:12px;padding:18px;text-align:center;border:1px solid transparent}
+.proj-pessimista{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.2)}
+.proj-base{background:rgba(96,165,250,.07);border-color:rgba(96,165,250,.3)}
+.proj-otimista{background:rgba(74,222,128,.07);border-color:rgba(74,222,128,.2)}
+.proj-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.proj-val{font-size:26px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:6px}
+.proj-desc{font-size:11px;color:var(--muted2);line-height:1.4}
+
+.insight-ia-box{background:linear-gradient(135deg,rgba(124,109,255,.1),rgba(244,114,182,.08));border:1px solid rgba(124,109,255,.3);border-radius:14px;padding:20px;display:flex;gap:16px;align-items:flex-start;margin-top:8px}
+.insight-ia-icon{font-size:28px;flex-shrink:0;margin-top:2px}
+.insight-ia-text{font-size:13px;color:var(--text);line-height:1.6;font-style:italic}
+
+.kpi-fw-table{width:100%;border-collapse:collapse;margin-top:8px}
+.kpi-fw-table th{padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)}
+.kpi-fw-table th.r{text-align:right}
+.kpi-fw-table td{padding:10px 12px;border-bottom:1px solid rgba(37,42,66,.5);font-size:12px;vertical-align:middle}
+.kpi-fw-table td.r{text-align:right;font-variant-numeric:tabular-nums}
+.kpi-fw-table tr:last-child td{border-bottom:none}
+.kpi-fw-table tr:hover td{background:var(--s2)}
+.kpi-fw-status{display:inline-block;font-size:9px;font-weight:800;padding:2px 7px;border-radius:5px;letter-spacing:.5px;text-transform:uppercase}
+
+.ia-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;color:var(--muted2)}
+.ia-empty-icon{font-size:48px;opacity:.4}
+.ia-empty-text{font-size:13px;text-align:center;max-width:300px;line-height:1.6}
+
+/* ═══ IA v2: blocos numerados ═══ */
+.ia-block{margin-top:24px;padding-top:16px;border-top:1px dashed var(--border)}
+.ia-block-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ia-block-num{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7c6dff,#f472b6);color:#fff;border-radius:8px;font-weight:800;font-size:14px}
+.ia-block-title{font-size:14px;font-weight:700;letter-spacing:-.3px}
+.ia-block-sub{font-size:11px;color:var(--muted2);margin-left:auto}
+
+/* ═══ Diagnóstico Live-a-Live ═══ */
+.live-list-top{border-left:2px solid #4ade80}
+.live-list-bottom{border-left:2px solid #f87171}
+.live-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(37,42,66,.5)}
+.live-row:last-child{border-bottom:none}
+.live-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.rank-top{background:rgba(74,222,128,.15);color:#4ade80}
+.rank-bottom{background:rgba(248,113,113,.15);color:#f87171}
+.live-meta{flex:1;min-width:0}
+.live-title{font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.live-stats{font-size:10px;color:var(--muted2);margin:2px 0 4px}
+.live-because{font-size:11px;color:var(--text);line-height:1.5;opacity:.85}
+
+/* ═══ Outliers ═══ */
+.outlier-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(37,42,66,.5)}
+.outlier-row:last-child{border-bottom:none}
+.outlier-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.3px;flex-shrink:0;align-self:flex-start;white-space:nowrap}
+.outlier-body{flex:1;min-width:0}
+.pattern-card{background:linear-gradient(135deg,rgba(45,212,191,.06),rgba(96,165,250,.05));border-color:rgba(45,212,191,.25)}
+.pattern-text{font-size:13px;color:var(--text);line-height:1.6;padding:8px 0}
+
+/* ═══ Heatmap hora × dia ═══ */
+.heatmap{display:grid;grid-auto-flow:column;gap:3px;font-size:9px;height:100%;align-content:center}
+.heatmap-corner{width:36px}
+.heatmap-hcell{height:18px;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-weight:700}
+.heatmap-dlabel{width:36px;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-weight:700;height:24px}
+.heatmap-cell{height:24px;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:9px;cursor:pointer}
+.heatmap{display:grid;grid-template-columns:36px repeat(auto-fill, minmax(30px, 1fr));grid-auto-rows:24px;gap:3px;padding:8px}
+
+/* ═══ Drivers (Pearson bars) ═══ */
+.driver-row{display:grid;grid-template-columns:140px 1fr 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(37,42,66,.4)}
+.driver-row:last-child{border-bottom:none}
+.driver-name{font-size:12px;font-weight:600}
+.driver-bar-wrap{position:relative;background:var(--s3);border-radius:4px;height:18px;display:flex;align-items:center}
+.driver-bar{height:100%;border-radius:4px;transition:width .8s ease}
+.driver-corr{position:absolute;right:8px;font-size:11px;font-weight:700;white-space:nowrap}
+.driver-interp{font-size:11px;color:var(--muted2);line-height:1.4}
+
+/* ═══ Comparações ═══ */
+.cmp-row{padding:8px 0;border-bottom:1px solid rgba(37,42,66,.4)}
+.cmp-row:last-child{border-bottom:none}
+.cmp-metric{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.cmp-vals{display:flex;align-items:center;gap:6px;font-size:13px}
+.cmp-arrow{font-size:14px;font-weight:800}
+.cmp-delta{margin-left:auto;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.04)}
+.cmp-note{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+.best-live-box{padding:12px 0}
+.best-live-title{font-size:13px;font-weight:700;color:#facc15;line-height:1.3;margin-bottom:6px}
+.best-live-gmv{font-size:24px;font-weight:800;letter-spacing:-1px;color:#facc15;margin-bottom:8px}
+.best-live-gap{font-size:11px;color:var(--muted2);margin-bottom:8px}
+.best-live-replic{font-size:11px;color:var(--text);line-height:1.5;border-top:1px solid var(--border);padding-top:8px}
+
+.bench-cmp-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(37,42,66,.4);font-size:11px}
+.bench-cmp-row:last-child{border-bottom:none}
+.bench-cmp-name{flex:1;font-weight:600}
+.bench-cmp-vals{color:var(--muted2);font-variant-numeric:tabular-nums}
+.bench-cmp-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+
+/* ═══ Ações ═══ */
+.acao-card{padding:12px;margin-bottom:10px;background:var(--s2);border-radius:10px;border-left:3px solid #7c6dff}
+.acao-card:last-child{margin-bottom:0}
+.acao-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.acao-prio{width:30px;height:24px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7c6dff,#f472b6);color:#fff;border-radius:6px;font-weight:800;font-size:11px;flex-shrink:0}
+.acao-titulo{flex:1;font-size:13px;font-weight:700;line-height:1.3}
+.acao-impacto{font-size:11px;font-weight:700;color:#4ade80;background:rgba(74,222,128,.1);padding:4px 8px;border-radius:6px;white-space:nowrap}
+.acao-hip{font-size:11px;color:var(--muted2);font-style:italic;margin-bottom:6px;line-height:1.4}
+.acao-como{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:8px}
+.acao-foot{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:var(--muted)}
+.acao-prazo{background:rgba(124,109,255,.1);color:#7c6dff;padding:3px 8px;border-radius:5px;font-weight:600}
+.acao-sucesso{flex:1;text-align:right}
+
+/* ═══ Experimento A/B ═══ */
+.exp-card{background:linear-gradient(135deg,rgba(45,212,191,.06),rgba(244,114,182,.04));border-color:rgba(45,212,191,.25)}
+.exp-name{font-size:14px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px}
+.exp-hip{font-size:11px;color:var(--muted2);font-style:italic;margin-bottom:14px;line-height:1.5}
+.exp-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch;margin-bottom:14px}
+.exp-variante{padding:10px;background:var(--s2);border-radius:8px}
+.exp-a{border-left:2px solid #60a5fa}
+.exp-b{border-left:2px solid #f472b6}
+.exp-var-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin-bottom:4px}
+.exp-var-desc{font-size:12px;color:var(--text);line-height:1.4}
+.exp-vs{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted);padding:0 6px}
+.exp-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.exp-meta>div{padding:8px;background:var(--s2);border-radius:6px;text-align:center}
+.exp-meta span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:3px}
+.exp-meta b{font-size:13px;font-weight:700;color:var(--text)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.g5{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}.g32{grid-template-columns:1fr}.dim-grid{grid-template-columns:1fr 1fr}.proj-grid{grid-template-columns:1fr}}
+@media(max-width:720px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr}.nav{overflow-x:auto}.dim-grid{grid-template-columns:1fr}.rec-item{grid-template-columns:32px 1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-overlay">
+  <img src="/logo.webp" alt="Rhode Jeans" style="width:72px;height:72px;object-fit:contain;border-radius:12px;margin-bottom:8px" onerror="this.style.display='none'"/>
+  <div class="spinner"></div>
+  <div id="loading-msg">Carregando dados de lives...</div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">
+      <img src="/logo.webp" alt="Rhode Jeans" onerror="this.parentElement.innerHTML='👖'"/>
+    </div>
+    <div>
+      <div class="brand-name">Rhode Jeans</div>
+      <div class="brand-sub">TikTok Shop · Live Performance Dashboard</div>
+    </div>
+  </div>
+  <div class="topbar-meta">
+    <div class="meta-chip" id="chip-periodo">Período: <b>—</b></div>
+    <div class="meta-chip" id="chip-lives">Lives: <b>—</b></div>
+    <div class="meta-chip" id="chip-updated">Atualizado: <b id="chip-date">—</b></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-tab active" onclick="showPage('overview',this)">📊 Overview</div>
+  <div class="nav-tab" onclick="showPage('funil',this)">🔁 Funil &amp; Conversão</div>
+  <div class="nav-tab" onclick="showPage('operacional',this)">⚙️ Operacional</div>
+  <div class="nav-tab" onclick="showPage('kpis',this)">🎯 KPIs &amp; Metas</div>
+  <div class="nav-tab" onclick="showPage('alertas',this)">🚨 Alertas</div>
+  <div class="nav-tab" onclick="showPage('ia',this)">🤖 IA &amp; Relatório</div>
+</div>
+
+<!-- PERIOD FILTER -->
+<div class="period-bar">
+  <span class="period-label">Período</span>
+  <button class="period-btn" onclick="setPeriod(7,this)">7D</button>
+  <button class="period-btn" onclick="setPeriod(14,this)">14D</button>
+  <button class="period-btn" onclick="setPeriod(30,this)">30D</button>
+  <button class="period-btn" onclick="setPeriod(90,this)">3M</button>
+  <button class="period-btn" onclick="setPeriod(180,this)">6M</button>
+  <button class="period-btn active" onclick="setPeriod(0,this)">Tudo</button>
+</div>
+
+<!-- ═══ PAGE 1: OVERVIEW ═══ -->
+<div class="page active" id="page-overview">
+  <div class="section-label" style="margin-top:8px" id="overview-period-label">KPIs Históricos</div>
+  <div class="grid g5" style="margin-bottom:24px">
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--purple),var(--pink))"></div>
+      <div class="kpi-label">GMV Total Lives</div>
+      <div class="kpi-value" style="color:var(--purple)" id="kpi-gmv-total">—</div>
+      <div class="kpi-row"><span class="kpi-delta" id="kpi-gmv-delta">—</span><span class="kpi-bench" id="kpi-gmv-bench">—</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--teal),var(--blue))"></div>
+      <div class="kpi-label">GMV Médio / Live</div>
+      <div class="kpi-value" style="color:var(--teal)" id="kpi-gmv-avg">—</div>
+      <div class="kpi-row"><span class="kpi-delta" id="kpi-gmv-avg-delta">—</span><span class="kpi-bench" id="kpi-gmv-avg-bench">—</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--green),var(--teal))"></div>
+      <div class="kpi-label">CTOR Médio</div>
+      <div class="kpi-value" style="color:var(--green)" id="kpi-ctor">—</div>
+      <div class="kpi-row"><span class="kpi-delta" id="kpi-ctor-delta">—</span><span class="kpi-bench" id="kpi-ctor-bench">—</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--orange),var(--yellow))"></div>
+      <div class="kpi-label">CTR Médio</div>
+      <div class="kpi-value" style="color:var(--orange)" id="kpi-ctr">—</div>
+      <div class="kpi-row"><span class="kpi-delta" id="kpi-ctr-delta">—</span><span class="kpi-bench" id="kpi-ctr-bench">—</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--pink),var(--red))"></div>
+      <div class="kpi-label">Ticket Médio</div>
+      <div class="kpi-value" style="color:var(--pink)" id="kpi-ticket">—</div>
+      <div class="kpi-row"><span class="kpi-delta" id="kpi-ticket-delta">—</span><span class="kpi-bench" id="kpi-ticket-bench">—</span></div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">GMV por Live · Evolução Mensal</div>
+      <div class="card-sub">Barras = GMV total · Linha = GMV médio/live (eficiência)</div>
+      <div class="chart-wrap-lg"><canvas id="c-gmv-monthly"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Composição do GMV — Lives vs Loja</div>
+      <div class="card-sub">Participação das lives no faturamento total da loja por mês</div>
+      <div class="chart-wrap-lg"><canvas id="c-composicao"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid g3">
+    <div class="card">
+      <div class="card-title">CTOR Mensal — Tendência</div>
+      <div class="card-sub">Taxa de conversão clique → pedido</div>
+      <div class="chart-wrap"><canvas id="c-ctor-trend"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">GMV / Viewer · Eficiência por Mês</div>
+      <div class="card-sub">R$ gerado por viewer presente na live</div>
+      <div class="chart-wrap"><canvas id="c-gmv-viewer"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Audiência — Peak Médio por Mês</div>
+      <div class="card-sub">Média de pico simultâneo de espectadores</div>
+      <div class="chart-wrap"><canvas id="c-peak"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 2: FUNIL ═══ -->
+<div class="page" id="page-funil">
+
+  <!-- KPI chips do funil -->
+  <div class="funil-chips" id="funil-kpi-chips"></div>
+
+  <!-- Funil + Drop-off -->
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title" id="funil-title">Funil de Conversão — Live Média</div>
+      <div class="card-sub">Da visualização ao pedido · valores médios por live</div>
+      <div class="funnel" id="funnel-main"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Drop-off por Etapa — Onde o Funil Perde</div>
+      <div class="card-sub">% perdida em cada transição · gargalo em destaque</div>
+      <div id="dropoff-bars"></div>
+      <div id="funil-insights" class="insight-list"></div>
+    </div>
+  </div>
+
+  <!-- Benchmark full-width -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Benchmark: Período Atual vs Melhor Mês Histórico</div>
+    <div class="card-sub">Gap de performance por KPI — quanto falta para replicar o melhor mês</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px" id="bench-comp"></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid g3" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Correlações com GMV (Pearson)</div>
+      <div class="card-sub">O que mais impacta o resultado — r próximo de 1 = forte correlação</div>
+      <div class="chart-wrap"><canvas id="c-corr"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">GMV Médio por Faixa de Duração</div>
+      <div class="card-sub">Impacto direto do tempo de transmissão no resultado</div>
+      <div class="chart-wrap"><canvas id="c-duracao"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">CTR vs CTOR — Onde Está o Gargalo</div>
+      <div class="card-sub">CTR = clique no produto · CTOR = clique que vira pedido</div>
+      <div class="chart-wrap"><canvas id="c-ctr-ctor"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Top 10 + Scatter -->
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Top 10 Lives · Eficiência (GMV / Viewer)</div>
+      <div class="card-sub">Melhor retorno por espectador presente</div>
+      <table class="tbl">
+        <thead><tr>
+          <th>Live</th><th>Data</th>
+          <th class="r">GMV</th><th class="r">Viewers</th>
+          <th class="r">R$/Viewer</th><th class="r">CTOR</th>
+        </tr></thead>
+        <tbody id="tbl-eficiencia"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Dispersão: Views × GMV</div>
+      <div class="card-sub">Correlação views→GMV · cada ponto = uma live</div>
+      <div class="chart-wrap-lg"><canvas id="c-scatter"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Simulador de impacto -->
+  <div class="card">
+    <div class="card-title">Simulador de Impacto — E se a Conversão Melhorar?</div>
+    <div class="card-sub">Estimativa de GMV adicional com ganhos realistas de CTOR · baseado no volume atual</div>
+    <div class="sim-grid" id="sim-results"></div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 3: OPERACIONAL ═══ -->
+<div class="page" id="page-operacional">
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">GMV Médio por Dia da Semana</div>
+      <div class="card-sub">Quais dias concentram mais resultado</div>
+      <div class="chart-wrap"><canvas id="c-dow"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">GMV Médio por Horário de Início</div>
+      <div class="card-sub">Impacto do horário no resultado</div>
+      <div class="chart-wrap"><canvas id="c-hora"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Nº de Lives × GMV Médio/Live por Mês</div>
+      <div class="card-sub">Mais lives ≠ mais resultado — eficiência importa mais que volume</div>
+      <div class="chart-wrap"><canvas id="c-freq-efic"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Novos Seguidores por Mês</div>
+      <div class="card-sub">Lives como canal de crescimento de audiência</div>
+      <div class="chart-wrap"><canvas id="c-followers"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Top 15 Lives — Ranking por GMV</div>
+    <div class="card-sub">Melhores performances históricas</div>
+    <table class="tbl">
+      <thead><tr>
+        <th>#</th><th>Live</th><th>Data</th>
+        <th class="r">GMV</th><th class="r">Pedidos</th><th class="r">Views</th>
+        <th class="r">Peak</th><th class="r">Duração</th>
+        <th class="r">CTR</th><th class="r">CTOR</th><th class="r">R$/Viewer</th>
+      </tr></thead>
+      <tbody id="tbl-top15"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ PAGE 4: KPIs & METAS ═══ -->
+<div class="page" id="page-kpis">
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Gap de Performance — Último Mês vs Melhor Mês</div>
+      <div class="card-sub">Atingimento atual de cada KPI em relação ao benchmark</div>
+      <div id="gap-bars" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Radar de Performance — Mês a Mês</div>
+      <div class="card-sub">Normalizado pelo melhor mês = 100%</div>
+      <div class="chart-wrap-lg"><canvas id="c-radar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Simulador de Meta: Para atingir R$200k/mês em Lives</div>
+    <div class="card-sub">Baseado nos dados históricos — alavancas necessárias</div>
+    <div class="grid g3" style="margin-top:16px">
+      <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:16px">
+        <div style="font-size:10px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Alavanca 1 · Mais Views</div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:6px">Com <b style="color:var(--purple)">20 lives/mês</b> e <b style="color:var(--purple)">25k views/live</b></div>
+        <div style="font-size:20px;font-weight:800;color:var(--green);margin-bottom:6px">R$189.000</div>
+        <div style="font-size:11px;color:var(--muted2)">Views × CTR 22% × CTOR 2.9% × ticket médio</div>
+        <div style="font-size:11px;margin-top:8px"><span class="badge b-orange">Requer 3x mais alcance</span></div>
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--purple);border-radius:10px;padding:16px">
+        <div style="font-size:10px;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Alavanca 2 · Duração + Views ★ recomendado</div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:6px">Com <b style="color:var(--purple)">20 lives/mês</b>, <b style="color:var(--purple)">6h+ duração</b> e <b style="color:var(--purple)">20k views</b></div>
+        <div style="font-size:20px;font-weight:800;color:var(--green);margin-bottom:6px">R$214.000</div>
+        <div style="font-size:11px;color:var(--muted2)">Correlação duração 0.79 + volume views → GMV maior/live</div>
+        <div style="font-size:11px;margin-top:8px"><span class="badge b-green">Caminho mais factível</span></div>
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:16px">
+        <div style="font-size:10px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Alavanca 3 · Ticket + CTOR</div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:6px">Subir CTOR para <b style="color:var(--teal)">3.5%</b> e ticket para <b style="color:var(--teal)">R$85</b></div>
+        <div style="font-size:20px;font-weight:800;color:var(--green);margin-bottom:6px">R$177.000</div>
+        <div style="font-size:11px;color:var(--muted2)">Foco em oferta, curadoria de produto e mecânica de desconto</div>
+        <div style="font-size:11px;margin-top:8px"><span class="badge b-blue">Mais sustentável a longo prazo</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Ações Prioritárias para Bater KPIs</div>
+    <div class="card-sub">Rankeadas por impacto × viabilidade</div>
+    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="background:rgba(74,222,128,.15);color:var(--green);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700">IMPACTO ALTO</span><span style="font-size:12px;font-weight:700">Aumentar duração para 6h+</span></div>
+        <p style="font-size:11px;color:var(--muted2);line-height:1.6">Lives >10h geram GMV médio 30x maior que lives &lt;1h. Correlação duração × GMV: 0.79. Meta: 6h mínimo, 10h ideal nas janelas de maior alcance.</p>
+      </div>
+      <div style="background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="background:rgba(74,222,128,.15);color:var(--green);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700">IMPACTO ALTO</span><span style="font-size:12px;font-weight:700">Concentrar lives em Seg, Qua e Sex</span></div>
+        <p style="font-size:11px;color:var(--muted2);line-height:1.6">Segunda tem o maior GMV médio/live. Sexta tem o melhor CTOR. Quinta e sábado têm performance abaixo da média — redistribuir o calendário.</p>
+      </div>
+      <div style="background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.2);border-radius:10px;padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="background:rgba(251,146,60,.15);color:var(--orange);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700">IMPACTO MÉDIO</span><span style="font-size:12px;font-weight:700">Iniciar ao redor das 10h–11h</span></div>
+        <p style="font-size:11px;color:var(--muted2);line-height:1.6">10h tem o maior CTR e GMV médio/live do histórico. Lives noturnas (19h+) apresentam CTOR significativamente menor. Padronizar abertura matinal.</p>
+      </div>
+      <div style="background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.2);border-radius:10px;padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="background:rgba(251,146,60,.15);color:var(--orange);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700">IMPACTO MÉDIO</span><span style="font-size:12px;font-weight:700">Menos lives, mais preparação</span></div>
+        <p style="font-size:11px;color:var(--muted2);line-height:1.6">O mês com menos lives no histórico foi o de maior GMV médio/live. Qualidade de oferta e estrutura de alcance superam volume bruto de transmissões.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 5: ALERTAS ═══ -->
+<div class="page" id="page-alertas">
+  <div class="grid g2" style="margin-bottom:16px">
+    <div>
+      <div class="section-label">Alertas Críticos</div>
+      <div id="alertas-criticos"></div>
+    </div>
+    <div>
+      <div class="section-label">Observações &amp; Oportunidades</div>
+      <div id="alertas-positivos"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Evolução do Reembolso vs GMV Loja</div>
+    <div class="card-sub" id="reembolso-sub">Requer export de Overview mensal</div>
+    <div class="chart-wrap-lg"><canvas id="c-reembolso-alerta"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 6: IA & RELATÓRIO ═══ -->
+<div class="page" id="page-ia">
+
+  <!-- Score + Dimensões (sempre visível, gerado a partir dos dados) -->
+  <div class="grid g32" style="margin-bottom:16px">
+
+    <!-- Score geral -->
+    <div class="card" style="display:flex;flex-direction:column">
+      <div class="card-title">Framework de Performance — Scorecard Integrado</div>
+      <div class="card-sub">6 dimensões · calculado a partir dos dados históricos · clique em "Gerar Análise" para diagnóstico IA</div>
+      <div class="dim-grid" id="dim-grid"></div>
+    </div>
+
+    <!-- Score ring + botão IA -->
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:20px">
+      <div style="text-align:center">
+        <div class="score-ring-wrap">
+          <div class="score-ring" id="score-ring-wrap">
+            <svg viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="10"/>
+              <circle id="score-arc" cx="70" cy="70" r="58" fill="none" stroke="#7c6dff" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4"
+                style="transition:stroke-dashoffset 1.2s ease,stroke .5s"/>
+            </svg>
+            <div class="score-ring-inner">
+              <div class="score-num" id="score-num" style="color:#7c6dff">—</div>
+              <div class="score-grade" id="score-grade" style="color:var(--muted2)">—</div>
+            </div>
+          </div>
+          <div class="score-label">Performance Score</div>
+          <div class="score-headline" id="score-headline" style="color:var(--muted2)">Calculando...</div>
+        </div>
+      </div>
+
+      <!-- KPI Framework Table -->
+      <div style="width:100%">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Tabela de KPIs</div>
+        <table class="kpi-fw-table" id="kpi-fw-table">
+          <thead><tr>
+            <th>KPI</th>
+            <th class="r">Atual</th>
+            <th class="r">Benchmark</th>
+            <th class="r">Status</th>
+          </tr></thead>
+          <tbody id="kpi-fw-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Botão IA -->
+      <div style="width:100%;text-align:center;padding-top:8px;border-top:1px solid var(--border)">
+        <button class="ia-btn" id="ia-btn" onclick="gerarAnaliseIA()">
+          <span id="ia-btn-icon">🤖</span>
+          <span id="ia-btn-text">Gerar Análise com IA</span>
+        </button>
+        <div style="font-size:10px;color:var(--muted);margin-top:8px">Powered by Claude Sonnet · análise cognitiva dos dados</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultado da IA (aparece após clique) -->
+  <div id="ia-result">
+    <div class="ia-empty">
+      <div class="ia-empty-icon">🤖</div>
+      <div class="ia-empty-text">Clique em "Gerar Análise com IA" para receber um diagnóstico completo com recomendações priorizadas e projeção de GMV.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── GLOBALS ─────────────────────────────────────────────────────────────────
+let allLives = [], allStoreDaily = [], activeDays = 0;
+let _lastIAPayload = null; // payload da última análise IA gerada
+
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const SB_URL = 'https://ivzpykuluxcxefhyzfsf.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
+const SB_HDR = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` };
+
+Chart.defaults.color = '#64748b';
+Chart.defaults.borderColor = '#252a42';
+Chart.defaults.font.family = "'Inter',system-ui,sans-serif";
+Chart.defaults.font.size = 11;
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+const brl  = v => 'R$' + (+v).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
+const brl2 = v => 'R$' + (+v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const p1   = v => (+v).toFixed(1) + '%';
+const p2   = v => (+v).toFixed(2) + '%';
+const intFmt = v => (+v).toLocaleString('pt-BR');
+
+const sum  = (arr, k) => arr.reduce((s, x) => s + (parseFloat(x[k]) || 0), 0);
+const avg  = (arr, fn) => arr.length ? arr.reduce((s, x) => s + fn(x), 0) / arr.length : 0;
+const wavg = (arr, valFn, wFn) => {
+  const tw = arr.reduce((s, x) => s + wFn(x), 0);
+  return tw ? arr.reduce((s, x) => s + valFn(x) * wFn(x), 0) / tw : 0;
+};
+
+function pearson(xs, ys) {
+  const n = xs.length;
+  if (!n) return 0;
+  const mx = xs.reduce((a,b)=>a+b)/n, my = ys.reduce((a,b)=>a+b)/n;
+  const num = xs.reduce((s,x,i)=>s+(x-mx)*(ys[i]-my),0);
+  const dx  = Math.sqrt(xs.reduce((s,x)=>s+(x-mx)**2,0));
+  const dy  = Math.sqrt(ys.reduce((s,y)=>s+(y-my)**2,0));
+  return dx&&dy ? num/(dx*dy) : 0;
+}
+
+function durLabel(min) {
+  const h = Math.floor(min/60), m = Math.round(min%60);
+  return h ? `${h}h${m>0?m.toString().padStart(2,'0'):''}` : `${m}min`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'2-digit'});
+}
+
+function monthLabel(ym) {
+  const [y, m] = ym.split('-');
+  const names = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return names[+m-1] + '/' + y.slice(2);
+}
+
+// ─── CHART HELPER (destrói antes de recriar) ─────────────────────────────────
+function mkChart(id, config) {
+  const existing = Chart.getChart(id);
+  if (existing) existing.destroy();
+  return new Chart(document.getElementById(id), config);
+}
+
+// ─── PERIOD FILTER ───────────────────────────────────────────────────────────
+function filterByPeriod(lives, storeDaily, days) {
+  if (!days) return { lives, storeDaily, prevLives: null, periodLabel: 'Histórico completo' };
+
+  const now    = new Date();
+  const cutCur = new Date(); cutCur.setDate(now.getDate() - days);
+  const cutPrv = new Date(); cutPrv.setDate(now.getDate() - days * 2);
+
+  const curCut = cutCur.toISOString().slice(0, 10);
+  const prvCut = cutPrv.toISOString().slice(0, 10);
+
+  const fmtD = d => new Date(d).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+  const periodLabel = `${fmtD(curCut)} – ${fmtD(now.toISOString().slice(0,10))} vs ${fmtD(prvCut)} – ${fmtD(curCut)}`;
+
+  return {
+    lives:       lives.filter(l => l.date >= curCut),
+    storeDaily:  storeDaily.filter(d => d.date >= curCut),
+    prevLives:   lives.filter(l => l.date >= prvCut && l.date < curCut),
+    periodLabel,
+  };
+}
+
+function setPeriod(days, el) {
+  activeDays = days;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const { lives, storeDaily, prevLives, periodLabel } = filterByPeriod(allLives, allStoreDaily, days);
+  if (!lives.length) return;
+  buildDashboard(lives, storeDaily, prevLives, periodLabel);
+}
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+function deltaClass(pct) {
+  if (pct > 5)  return 'delta-up';
+  if (pct < -5) return 'delta-down';
+  return 'delta-warn';
+}
+
+function deltaArrow(pct) {
+  if (pct > 5)  return '↑';
+  if (pct < -5) return '↓';
+  return '→';
+}
+
+// ─── FETCH ───────────────────────────────────────────────────────────────────
+async function fetchLives() {
+  const r = await fetch(
+    `${SB_URL}/rest/v1/lives?select=*&order=started_at.asc&limit=2000`,
+    { headers: SB_HDR }
+  );
+  if (!r.ok) throw new Error(`lives: ${r.status}`);
+  return r.json();
+}
+
+async function fetchStoreDaily() {
+  const r = await fetch(
+    `${SB_URL}/rest/v1/store_daily?select=date,month,gmv_bruto,reembolsos&order=date.asc&limit=2000`,
+    { headers: SB_HDR }
+  );
+  if (!r.ok) return [];
+  return r.json();
+}
+
+// ─── MAIN ────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    document.getElementById('loading-msg').textContent = 'Buscando lives do Supabase...';
+    const [lives, storeDaily] = await Promise.all([fetchLives(), fetchStoreDaily()]);
+
+    if (!lives.length) {
+      document.getElementById('loading-msg').textContent = 'Nenhuma live encontrada. Execute o ETL primeiro.';
+      return;
+    }
+
+    allLives = lives;
+    allStoreDaily = storeDaily;
+    buildDashboard(lives, storeDaily);
+    document.getElementById('loading-overlay').style.display = 'none';
+
+  } catch(e) {
+    document.getElementById('loading-msg').textContent = `Erro: ${e.message}`;
+    console.error(e);
+  }
+}
+
+// ─── BUILD ───────────────────────────────────────────────────────────────────
+function buildDashboard(lives, storeDaily, prevLives = null, periodLabel = null) {
+  // ── Meses disponíveis ──────────────────────────────────────────────────────
+  const months = [...new Set(lives.map(l => l.month))].sort();
+  const mLabels = months.map(monthLabel);
+
+  // ── Agrupar por mês ───────────────────────────────────────────────────────
+  const byMonth = {};
+  months.forEach(m => { byMonth[m] = lives.filter(l => l.month === m); });
+
+  // ── Agregados mensais ──────────────────────────────────────────────────────
+  const gmvTotal    = months.map(m => sum(byMonth[m], 'gmv_bruto'));
+  const nLives      = months.map(m => byMonth[m].length);
+  const gmvMedia    = gmvTotal.map((g,i) => nLives[i] ? g/nLives[i] : 0);
+  const ctorMensal  = months.map(m => {
+    const ls = byMonth[m].filter(l => l.ctor > 0);
+    return ls.length ? avg(ls, l => l.ctor) : 0;
+  });
+  const ctrMensal   = months.map(m => {
+    const ls = byMonth[m].filter(l => l.ctr > 0);
+    return ls.length ? avg(ls, l => l.ctr) : 0;
+  });
+  const gmvViewer   = months.map(m => {
+    const ls = byMonth[m].filter(l => l.viewers > 0);
+    return ls.length ? avg(ls, l => l.gmv_direct / l.viewers) : 0;
+  });
+  const peakMed     = months.map(m => avg(byMonth[m], l => l.peak_viewers));
+  const followersMes= months.map(m => sum(byMonth[m], 'new_followers'));
+
+  // ── Melhor mês (benchmark) ─────────────────────────────────────────────────
+  const bestIdx     = gmvMedia.indexOf(Math.max(...gmvMedia));
+  const bestMonth   = months[bestIdx];
+  const lastMonth   = months[months.length - 1];
+  const lastLives   = byMonth[lastMonth];
+  const bestLives   = byMonth[bestMonth];
+
+  // ── KPI cards ─────────────────────────────────────────────────────────────
+  const totalGMV  = sum(lives, 'gmv_bruto');
+  const allAvgGMV = totalGMV / lives.length;
+  const allCtor   = avg(lives.filter(l=>l.ctor>0), l=>l.ctor);
+  const allCtr    = avg(lives.filter(l=>l.ctr>0), l=>l.ctr);
+  const allTicket = wavg(lives.filter(l=>l.orders>0), l=>l.avg_price, l=>l.orders);
+
+  // Período de comparação: prevLives (período anterior equivalente) ou mês anterior
+  const cmpLives = prevLives !== null ? prevLives : (months.length > 1 ? byMonth[months[months.length-2]] : []);
+  const cmpLabel = prevLives !== null ? 'período ant.' : 'mês ant.';
+
+  const prevGMV    = sum(cmpLives, 'gmv_bruto');
+  const gmvChg     = prevGMV ? (totalGMV - prevGMV) / prevGMV * 100 : 0;
+
+  const prevAvgGMV = cmpLives.length ? sum(cmpLives, 'gmv_bruto') / cmpLives.length : 0;
+  const gmvAvgChg  = prevAvgGMV ? (allAvgGMV - prevAvgGMV) / prevAvgGMV * 100 : 0;
+
+  const prevCtor   = avg(cmpLives.filter(l=>l.ctor>0), l=>l.ctor);
+  const ctorChg    = prevCtor ? (allCtor - prevCtor) / prevCtor * 100 : 0;
+
+  const prevCtr    = avg(cmpLives.filter(l=>l.ctr>0), l=>l.ctr);
+  const ctrChg     = prevCtr ? (allCtr - prevCtr) / prevCtr * 100 : 0;
+
+  const prevTicket = wavg(cmpLives.filter(l=>l.orders>0), l=>l.avg_price, l=>l.orders);
+  const ticketChg  = prevTicket ? (allTicket - prevTicket) / prevTicket * 100 : 0;
+
+  const bestCtor   = Math.max(...ctorMensal);
+  const lastGMVAvg = allAvgGMV; // alias para compatibilidade com benchmark abaixo
+
+  // Topbar
+  document.getElementById('chip-periodo').innerHTML = periodLabel
+    ? `<b>${periodLabel}</b>`
+    : `Período: <b>${mLabels[0]} – ${mLabels[mLabels.length-1]}</b>`;
+  document.getElementById('chip-lives').innerHTML   = `Lives: <b>${lives.length}</b>`;
+  document.getElementById('chip-date').textContent  = new Date().toLocaleDateString('pt-BR');
+  document.getElementById('overview-period-label').textContent =
+    `KPIs Históricos — ${mLabels[0]} a ${mLabels[mLabels.length-1]}`;
+
+  // KPI values
+  function setKpi(id, val, deltaId, deltaPct, deltaExtra, benchId, benchTxt) {
+    document.getElementById(id).textContent = val;
+    const de = document.getElementById(deltaId);
+    de.textContent = `${deltaArrow(deltaPct)} ${Math.abs(deltaPct).toFixed(1)}%${deltaExtra}`;
+    de.className = `kpi-delta ${deltaClass(deltaPct)}`;
+    document.getElementById(benchId).textContent = benchTxt;
+  }
+
+  setKpi('kpi-gmv-total',   totalGMV >= 1e6 ? `R$${(totalGMV/1e6).toFixed(2)}M` : brl(totalGMV),
+         'kpi-gmv-delta',   gmvChg, ` vs ${cmpLabel}`, 'kpi-gmv-bench', `${lives.length} lives · ant: ${brl(prevGMV)}`);
+
+  setKpi('kpi-gmv-avg',     allAvgGMV >= 1000 ? `R$${(allAvgGMV/1000).toFixed(1)}k` : brl(allAvgGMV),
+         'kpi-gmv-avg-delta', gmvAvgChg, ` vs ${cmpLabel}`,
+         'kpi-gmv-avg-bench', prevAvgGMV ? `Ant: ${brl(prevAvgGMV)}/live` : `Melhor: ${brl(gmvMedia[bestIdx])}`);
+
+  setKpi('kpi-ctor',        p2(allCtor),
+         'kpi-ctor-delta',  ctorChg, ` vs ${cmpLabel}`,
+         'kpi-ctor-bench',  prevCtor ? `Ant: ${p2(prevCtor)}` : `Melhor: ${p2(bestCtor)}`);
+
+  setKpi('kpi-ctr',         p1(allCtr),
+         'kpi-ctr-delta',   ctrChg, ` vs ${cmpLabel}`,
+         'kpi-ctr-bench',   prevCtr ? `Ant: ${p1(prevCtr)}` : 'gargalo está no CTOR');
+
+  setKpi('kpi-ticket',      brl2(allTicket),
+         'kpi-ticket-delta', ticketChg, ` vs ${cmpLabel}`,
+         'kpi-ticket-bench', prevTicket ? `Ant: ${brl2(prevTicket)}` : '—');
+
+  // ─── CHARTS PAGE 1 ──────────────────────────────────────────────────────────
+  mkChart('c-gmv-monthly', {
+    type: 'bar',
+    data: { labels: mLabels, datasets: [
+      { label: 'GMV Total', data: gmvTotal,
+        backgroundColor: months.map(m => m===bestMonth ? 'rgba(74,222,128,.7)' :
+          m===lastMonth ? 'rgba(248,113,113,.6)' : 'rgba(124,109,255,.5)'),
+        borderRadius: 6, borderSkipped: false, yAxisID: 'y' },
+      { label: 'GMV Médio/Live', data: gmvMedia.map(v=>Math.round(v)),
+        type: 'line', borderColor: '#2dd4bf', backgroundColor: 'transparent',
+        borderWidth: 2, pointRadius: 5, pointBackgroundColor: '#2dd4bf',
+        yAxisID: 'y2', tension: .3 }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false },
+      plugins: { legend: { position:'top' } },
+      scales: {
+        y:  { grid:{color:'#1d2238'}, ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}, title:{display:true,text:'GMV Total'} },
+        y2: { position:'right', grid:{display:false}, ticks:{callback:v=>'R$'+(v/1000).toFixed(1)+'k'}, title:{display:true,text:'GMV Médio/Live'} }
+      }}
+  });
+
+  // Composição: usa store_daily se disponível
+  if (storeDaily.length) {
+    const storeByMonth = {};
+    storeDaily.forEach(d => {
+      if (!storeByMonth[d.month]) storeByMonth[d.month] = {gmv:0, reimb:0};
+      storeByMonth[d.month].gmv   += parseFloat(d.gmv_bruto) || 0;
+      storeByMonth[d.month].reimb += parseFloat(d.reembolsos) || 0;
+    });
+    const commonMonths = months.filter(m => storeByMonth[m]);
+    const cLabels = commonMonths.map(monthLabel);
+    mkChart('c-composicao', {
+      type: 'bar',
+      data: { labels: cLabels, datasets: [
+        { label: 'GMV Lives', data: commonMonths.map(m=>sum(byMonth[m]||[],'gmv_bruto')),
+          backgroundColor: 'rgba(74,222,128,.75)', borderRadius:[0,0,6,6], stack:'g' },
+        { label: 'Resto Loja', data: commonMonths.map(m=>{
+            const livesGmv = sum(byMonth[m]||[],'gmv_bruto');
+            return Math.max(0, (storeByMonth[m]?.gmv||0) - livesGmv);
+          }), backgroundColor: 'rgba(96,165,250,.3)', borderRadius:[6,6,0,0], stack:'g' }
+      ]},
+      options: { responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{position:'top'} },
+        scales:{ x:{stacked:true,grid:{display:false}}, y:{stacked:true,grid:{color:'#1d2238'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}} }}
+    });
+  } else {
+    const ctx = document.getElementById('c-composicao').getContext('2d');
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px Inter,system-ui,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Adicione exports de Overview para ver composição da loja', 200, 140);
+  }
+
+  mkChart('c-ctor-trend', {
+    type: 'line',
+    data: { labels: mLabels, datasets: [
+      { label: 'CTOR %', data: ctorMensal.map(v=>+v.toFixed(3)), borderColor:'#4ade80',
+        backgroundColor:'rgba(74,222,128,.08)', borderWidth:2.5, pointRadius:5,
+        pointBackgroundColor:'#4ade80', fill:true, tension:.3 },
+      { label: `Ref. ${monthLabel(bestMonth)} (${p2(bestCtor)})`,
+        data: months.map(()=>+bestCtor.toFixed(3)),
+        borderColor:'rgba(124,109,255,.4)', borderDash:[5,5], borderWidth:1.5, pointRadius:0 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'top'} },
+      scales:{ y:{grid:{color:'#1d2238'},ticks:{callback:v=>v+'%'}}, x:{grid:{display:false}} }}
+  });
+
+  mkChart('c-gmv-viewer', {
+    type: 'bar',
+    data: { labels: mLabels, datasets:[{
+      label:'R$/Viewer', data: gmvViewer.map(v=>+v.toFixed(3)),
+      backgroundColor: months.map((_,i)=>i===bestIdx?'rgba(74,222,128,.7)':'rgba(45,212,191,.45)'),
+      borderRadius:6, borderSkipped:false
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:'#1d2238'},ticks:{callback:v=>'R$'+v.toFixed(2)},min:0},x:{grid:{display:false}}} }
+  });
+
+  mkChart('c-peak', {
+    type: 'line',
+    data:{ labels:mLabels, datasets:[{
+      label:'Peak Médio', data:peakMed.map(v=>Math.round(v)),
+      borderColor:'#fb923c', backgroundColor:'rgba(251,146,60,.08)',
+      borderWidth:2, pointRadius:5, pointBackgroundColor:'#fb923c', fill:true, tension:.3
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:'#1d2238'},min:0},x:{grid:{display:false}}} }
+  });
+
+  // ─── PAGE 2: FUNIL ──────────────────────────────────────────────────────────
+  document.getElementById('funil-title').textContent =
+    `Funil de Conversão — Live Média (${lives.length} lives)`;
+
+  const avgViews    = avg(lives, l=>l.views);
+  const avgViewers  = avg(lives, l=>l.viewers);
+  const avgProdImp  = avg(lives, l=>l.product_impressions);
+  const avgProdClk  = avg(lives, l=>l.product_clicks);
+  const avgOrders   = avg(lives, l=>l.orders);
+  const avgGMV      = avg(lives, l=>l.gmv_direct);
+  const avgTicket   = avg(lives.filter(l=>l.orders>0), l=>l.avg_price);
+  const avgDurMin   = avg(lives, l=>l.duration_min);
+
+  // Conversões por etapa
+  const rViewersViews   = avgViews   ? avgViewers / avgViews * 100   : 0;
+  const rImpViewers     = avgViewers ? avgProdImp / avgViewers * 100  : 0;
+  const rClkImp         = avgProdImp ? avgProdClk / avgProdImp * 100  : 0; // CTR
+  const rOrdClk         = avgProdClk ? avgOrders  / avgProdClk * 100  : 0; // CTOR
+  const rpv             = avgViewers ? avgGMV / avgViewers : 0;
+
+  // ── KPI chips do funil ──────────────────────────────────────────────────────
+  const impPerViewerFmt = (avgViewers > 0 ? avgProdImp / avgViewers : 0);
+  const chipData = [
+    { label:'CTR (Impr. → Clique)', val:p1(rClkImp),
+      sub: `${intFmt(Math.round(avgProdImp))} impr. → ${intFmt(Math.round(avgProdClk))} cliques/live`,
+      color: rClkImp>=20?'#4ade80':rClkImp>=15?'#fb923c':'#f87171',
+      tag: rClkImp>=20?'saudável':rClkImp>=15?'médio':'atenção' },
+    { label:'CTOR (Clique → Pedido)', val:p2(rOrdClk),
+      sub: `${intFmt(Math.round(avgProdClk))} cliques → ${avgOrders.toFixed(1)} pedidos/live`,
+      color: rOrdClk>=3?'#4ade80':rOrdClk>=2?'#fb923c':'#f87171',
+      tag: rOrdClk>=3?'bom':rOrdClk>=2?'médio':'gargalo' },
+    { label:'R$ / Viewer', val:brl2(rpv),
+      sub: `${intFmt(Math.round(avgViewers))} viewers únicos/live em média`,
+      color: rpv>=0.8?'#4ade80':rpv>=0.5?'#fb923c':'#f87171',
+      tag: rpv>=0.8?'eficiente':rpv>=0.5?'médio':'baixo' },
+    { label:'Impr. / Viewer', val:impPerViewerFmt.toFixed(1)+'×',
+      sub: `${intFmt(Math.round(avgProdImp))} impr. ÷ ${intFmt(Math.round(avgViewers))} viewers`,
+      color: impPerViewerFmt>=5?'#4ade80':impPerViewerFmt>=3?'#fb923c':'#f87171',
+      tag: impPerViewerFmt>=5?'alto':impPerViewerFmt>=3?'médio':'baixo' },
+  ];
+  const chipsEl = document.getElementById('funil-kpi-chips');
+  chipsEl.innerHTML = '';
+  chipData.forEach(c => {
+    const tagBg = c.color === '#4ade80' ? 'rgba(74,222,128,.15)' : c.color === '#fb923c' ? 'rgba(251,146,60,.15)' : 'rgba(248,113,113,.15)';
+    chipsEl.innerHTML += `
+      <div class="f-chip">
+        <div class="f-chip-label">${c.label}</div>
+        <div class="f-chip-val" style="color:${c.color}">${c.val}</div>
+        <div class="f-chip-sub">${c.sub}</div>
+        <span class="f-chip-tag" style="background:${tagBg};color:${c.color}">${c.tag}</span>
+      </div>`;
+  });
+
+  // ── Funil visual ────────────────────────────────────────────────────────────
+  // NOTA: Product Impressions NÃO é etapa de drop-off — é um multiplicador de engajamento.
+  // Cada viewer pode gerar múltiplas impressões ao rolar o feed de produtos.
+  // O funil real é: Views → Viewers → (×impressions/viewer) → Cliques → Pedidos → GMV
+  const impPerViewer = avgViewers > 0 ? avgProdImp / avgViewers : 0;
+
+  // Funil de conversão sequencial (apenas etapas onde o valor CAI)
+  const funnelData = [
+    { label:'Views (alcance)',    val:avgViews,   fmt:intFmt(Math.round(avgViews)),   pct:'base de alcance',                                    color:'#7c6dff' },
+    { label:'Viewers únicos',     val:avgViewers, fmt:intFmt(Math.round(avgViewers)), pct:p1(rViewersViews)+' das views',                        color:'#60a5fa' },
+    { label:'Prod. Clicks (CTR)', val:avgProdClk, fmt:intFmt(Math.round(avgProdClk)), pct:'CTR '+p1(rClkImp)+' ('+intFmt(Math.round(avgProdImp))+' impr.)',  color:'#4ade80' },
+    { label:'Pedidos (CTOR)',     val:avgOrders,  fmt:avgOrders.toFixed(1),            pct:'CTOR '+p2(rOrdClk)+' dos clicks',                    color:'#facc15' },
+    { label:'GMV gerado',         val:avgGMV,     fmt:brl(avgGMV),                    pct:avgOrders?brl2(avgGMV/avgOrders)+' ticket médio':'—', color:'#f472b6' },
+  ];
+  const fmx = Math.max(...funnelData.map(d=>d.val||0));
+  const fEl = document.getElementById('funnel-main');
+  fEl.innerHTML = '';
+
+  // Engajamento de produto (fora do funil — é multiplicador)
+  fEl.innerHTML += `
+    <div style="background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.3);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
+      <div style="font-size:22px">📦</div>
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#2dd4bf;margin-bottom:2px">Engajamento de Produto</div>
+        <div style="font-size:16px;font-weight:800;color:#fff">${impPerViewer.toFixed(1)} impressões / viewer</div>
+        <div style="font-size:11px;color:var(--muted)">${intFmt(Math.round(avgProdImp))} impressões totais em média — cada viewer vê múltiplos produtos ao rolar</div>
+      </div>
+    </div>`;
+
+  funnelData.forEach((s,i) => {
+    const pctW = Math.max(6, s.val / fmx * 100);
+    fEl.innerHTML += `
+      <div class="funnel-step">
+        <div class="funnel-label">${s.label}</div>
+        <div class="funnel-bar-wrap">
+          <div class="funnel-bar" style="width:${pctW}%;background:${s.color}22;border-left:3px solid ${s.color};color:${s.color}">${s.fmt}</div>
+        </div>
+        <div class="funnel-pct">${s.pct}</div>
+      </div>
+      ${i<funnelData.length-1?'<div class="arrow-down">▼</div>':''}`;
+  });
+
+  // ── Drop-off por etapa ───────────────────────────────────────────────────────
+  // Apenas etapas SEQUENCIAIS onde o número sempre cai (Impressões não entra — é multiplicador)
+  const dropSteps = [
+    { name:'Views → Viewers (audiência)',     lost: 100 - rViewersViews, retained: rViewersViews },
+    { name:'Impressões → Cliques (CTR)',      lost: 100 - rClkImp,       retained: rClkImp       },
+    { name:'Cliques → Pedidos (CTOR)',        lost: 100 - rOrdClk,       retained: rOrdClk       },
+  ];
+  // Gargalo = maior perda relativa
+  const gargaloIdx = dropSteps.reduce((mi, s, i) => s.lost > dropSteps[mi].lost ? i : mi, 0);
+  const dbEl = document.getElementById('dropoff-bars');
+  dbEl.innerHTML = '';
+  dropSteps.forEach((s, i) => {
+    const isGargalo = i === gargaloIdx;
+    const color = isGargalo ? '#f87171' : s.lost > 50 ? '#fb923c' : '#4ade80';
+    const retW  = Math.min(100, Math.max(2, s.retained));
+    dbEl.innerHTML += `
+      <div class="dropoff-row">
+        <div class="dropoff-name" style="${isGargalo?'color:var(--red);font-weight:700':''}">
+          ${isGargalo?'🔴 ':''} ${s.name}
+        </div>
+        <div class="dropoff-track">
+          <div class="dropoff-fill" style="width:${retW}%;background:${color}33;color:${color}">
+            ${s.retained.toFixed(1)}% retidos
+          </div>
+        </div>
+        <div class="dropoff-lost" style="color:${color}">-${s.lost.toFixed(1)}%</div>
+      </div>`;
+  });
+
+  // ── Insights automáticos do funil ─────────────────────────────────────────
+  const gargalo    = dropSteps[gargaloIdx];
+  const ctorBest   = Math.max(...lives.map(l=>l.ctor).filter(v=>v>0));
+  const ctorWorst  = Math.min(...lives.map(l=>l.ctor).filter(v=>v>0));
+  const highCtorLv = lives.filter(l=>l.ctor>=3).length;
+  const totalLives = lives.length;
+  const insEl      = document.getElementById('funil-insights');
+  insEl.innerHTML  = '';
+
+  const insights = [
+    // Gargalo principal
+    { type:'red', icon:'🔴',
+      html: `<b>Gargalo principal: ${gargalo.name}</b> — perde <b>${gargalo.lost.toFixed(1)}%</b> nessa etapa.
+             De cada 1.000 entradas, saem apenas <b>${Math.round(gargalo.retained*10)}</b> convertidos.` },
+    // CTR vs CTOR
+    rClkImp >= 15 && rOrdClk < 3
+      ? { type:'orange', icon:'⚠️',
+          html: `<b>CTR saudável (${p1(rClkImp)}), mas CTOR baixo (${p2(rOrdClk)})</b> —
+                 o público clica nos produtos mas não finaliza. Problema de oferta, preço ou senso de urgência.` }
+      : null,
+    // R$/Viewer
+    { type: rpv>=0.6?'green':'orange', icon: rpv>=0.6?'✅':'📉',
+      html: `<b>R$/Viewer: ${brl2(rpv)}</b> — Para cada ${intFmt(Math.round(avgViewers))} viewers, gera em média ${brl(avgGMV)} de GMV.
+             ${rpv < 0.6 ? 'Está abaixo do ideal (R$0,60+). Melhorar curadoria de produtos aumenta esse índice.' : 'Eficiência por viewer acima do benchmark.'}` },
+    // Duração vs resultado
+    avgDurMin < 180
+      ? { type:'orange', icon:'⏱️',
+          html: `<b>Duração média baixa (${durLabel(avgDurMin)})</b> — lives com 6h+ geram GMV médio 30× maior que lives <1h.
+                 Estender o tempo de transmissão é a alavanca de maior impacto.` }
+      : { type:'green', icon:'⏱️',
+          html: `<b>Duração média boa (${durLabel(avgDurMin)})</b> — faixa de duração favorável para maximizar GMV. Manter consistência.` },
+    // Lives com CTOR alto
+    { type:'blue', icon:'💡',
+      html: `<b>${highCtorLv} de ${totalLives} lives</b> tiveram CTOR ≥ 3% (${p1(highCtorLv/totalLives*100)} do total).
+             CTOR máximo observado: <b>${p2(ctorBest)}</b>. Analisar essas lives para replicar a fórmula.` },
+  ].filter(Boolean);
+
+  insights.forEach(ins => {
+    insEl.innerHTML += `
+      <div class="insight-item ${ins.type}">
+        <div class="insight-icon">${ins.icon}</div>
+        <div class="insight-body">${ins.html}</div>
+      </div>`;
+  });
+
+  // ── Benchmark full-width ─────────────────────────────────────────────────────
+  const benchFields = [
+    { name:'GMV/live',     atual:allAvgGMV,                        meta:gmvMedia[bestIdx],                                          unit:'R$' },
+    { name:'CTOR',         atual:allCtor,                           meta:Math.max(...ctorMensal),                                    unit:'%'  },
+    { name:'Views/live',   atual:avg(lives,l=>l.views),             meta:avg(bestLives,l=>l.views),                                  unit:''   },
+    { name:'Peak médio',   atual:avg(lives,l=>l.peak_viewers),      meta:avg(bestLives,l=>l.peak_viewers),                           unit:''   },
+    { name:'Duração (min)',atual:avg(lives,l=>l.duration_min),      meta:avg(bestLives,l=>l.duration_min),                           unit:'min'},
+    { name:'R$/Viewer',    atual:avg(lives.filter(l=>l.viewers>0),l=>l.gmv_direct/l.viewers),
+                           meta:avg(bestLives.filter(l=>l.viewers>0),l=>l.gmv_direct/l.viewers),                                     unit:'R$' },
+  ];
+  const bEl = document.getElementById('bench-comp');
+  bEl.innerHTML = '';
+  benchFields.forEach(b => {
+    const pct   = b.meta ? Math.min(100, Math.round(b.atual/b.meta*100)) : 0;
+    const color = pct>=80?'#4ade80':pct>=50?'#fb923c':'#f87171';
+    const fmtV  = v => b.unit==='R$' ? brl2(v) : b.unit==='%' ? p2(v) : b.unit==='min' ? durLabel(v) : intFmt(Math.round(v));
+    bEl.innerHTML += `
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin-bottom:8px">${b.name}</div>
+        <div style="font-size:18px;font-weight:800;color:${color};margin-bottom:4px">${fmtV(b.atual)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Meta: ${fmtV(b.meta)} (${monthLabel(bestMonth)})</div>
+        <div style="background:var(--s3);border-radius:4px;height:6px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;height:100%;width:100%;background:rgba(124,109,255,.2);border-radius:4px"></div>
+          <div style="position:absolute;top:0;left:0;height:100%;width:${pct}%;background:${color};border-radius:4px"></div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:${color};margin-top:4px">${pct}% da meta</div>
+      </div>`;
+  });
+
+  // ── Simulador de impacto ─────────────────────────────────────────────────────
+  const nLivesMonth  = nLives[months.length-1] || avg(nLives.filter(n=>n>0), n=>n);
+  const simEl        = document.getElementById('sim-results');
+  simEl.innerHTML    = '';
+  const simScenarios = [
+    { label:'+0.5% CTOR',   newCtor: rOrdClk + 0.5 },
+    { label:'+1.0% CTOR',   newCtor: rOrdClk + 1.0 },
+    { label:'CTOR = 3.5%',  newCtor: 3.5 },
+  ];
+  simScenarios.forEach(sc => {
+    const newOrders   = avgProdClk * sc.newCtor / 100;
+    const addOrders   = newOrders - avgOrders;
+    const addGMV      = addOrders * avgTicket;
+    const addGMVMonth = addGMV * nLivesMonth;
+    simEl.innerHTML += `
+      <div class="sim-box">
+        <div class="sim-scenario">${sc.label} (atual: ${p2(rOrdClk)})</div>
+        <div class="sim-val">+${brl(addGMV)}</div>
+        <div class="sim-sub">por live</div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+          <div style="font-size:16px;font-weight:800;color:var(--teal)">+${brl(addGMVMonth)}</div>
+          <div style="font-size:11px;color:var(--muted)">por mês (${Math.round(nLivesMonth)} lives)</div>
+        </div>
+        <div style="margin-top:6px;font-size:11px;color:var(--muted)">+${addOrders.toFixed(1)} pedidos/live · ${p2(sc.newCtor)} CTOR</div>
+      </div>`;
+  });
+
+  // Correlações
+  const gmvArr   = lives.map(l=>l.gmv_bruto);
+  const corrData = [
+    { label:'Views',      r: pearson(lives.map(l=>l.views), gmvArr) },
+    { label:'Viewers',    r: pearson(lives.map(l=>l.viewers), gmvArr) },
+    { label:'Seguidores', r: pearson(lives.map(l=>l.new_followers), gmvArr) },
+    { label:'Duração',    r: pearson(lives.map(l=>l.duration_min), gmvArr) },
+    { label:'Peak',       r: pearson(lives.map(l=>l.peak_viewers), gmvArr) },
+    { label:'CTOR',       r: pearson(lives.map(l=>l.ctor), gmvArr) },
+    { label:'CTR',        r: pearson(lives.map(l=>l.ctr), gmvArr) },
+  ].sort((a,b)=>b.r-a.r);
+
+  mkChart('c-corr', {
+    type: 'bar',
+    data:{ labels: corrData.map(d=>d.label), datasets:[{
+      label:'Pearson c/ GMV',
+      data: corrData.map(d=>+d.r.toFixed(3)),
+      backgroundColor: corrData.map(d=>d.r>0?'rgba(74,222,128,.6)':'rgba(248,113,113,.6)'),
+      borderRadius:4, borderSkipped:false
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>'r = '+ctx.raw.toFixed(3)}}},
+      scales:{ x:{grid:{color:'#1d2238'},min:-1,max:1,ticks:{callback:v=>v.toFixed(1)}}, y:{grid:{display:false}} }}
+  });
+
+  // Duração buckets
+  const durBuckets = [
+    {label:'<1h', min:0, max:60}, {label:'1–3h', min:60, max:180},
+    {label:'3–6h', min:180, max:360}, {label:'6–10h', min:360, max:600},
+    {label:'>10h', min:600, max:Infinity}
+  ];
+  const durGMV = durBuckets.map(b => {
+    const ls = lives.filter(l=>l.duration_min>=b.min && l.duration_min<b.max);
+    return ls.length ? avg(ls,l=>l.gmv_bruto) : 0;
+  });
+  mkChart('c-duracao', {
+    type:'bar',
+    data:{ labels:durBuckets.map(b=>b.label), datasets:[{
+      label:'GMV Médio/Live', data:durGMV.map(v=>Math.round(v)),
+      backgroundColor:['rgba(248,113,113,.6)','rgba(251,146,60,.6)','rgba(250,204,21,.6)','rgba(74,222,128,.6)','rgba(45,212,191,.8)'],
+      borderRadius:6, borderSkipped:false
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:'#1d2238'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}},x:{grid:{display:false}}} }
+  });
+
+  mkChart('c-ctr-ctor', {
+    type:'line',
+    data:{ labels:mLabels, datasets:[
+      { label:'CTR %', data:ctrMensal.map(v=>+v.toFixed(2)), borderColor:'#60a5fa',
+        backgroundColor:'transparent', borderWidth:2, pointRadius:4, tension:.3 },
+      { label:'CTOR %', data:ctorMensal.map(v=>+v.toFixed(3)), borderColor:'#f472b6',
+        backgroundColor:'rgba(244,114,182,.08)', borderWidth:2, pointRadius:4, fill:true, tension:.3 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top'}},
+      scales:{y:{grid:{color:'#1d2238'},ticks:{callback:v=>v+'%'},min:0},x:{grid:{display:false}}} }
+  });
+
+  // Top 10 eficiência
+  const top10Ef = [...lives]
+    .filter(l=>l.viewers>0)
+    .sort((a,b)=>(b.gmv_direct/b.viewers)-(a.gmv_direct/a.viewers))
+    .slice(0,10);
+  const tbEf = document.getElementById('tbl-eficiencia');
+  tbEf.innerHTML = '';
+  top10Ef.forEach(r=>{
+    const rpv   = r.viewers ? r.gmv_direct/r.viewers : 0;
+    const color = rpv>=1?'#4ade80':rpv>=0.8?'#fb923c':'#64748b';
+    tbEf.innerHTML += `<tr>
+      <td class="tbl-name">${r.title}</td>
+      <td class="tbl-muted">${fmtDate(r.started_at)}</td>
+      <td class="r">${brl(r.gmv_bruto)}</td>
+      <td class="r">${intFmt(r.viewers)}</td>
+      <td class="r" style="color:${color};font-weight:700">${brl2(rpv)}</td>
+      <td class="r">${p2(r.ctor)}</td>
+    </tr>`;
+  });
+
+  // Scatter
+  mkChart('c-scatter', {
+    type:'scatter',
+    data:{ datasets:[{ label:'Lives', data:lives.map(l=>({x:l.views,y:l.gmv_bruto})),
+      backgroundColor:'rgba(124,109,255,.5)', borderColor:'rgba(124,109,255,.8)',
+      pointRadius:5, pointHoverRadius:8
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`Views: ${intFmt(ctx.raw.x)} | GMV: ${brl(ctx.raw.y)}`}}},
+      scales:{
+        x:{grid:{color:'#1d2238'},title:{display:true,text:'Views'},ticks:{callback:v=>(v/1000).toFixed(0)+'k'}},
+        y:{grid:{color:'#1d2238'},title:{display:true,text:'GMV (R$)'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}
+      }}
+  });
+
+  // ─── PAGE 3: OPERACIONAL ────────────────────────────────────────────────────
+  const DOW_LABELS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  const dowGMV  = [0,1,2,3,4,5,6].map(d=>{
+    const ls = lives.filter(l=>l.day_of_week===d);
+    return ls.length ? avg(ls,l=>l.gmv_bruto) : 0;
+  });
+  const dowCtor = [0,1,2,3,4,5,6].map(d=>{
+    const ls = lives.filter(l=>l.day_of_week===d && l.ctor>0);
+    return ls.length ? avg(ls,l=>l.ctor) : 0;
+  });
+  const dowMax = Math.max(...dowGMV);
+
+  mkChart('c-dow', {
+    type:'bar',
+    data:{ labels:DOW_LABELS, datasets:[
+      { label:'GMV Médio/Live', data:dowGMV.map(v=>Math.round(v)),
+        backgroundColor:dowGMV.map(v=>v===dowMax?'rgba(74,222,128,.7)':v>dowMax*0.7?'rgba(74,222,128,.5)':'rgba(96,165,250,.4)'),
+        borderRadius:6, borderSkipped:false },
+      { label:'CTOR %', data:dowCtor.map(v=>+v.toFixed(3)),
+        type:'line', borderColor:'#f472b6', backgroundColor:'transparent',
+        borderWidth:2, pointRadius:5, pointBackgroundColor:'#f472b6', yAxisID:'y2', tension:.2 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'top'}},
+      scales:{
+        y:{grid:{color:'#1d2238'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'},title:{display:true,text:'GMV Médio/Live'}},
+        y2:{position:'right',grid:{display:false},ticks:{callback:v=>v+'%'},title:{display:true,text:'CTOR %'}}
+      }}
+  });
+
+  const HOURS = [10,11,12,13,14,15,16,17,18,19,20];
+  const hourGMV = HOURS.map(h=>{
+    const ls=lives.filter(l=>l.hour===h); return ls.length?avg(ls,l=>l.gmv_bruto):0;
+  });
+  const hourCTR = HOURS.map(h=>{
+    const ls=lives.filter(l=>l.hour===h&&l.ctr>0); return ls.length?avg(ls,l=>l.ctr):0;
+  });
+  const hourMax = Math.max(...hourGMV);
+
+  mkChart('c-hora', {
+    type:'bar',
+    data:{ labels:HOURS.map(h=>h+'h'), datasets:[
+      { label:'GMV Médio/Live', data:hourGMV.map(v=>Math.round(v)),
+        backgroundColor:hourGMV.map(v=>v===hourMax?'rgba(74,222,128,.8)':v>hourMax*0.7?'rgba(74,222,128,.6)':'rgba(96,165,250,.4)'),
+        borderRadius:6, borderSkipped:false }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:'#1d2238'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}},x:{grid:{display:false}}} }
+  });
+
+  mkChart('c-freq-efic', {
+    type:'bar',
+    data:{ labels:mLabels, datasets:[
+      { label:'Nº Lives', data:nLives,
+        backgroundColor:'rgba(96,165,250,.4)', borderRadius:6, borderSkipped:false },
+      { label:'GMV Médio/Live', data:gmvMedia.map(v=>Math.round(v)),
+        type:'line', borderColor:'#4ade80', backgroundColor:'transparent',
+        borderWidth:2, pointRadius:5, pointBackgroundColor:'#4ade80', yAxisID:'y2', tension:.3 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'top'}},
+      scales:{
+        y:{grid:{color:'#1d2238'},title:{display:true,text:'Nº Lives'},max:50},
+        y2:{position:'right',grid:{display:false},title:{display:true,text:'GMV Médio/Live'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}
+      }}
+  });
+
+  mkChart('c-followers', {
+    type:'bar',
+    data:{ labels:mLabels, datasets:[{
+      label:'Novos Seguidores', data:followersMes,
+      backgroundColor:months.map((_,i)=>i===bestIdx?'rgba(74,222,128,.7)':'rgba(124,109,255,.45)'),
+      borderRadius:6, borderSkipped:false
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:'#1d2238'}},x:{grid:{display:false}}} }
+  });
+
+  // Top 15
+  const top15 = [...lives].sort((a,b)=>b.gmv_bruto-a.gmv_bruto).slice(0,15);
+  const tb15  = document.getElementById('tbl-top15');
+  tb15.innerHTML = '';
+  top15.forEach((r,i)=>{
+    const cColor = r.ctor>=3.5?'#4ade80':r.ctor>=3.0?'#fb923c':'#f87171';
+    const rpv    = r.viewers ? r.gmv_direct/r.viewers : 0;
+    tb15.innerHTML += `<tr>
+      <td style="color:var(--muted2)">${i+1}</td>
+      <td class="tbl-name" style="max-width:180px">${r.title}</td>
+      <td class="tbl-muted">${fmtDate(r.started_at)}</td>
+      <td class="r" style="font-weight:700">${brl(r.gmv_bruto)}</td>
+      <td class="r">${r.orders}</td>
+      <td class="r">${intFmt(r.views)}</td>
+      <td class="r">${r.peak_viewers}</td>
+      <td class="r">${durLabel(r.duration_min)}</td>
+      <td class="r">${p1(r.ctr)}</td>
+      <td class="r" style="color:${cColor};font-weight:700">${p2(r.ctor)}</td>
+      <td class="r">${brl2(rpv)}</td>
+    </tr>`;
+  });
+
+  // ─── PAGE 4: KPIs ────────────────────────────────────────────────────────────
+  const gapEl = document.getElementById('gap-bars');
+  gapEl.innerHTML = '';
+  benchFields.forEach(b=>{
+    const pct = b.meta ? Math.min(100, Math.round(b.atual/b.meta*100)) : 0;
+    const c   = pct>=80?'#4ade80':pct>=50?'#fb923c':'#f87171';
+    gapEl.innerHTML += `
+      <div class="bench-row">
+        <div class="bench-name">${b.name}</div>
+        <div class="bench-track">
+          <div class="bench-fill-target"></div>
+          <div class="bench-fill-actual" style="width:${pct}%;background:${c}66;border-right:2px solid ${c}"></div>
+        </div>
+        <div class="bench-pct" style="color:${c}">${pct}%</div>
+      </div>`;
+  });
+
+  // Radar — últimos 3 meses vs melhor
+  const radarMonths = months.slice(-3);
+  const radarColors = ['rgba(96,165,250,.8)','rgba(251,146,60,.8)','rgba(248,113,113,.8)'];
+  const radarFields = ['gmv_bruto','ctor','views','peak_viewers','duration_min','gmv_per_viewer'];
+  const bestRef = radarFields.map(f => avg(bestLives.filter(l=>parseFloat(l[f])>0), l=>parseFloat(l[f])));
+
+  const radarDatasets = [
+    { label: `${monthLabel(bestMonth)} (ref)`,
+      data: [100,100,100,100,100,100],
+      borderColor:'rgba(74,222,128,.8)', backgroundColor:'rgba(74,222,128,.1)',
+      borderWidth:2, pointRadius:3 },
+    ...radarMonths.map((m,i) => {
+      const mls  = byMonth[m];
+      const vals = radarFields.map((f,fi) => {
+        const v = avg(mls.filter(l=>parseFloat(l[f])>0), l=>parseFloat(l[f]));
+        return bestRef[fi] ? Math.round(v/bestRef[fi]*100) : 0;
+      });
+      return {
+        label: monthLabel(m), data: vals,
+        borderColor: radarColors[i], backgroundColor: radarColors[i].replace('.8',',.05'),
+        borderWidth: 1.5, pointRadius: 3
+      };
+    })
+  ];
+
+  mkChart('c-radar', {
+    type:'radar',
+    data:{ labels:['GMV/live','CTOR','Views/live','Peak','Duração','R$/Viewer'], datasets:radarDatasets },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top'}},
+      scales:{r:{grid:{color:'#252a42'},pointLabels:{color:'#94a3b8',font:{size:10}},ticks:{display:false},min:0,max:100}} }
+  });
+
+  // ─── PAGE 5: ALERTAS ────────────────────────────────────────────────────────
+  const critEl = document.getElementById('alertas-criticos');
+  const posEl  = document.getElementById('alertas-positivos');
+  critEl.innerHTML = '';
+  posEl.innerHTML  = '';
+
+  // Alerta 1: queda GMV/live
+  const bestGMVAvg  = gmvMedia[bestIdx];
+  const gmvDropPct  = bestGMVAvg ? (allAvgGMV-bestGMVAvg)/bestGMVAvg*100 : 0;
+  if (gmvDropPct < -30) {
+    critEl.innerHTML += `
+      <div class="alert"><div class="alert-icon ai-red">📉</div><div class="alert-body">
+        <h4>Queda de ${Math.abs(gmvDropPct).toFixed(0)}% no GMV/live vs melhor mês (${monthLabel(bestMonth)}) <span class="sev sev-high">crítico</span></h4>
+        <p>GMV médio/live atual: ${brl(allAvgGMV)} vs melhor mês ${brl(bestGMVAvg)} (${monthLabel(bestMonth)}). Verificar alcance, duração e estratégia de oferta.</p>
+      </div></div>`;
+  }
+
+  // Alerta 2: queda CTOR
+  const ctorDropPct = bestCtor ? (allCtor-bestCtor)/bestCtor*100 : 0;
+  if (ctorDropPct < -10) {
+    critEl.innerHTML += `
+      <div class="alert"><div class="alert-icon ai-orange">⚠️</div><div class="alert-body">
+        <h4>CTOR em queda: ${p2(bestCtor)} → ${p2(allCtor)} <span class="sev sev-mid">médio</span></h4>
+        <p>CTR relativamente estável indica que o público clica nos produtos mas não compra. Problema de oferta, preço ou relevância. Rever curadoria e mecânica de desconto.</p>
+      </div></div>`;
+  }
+
+  // Alerta 3: poucos seguidores recentes
+  const lastFollowers = followersMes[months.length-1];
+  const maxFollowers  = Math.max(...followersMes);
+  if (maxFollowers && lastFollowers/maxFollowers < 0.5) {
+    critEl.innerHTML += `
+      <div class="alert"><div class="alert-icon ai-orange">📊</div><div class="alert-body">
+        <h4>Captação de seguidores caiu ${Math.round((1-lastFollowers/maxFollowers)*100)}% vs pico <span class="sev sev-mid">médio</span></h4>
+        <p>${monthLabel(lastMonth)}: ${intFmt(lastFollowers)} novos seguidores vs pico de ${intFmt(maxFollowers)}. Lives com maior alcance são o principal canal de crescimento de audiência.</p>
+      </div></div>`;
+  }
+
+  if (!critEl.innerHTML) {
+    critEl.innerHTML = `<div class="alert"><div class="alert-icon ai-green">✅</div><div class="alert-body"><h4>Sem alertas críticos</h4><p>Os KPIs estão dentro dos parâmetros históricos.</p></div></div>`;
+  }
+
+  // Positivos: melhor live por RPV recente
+  const bestRpvLive = [...lives].filter(l=>l.viewers>0).sort((a,b)=>(b.gmv_direct/b.viewers)-(a.gmv_direct/a.viewers))[0];
+  if (bestRpvLive) {
+    const rpv = bestRpvLive.gmv_direct/bestRpvLive.viewers;
+    posEl.innerHTML += `
+      <div class="alert"><div class="alert-icon ai-green">✅</div><div class="alert-body">
+        <h4>${bestRpvLive.title} — Melhor Eficiência por Viewer <span class="sev sev-low">referência</span></h4>
+        <p>${brl2(rpv)}/viewer · ${brl(bestRpvLive.gmv_bruto)} GMV · CTOR ${p2(bestRpvLive.ctor)} · ${fmtDate(bestRpvLive.started_at)}. Formato e oferta dessa live devem ser replicados.</p>
+      </div></div>`;
+  }
+
+  // Melhor mês como referência
+  posEl.innerHTML += `
+    <div class="alert"><div class="alert-icon ai-blue">💡</div><div class="alert-body">
+      <h4>Benchmark: ${monthLabel(bestMonth)} — Melhor Mês Histórico <span class="sev sev-low">positivo</span></h4>
+      <p>${nLives[bestIdx]} lives · GMV total ${brl(gmvTotal[bestIdx])} · GMV médio ${brl(gmvMedia[bestIdx])}/live · CTOR ${p2(ctorMensal[bestIdx])}. Use como referência de planejamento.</p>
+    </div></div>`;
+
+  // Positivo: melhor dia da semana
+  const bestDow  = dowGMV.indexOf(Math.max(...dowGMV));
+  const bestHour = hourGMV.indexOf(Math.max(...hourGMV));
+  posEl.innerHTML += `
+    <div class="alert"><div class="alert-icon ai-blue">💡</div><div class="alert-body">
+      <h4>Melhor combinação: ${DOW_LABELS[bestDow]} às ${HOURS[bestHour]}h <span class="sev sev-low">oportunidade</span></h4>
+      <p>${DOW_LABELS[bestDow]} tem o maior GMV médio/live (${brl(dowGMV[bestDow])}). ${HOURS[bestHour]}h tem o melhor retorno por horário de início. Priorizar essa janela para as próximas lives.</p>
+    </div></div>`;
+
+  // Reembolso chart (store_daily)
+  if (storeDaily.length) {
+    const storeByMonth2 = {};
+    storeDaily.forEach(d=>{
+      if(!storeByMonth2[d.month]) storeByMonth2[d.month]={gmv:0,reimb:0};
+      storeByMonth2[d.month].gmv   += parseFloat(d.gmv_bruto)||0;
+      storeByMonth2[d.month].reimb += parseFloat(d.reembolsos)||0;
+    });
+    const sMonths = Object.keys(storeByMonth2).sort();
+    const sLabels = sMonths.map(monthLabel);
+    document.getElementById('reembolso-sub').textContent = 'Reembolso crescendo compromete faturamento líquido';
+    mkChart('c-reembolso-alerta', {
+      type:'line',
+      data:{ labels:sLabels, datasets:[
+        { label:'GMV Loja', data:sMonths.map(m=>Math.round(storeByMonth2[m].gmv)),
+          borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.06)',borderWidth:2,fill:true,yAxisID:'y',tension:.3,pointRadius:5 },
+        { label:'Reembolsos', data:sMonths.map(m=>Math.round(storeByMonth2[m].reimb)),
+          borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.08)',borderWidth:2,fill:true,yAxisID:'y',tension:.3,pointRadius:5 },
+        { label:'% Reembolso', data:sMonths.map(m=>storeByMonth2[m].gmv?+(storeByMonth2[m].reimb/storeByMonth2[m].gmv*100).toFixed(1):0),
+          borderColor:'#facc15',backgroundColor:'transparent',borderWidth:2.5,yAxisID:'y2',tension:.3,pointRadius:6,pointBackgroundColor:'#facc15' }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{position:'top'}},
+        scales:{
+          y:{grid:{color:'#1d2238'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}},
+          y2:{position:'right',grid:{display:false},ticks:{callback:v=>v+'%'},min:0,max:30}
+        }}
+    });
+  } else {
+    const ctx = document.getElementById('c-reembolso-alerta').getContext('2d');
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px Inter,system-ui,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Adicione exports de Overview My Business Performance para ver reembolsos', 400, 140);
+  }
+
+  // ─── PAGE 6: IA (construção do scorecard) ────────────────────────────────
+  buildIAPage(lives, storeDaily, prevLives, periodLabel);
+}
+
+// ─── PAGE 6: IA & RELATÓRIO ──────────────────────────────────────────────────
+function buildIAPage(lives, storeDaily, prevLives, periodLabel) {
+  if (!lives.length) return;
+
+  // ── helpers locais ──────────────────────────────────────────────────────────
+  const avgL = (arr, fn) => arr.length ? arr.reduce((s,x)=>s+fn(x),0)/arr.length : 0;
+
+  // ── métricas base ───────────────────────────────────────────────────────────
+  const gmvMedio     = avgL(lives, l=>l.gmv_direct);
+  const gmvTotal     = lives.reduce((s,l)=>s+(parseFloat(l.gmv_direct)||0),0);
+  const ctorMed      = avgL(lives, l=>l.ctor);
+  const ctrMed       = avgL(lives, l=>l.ctr);
+  const viewsMed     = avgL(lives, l=>l.views);
+  const viewersMed   = avgL(lives, l=>l.viewers);
+  const peakMed      = avgL(lives, l=>l.peak_viewers);
+  const durMed       = avgL(lives, l=>l.duration_min);
+  const ticketMed    = avgL(lives.filter(l=>l.orders>0), l=>l.avg_price);
+  const rpv          = viewersMed ? gmvMedio/viewersMed : 0;
+  const prodImpMed   = avgL(lives, l=>l.product_impressions);
+  const prodClkMed   = avgL(lives, l=>l.product_clicks);
+  const follMed      = avgL(lives, l=>l.new_followers);
+  const nLives       = lives.length;
+
+  // Meses para tendência
+  const byMonth = {};
+  lives.forEach(l => { if(!byMonth[l.month]) byMonth[l.month]=[]; byMonth[l.month].push(l); });
+  const months = Object.keys(byMonth).sort();
+  const tendencia = months.map(m => ({
+    mes: m,
+    gmv_medio: Math.round(avgL(byMonth[m], l=>l.gmv_direct)),
+    ctor:      +avgL(byMonth[m], l=>l.ctor).toFixed(3),
+    n_lives:   byMonth[m].length,
+  })).reverse().slice(0, 6);
+
+  // Best month (para benchmark)
+  const gmvPorMes  = months.map(m => avgL(byMonth[m], l=>l.gmv_direct));
+  const bestIdx    = gmvPorMes.indexOf(Math.max(...gmvPorMes));
+  const bestLives  = byMonth[months[bestIdx]] || lives;
+  const benchGMV   = avgL(bestLives, l=>l.gmv_direct);
+  const benchCTOR  = avgL(bestLives, l=>l.ctor);
+  const benchViews = avgL(bestLives, l=>l.views);
+  const benchPeak  = avgL(bestLives, l=>l.peak_viewers);
+  const benchDur   = avgL(bestLives, l=>l.duration_min);
+  const benchRPV   = avgL(bestLives.filter(l=>l.viewers>0), l=>l.gmv_direct/l.viewers);
+
+  // Consistência: CV (coeficiente de variação) do GMV por live
+  const gmvArr2  = lives.map(l=>parseFloat(l.gmv_direct)||0);
+  const gmvMean2 = gmvArr2.reduce((a,b)=>a+b,0)/gmvArr2.length;
+  const gmvStd   = Math.sqrt(gmvArr2.reduce((s,v)=>s+(v-gmvMean2)**2,0)/gmvArr2.length);
+  const cv       = gmvMean2 ? gmvStd/gmvMean2 : 1;
+  const consistScore = Math.max(0, Math.round(100 - cv*60));
+
+  // ── 6 Dimensões ─────────────────────────────────────────────────────────────
+  const norm = (val, ref, max=100) => ref ? Math.min(max, Math.round(val/ref*100)) : 0;
+
+  const dims = [
+    {
+      nome:'Alcance',
+      score: Math.round((norm(viewsMed, benchViews) + norm(peakMed, benchPeak))/2),
+      avaliacao: `${intFmt(Math.round(viewsMed))} views/live · peak médio ${intFmt(Math.round(peakMed))} vs benchmark ${intFmt(Math.round(benchPeak))}`,
+    },
+    {
+      nome:'Engajamento',
+      score: Math.round((norm(follMed, avgL(bestLives,l=>l.new_followers)) + Math.min(100, Math.round(prodImpMed/Math.max(1,viewersMed)*10)))/2),
+      avaliacao: `${intFmt(Math.round(follMed))} novos seguidores/live · ${(prodImpMed/Math.max(1,viewersMed)).toFixed(1)} impressões/viewer`,
+    },
+    {
+      nome:'Conversão',
+      score: Math.round((Math.min(100,ctrMed/25*100) + Math.min(100,ctorMed/4*100))/2),
+      avaliacao: `CTR ${p1(ctrMed)} · CTOR ${p2(ctorMed)} · ${(prodClkMed/Math.max(1,prodImpMed)*100).toFixed(1)}% de impr. viram clique`,
+    },
+    {
+      nome:'Receita',
+      score: norm(gmvMedio, benchGMV),
+      avaliacao: `GMV médio/live ${brl(gmvMedio)} vs melhor mês ${brl(benchGMV)} · ticket médio ${brl2(ticketMed)}`,
+    },
+    {
+      nome:'Eficiência',
+      score: Math.round((Math.min(100,rpv/1.2*100) + norm(durMed, Math.max(360, benchDur)))/2),
+      avaliacao: `${brl2(rpv)}/viewer · duração média ${durLabel(durMed)} · bench R$/viewer ${brl2(benchRPV)}`,
+    },
+    {
+      nome:'Consistência',
+      score: consistScore,
+      avaliacao: `${nLives} lives analisadas · CV do GMV = ${(cv*100).toFixed(0)}% (${cv<0.5?'estável':cv<0.8?'variável':'muito irregular'})`,
+    },
+  ];
+
+  dims.forEach(d => {
+    const s = d.score;
+    d.status = s>=80?'excelente':s>=65?'bom':s>=50?'médio':s>=35?'atenção':'crítico';
+  });
+
+  const scoreGeral = Math.round(dims.reduce((s,d)=>s+d.score,0)/dims.length);
+  const grade = scoreGeral>=85?'A':scoreGeral>=70?'B':scoreGeral>=55?'C':scoreGeral>=40?'D':'F';
+  const gradeColor = scoreGeral>=70?'var(--green)':scoreGeral>=50?'var(--orange)':'var(--red)';
+
+  // ── Renderizar score ring ───────────────────────────────────────────────────
+  const arc = document.getElementById('score-arc');
+  const circumf = 364.4;
+  const offset = circumf - (circumf * scoreGeral / 100);
+  arc.setAttribute('stroke-dashoffset', offset);
+  arc.setAttribute('stroke', gradeColor);
+  document.getElementById('score-num').textContent  = scoreGeral;
+  document.getElementById('score-num').style.color  = gradeColor;
+  document.getElementById('score-grade').textContent = grade;
+  document.getElementById('score-grade').style.color = gradeColor;
+  const headlines = {
+    A:'Performance excelente — benchmark superado',
+    B:'Boa performance — margem de otimização existe',
+    C:'Performance mediana — gargalos identificáveis',
+    D:'Abaixo do potencial — ação prioritária necessária',
+    F:'Performance crítica — revisão estrutural urgente',
+  };
+  document.getElementById('score-headline').textContent = headlines[grade];
+
+  // ── Renderizar dimensões ────────────────────────────────────────────────────
+  const statusColor = {excelente:'#4ade80',bom:'#60a5fa',médio:'#facc15',atenção:'#fb923c',crítico:'#f87171'};
+  const dimGrid = document.getElementById('dim-grid');
+  dimGrid.innerHTML = '';
+  dims.forEach(d => {
+    const color = statusColor[d.status];
+    dimGrid.innerHTML += `
+      <div class="dim-card dim-${d.status}">
+        <div class="dim-name">${d.nome}</div>
+        <div class="dim-score" style="color:${color}">${d.score}</div>
+        <div class="dim-bar"><div class="dim-bar-fill" style="width:${d.score}%;background:${color}"></div></div>
+        <span class="dim-status" style="background:${color}22;color:${color}">${d.status}</span>
+        <div class="dim-avaliacao">${d.avaliacao}</div>
+      </div>`;
+  });
+
+  // ── Tabela de KPIs ──────────────────────────────────────────────────────────
+  const kpiFW = [
+    { kpi:'GMV Médio/Live',   atual:brl(gmvMedio),        bench:brl(benchGMV),           ok: gmvMedio>=benchGMV*.7, warn: gmvMedio>=benchGMV*.5 },
+    { kpi:'CTOR',             atual:p2(ctorMed),           bench:'≥ 3%',                  ok: ctorMed>=3,            warn: ctorMed>=2           },
+    { kpi:'CTR',              atual:p1(ctrMed),            bench:'≥ 20%',                 ok: ctrMed>=20,            warn: ctrMed>=15           },
+    { kpi:'R$/Viewer',        atual:brl2(rpv),             bench:'≥ R$0,80',              ok: rpv>=0.8,              warn: rpv>=0.4             },
+    { kpi:'Views/Live',       atual:intFmt(Math.round(viewsMed)), bench:intFmt(Math.round(benchViews)), ok: viewsMed>=benchViews*.8, warn: viewsMed>=benchViews*.5 },
+    { kpi:'Duração Média',    atual:durLabel(durMed),      bench:'≥ 6h',                  ok: durMed>=360,           warn: durMed>=180          },
+    { kpi:'Peak Médio',       atual:intFmt(Math.round(peakMed)),  bench:intFmt(Math.round(benchPeak)),  ok: peakMed>=benchPeak*.8,   warn: peakMed>=benchPeak*.5  },
+    { kpi:'Ticket Médio',     atual:brl2(ticketMed),       bench:'≥ R$80',                ok: ticketMed>=80,         warn: ticketMed>=60        },
+    { kpi:'Impr./Viewer',     atual:(prodImpMed/Math.max(1,viewersMed)).toFixed(1)+'×', bench:'≥ 5×', ok: prodImpMed/Math.max(1,viewersMed)>=5, warn: prodImpMed/Math.max(1,viewersMed)>=3 },
+    { kpi:'Novos Seguidores', atual:intFmt(Math.round(follMed)), bench:intFmt(Math.round(avgL(bestLives,l=>l.new_followers))), ok: follMed>=avgL(bestLives,l=>l.new_followers)*.8, warn: follMed>=avgL(bestLives,l=>l.new_followers)*.5 },
+  ];
+  const fwBody = document.getElementById('kpi-fw-body');
+  fwBody.innerHTML = '';
+  kpiFW.forEach(row => {
+    const [statusTxt, statusCl, statusColor2] = row.ok
+      ? ['bom',    'b-green',  '#4ade80']
+      : row.warn
+        ? ['médio',  'b-orange', '#fb923c']
+        : ['crítico','b-red',    '#f87171'];
+    fwBody.innerHTML += `<tr>
+      <td style="font-weight:600">${row.kpi}</td>
+      <td class="r" style="font-weight:700;color:${statusColor2}">${row.atual}</td>
+      <td class="r" style="color:var(--muted2)">${row.bench}</td>
+      <td class="r"><span class="kpi-fw-status ${statusCl}">${statusTxt}</span></td>
+    </tr>`;
+  });
+
+  // ── Amostra de lives (top 50 mais recentes, ordenadas por data desc) ────────
+  const livesAmostra = [...lives]
+    .sort((a,b) => new Date(b.started_at) - new Date(a.started_at))
+    .slice(0, 50)
+    .map(l => ({
+      titulo: l.title,
+      started_at: l.started_at,
+      date: l.date,
+      hora: l.hour,
+      dia_semana: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'][l.day_of_week],
+      duracao_min: l.duration_min,
+      gmv: Math.round(parseFloat(l.gmv_direct)||0),
+      orders: l.orders,
+      ticket: +parseFloat(l.avg_price||0).toFixed(2),
+      views: l.views,
+      viewers: l.viewers,
+      peak_viewers: l.peak_viewers,
+      ctr: +parseFloat(l.ctr||0).toFixed(2),
+      ctor: +parseFloat(l.ctor||0).toFixed(3),
+      novos_seguidores: l.new_followers,
+      schema: l.schema_version || 'v1',
+      // métricas v2 (quando existir)
+      ads_roas: l.ads_roas,
+      ads_cost: l.ads_cost,
+      ads_gmv: l.ads_gmv,
+      gmv_per_hour: l.gmv_per_hour,
+    }));
+
+  // ── Correlações de Pearson: cada variável vs GMV ────────────────────────────
+  const livesArr = lives.filter(l => (parseFloat(l.gmv_direct)||0) > 0);
+  const gmvVec   = livesArr.map(l => parseFloat(l.gmv_direct)||0);
+  const varToVec = {
+    'CTOR':       livesArr.map(l => parseFloat(l.ctor)||0),
+    'CTR':        livesArr.map(l => parseFloat(l.ctr)||0),
+    'Duração (min)': livesArr.map(l => parseFloat(l.duration_min)||0),
+    'Viewers':    livesArr.map(l => parseFloat(l.viewers)||0),
+    'Peak viewers': livesArr.map(l => parseFloat(l.peak_viewers)||0),
+    'Views':      livesArr.map(l => parseFloat(l.views)||0),
+    'Novos seguidores': livesArr.map(l => parseFloat(l.new_followers)||0),
+    'Hora início': livesArr.map(l => parseFloat(l.hour)||0),
+    'Impr. produto': livesArr.map(l => parseFloat(l.product_impressions)||0),
+  };
+  const driversCalc = Object.entries(varToVec)
+    .map(([v, vec]) => ({ variavel: v, correlacao: +pearson(vec, gmvVec).toFixed(3) }))
+    .filter(d => !isNaN(d.correlacao))
+    .sort((a,b) => Math.abs(b.correlacao) - Math.abs(a.correlacao));
+
+  // ── Período anterior (delta) ────────────────────────────────────────────────
+  let prevSummary = null;
+  if (prevLives && prevLives.length) {
+    prevSummary = {
+      n_lives: prevLives.length,
+      gmv_total: Math.round(prevLives.reduce((s,l)=>s+(parseFloat(l.gmv_direct)||0),0)),
+      gmv_medio: Math.round(avgL(prevLives, l=>l.gmv_direct)),
+      ctor_medio: +avgL(prevLives, l=>l.ctor).toFixed(3),
+      ctr_medio: +avgL(prevLives, l=>l.ctr).toFixed(2),
+      ticket_medio: Math.round(avgL(prevLives.filter(l=>l.orders>0), l=>l.avg_price)),
+    };
+  }
+
+  // ── Salvar payload completo para análise IA ─────────────────────────────────
+  _lastIAPayload = {
+    kpis: {
+      n_lives: nLives,
+      gmv_total: Math.round(gmvTotal),
+      gmv_medio_por_live: Math.round(gmvMedio),
+      gmv_melhor_mes: Math.round(benchGMV),
+      ctor_medio: +ctorMed.toFixed(3),
+      ctr_medio: +ctrMed.toFixed(2),
+      views_medio: Math.round(viewsMed),
+      viewers_medio: Math.round(viewersMed),
+      peak_medio: Math.round(peakMed),
+      duracao_media_min: Math.round(durMed),
+      ticket_medio: Math.round(ticketMed),
+      rpv: +rpv.toFixed(3),
+      impr_por_viewer: +(prodImpMed/Math.max(1,viewersMed)).toFixed(2),
+      novos_seguidores_medio: Math.round(follMed),
+      cv_gmv: +(cv*100).toFixed(0),
+      score_geral: scoreGeral,
+      grade,
+      score_dimensoes: Object.fromEntries(dims.map(d=>[d.nome, d.score])),
+    },
+    periodo: periodLabel || 'histórico completo',
+    tendencia,
+    lives_amostra: livesAmostra,
+    drivers_calc: driversCalc,
+    periodo_anterior: prevSummary,
+  };
+}
+
+async function gerarAnaliseIA() {
+  if (!_lastIAPayload) return;
+  const btn     = document.getElementById('ia-btn');
+  const btnIcon = document.getElementById('ia-btn-icon');
+  const btnText = document.getElementById('ia-btn-text');
+  const resEl   = document.getElementById('ia-result');
+
+  btn.disabled = true;
+  btnIcon.textContent = '⏳';
+  btnIcon.classList.add('spin');
+  btnText.textContent = 'Analisando dados...';
+  resEl.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:48px;color:var(--muted2)"><div class="spinner"></div><span>Claude está analisando ${_lastIAPayload.kpis.n_lives} lives...</span></div>`;
+
+  try {
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify(_lastIAPayload),
+    });
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) throw new Error(data.error || 'Erro desconhecido');
+
+    renderAnaliseIA(data);
+    btnIcon.textContent = '✅';
+    btnIcon.classList.remove('spin');
+    btnText.textContent = 'Análise gerada!';
+    setTimeout(() => {
+      btn.disabled = false;
+      btnIcon.textContent = '🔄';
+      btnText.textContent = 'Atualizar Análise';
+    }, 3000);
+
+  } catch (err) {
+    resEl.innerHTML = `<div class="ia-empty"><div class="ia-empty-icon">⚠️</div><div class="ia-empty-text">Erro ao gerar análise: ${err.message}. Tente novamente.</div></div>`;
+    btn.disabled = false;
+    btnIcon.textContent = '🤖';
+    btnIcon.classList.remove('spin');
+    btnText.textContent = 'Tentar Novamente';
+  }
+}
+
+function renderAnaliseIA(d) {
+  const resEl = document.getElementById('ia-result');
+  const projColor   = { pessimista:'#f87171', base:'#60a5fa', otimista:'#4ade80' };
+  const statusColor = { acima:'#4ade80', dentro:'#60a5fa', abaixo:'#fb923c', crítico:'#f87171' };
+  const tipoColor   = { positivo:'#4ade80', negativo:'#f87171' };
+
+  const dateBR = iso => {
+    if (!iso) return '—';
+    const dt = new Date(iso);
+    return dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) + ' ' +
+           dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  };
+  const corrColor = c => Math.abs(c)>=0.5?'#4ade80':Math.abs(c)>=0.3?'#60a5fa':Math.abs(c)>=0.15?'#facc15':'#64748b';
+  const corrLabel = c => Math.abs(c)>=0.7?'forte':Math.abs(c)>=0.5?'moderada':Math.abs(c)>=0.3?'fraca':'tênue';
+
+  const diag = d.diagnostico_lives || { top_3:[], bottom_3:[], outliers:[], padrao_emergente:'' };
+  const drv  = d.drivers || { principais:[], vs_periodo_anterior:[], vs_melhor_historica:null, vs_benchmark:[] };
+  const exp  = d.experimento_sugerido;
+  const proj = d.projecao_30d || d.projecao || {};
+
+  resEl.innerHTML = `
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- Resumo + Insight (topo)                                          -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="grid g32" style="margin-bottom:16px">
+    <div class="card" style="background:linear-gradient(135deg,rgba(124,109,255,.08),rgba(244,114,182,.05));border-color:rgba(124,109,255,.3)">
+      <div class="ia-section-title" style="margin-bottom:12px">📋 Resumo Executivo</div>
+      <p style="font-size:13px;color:var(--text);line-height:1.7">${d.resumo_executivo||'—'}</p>
+    </div>
+    ${d.insight_ia ? `
+    <div class="card">
+      <div class="ia-section-title">💡 Insight Não-Óbvio</div>
+      <div class="insight-ia-box">
+        <div class="insight-ia-icon">🧠</div>
+        <div class="insight-ia-text">"${d.insight_ia}"</div>
+      </div>
+    </div>` : ''}
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- 1️⃣ DIAGNÓSTICO LIVE-A-LIVE                                       -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="ia-block">
+    <div class="ia-block-header">
+      <span class="ia-block-num">1</span>
+      <span class="ia-block-title">Diagnóstico Live-a-Live</span>
+      <span class="ia-block-sub">Outliers, padrões e o que replicar</span>
+    </div>
+
+    <div class="grid g2" style="margin-bottom:14px">
+      <!-- TOP 3 -->
+      <div class="card live-list live-list-top">
+        <div class="ia-section-title">🟢 Top 3 — replicar</div>
+        ${(diag.top_3||[]).map((l,i)=>`
+          <div class="live-row">
+            <div class="live-rank rank-top">${i+1}</div>
+            <div class="live-meta">
+              <div class="live-title">${l.titulo||'—'}</div>
+              <div class="live-stats">
+                <span>${dateBR(l.started_at)}</span> ·
+                <span><b style="color:#4ade80">${brl(l.gmv||0)}</b></span>
+              </div>
+              <div class="live-because">${l.por_que||''}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <!-- BOTTOM 3 -->
+      <div class="card live-list live-list-bottom">
+        <div class="ia-section-title">🔴 Bottom 3 — evitar</div>
+        ${(diag.bottom_3||[]).map((l,i)=>`
+          <div class="live-row">
+            <div class="live-rank rank-bottom">${i+1}</div>
+            <div class="live-meta">
+              <div class="live-title">${l.titulo||'—'}</div>
+              <div class="live-stats">
+                <span>${dateBR(l.started_at)}</span> ·
+                <span><b style="color:#f87171">${brl(l.gmv||0)}</b></span>
+              </div>
+              <div class="live-because">${l.o_que_deu_errado||''}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- OUTLIERS + PADRÃO EMERGENTE -->
+    <div class="grid g32">
+      <div class="card">
+        <div class="ia-section-title">⚡ Outliers Detectados</div>
+        ${(diag.outliers||[]).length ? (diag.outliers||[]).map(o=>`
+          <div class="outlier-row">
+            <span class="outlier-badge" style="background:${tipoColor[o.tipo]}22;color:${tipoColor[o.tipo]}">${o.tipo==='positivo'?'↑':'↓'} ${o.metrica}</span>
+            <div class="outlier-body">
+              <div style="font-weight:600;font-size:12px">${o.titulo} · <span style="color:${tipoColor[o.tipo]}">${o.valor}</span></div>
+              <div style="font-size:11px;color:var(--muted2);margin-top:2px">${o.explicacao}</div>
+            </div>
+          </div>`).join('') : '<div style="font-size:11px;color:var(--muted)">Nenhum outlier significativo detectado.</div>'}
+      </div>
+      <div class="card pattern-card">
+        <div class="ia-section-title">🔁 Padrão Emergente</div>
+        <div class="pattern-text">${diag.padrao_emergente||'—'}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- 2️⃣ FRAMEWORKS VISUAIS                                            -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="ia-block">
+    <div class="ia-block-header">
+      <span class="ia-block-num">2</span>
+      <span class="ia-block-title">Frameworks Visuais</span>
+      <span class="ia-block-sub">Padrões que aparecem só em gráfico</span>
+    </div>
+
+    <div class="grid g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="card-title">Matriz GMV × CTOR</div>
+        <div class="card-sub">Cada bolha = 1 live. Tamanho = views.</div>
+        <div style="height:260px;position:relative"><canvas id="c-fw-scatter-ctor"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Heatmap Hora × Dia</div>
+        <div class="card-sub">GMV médio por slot. Verde = forte.</div>
+        <div id="c-fw-heatmap" style="height:260px"></div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <div class="card-title">Duração × GMV</div>
+        <div class="card-sub">Tendência: lives mais longas tendem a render mais?</div>
+        <div style="height:240px;position:relative"><canvas id="c-fw-scatter-dur"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Quadrante Ads — Cost × GMV</div>
+        <div class="card-sub">ROAS = GMV/Cost. Bolha grande = alta eficiência.</div>
+        <div style="height:240px;position:relative"><canvas id="c-fw-roas"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- 3️⃣ DRIVERS + COMPARAÇÕES                                         -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="ia-block">
+    <div class="ia-block-header">
+      <span class="ia-block-num">3</span>
+      <span class="ia-block-title">Drivers & Comparações</span>
+      <span class="ia-block-sub">O que causa GMV + onde você está vs referências</span>
+    </div>
+
+    <!-- Drivers Pearson -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="ia-section-title">📊 Drivers de GMV (correlação Pearson)</div>
+      ${(drv.principais||[]).map(p=>{
+        const c = parseFloat(p.correlacao)||0;
+        const w = Math.abs(c)*100;
+        const sign = c>=0?'+':'';
+        return `<div class="driver-row">
+          <div class="driver-name">${p.variavel}</div>
+          <div class="driver-bar-wrap">
+            <div class="driver-bar" style="width:${w}%;background:${corrColor(c)}"></div>
+            <span class="driver-corr" style="color:${corrColor(c)}">${sign}${c.toFixed(2)} <span style="color:var(--muted);font-weight:500">(${corrLabel(c)})</span></span>
+          </div>
+          <div class="driver-interp">${p.interpretacao||''}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- Vs período anterior + vs melhor live + vs benchmark -->
+    <div class="grid g3">
+      <div class="card">
+        <div class="ia-section-title">⏮ Vs Período Anterior</div>
+        ${(drv.vs_periodo_anterior||[]).map(v=>{
+          const dl = parseFloat(v.delta_pct)||0;
+          const arrow = dl>5?'↑':dl<-5?'↓':'→';
+          const color = dl>5?'#4ade80':dl<-5?'#f87171':'#facc15';
+          return `<div class="cmp-row">
+            <div class="cmp-metric">${v.metrica}</div>
+            <div class="cmp-vals">
+              <span style="color:var(--muted2)">${typeof v.anterior==='number'?intFmt(v.anterior):v.anterior}</span>
+              <span class="cmp-arrow" style="color:${color}">${arrow}</span>
+              <span style="color:var(--text);font-weight:700">${typeof v.atual==='number'?intFmt(v.atual):v.atual}</span>
+              <span class="cmp-delta" style="color:${color}">${dl>0?'+':''}${dl.toFixed(1)}%</span>
+            </div>
+            <div class="cmp-note">${v.comentario||''}</div>
+          </div>`;
+        }).join('') || '<div style="font-size:11px;color:var(--muted)">Sem período anterior comparável.</div>'}
+      </div>
+
+      <div class="card">
+        <div class="ia-section-title">🏆 Vs Melhor Live Histórica</div>
+        ${drv.vs_melhor_historica ? `
+          <div class="best-live-box">
+            <div class="best-live-title">${drv.vs_melhor_historica.titulo_live}</div>
+            <div class="best-live-gmv">${brl(drv.vs_melhor_historica.gmv_referencia||0)}</div>
+            <div class="best-live-gap">Média do período está <b style="color:#fb923c">${drv.vs_melhor_historica.gap_pct||0}%</b> abaixo</div>
+            <div class="best-live-replic">${drv.vs_melhor_historica.o_que_replicar||''}</div>
+          </div>` : '<div style="font-size:11px;color:var(--muted)">—</div>'}
+      </div>
+
+      <div class="card">
+        <div class="ia-section-title">📏 Vs Benchmark Setorial</div>
+        ${(drv.vs_benchmark||[]).map(b=>`
+          <div class="bench-cmp-row">
+            <span class="bench-cmp-name">${b.kpi}</span>
+            <span class="bench-cmp-vals">${b.atual} <span style="color:var(--muted)">/ ${b.benchmark}</span></span>
+            <span class="bench-cmp-tag" style="background:${statusColor[b.status]||'#64748b'}22;color:${statusColor[b.status]||'#64748b'}">${b.gap||b.status}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- 4️⃣ AÇÕES + EXPERIMENTO + PROJEÇÃO                                -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="ia-block">
+    <div class="ia-block-header">
+      <span class="ia-block-num">4</span>
+      <span class="ia-block-title">Ações & Experimento</span>
+      <span class="ia-block-sub">O que fazer essa semana + próximo A/B</span>
+    </div>
+
+    <div class="grid g32" style="margin-bottom:14px">
+      <!-- Ações priorizadas -->
+      <div class="card">
+        <div class="ia-section-title">🎯 Top ${(d.acoes_priorizadas||[]).length} Ações Priorizadas</div>
+        ${(d.acoes_priorizadas||[]).map(a=>`
+          <div class="acao-card">
+            <div class="acao-head">
+              <div class="acao-prio">P${a.prioridade}</div>
+              <div class="acao-titulo">${a.titulo}</div>
+              <div class="acao-impacto">${a.impacto_rs||''}</div>
+            </div>
+            <div class="acao-hip">💡 ${a.hipotese||''}</div>
+            <div class="acao-como">${a.como||''}</div>
+            <div class="acao-foot">
+              <span class="acao-prazo">⏱ ${a.prazo||''}</span>
+              <span class="acao-sucesso">✅ ${a.criterio_sucesso||''}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Experimento A/B -->
+      ${exp ? `
+      <div class="card exp-card">
+        <div class="ia-section-title">🧪 Próximo Experimento A/B</div>
+        <div class="exp-name">${exp.nome}</div>
+        <div class="exp-hip">${exp.hipotese}</div>
+
+        <div class="exp-grid">
+          <div class="exp-variante exp-a">
+            <div class="exp-var-label">Controle (A)</div>
+            <div class="exp-var-desc">${exp.variante_a||''}</div>
+          </div>
+          <div class="exp-vs">vs</div>
+          <div class="exp-variante exp-b">
+            <div class="exp-var-label">Variante (B)</div>
+            <div class="exp-var-desc">${exp.variante_b||''}</div>
+          </div>
+        </div>
+
+        <div class="exp-meta">
+          <div><span>📐 Variável</span><b>${exp.variavel_testada||'—'}</b></div>
+          <div><span>📊 Métrica alvo</span><b>${exp.metrica_alvo||'—'}</b></div>
+          <div><span>🔁 Mínimo de lives</span><b>${exp.lives_minimas||'—'}</b></div>
+          <div><span>📈 Lift esperado</span><b>+${exp.expectativa_lift_pct||0}%</b></div>
+        </div>
+      </div>` : ''}
+    </div>
+
+    <!-- Projeção 30d -->
+    <div class="card">
+      <div class="ia-section-title">📈 Projeção GMV — Próximos 30 dias</div>
+      <div class="proj-grid">
+        ${['pessimista','base','otimista'].map(c=>`
+          <div class="proj-card proj-${c}">
+            <div class="proj-label" style="color:${projColor[c]}">${c.charAt(0).toUpperCase()+c.slice(1)}</div>
+            <div class="proj-val" style="color:${projColor[c]}">${brl(proj[c]?.gmv_mensal||0)}</div>
+            <div class="proj-desc">${proj[c]?.descricao||''}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  `;
+
+  // Renderiza os 4 charts da seção 2 a partir da amostra de lives
+  setTimeout(() => renderIAFrameworks(), 50);
+}
+
+// ─── IA · CHARTS DE FRAMEWORKS ────────────────────────────────────────────────
+function renderIAFrameworks() {
+  const lives = (_lastIAPayload?.lives_amostra) || [];
+  if (!lives.length) return;
+
+  const palette = ['#7c6dff','#2dd4bf','#f472b6','#fb923c','#60a5fa','#4ade80','#facc15'];
+
+  // 1. Scatter GMV × CTOR (bubble = views)
+  const dataCTOR = lives
+    .filter(l => l.gmv>0 && l.ctor>0)
+    .map(l => ({
+      x: parseFloat(l.ctor)||0,
+      y: parseFloat(l.gmv)||0,
+      r: Math.max(4, Math.min(18, Math.sqrt((parseFloat(l.views)||0)/200))),
+      titulo: l.titulo,
+    }));
+
+  mkChart('c-fw-scatter-ctor', {
+    type:'bubble',
+    data:{ datasets:[{
+      label:'Lives',
+      data: dataCTOR,
+      backgroundColor:'rgba(124,109,255,.55)',
+      borderColor:'#7c6dff', borderWidth:1
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{
+          label: ctx => {
+            const p = ctx.raw;
+            return [`${p.titulo}`, `CTOR ${p.x.toFixed(2)}%`, `GMV ${('R$'+p.y.toLocaleString('pt-BR'))}`];
+          }
+        }}
+      },
+      scales:{
+        x:{ title:{display:true,text:'CTOR (%)',color:'#94a3b8'}, grid:{color:'#1d2238'}, ticks:{callback:v=>v+'%'}},
+        y:{ title:{display:true,text:'GMV (R$)',color:'#94a3b8'}, grid:{color:'#1d2238'}, ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}
+      }
+    }
+  });
+
+  // 2. Heatmap hora × dia (DOM-rendered, não Chart.js — mais barato)
+  const heat = {};
+  const dias = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  const horas = [];
+  lives.forEach(l => {
+    const d = l.dia_semana, h = l.hora;
+    if (d == null || h == null) return;
+    if (!horas.includes(h)) horas.push(h);
+    const k = `${d}|${h}`;
+    if (!heat[k]) heat[k] = { soma:0, n:0 };
+    heat[k].soma += parseFloat(l.gmv)||0;
+    heat[k].n += 1;
+  });
+  horas.sort((a,b)=>a-b);
+
+  const maxAvg = Math.max(...Object.values(heat).map(c => c.soma/c.n));
+  const heatEl = document.getElementById('c-fw-heatmap');
+  if (heatEl) {
+    let html = '<div class="heatmap"><div class="heatmap-corner"></div>';
+    horas.forEach(h => html += `<div class="heatmap-hcell">${h}h</div>`);
+    dias.forEach((dia, i) => {
+      html += `<div class="heatmap-dlabel">${dia}</div>`;
+      horas.forEach(h => {
+        const cell = heat[`${i}|${h}`];
+        if (!cell) {
+          html += `<div class="heatmap-cell" style="background:#0f1120" title="sem lives"></div>`;
+        } else {
+          const avg = cell.soma/cell.n;
+          const intensity = Math.min(1, avg/maxAvg);
+          const color = `rgba(74,222,128,${0.15 + intensity*0.6})`;
+          html += `<div class="heatmap-cell" style="background:${color}" title="${dia} ${h}h · ${cell.n} lives · ${brl(avg)}">${cell.n>=2?intFmt(Math.round(avg/1000))+'k':''}</div>`;
+        }
+      });
+    });
+    html += '</div>';
+    heatEl.innerHTML = html;
+  }
+
+  // 3. Scatter duração × GMV
+  const dataDur = lives
+    .filter(l => l.gmv>0 && l.duracao_min>0)
+    .map(l => ({ x: parseFloat(l.duracao_min)||0, y: parseFloat(l.gmv)||0, titulo: l.titulo }));
+
+  mkChart('c-fw-scatter-dur', {
+    type:'scatter',
+    data:{ datasets:[{
+      label:'Lives',
+      data: dataDur,
+      backgroundColor:'rgba(45,212,191,.65)',
+      borderColor:'#2dd4bf',
+      pointRadius:5, pointHoverRadius:8
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{
+          label: ctx => {
+            const p = ctx.raw;
+            const h = Math.floor(p.x/60), m = Math.round(p.x%60);
+            return [`${p.titulo}`, `${h}h${m>0?m:''}`, `GMV ${('R$'+p.y.toLocaleString('pt-BR'))}`];
+          }
+        }}
+      },
+      scales:{
+        x:{ title:{display:true,text:'Duração (min)',color:'#94a3b8'}, grid:{color:'#1d2238'}, ticks:{callback:v=>(v/60).toFixed(1)+'h'}},
+        y:{ title:{display:true,text:'GMV (R$)',color:'#94a3b8'}, grid:{color:'#1d2238'}, ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}
+      }
+    }
+  });
+
+  // 4. Quadrante Ads — Cost × GMV (só lives com ads_cost > 0)
+  const dataRoas = lives
+    .filter(l => (parseFloat(l.ads_cost)||0)>0 && (parseFloat(l.ads_gmv)||0)>0)
+    .map(l => {
+      const cost = parseFloat(l.ads_cost)||0;
+      const gmv  = parseFloat(l.ads_gmv)||0;
+      return {
+        x: cost,
+        y: gmv,
+        r: Math.max(4, Math.min(20, ((parseFloat(l.ads_roas)||0)*3))),
+        titulo: l.titulo,
+        roas: parseFloat(l.ads_roas)||0,
+      };
+    });
+
+  if (dataRoas.length) {
+    mkChart('c-fw-roas', {
+      type:'bubble',
+      data:{ datasets:[{
+        label:'Lives c/ Ads',
+        data: dataRoas,
+        backgroundColor: ctx => {
+          const r = ctx.raw?.roas || 0;
+          return r>=3 ? 'rgba(74,222,128,.55)' : r>=2 ? 'rgba(96,165,250,.55)' : 'rgba(248,113,113,.55)';
+        },
+        borderColor:'#fff', borderWidth:.5
+      }]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{ callbacks:{
+            label: ctx => {
+              const p = ctx.raw;
+              return [`${p.titulo}`, `Cost R$${p.x.toFixed(0)}`, `Ads GMV R$${p.y.toFixed(0)}`, `ROAS ${p.roas.toFixed(2)}×`];
+            }
+          }}
+        },
+        scales:{
+          x:{ title:{display:true,text:'Ads Cost (R$)',color:'#94a3b8'}, grid:{color:'#1d2238'}},
+          y:{ title:{display:true,text:'Ads GMV (R$)',color:'#94a3b8'}, grid:{color:'#1d2238'}}
+        }
+      }
+    });
+  } else {
+    const ctx = document.getElementById('c-fw-roas')?.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#64748b';
+      ctx.font = '12px Inter,system-ui,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sem dados de Ads no período (lives v2+ TikTok)', 200, 100);
+    }
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
