@@ -1523,6 +1523,13 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <div class="kcard"><div class="klabel">Pedidos de amostra grátis</div><div class="kval" id="tr-k-amostra">—</div><div class="ksub">pra analisar</div></div>
         <div class="kcard"><div class="klabel">Quer ser creator</div><div class="kval" id="tr-k-creator">—</div><div class="ksub">não-afiliadas, na fila</div></div>
       </div>
+      <div class="tbl-card" style="margin-bottom:16px">
+        <div class="tbl-head">
+          <div class="tbl-title">Funil — últimos 30 dias</div>
+          <div class="tbl-meta" id="tr-funil-meta">—</div>
+        </div>
+        <div id="tr-funil" style="padding:16px 20px"><div class="empty">Carregando...</div></div>
+      </div>
       <div class="tbl-card">
         <div class="tbl-head">
           <div class="tbl-title">Triagem — submissões do <span class="mono">bem-vinda.html</span></div>
@@ -2485,7 +2492,7 @@ function tab(id,elBtn){
 // ═════════════════════════════════════════════════════════════
 //   TRIAGEM  (submissões do bem-vinda.html → tabela `triagem`)
 // ═════════════════════════════════════════════════════════════
-let TR_DATA=[], TR_PEDIDO='';
+let TR_DATA=[], TR_EVOS=[], TR_PEDIDO='';
 const TR_PEDIDO_LABEL={amostra_gratis:'📦 Amostra grátis',mais_modelos:'✨ Mais modelos',quero_ser_creator:'🆕 Quer ser creator',ver_lugar:'👖 Ver meu lugar'};
 const TR_GMV_LABEL={'0':'R$ 0','ate5k':'até R$ 5k','5a20k':'R$ 5–20k','20a80k':'R$ 20k+'};
 const TR_STATUS=['novo','em_analise','aprovada','recusada'];
@@ -2496,10 +2503,33 @@ async function loadTriagem(force){
   el('tr-body').innerHTML='<tr><td colspan="8" class="spin">Carregando...</td></tr>';
   try{ TR_DATA=await sbGetPaged('triagem?select=id,nome,handle,whatsapp,relacao,gmv_faixa,pedido,tem_peca,diagnostico,origem,status,created_at&order=created_at.desc'); }
   catch(e){ el('tr-body').innerHTML=`<tr><td colspan="8" class="empty" style="color:var(--rhode-red)">Não consegui ler a tabela <span class="mono">triagem</span> (${e.message}). Rode <span class="mono">rhode-vercel/sql/triagem.sql</span> no Supabase pra criar.</td></tr>`; ['tr-k-total','tr-k-7d','tr-k-amostra','tr-k-creator'].forEach(i=>set(i,'—')); return; }
+  const cutoff=new Date(Date.now()-30*864e5).toISOString();
+  try{ TR_EVOS=await sbGetPaged(`triagem_eventos?select=session_id,step,created_at&created_at=gte.${cutoff}&order=created_at.asc`); }catch(e){ TR_EVOS=[]; }
   renderTriagem();
+}
+function renderTriagemFunil(){
+  const box=el('tr-funil'); if(!box) return;
+  if(!TR_EVOS.length){ box.innerHTML='<div class="empty">Sem eventos ainda — a instrumentação grava em <span class="mono">triagem_eventos</span> (rode <span class="mono">rhode-vercel/sql/triagem_eventos.sql</span> no Supabase se a tabela não existir).</div>'; set('tr-funil-meta','—'); return; }
+  const stepsBySess={}; TR_EVOS.forEach(e=>{ (stepsBySess[e.session_id]=stepsBySess[e.session_id]||new Set()).add(e.step); });
+  const sess=Object.values(stepsBySess);
+  const has=s=>sess.filter(x=>x.has(s)).length;
+  const n1=has('passo1'), conv=has('submit'), flash=has('flash');
+  const pct=v=>n1>0?Math.round(v/n1*100)+'%':'—';
+  const linha=(label,n,extra)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--hairline,rgba(0,0,0,0.06));font-size:13px"><span>${label}</span><span class="mono" style="color:var(--ink-48)">${n} <span style="font-size:11px">${extra||('· '+pct(n))}</span></span></div>`;
+  box.innerHTML =
+    linha('🟢 Começaram (Passo 1)', n1, '· base') +
+    linha('→ Passo 2 (escolheu "já sou afiliada")', has('passo2')) +
+    linha('→ Passo 3 ("o que você quer fazer?")', has('passo3')) +
+    linha('→ "Como funciona a análise" (mais modelos)', has('mais_modelos')) +
+    linha('→ Formulário aberto', has('form')) +
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--hairline,rgba(0,0,0,0.06));font-size:13px;font-weight:700"><span>✅ Submissão enviada (conversão)</span><span class="mono" style="color:var(--rhode-red)">${conv} <span style="font-size:11px">· ${pct(conv)}</span></span></div>` +
+    linha('⚡ Saíram pro WhatsApp (flash sale)', flash) +
+    `<div style="margin-top:10px;font-size:11px;color:var(--ink-48)">${sess.length} sessões nos últimos 30 dias · "Começaram" só conta quem viu o Passo 1 (links com <span class="mono">?diagnostico=</span>/<span class="mono">?token=</span> não contam).</div>`;
+  set('tr-funil-meta',`${n1} entraram · ${pct(conv)} converteram`);
 }
 function renderTriagem(){
   if(!Array.isArray(TR_DATA)) return;
+  renderTriagemFunil();
   const q=((el('tr-busca')&&el('tr-busca').value)||'').trim().toLowerCase();
   const affMap={}; ALL_DATA.forEach(r=>{ if(r.affiliate_id) affMap[(''+r.affiliate_id).toUpperCase()]=+r.gmv_liquido||0; });
   let rows=TR_DATA.slice();

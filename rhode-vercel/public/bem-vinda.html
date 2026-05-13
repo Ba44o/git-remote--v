@@ -126,6 +126,21 @@ const normHandle=h=>(h||'').trim().replace(/^@+/,'');
 const R=v=>'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const uid=p=>p+Math.random().toString(36).slice(2,8);
 
+/* ───────────────── INSTRUMENTAÇÃO (funil) ───────────────── */
+// 1 sessão = 1 visita. Cada passo visto vira uma linha em `triagem_eventos` (best-effort).
+const SID=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('t'+Date.now().toString(36)+Math.random().toString(36).slice(2,10));
+function track(step,meta){
+  try{
+    fetch(`${SB_URL}/rest/v1/triagem_eventos`,{
+      method:'POST', keepalive:true,
+      headers:{...SBH,'Prefer':'return=minimal'},
+      body:JSON.stringify({session_id:SID, step:step, meta:meta||{}, referrer:document.referrer||'', user_agent:navigator.userAgent||''}),
+    }).catch(()=>{});
+  }catch(e){}
+}
+let _trSubmitted=false;   // anti-double-INSERT na mesma visita
+const ss=(k,v)=>{ try{ if(v===undefined)return sessionStorage.getItem(k); sessionStorage.setItem(k,v); }catch(e){ return null; } };
+
 /* ───────────────── ESTADO ───────────────── */
 const ST={
   relacao:null,   // afiliada_ativa | quero_ser_creator  (flash sale: opção no Passo 3 que redireciona pro WhatsApp, sem setar relacao)
@@ -221,6 +236,7 @@ function backBtn(fn){ const id=uid('b'); setTimeout(()=>bind(id,fn),0); return `
 
 /* ───────────────── TELAS DE PERGUNTA (triagem) ───────────────── */
 function screenRelacao(){
+  track('passo1');
   mount(`
     <div class="card-header"><div class="kicker">Programa de Creators · Rhode Jeans</div><div class="headline">Vamos te direcionar pro lugar certo</div></div>
     <div class="card-body">
@@ -234,6 +250,7 @@ function screenRelacao(){
 }
 
 function screenGmv(){   // só afiliada_ativa
+  track('passo2');
   mount(`
     <div class="card-header"><div class="kicker">Passo 2</div><div class="headline">Quanto você vendeu pela Rhode nos últimos ~60 dias?</div></div>
     <div class="card-body">
@@ -251,6 +268,7 @@ function screenGmv(){   // só afiliada_ativa
 
 function screenPeca(){
   const t=totalSteps(), n=(ST.relacao==='afiliada_ativa')?3:2;
+  track('passo3',{gmv:ST.gmvFaixa});
   mount(`
     <div class="card-header"><div class="kicker">Passo ${n}</div><div class="headline">O que você quer fazer agora?</div></div>
     <div class="card-body">
@@ -261,12 +279,13 @@ function screenPeca(){
         ${optBtn('👖','Ver meu lugar no programa','Tenho peça, já tô gravando — me mostra grupo, hub e benefícios',()=>{ST.temPeca='sim';ST.pedido='ver_lugar';screenIdentity();})}
         ${optBtn('📦','Pedir uma amostra grátis','Não tenho peça — preenche o formulário e a equipe analisa teu perfil',()=>{ST.temPeca='nao';ST.pedido='amostra_gratis';screenIdentity();})}
         ${optBtn('✨','Aplicar pra receber mais modelos','Sujeito ao teu desempenho e às metas',()=>{ST.temPeca='quer_mais';ST.pedido='mais_modelos';screenMaisModelos();})}
-        ${optBtn('⚡','Solicitar uma flash sale pra minha live','Vai direto pro WhatsApp do suporte',()=>{location.href=waLink(CONFIG.flashSaleWhatsMsg);})}
+        ${optBtn('⚡','Solicitar uma flash sale pra minha live','Vai direto pro WhatsApp do suporte',()=>{track('flash',{gmv:ST.gmvFaixa});location.href=waLink(CONFIG.flashSaleWhatsMsg);})}
       </div>
     </div>`);
 }
 
 function screenMaisModelos(){   // "Aplicar para receber mais modelos" → explica o critério antes do formulário
+  track('mais_modelos',{gmv:ST.gmvFaixa});
   mount(`
     <div class="card-header"><div class="kicker">Receber mais modelos</div><div class="headline">Como funciona a análise</div></div>
     <div class="card-body">
@@ -279,6 +298,7 @@ function screenMaisModelos(){   // "Aplicar para receber mais modelos" → expli
 /* ───────────────── IDENTIDADE ───────────────── */
 function screenIdentity(){
   ST.diagnostico=computeDiag();
+  track('form',{relacao:ST.relacao,gmv:ST.gmvFaixa,pedido:ST.pedido,diagnostico:ST.diagnostico});
   mount(`
     <div class="card-header"><div class="kicker">Quase lá</div><div class="headline">Pra te direcionar certinho</div></div>
     <div class="card-body">
@@ -286,6 +306,7 @@ function screenIdentity(){
       ${backBtn(ST.relacao==='quero_ser_creator'?screenRelacao:(ST.temPeca==='quer_mais'?screenMaisModelos:screenPeca))}
       <p class="help">Só o básico — leva 30 segundos.</p>
       <form id="idf" autocomplete="off">
+        <input type="text" id="f_hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
         <div class="field"><label>Nome</label><input id="f_nome" type="text" placeholder="Seu nome" value="${(ST.nome||'').replace(/"/g,'&quot;')}" required></div>
         <div class="field"><label>@ do TikTok</label><input id="f_handle" type="text" placeholder="@seuusuario" value="${ST.handle?('@'+ST.handle):''}" required></div>
         <div class="field"><label>WhatsApp (com DDD)</label><input id="f_wpp" type="tel" inputmode="tel" placeholder="(11) 9 9999-9999" value="${(ST.whatsapp||'').replace(/"/g,'&quot;')}" required></div>
@@ -295,13 +316,19 @@ function screenIdentity(){
     </div>`);
   $('#idf').addEventListener('submit',e=>{
     e.preventDefault();
-    const nome=$('#f_nome').value.trim(), h=normHandle($('#f_handle').value), wpp=$('#f_wpp').value.trim();
+    if($('#f_hp')&&$('#f_hp').value){ screenResult(); return; }                 // honeypot — bot, não grava
+    if(_trSubmitted){ setTimeout(screenResult,150); return; }                    // já enviou nesta visita — só mostra o card de novo
     const err=$('#f_err');
+    const last=+(ss('rhode_tr_last')||0);
+    if(Date.now()-last<90000){ err.textContent='Você acabou de enviar — espera um pouquinho 🙂'; return; }   // rate-limit anti-spam
+    const nome=$('#f_nome').value.trim(), h=normHandle($('#f_handle').value), wpp=$('#f_wpp').value.trim();
     if(nome.length<2){err.textContent='Coloca seu nome.';return;}
     if(h.length<2){err.textContent='Coloca seu @ do TikTok.';return;}
     if(wpp.replace(/\D/g,'').length<10){err.textContent='WhatsApp com DDD, por favor.';return;}
     ST.nome=nome; ST.handle=h; ST.whatsapp=wpp;
     const btn=$('#f_btn'); btn.disabled=true; btn.textContent='Direcionando…';
+    _trSubmitted=true; ss('rhode_tr_last',String(Date.now()));
+    track('submit',{relacao:ST.relacao,gmv:ST.gmvFaixa,pedido:ST.pedido,tem_peca:ST.temPeca,diagnostico:ST.diagnostico});
     saveTriagem();
     setTimeout(screenResult,350);
   });
@@ -328,6 +355,7 @@ const afiliacaoCTA = ()=> CONFIG.linkAfiliacaoTikTok ? {label:'Aceitar convite d
 
 function screenResult(){
   const d=ST.diagnostico||'onboarding';
+  track('result',{diagnostico:d,relacao:ST.relacao,pedido:ST.pedido});
   const semPeca = (ST.temPeca==='nao'||ST.temPeca==='quer_mais');
   const nome=(ST.nome||'Creator').split(' ')[0].replace(/</g,'');
   const DEFS={
@@ -352,7 +380,7 @@ function screenResult(){
     analise:{cor:'#222',badge:'🤍 Na fila de análise',label:'Como funciona',
       desc:'Boa! Recebemos teu cadastro — você entrou na fila. A equipe Rhode vai analisar teu perfil no TikTok pra ver se faz sentido te chamar pra uma campanha. Fica de olho no WhatsApp.',
       steps:['Você preencheu o formulário rápido ✓','A equipe analisa teu perfil no TikTok (audiência, conteúdo, fit com a marca)','Se fizer sentido, a gente te chama pra uma campanha — aí entram amostra, briefing e o link de afiliada','Suas primeiras vendas destravam o grupo e o painel completo'],
-      ctas:[]},
+      ctas:[{label:'Enquanto isso, conhece as peças da Rhode',href:CONFIG.linkLojaRhode,cls:'cta-outline',ext:true}]},
     onboarding:{cor:'#222',badge:'🤍 Bem-vinda',label:'Vamos te direcionar',
       desc:'Completa seu cadastro abaixo ou fala direto com a nossa equipe que a gente te encaixa no caminho certo.',
       ctas:[{label:'Completar cadastro Rhode',href:CONFIG.linkCadastro,cls:'cta-dark'},{label:'Falar com a equipe',href:waLink(`Oi! Quero saber mais sobre o programa de creators da Rhode 🤍 — meu @ é @${ST.handle}`),cls:'cta-outline',ext:true}]},

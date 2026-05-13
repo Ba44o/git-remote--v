@@ -314,10 +314,10 @@ retomar em sprint dedicada.
 - `CONFIG.linkFormAmostra` — Google Form / página de solicitação de amostra (hoje cai no WhatsApp da equipe)
 - `CONFIG.sheetsTriagemURL` — opcional, Apps Script `doPost` se quiser espelhar numa planilha além do Supabase
 
-**Polimentos / próximas otimizações (priorizado — detalhe e frameworks em `relatorios/2026-05/2026-05-12_teste-triagem-bem-vinda.md`):**
-1. **Instrumentar o funil** — gravar `step_view` por tela (Passo 1/2/3, form aberto, form enviado) numa tabela leve (ou `hub_eventos` com `origem='triagem'`) + drop-off na aba Triagem. Sem isso não dá pra medir conversão (Manychat→submissão) nem onde vaza. ← maior gap. (~0.5–1d)
-2. **Soft CTA no card "Na fila de análise"** — terminar com "salva nosso WhatsApp" / "segue @rhodejeans" / "dá uma olhada nas peças" em vez de tela morta (peak-end; mantém a creator quente sem furar o gating). (~15min)
-3. **Rate-limit no formulário** — cooldown client-side (1 submissão/5min por sessão, igual `acesso.html`) + honeypot opcional. Blinda contra spam quando a URL vazar. (~30min)
+**Polimentos / otimizações (priorizado — detalhe e frameworks em `relatorios/2026-05/2026-05-12_teste-triagem-bem-vinda.md`):**
+1. ✅ **Instrumentação de funil** — `bem-vinda.html` grava `step` por tela (`passo1`/`passo2`/`passo3`/`mais_modelos`/`form`/`submit`/`flash`/`result`) na tabela `triagem_eventos` (`rhode-vercel/sql/triagem_eventos.sql`, fetch keepalive, best-effort). Aba Triagem do admin tem o **Funil — últimos 30 dias** (sessões por step + conversão = submit/passo1). **Rodar `triagem_eventos.sql` no Supabase pra ativar.** *(concluído 12/05)*
+2. ✅ **Soft CTA no card "Na fila de análise"** — fecha com "Enquanto isso, conhece as peças da Rhode" → `CONFIG.linkLojaRhode` (peak-end; não fura o gating). *(concluído 12/05)*
+3. ✅ **Rate-limit + honeypot no formulário** — cooldown 90s por sessão (`sessionStorage`), guard anti-double-INSERT na mesma visita, honeypot `#f_hp` (bot → não grava). *(concluído 12/05)*
 4. **Auto-notificar a equipe** numa submissão nova (Z-API pro número da equipe, ou digest diário via cron, reusando `disparo.js`). (~0.5d)
 5. **Validação leve do @** — strip de URL do TikTok, lowercase, regex. (~20min)
 6. **Flag de submissão repetida** no admin (mesmo `handle` já na `triagem`). (~20min)
