@@ -98,6 +98,31 @@ python3 audit_data.py --periodo 2026-04
 
 ---
 
+## 1b. Hub aparece com dados da Taci pra outra pessoa
+
+### Sintoma
+- "Abri /hub.html e parece a tela da Taci"
+- Hub boota com nome/dados da Taci mesmo a creator não sendo ela
+
+### Causa
+- Visita anterior a `?demo=tour` OU ao preview link `?token=TACI-PREVIEW-2026`
+  gravou esse token em `localStorage.rhode_creator_token`
+- Próximas visitas a /hub.html sem query string puxam o token cacheado
+- `validateToken('TACI-PREVIEW-2026')` retorna o row da Taci (é token real
+  no Supabase), então o hub boota como Taci
+
+### Fix (já aplicado em 2026-05-14, commit 025ec80)
+- `readToken()` em hub.html sanitiza: se o localStorage tem token que casa
+  `^TACI-PREVIEW`, limpa e retorna null (força ir pra /acesso.html)
+- `?demo=tour` agora usa `removeItem(TOKEN_KEY)` em vez de `setItem`
+
+### Se voltar a acontecer
+- Confirmar que [hub.html:1994-2009](rhode-vercel/public/hub.html#L1994-L2009) ainda tem o `PREVIEW_TOKEN_RE` e o branch que limpa
+- Verificar se algum outro endpoint está gravando `rhode_creator_token` direto sem ir pelo `readToken`
+- Pra mitigação imediata da creator afetada: pedir pra abrir devtools → Application → Local Storage → limpar `rhode_creator_token`. Ou abrir em aba anônima.
+
+---
+
 ## 2. Creator não consegue acessar o hub
 
 ### Sintomas
