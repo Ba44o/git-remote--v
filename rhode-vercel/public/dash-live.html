@@ -163,6 +163,15 @@ a{color:inherit;text-decoration:none}
 .period-btn:hover{border-color:var(--purple);color:var(--text)}
 .period-btn.active{background:var(--purple);border-color:var(--purple);color:#fff}
 
+/* Período personalizado */
+#period-custom-panel{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;margin-left:8px}
+#period-custom-panel label{font-size:10px;color:var(--muted2);font-weight:600;display:flex;align-items:center;gap:4px}
+#period-custom-panel input[type="date"]{background:var(--s1);border:1px solid var(--border);color:var(--text);font-size:11px;padding:3px 6px;border-radius:5px;font-family:inherit;color-scheme:dark}
+#period-custom-panel .period-apply{background:var(--purple);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;padding:4px 12px;cursor:pointer}
+#period-custom-panel .period-apply:hover{opacity:.85}
+#period-custom-panel .period-clear{background:transparent;color:var(--muted);border:none;font-size:14px;cursor:pointer;padding:0 4px}
+#period-custom-panel .period-clear:hover{color:var(--red)}
+
 /* ── CUSTOM PERIOD PICKER ── */
 .custom-picker-wrap{position:relative}
 .custom-picker-pop{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:200;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:16px;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
@@ -402,6 +411,13 @@ a{color:inherit;text-decoration:none}
   <button class="period-btn" onclick="setPeriod(90,this)">3M</button>
   <button class="period-btn" onclick="setPeriod(180,this)">6M</button>
   <button class="period-btn active" onclick="setPeriod(0,this)">Tudo</button>
+  <button class="period-btn" id="period-custom-btn" onclick="toggleCustomPeriod(this)">📅 Personalizado</button>
+  <div id="period-custom-panel" style="display:none">
+    <label>De <input type="date" id="period-custom-start"></label>
+    <label>Até <input type="date" id="period-custom-end"></label>
+    <button class="period-apply" onclick="applyCustomPeriod()">Aplicar</button>
+    <button class="period-clear" onclick="clearCustomPeriod()">×</button>
+  </div>
 </div>
 
 <!-- ═══ PAGE 1: OVERVIEW ═══ -->
@@ -844,9 +860,63 @@ function setPeriod(days, el) {
   activeDays = days;
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
+  // Fecha painel custom se estiver aberto
+  document.getElementById('period-custom-panel').style.display = 'none';
   const { lives, storeDaily, prevLives, periodLabel } = filterByPeriod(allLives, allStoreDaily, days);
   if (!lives.length) return;
   buildDashboard(lives, storeDaily, prevLives, periodLabel);
+}
+
+// ─── PERÍODO PERSONALIZADO ────────────────────────────────────────────────
+function toggleCustomPeriod(btn) {
+  const panel = document.getElementById('period-custom-panel');
+  const open = panel.style.display === 'flex';
+  if (open) { panel.style.display = 'none'; return; }
+
+  // Pré-preenche com range dos dados disponíveis
+  if (allLives.length) {
+    const dates = allLives.map(l => l.date).sort();
+    document.getElementById('period-custom-end').value   = dates[dates.length-1];
+    document.getElementById('period-custom-start').value = dates[Math.max(0, dates.length-30)] || dates[0];
+  }
+  panel.style.display = 'flex';
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function applyCustomPeriod() {
+  const start = document.getElementById('period-custom-start').value;
+  const end   = document.getElementById('period-custom-end').value;
+  if (!start || !end) { alert('Selecione data inicial e final.'); return; }
+  if (start > end)    { alert('Data inicial deve ser anterior à final.'); return; }
+
+  const filteredLives = allLives.filter(l => l.date >= start && l.date <= end);
+  if (!filteredLives.length) { alert('Nenhuma live no período selecionado.'); return; }
+
+  const filteredStore = allStoreDaily.filter(d => d.date >= start && d.date <= end);
+
+  // Período anterior = mesma duração imediatamente antes
+  const startD = new Date(start), endD = new Date(end);
+  const durMs  = endD - startD;
+  const prvStart = new Date(startD.getTime() - durMs - 86400000).toISOString().slice(0,10);
+  const prvEnd   = new Date(startD.getTime() - 86400000).toISOString().slice(0,10);
+  const prevLives = allLives.filter(l => l.date >= prvStart && l.date <= prvEnd);
+
+  const fmtBR = iso => {
+    const [y,m,d] = iso.split('-'); return `${d}/${m}/${y.slice(2)}`;
+  };
+  const periodLabel = `${fmtBR(start)} – ${fmtBR(end)} (personalizado, ${filteredLives.length} lives)`;
+
+  activeDays = null;
+  buildDashboard(filteredLives, filteredStore, prevLives.length ? prevLives : null, periodLabel);
+}
+
+function clearCustomPeriod() {
+  document.getElementById('period-custom-panel').style.display = 'none';
+  document.getElementById('period-custom-btn').classList.remove('active');
+  // Volta pro padrão "Tudo"
+  const tudoBtn = [...document.querySelectorAll('.period-btn')].find(b => b.textContent.trim() === 'Tudo');
+  if (tudoBtn) setPeriod(0, tudoBtn);
 }
 
 function showPage(id, el) {
