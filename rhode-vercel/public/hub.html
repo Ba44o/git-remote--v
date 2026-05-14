@@ -1991,10 +1991,23 @@ let _notifs = [];
 let _notifPollHandle = null;
 
 const TOKEN_KEY='rhode_creator_token';
+const PREVIEW_TOKEN_RE=/^TACI-PREVIEW/i;
 function readToken(){
   const u=new URLSearchParams(location.search).get('token');
-  if(u){ try{localStorage.setItem(TOKEN_KEY,u);}catch(e){} return u; }
-  try{ return localStorage.getItem(TOKEN_KEY)||null; }catch(e){ return null; }
+  if(u){
+    // preview/demo token nunca persiste — evita contaminar próxima sessão
+    if(PREVIEW_TOKEN_RE.test(u)){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
+    else { try{localStorage.setItem(TOKEN_KEY,u);}catch(e){} }
+    return u;
+  }
+  let stored=null;
+  try{ stored=localStorage.getItem(TOKEN_KEY)||null; }catch(e){}
+  // limpa contaminação de visitas antigas ao ?demo=tour ou ?token=TACI-PREVIEW-*
+  if(stored && PREVIEW_TOKEN_RE.test(stored)){
+    try{localStorage.removeItem(TOKEN_KEY);}catch(e){}
+    return null;
+  }
+  return stored;
 }
 function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
 
@@ -2007,8 +2020,9 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
     const _s=document.createElement('style'); _s.id='tour-suppressor'; _s.textContent=supressorCSS;
     document.head.appendChild(_s);
     // força token preview da Taci (dados reais ricos), anonimiza no render
+    // IMPORTANTE: NÃO persiste em localStorage — preview token contamina sessão real
     const PREVIEW_TOKEN='TACI-PREVIEW-2026';
-    try{ localStorage.setItem(TOKEN_KEY, PREVIEW_TOKEN); }catch(e){}
+    try{ localStorage.removeItem(TOKEN_KEY); }catch(e){}
     const creator=await validateToken(PREVIEW_TOKEN);
     if(creator){
       // suprime onboarding modal nesse handle (vamos mostrar o hub)
