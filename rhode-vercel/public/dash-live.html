@@ -1684,22 +1684,29 @@ function buildIAPage(lives, storeDaily, prevLives, periodLabel) {
 
   // ── helpers locais ──────────────────────────────────────────────────────────
   const avgL = (arr, fn) => arr.length ? arr.reduce((s,x)=>s+fn(x),0)/arr.length : 0;
+  // avgF: média ignorando valores null/undefined (correto pra v2 onde Viewers/Peak não existem)
+  const avgF = (arr, fn) => {
+    const vs = arr.map(fn).filter(v => v !== null && v !== undefined && !isNaN(v));
+    return vs.length ? vs.reduce((s,v)=>s+v,0)/vs.length : 0;
+  };
 
   // ── métricas base ───────────────────────────────────────────────────────────
   const gmvMedio     = avgL(lives, l=>l.gmv_direct);
   const gmvTotal     = lives.reduce((s,l)=>s+(parseFloat(l.gmv_direct)||0),0);
-  const ctorMed      = avgL(lives, l=>l.ctor);
-  const ctrMed       = avgL(lives, l=>l.ctr);
-  const viewsMed     = avgL(lives, l=>l.views);
-  const viewersMed   = avgL(lives, l=>l.viewers);
-  const peakMed      = avgL(lives, l=>l.peak_viewers);
+  const ctorMed      = avgF(lives, l=>parseFloat(l.ctor));
+  const ctrMed       = avgF(lives, l=>parseFloat(l.ctr));
+  const viewsMed     = avgF(lives, l=>parseFloat(l.views));
+  const viewersMed   = avgF(lives, l=>parseFloat(l.viewers));      // ← ignora v2 NULLs
+  const peakMed      = avgF(lives, l=>parseFloat(l.peak_viewers)); // ← ignora v2 NULLs
   const durMed       = avgL(lives, l=>l.duration_min);
   const ticketMed    = avgL(lives.filter(l=>l.orders>0), l=>l.avg_price);
   const rpv          = viewersMed ? gmvMedio/viewersMed : 0;
-  const prodImpMed   = avgL(lives, l=>l.product_impressions);
-  const prodClkMed   = avgL(lives, l=>l.product_clicks);
+  const prodImpMed   = avgF(lives, l=>parseFloat(l.product_impressions));
+  const prodClkMed   = avgF(lives, l=>parseFloat(l.product_clicks));
   const follMed      = avgL(lives, l=>l.new_followers);
   const nLives       = lives.length;
+  // Quantos lives REALMENTE têm viewers (pra dash mostrar "N de M")
+  const nLivesViewers = lives.filter(l => l.viewers !== null && l.viewers !== undefined).length;
 
   // Meses para tendência
   const byMonth = {};
@@ -1839,10 +1846,15 @@ function buildIAPage(lives, storeDaily, prevLives, periodLabel) {
     </tr>`;
   });
 
-  // ── Amostra de lives (top 50 mais recentes, ordenadas por data desc) ────────
-  const livesAmostra = [...lives]
-    .sort((a,b) => new Date(b.started_at) - new Date(a.started_at))
-    .slice(0, 50)
+  // ── Amostra estratégica: top 8 GMV + bottom 5 + 12 mais recentes (dedup) ──
+  const livesByGmv    = [...lives].sort((a,b)=> (parseFloat(b.gmv_direct)||0) - (parseFloat(a.gmv_direct)||0));
+  const livesByRecent = [...lives].sort((a,b)=> new Date(b.started_at) - new Date(a.started_at));
+  const amostraSet    = new Map();
+  livesByGmv.slice(0, 8).forEach(l => amostraSet.set(l.live_key || l.started_at + l.title, l));
+  livesByGmv.slice(-5).forEach(l => amostraSet.set(l.live_key || l.started_at + l.title, l));
+  livesByRecent.slice(0, 12).forEach(l => amostraSet.set(l.live_key || l.started_at + l.title, l));
+  const livesAmostra = [...amostraSet.values()]
+    .sort((a,b)=> new Date(b.started_at) - new Date(a.started_at))
     .map(l => ({
       titulo: l.title,
       started_at: l.started_at,

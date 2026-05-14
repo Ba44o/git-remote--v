@@ -51,8 +51,8 @@ ${JSON.stringify(kpis, null, 2)}
 TENDÊNCIA MENSAL (mais antigo → mais recente):
 ${tendencia ? JSON.stringify(tendencia, null, 2) : 'não disponível'}
 
-AMOSTRA DE LIVES (top ${Math.min(20, lives_amostra.length)} mais recentes):
-${JSON.stringify(lives_amostra.slice(0, 20), null, 0)}
+AMOSTRA DE LIVES (${lives_amostra.length} lives — mix de top GMV, bottom e recentes):
+${JSON.stringify(lives_amostra.slice(0, 25), null, 0)}
 
 CORRELAÇÕES PEARSON (variável vs GMV, pré-calculadas):
 ${JSON.stringify(drivers_calc, null, 2)}
@@ -70,9 +70,16 @@ BENCHMARKS DO SETOR (TikTok Shop BR · moda feminina):
 - Ads ROAS bom: ≥ 3× | aceitável: 2-3× | ruim: <2×
 ═══════════════════════════════════════════════════════════════
 
-Sua tarefa: gerar análise estruturada em 4 blocos. Use SEMPRE números concretos das amostras, nunca vagueza (alguns, muitas). Quando citar lives específicas, use o título exato.
+Sua tarefa: gerar análise estruturada em 4 blocos.
 
-IMPORTANTE — REGRAS DE JSON:
+REGRAS DE INTEGRIDADE NUMÉRICA (não-negociáveis):
+- USE EXATAMENTE os números que recebeu acima. NÃO arredonde de forma estranha, NÃO some, NÃO infira valores.
+- NÃO INVENTE quantidades: se kpis.n_lives = 49, NÃO escreva "28 lives em maio" ou qualquer número não presente nos dados.
+- NÃO EXTRAPOLE: se um campo veio NULL (ex: viewers em lives v2), trate como "sem dado", nunca como zero.
+- Top 3 / Bottom 3: escolha ESTRITAMENTE da lives_amostra que recebeu. Use título e GMV exatos.
+- Se um número não está nos dados (ex: pico de viewers em mai/26), diga "não disponível" ao invés de chutar.
+
+REGRAS DE JSON:
 - Retorne APENAS JSON válido. Sem markdown, sem cercas, sem texto fora.
 - Dentro de strings, NÃO use aspas duplas. Use aspas simples ' se precisar citar algo.
 - Não use vírgulas trailing antes de } ou ].
