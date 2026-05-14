@@ -768,7 +768,17 @@ const p2   = v => (+v).toFixed(2) + '%';
 const intFmt = v => (+v).toLocaleString('pt-BR');
 
 const sum  = (arr, k) => arr.reduce((s, x) => s + (parseFloat(x[k]) || 0), 0);
-const avg  = (arr, fn) => arr.length ? arr.reduce((s, x) => s + fn(x), 0) / arr.length : 0;
+// avg: média ignorando valores null/undefined/NaN (mantém 0 como valor válido).
+// Antes: avg(lives, l=>l.viewers) somava null como 0 e dividia pelo total
+// → quando lives v2 (sem viewers) entravam no período, a média afundava artificialmente.
+const avg = (arr, fn) => {
+  const vs = arr.map(fn).filter(v => v !== null && v !== undefined && !Number.isNaN(v));
+  return vs.length ? vs.reduce((s, v) => s + (parseFloat(v) || 0), 0) / vs.length : 0;
+};
+// Conta quantos itens TÊM valor válido pra um campo (não null/undef/NaN)
+const countValid = (arr, fn) => arr.filter(x => {
+  const v = fn(x); return v !== null && v !== undefined && !Number.isNaN(v);
+}).length;
 const wavg = (arr, valFn, wFn) => {
   const tw = arr.reduce((s, x) => s + wFn(x), 0);
   return tw ? arr.reduce((s, x) => s + valFn(x) * wFn(x), 0) / tw : 0;
@@ -1107,15 +1117,23 @@ function buildDashboard(lives, storeDaily, prevLives = null, periodLabel = null)
   const avgTicket   = avg(lives.filter(l=>l.orders>0), l=>l.avg_price);
   const avgDurMin   = avg(lives, l=>l.duration_min);
 
+  // Quantas lives têm dados de Viewers? Schema v2 do TikTok removeu essa coluna.
+  const nLivesComViewers = countValid(lives, l => l.viewers);
+  const temViewers = nLivesComViewers > 0;
+  const livesV2SemViewers = lives.length - nLivesComViewers;
+
   // Conversões por etapa
-  const rViewersViews   = avgViews   ? avgViewers / avgViews * 100   : 0;
-  const rImpViewers     = avgViewers ? avgProdImp / avgViewers * 100  : 0;
+  const rViewersViews   = (temViewers && avgViews)   ? avgViewers / avgViews * 100   : null;
+  const rImpViewers     = (temViewers && avgViewers) ? avgProdImp / avgViewers * 100 : null;
   const rClkImp         = avgProdImp ? avgProdClk / avgProdImp * 100  : 0; // CTR
   const rOrdClk         = avgProdClk ? avgOrders  / avgProdClk * 100  : 0; // CTOR
-  const rpv             = avgViewers ? avgGMV / avgViewers : 0;
+  // R$/Viewer: usa só o subset de lives que TÊM viewers (não pode ser média geral)
+  const rpv             = temViewers
+    ? avg(lives.filter(l=>l.viewers>0), l=>l.gmv_direct/l.viewers)
+    : null;
 
   // ── KPI chips do funil ──────────────────────────────────────────────────────
-  const impPerViewerFmt = (avgViewers > 0 ? avgProdImp / avgViewers : 0);
+  const impPerViewerFmt = temViewers ? avgProdImp / avgViewers : null;
   const chipData = [
     { label:'CTR (Impr. → Clique)', val:p1(rClkImp),
       sub: `${intFmt(Math.round(avgProdImp))} impr. → ${intFmt(Math.round(avgProdClk))} cliques/live`,
@@ -1125,14 +1143,23 @@ function buildDashboard(lives, storeDaily, prevLives = null, periodLabel = null)
       sub: `${intFmt(Math.round(avgProdClk))} cliques → ${avgOrders.toFixed(1)} pedidos/live`,
       color: rOrdClk>=3?'#4ade80':rOrdClk>=2?'#fb923c':'#f87171',
       tag: rOrdClk>=3?'bom':rOrdClk>=2?'médio':'gargalo' },
-    { label:'R$ / Viewer', val:brl2(rpv),
-      sub: `${intFmt(Math.round(avgViewers))} viewers únicos/live em média`,
-      color: rpv>=0.8?'#4ade80':rpv>=0.5?'#fb923c':'#f87171',
-      tag: rpv>=0.8?'eficiente':rpv>=0.5?'médio':'baixo' },
-    { label:'Impr. / Viewer', val:impPerViewerFmt.toFixed(1)+'×',
-      sub: `${intFmt(Math.round(avgProdImp))} impr. ÷ ${intFmt(Math.round(avgViewers))} viewers`,
-      color: impPerViewerFmt>=5?'#4ade80':impPerViewerFmt>=3?'#fb923c':'#f87171',
-      tag: impPerViewerFmt>=5?'alto':impPerViewerFmt>=3?'médio':'baixo' },
+    temViewers
+      ? { label:'R$ / Viewer', val:brl2(rpv),
+          sub: `Média de ${nLivesComViewers} lives c/ audiência única registrada`,
+          color: rpv>=0.8?'#4ade80':rpv>=0.5?'#fb923c':'#f87171',
+          tag: rpv>=0.8?'eficiente':rpv>=0.5?'médio':'baixo' }
+      : { label:'R$ / Viewer', val:'—',
+          sub: `TikTok removeu 'Viewers' do export (${livesV2SemViewers} lives v2). Use R$/Hora abaixo.`,
+          color: '#64748b', tag: 'sem dado' },
+    temViewers
+      ? { label:'Impr. / Viewer', val:impPerViewerFmt.toFixed(1)+'×',
+          sub: `${intFmt(Math.round(avgProdImp))} impr. ÷ ${intFmt(Math.round(avgViewers))} viewers`,
+          color: impPerViewerFmt>=5?'#4ade80':impPerViewerFmt>=3?'#fb923c':'#f87171',
+          tag: impPerViewerFmt>=5?'alto':impPerViewerFmt>=3?'médio':'baixo' }
+      : { label:'Pedidos / Live', val:avgOrders.toFixed(1),
+          sub: `${intFmt(Math.round(avgGMV/avgOrders))} R$ ticket médio · proxy de eficiência`,
+          color: avgOrders>=50?'#4ade80':avgOrders>=20?'#fb923c':'#f87171',
+          tag: avgOrders>=50?'forte':avgOrders>=20?'médio':'baixo' },
   ];
   const chipsEl = document.getElementById('funil-kpi-chips');
   chipsEl.innerHTML = '';
@@ -1148,16 +1175,18 @@ function buildDashboard(lives, storeDaily, prevLives = null, periodLabel = null)
   });
 
   // ── Funil visual ────────────────────────────────────────────────────────────
-  // NOTA: Product Impressions NÃO é etapa de drop-off — é um multiplicador de engajamento.
-  // Cada viewer pode gerar múltiplas impressões ao rolar o feed de produtos.
-  // O funil real é: Views → Viewers → (×impressions/viewer) → Cliques → Pedidos → GMV
-  const impPerViewer = avgViewers > 0 ? avgProdImp / avgViewers : 0;
+  // Funil sequencial. Quando lives v2 (sem Viewers), a etapa "Viewers únicos"
+  // não pode ser desenhada — pulamos pra Impressões diretamente.
+  const impPerViewer = temViewers ? avgProdImp / avgViewers : null;
 
-  // Funil de conversão sequencial (apenas etapas onde o valor CAI)
   const funnelData = [
     { label:'Views (alcance)',    val:avgViews,   fmt:intFmt(Math.round(avgViews)),   pct:'base de alcance',                                    color:'#7c6dff' },
-    { label:'Viewers únicos',     val:avgViewers, fmt:intFmt(Math.round(avgViewers)), pct:p1(rViewersViews)+' das views',                        color:'#60a5fa' },
-    { label:'Prod. Clicks (CTR)', val:avgProdClk, fmt:intFmt(Math.round(avgProdClk)), pct:'CTR '+p1(rClkImp)+' ('+intFmt(Math.round(avgProdImp))+' impr.)',  color:'#4ade80' },
+    ...(temViewers ? [
+      { label:'Viewers únicos',   val:avgViewers, fmt:intFmt(Math.round(avgViewers)), pct:p1(rViewersViews)+' das views',                       color:'#60a5fa' }
+    ] : [
+      { label:'Impressões prod.', val:avgProdImp, fmt:intFmt(Math.round(avgProdImp)), pct:'multiplicador (cada view = N impr.)',                color:'#60a5fa' }
+    ]),
+    { label:'Prod. Clicks (CTR)', val:avgProdClk, fmt:intFmt(Math.round(avgProdClk)), pct:'CTR '+p1(rClkImp)+' (sobre impr.)',                  color:'#4ade80' },
     { label:'Pedidos (CTOR)',     val:avgOrders,  fmt:avgOrders.toFixed(1),            pct:'CTOR '+p2(rOrdClk)+' dos clicks',                    color:'#facc15' },
     { label:'GMV gerado',         val:avgGMV,     fmt:brl(avgGMV),                    pct:avgOrders?brl2(avgGMV/avgOrders)+' ticket médio':'—', color:'#f472b6' },
   ];
@@ -1166,13 +1195,20 @@ function buildDashboard(lives, storeDaily, prevLives = null, periodLabel = null)
   fEl.innerHTML = '';
 
   // Engajamento de produto (fora do funil — é multiplicador)
-  fEl.innerHTML += `
+  fEl.innerHTML += temViewers ? `
     <div style="background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.3);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
       <div style="font-size:22px">📦</div>
       <div>
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#2dd4bf;margin-bottom:2px">Engajamento de Produto</div>
         <div style="font-size:16px;font-weight:800;color:#fff">${impPerViewer.toFixed(1)} impressões / viewer</div>
         <div style="font-size:11px;color:var(--muted)">${intFmt(Math.round(avgProdImp))} impressões totais em média — cada viewer vê múltiplos produtos ao rolar</div>
+      </div>
+    </div>` : `
+    <div style="background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.3);border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
+      <div style="font-size:22px">ℹ️</div>
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#fb923c;margin-bottom:2px">Aviso de Schema</div>
+        <div style="font-size:13px;color:#fff;line-height:1.5">${livesV2SemViewers} de ${lives.length} lives no período não têm <b>Viewers Únicos</b> registrados (TikTok removeu essa coluna do export em mai/26). Métricas R$/Viewer e Impr./Viewer ficam indisponíveis.</div>
       </div>
     </div>`;
 
@@ -1190,11 +1226,13 @@ function buildDashboard(lives, storeDaily, prevLives = null, periodLabel = null)
   });
 
   // ── Drop-off por etapa ───────────────────────────────────────────────────────
-  // Apenas etapas SEQUENCIAIS onde o número sempre cai (Impressões não entra — é multiplicador)
+  // Etapas SEQUENCIAIS. "Views→Viewers" só entra se temos dados de Viewers.
   const dropSteps = [
-    { name:'Views → Viewers (audiência)',     lost: 100 - rViewersViews, retained: rViewersViews },
-    { name:'Impressões → Cliques (CTR)',      lost: 100 - rClkImp,       retained: rClkImp       },
-    { name:'Cliques → Pedidos (CTOR)',        lost: 100 - rOrdClk,       retained: rOrdClk       },
+    ...(temViewers ? [{
+      name:'Views → Viewers (audiência)', lost: 100 - rViewersViews, retained: rViewersViews
+    }] : []),
+    { name:'Impressões → Cliques (CTR)',  lost: 100 - rClkImp,       retained: rClkImp       },
+    { name:'Cliques → Pedidos (CTOR)',    lost: 100 - rOrdClk,       retained: rOrdClk       },
   ];
   // Gargalo = maior perda relativa
   const gargaloIdx = dropSteps.reduce((mi, s, i) => s.lost > dropSteps[mi].lost ? i : mi, 0);
@@ -1238,10 +1276,11 @@ function buildDashboard(lives, storeDaily, prevLives = null, periodLabel = null)
           html: `<b>CTR saudável (${p1(rClkImp)}), mas CTOR baixo (${p2(rOrdClk)})</b> —
                  o público clica nos produtos mas não finaliza. Problema de oferta, preço ou senso de urgência.` }
       : null,
-    // R$/Viewer
-    { type: rpv>=0.6?'green':'orange', icon: rpv>=0.6?'✅':'📉',
-      html: `<b>R$/Viewer: ${brl2(rpv)}</b> — Para cada ${intFmt(Math.round(avgViewers))} viewers, gera em média ${brl(avgGMV)} de GMV.
-             ${rpv < 0.6 ? 'Está abaixo do ideal (R$0,60+). Melhorar curadoria de produtos aumenta esse índice.' : 'Eficiência por viewer acima do benchmark.'}` },
+    // R$/Viewer (só faz sentido se temViewers)
+    temViewers ? {
+      type: rpv>=0.6?'green':'orange', icon: rpv>=0.6?'✅':'📉',
+      html: `<b>R$/Viewer: ${brl2(rpv)}</b> — média de ${intFmt(Math.round(avgViewers))} viewers/live gerando ${brl(avgGMV)} de GMV/live.
+             ${rpv < 0.6 ? 'Está abaixo do ideal (R$0,60+). Melhorar curadoria de produtos aumenta esse índice.' : 'Eficiência por viewer acima do benchmark.'}` } : null,
     // Duração vs resultado
     avgDurMin < 180
       ? { type:'orange', icon:'⏱️',
