@@ -1215,6 +1215,88 @@ tr:last-child td{border-bottom:none}
   filter:drop-shadow(0 2px 5px rgba(20,17,13,0.25)) !important;
 }
 .onb-overlay.onb-demo-anthropic #onb-demo-cursor::after{border-color:#c4612a !important}
+
+/* ════════════════════════════════════════════════════════════════════
+   MOTION pra ?demo=tour — estilo Anthropic: crossfade, stagger, slow ease
+   ════════════════════════════════════════════════════════════════════ */
+body.tour-mode .panel.on{
+  animation: tourPanelIn .9s cubic-bezier(.25,.55,.32,1) both;
+}
+@keyframes tourPanelIn{
+  from{opacity:0; transform:translateY(12px); filter:blur(3px)}
+  to{opacity:1; transform:translateY(0); filter:blur(0)}
+}
+body.tour-mode .panel.on > *{
+  animation: tourStaggerIn 1s cubic-bezier(.25,.55,.32,1) both;
+}
+body.tour-mode .panel.on > *:nth-child(1){animation-delay:.08s}
+body.tour-mode .panel.on > *:nth-child(2){animation-delay:.22s}
+body.tour-mode .panel.on > *:nth-child(3){animation-delay:.38s}
+body.tour-mode .panel.on > *:nth-child(4){animation-delay:.54s}
+body.tour-mode .panel.on > *:nth-child(5){animation-delay:.7s}
+body.tour-mode .panel.on > *:nth-child(6){animation-delay:.86s}
+@keyframes tourStaggerIn{
+  from{opacity:0; transform:translateY(16px)}
+  to{opacity:1; transform:translateY(0)}
+}
+/* hero subitens com stagger interno */
+body.tour-mode .hero-tile > *,
+body.tour-mode #hero-section > * > *{
+  animation: tourStaggerIn 1.1s cubic-bezier(.25,.55,.32,1) both;
+}
+body.tour-mode .hero-tile > *:nth-child(1),
+body.tour-mode #hero-section > * > *:nth-child(1){animation-delay:.15s}
+body.tour-mode .hero-tile > *:nth-child(2),
+body.tour-mode #hero-section > * > *:nth-child(2){animation-delay:.32s}
+body.tour-mode .hero-tile > *:nth-child(3),
+body.tour-mode #hero-section > * > *:nth-child(3){animation-delay:.5s}
+body.tour-mode .hero-tile > *:nth-child(4),
+body.tour-mode #hero-section > * > *:nth-child(4){animation-delay:.68s}
+body.tour-mode .hero-tile > *:nth-child(5),
+body.tour-mode #hero-section > * > *:nth-child(5){animation-delay:.86s}
+body.tour-mode .hero-tile > *:nth-child(6),
+body.tour-mode #hero-section > * > *:nth-child(6){animation-delay:1.04s}
+body.tour-mode .hero-tile > *:nth-child(7),
+body.tour-mode #hero-section > * > *:nth-child(7){animation-delay:1.22s}
+
+/* KPIs e cards de entregáveis com stagger mais lento */
+body.tour-mode .kpi-grid > *,
+body.tour-mode .entregavel-card,
+body.tour-mode .deliv-card,
+body.tour-mode .benefit-list > *,
+body.tour-mode .prod-chip,
+body.tour-mode .form-grid-2 > *{
+  animation: tourStaggerIn .95s cubic-bezier(.25,.55,.32,1) both;
+}
+body.tour-mode .kpi-grid > *:nth-child(1),
+body.tour-mode .entregavel-card:nth-child(1),
+body.tour-mode .prod-chip:nth-child(1){animation-delay:.5s}
+body.tour-mode .kpi-grid > *:nth-child(2),
+body.tour-mode .entregavel-card:nth-child(2),
+body.tour-mode .prod-chip:nth-child(2){animation-delay:.7s}
+body.tour-mode .kpi-grid > *:nth-child(3),
+body.tour-mode .entregavel-card:nth-child(3),
+body.tour-mode .prod-chip:nth-child(3){animation-delay:.9s}
+body.tour-mode .entregavel-card:nth-child(4),
+body.tour-mode .prod-chip:nth-child(4){animation-delay:1.1s}
+body.tour-mode .entregavel-card:nth-child(5),
+body.tour-mode .prod-chip:nth-child(5){animation-delay:1.3s}
+body.tour-mode .entregavel-card:nth-child(6),
+body.tour-mode .prod-chip:nth-child(6){animation-delay:1.5s}
+
+/* Ken Burns muito sutil no fundo do app — sensação cinematográfica */
+body.tour-mode #app{
+  animation: tourKenBurns 50s ease-in-out infinite alternate;
+  transform-origin: 50% 20%;
+}
+@keyframes tourKenBurns{
+  from{transform:scale(1.0)}
+  to{transform:scale(1.025)}
+}
+
+/* Suaviza transições internas de todos os elementos durante tour */
+body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
+
 .onb-skip{
   position:absolute;top:14px;right:14px;z-index:5;
   background:rgba(0,0,0,0.08);border:none;color:var(--ink-48);
@@ -2397,7 +2479,7 @@ function startHubTour(){
       position:'fixed', width:'30px', height:'30px', zIndex:'500',
       pointerEvents:'none', opacity:'0',
       filter:'drop-shadow(0 3px 6px rgba(0,0,0,0.3))',
-      transition:'opacity .4s ease, top 1.2s cubic-bezier(.32,.72,.45,1), left 1.2s cubic-bezier(.32,.72,.45,1)',
+      transition:'opacity .5s ease, top 1.6s cubic-bezier(.25,.55,.32,1), left 1.6s cubic-bezier(.25,.55,.32,1)',
       top:'50%', left:'50%',
     });
     document.body.appendChild(cur);
@@ -2431,30 +2513,40 @@ function startHubTour(){
   function pause(ms, cb){ setTimeout(cb, ms); }
   function tabBtn(name){ return document.getElementById('nav-'+name); }
 
-  // Sequência do tour
+  // Re-dispara as animações stagger ao trocar de tab (remove + force reflow + add)
+  function retriggerPanelAnim(id){
+    const p=document.getElementById('panel-'+id); if(!p) return;
+    p.style.animation='none'; void p.offsetWidth; p.style.animation='';
+    p.querySelectorAll(':scope > *').forEach(el=>{
+      el.style.animation='none'; void el.offsetWidth; el.style.animation='';
+    });
+  }
+  function tabAndPause(name, ms){
+    return cb=>{ goTab(name); retriggerPanelAnim(name); pause(ms, cb); };
+  }
+  // Sequência do tour — pacing contemplativo (~55s total)
   const steps=[
-    cb=>pause(2800, cb),                                   // 0: hero visível
-    cb=>smoothScrollTo(380, cb),                            // 1: scroll suave revelando KPIs
-    cb=>pause(3500, cb),
-    cb=>smoothScrollTo(0, cb),                              // 2: volta pro topo
-    cb=>pause(1200, cb),
-    cb=>moveTo(tabBtn('copy'), cb),                         // 3: aponta aba Copy
-    cb=>{ goTab('copy'); pause(2500, cb); },
+    cb=>pause(4500, cb),                                     // 0: hero respira (stagger anim ~1.5s + 3s leitura)
+    cb=>smoothScrollTo(420, cb),                              // 1: scroll suave revelando KPIs
+    cb=>pause(4500, cb),
+    cb=>smoothScrollTo(0, cb),                                // 2: volta pro topo
+    cb=>pause(1800, cb),
+    cb=>moveTo(tabBtn('copy'), cb),                           // 3: aponta aba Copy
+    tabAndPause('copy', 4500),                                // mostra form
     cb=>{
-      // tenta apontar o primeiro produto chip
-      const chip=document.querySelector('#copy-main .prod-chip, #copy-main [data-prod], #copy-main button');
-      if(chip){ moveTo(chip, cb); } else { pause(1500, cb); }
+      const chip=document.querySelector('#panel-copy .prod-chip, #panel-copy [data-prod], #panel-copy .form-card button');
+      if(chip){ chip.scrollIntoView({behavior:'smooth', block:'center'}); pause(1200, cb); } else pause(800, cb);
     },
-    cb=>pause(3000, cb),
-    cb=>moveTo(tabBtn('entregaveis'), cb),                  // 4: aponta aba Acessos
-    cb=>{ goTab('entregaveis'); pause(3500, cb); },
-    cb=>smoothScrollTo(window.scrollY+300, cb),
-    cb=>pause(3000, cb),
-    cb=>moveTo(tabBtn('novidades'), cb),                    // 5: aponta aba Novidades
-    cb=>{ goTab('novidades'); pause(4000, cb); },
-    cb=>moveTo(tabBtn('perf'), cb),                         // 6: volta pra Painel
-    cb=>{ goTab('perf'); smoothScrollTo(0, cb); },
-    cb=>pause(2500, cb),
+    cb=>pause(3500, cb),
+    cb=>moveTo(tabBtn('entregaveis'), cb),                    // 4: aponta aba Acessos
+    tabAndPause('entregaveis', 5000),
+    cb=>smoothScrollTo(window.scrollY+350, cb),
+    cb=>pause(4000, cb),
+    cb=>moveTo(tabBtn('novidades'), cb),                      // 5: aponta aba Novidades
+    tabAndPause('novidades', 5000),
+    cb=>moveTo(tabBtn('perf'), cb),                           // 6: volta pra Painel
+    cb=>{ goTab('perf'); retriggerPanelAnim('perf'); smoothScrollTo(0, cb); },
+    cb=>pause(3500, cb),
   ];
   let i=0;
   function next(){
