@@ -38,8 +38,59 @@ export default async function handler(req, res) {
   if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada' });
 
   const prompt = `Você é analista sênior de live commerce no TikTok Shop, especializado em moda feminina.
-Marca: Rhode Jeans (Wide Leg jeans). Canal principal: TikTok Shop Brasil.
+Marca: Rhode Jeans (Wide Leg jeans, expansão pra Mom/Baggy em mai/26). Canal: TikTok Shop Brasil.
 Meta de longo prazo: R$200k/mês em GMV de lives.
+
+═══════════════════════════════════════════════════════════════
+LENTE DE ANÁLISE — TESE PRINCIPAL (LER ANTES DE TUDO):
+═══════════════════════════════════════════════════════════════
+Em 205 lives analisadas, as correlações com GMV são:
+  • Product clicks       r=+0,86  ← driver dominante
+  • Views                r=+0,80
+  • LIVE impressions     r=+0,79
+  • New followers        r=+0,77
+  • Duration             r=+0,57
+  • SKU order rate       r=+0,56
+  • CTR                  r=+0,40
+  • Avg viewing duration r=+0,34
+
+CONCLUSÃO DA LENTE:
+GMV de live na Rhode é JOGO DE TOPO DE FUNIL, não de taxa de conversão.
+O que separa uma live de R$12k de uma de R$3k é QUANTAS pessoas entraram
+e clicaram, não quão bem converteu quem clicou. A taxa de conversão
+(SKU order rate ~0,6%) é estável entre lives boas e ruins.
+
+IMPLICAÇÃO PRO DIAGNÓSTICO:
+- Otimizar CTOR de 2,8% pra 3,3% em 30 lives ≈ +R$13k/mês (margem)
+- Dobrar Product clicks numa live ≈ dobrar o GMV direto (alavanca real)
+- PRIORIZE recomendações de TRÁFEGO/CLIQUES sobre conversão fina
+- Quando CTOR aparecer no diagnóstico, contextualize: "estável, não é gargalo"
+
+BENCHMARKS INTERNOS DA RHODE (use estes, não chute):
+- GMV/hora: abr/26 R$2.138 (modelo) · mar/26 R$1.115 · mai/26 R$1.232
+- GMV/live: abr/26 R$6.233 · mar/26 R$3.550 · mai/26 R$3.165
+- Best-in-class GMV/hora: COLEÇÃO DE INVERNO 1,9h → R$3.618/h
+- Curva de duração:
+  · <1h        → R$672 GMV/live  (LIXO operacional: quedas/testes)
+  · 1-2h       → R$3.283 · R$1.766/h  (JOELHO de eficiência)
+  · 2-3h       → R$3.607 · R$1.300/h  (platô — GMV/h não cresce mais)
+  · 3-4h       → R$5.109 · R$1.302/h  (só vale a pena em datas-pico)
+- Janela horária: manhã (≤11h) R$1.523/h · noite (19h+) R$1.370/h (pior)
+- Dia semana: sex/sáb 3,2% CTOR · meio-de-semana 2,6-2,8%
+
+PADRÕES DE TÍTULO OBSERVADOS:
+- Convertem (CTOR 4-6%): "Lançamento", "Especial TikTok", "Coleção [tema]",
+  "Presente Perfeito", "Super Live 11/11" → ÂNCORA CONCRETA
+- Não convertem (CTOR <1,7%): "QUARTOU DE PROMO", "QUINTOU COM A RHODE",
+  "OFERTAS ESPECIAIS PARA ELAS", "Garanta o seu" → PROMO GENÉRICA DE DIA
+
+ALERTAS SEMÂNTICOS:
+- Maio/26 vs Abril/26: ticket↑ (R$67→R$75) + viewing duration↑ + Show GPM↑
+  MAS Views/live↓ (12.2k→6.7k) → engajamento e ticket saudáveis, TRÁFEGO CAIU.
+  Esse é o problema a destravar, não conversão.
+- Lives v2 (mai/26+) não têm coluna Viewers/Peak viewers (TikTok removeu).
+  NUNCA cite Viewers ou R$/Viewer pra esse período.
+═══════════════════════════════════════════════════════════════
 
 ═══════════════════════════════════════════════════════════════
 PERÍODO ANALISADO: ${periodo || 'histórico completo'}
@@ -61,13 +112,11 @@ CONTEXTO:
 ${contexto || 'Lives diárias, principalmente 11h-16h, duração 2-4h.'}
 
 ═══════════════════════════════════════════════════════════════
-BENCHMARKS DO SETOR (TikTok Shop BR · moda feminina):
-- CTR saudável: ≥ 20%
-- CTOR bom: ≥ 3% | médio: 2-3% | gargalo: <2%
-- R$/Viewer eficiente: ≥ R$0,80 | médio: R$0,40-0,80 | baixo: <R$0,40
-- Duração ideal: 6h+ (correlação 0,79 com GMV em estudos)
-- Impr./Viewer: ≥ 5× (curadoria de produto saudável)
-- Ads ROAS bom: ≥ 3× | aceitável: 2-3× | ruim: <2×
+BENCHMARKS SETOR (TikTok Shop BR moda feminina) — use só como contexto secundário,
+prioridade são os benchmarks INTERNOS acima:
+- CTR (cliques/impressões): ≥ 25% saudável
+- SKU order rate (pedidos/impressões): ≥ 0,7% bom
+- Ads ROAS: ≥ 3× bom | <2× ruim
 ═══════════════════════════════════════════════════════════════
 
 Sua tarefa: gerar análise estruturada em 4 blocos.
@@ -93,11 +142,17 @@ Estrutura exata (preencher todos os campos, nunca omitir):
   "grade": <"A"|"B"|"C"|"D"|"F">,
   "headline": <string max 12 palavras>,
 
-  "dimensoes": [
+  "dimensoes": [ // exatamente 6 — nomes fixos abaixo, NÃO renomear:
+    // Alcance     → Views/LIVE impressions vs abril (R$2.138/h modelo). DRIVER FORTE.
+    // Engajamento → Product clicks + follow rate. DRIVER MAIS FORTE (r=0.86).
+    // Conversão   → CTOR/SKU rate. ESTÁVEL ~0,6% — NÃO é gargalo, é margem.
+    // Receita     → GMV/live e principalmente GMV/HORA vs R$2.138 (abr/26).
+    // Eficiência  → Duração relativa ao joelho de 2h. Lives <60min penalizam.
+    // Consistência → Variabilidade GMV entre lives (CV).
     { "nome": <"Alcance"|"Engajamento"|"Conversão"|"Receita"|"Eficiência"|"Consistência">,
       "score": <0-100>,
       "status": <"excelente"|"bom"|"médio"|"atenção"|"crítico">,
-      "avaliacao": <1 frase curta com dado específico> }
+      "avaliacao": <1 frase curta com dado específico DO PERÍODO ANALISADO> }
   ],
 
   "resumo_executivo": <2 frases. Tom direto. Cite 2 números concretos.>,
@@ -155,7 +210,11 @@ Estrutura exata (preencher todos os campos, nunca omitir):
     ]
   },
 
-  "acoes_priorizadas": [ // exatamente 3 ações, ordenadas por prioridade
+  "acoes_priorizadas": [ // exatamente 3 ações, ordenadas. ATENÇÃO À HIERARQUIA:
+    // P1 deve atacar TRÁFEGO/CLIQUES (driver dominante r=0.86, maior alavanca)
+    // P2 deve atacar EFICIÊNCIA OPERACIONAL (duração, horário, lives <60min)
+    // P3 pode atacar conversão/ticket/margem, mas reconheça que é margem, não alavanca
+    // NUNCA recomende como P1 algo de CTOR/conversão fina — é margem
     { "prioridade": <1-3>,
       "titulo": <ação clara e curta>,
       "impacto_rs": <string ex: "+R$15-25k/mês">,
@@ -177,9 +236,9 @@ Estrutura exata (preencher todos os campos, nunca omitir):
   },
 
   "projecao_30d": {
-    "pessimista": { "gmv_mensal": <número>, "descricao": <1 frase: condições assumidas> },
-    "base":        { "gmv_mensal": <número>, "descricao": <1 frase> },
-    "otimista":    { "gmv_mensal": <número>, "descricao": <1 frase: o que precisaria dar certo> }
+    "pessimista": { "gmv_mensal": <número>, "descricao": <MÁX 15 palavras> },
+    "base":        { "gmv_mensal": <número>, "descricao": <MÁX 15 palavras> },
+    "otimista":    { "gmv_mensal": <número>, "descricao": <MÁX 15 palavras> }
   },
 
   "insight_ia": <1 frase com 1 insight não-óbvio que SÓ aparece olhando os dados juntos>
@@ -195,7 +254,7 @@ Estrutura exata (preencher todos os campos, nunca omitir):
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 5500,
+        max_tokens: 7000,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
