@@ -29,6 +29,14 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 - Tabela responsiva (card-stacked no mobile via `data-label`)
 - **Tracking de comportamento**: `Track` (sendBeacon-like via fetch keepalive) grava `session_start`/`tab_view`/`session_end`/`action` em `hub_eventos` → consumido pela aba Comportamento do admin
 
+### Launch Video Infra (`tools/onboarding-recorder/` + `?demo=tour` no hub)
+- **Tour mode** no hub.html (`?demo=tour`): bypassa auth com token preview, anonimiza nome/handle/cupom (Júlia + RHODEJÚLIA), suprime chrome (modais, sininho, suporte), navega autopilot pelas abas com cursor fantasma
+- **Motion CSS** estilo Anthropic (`body.tour-mode`): panel crossfade, stagger fade-up cascading, Ken Burns sutil no #app, cursor com curve serena
+- **Recorder Playwright + ffmpeg-static**: gera mp4 1:1 / 9:16 / 16:9 h264+AAC silencioso (WhatsApp-compat), cache buster CDN automático
+- Uso: `cd tools/onboarding-recorder && node record.js --mode=tour --aspect=1x1 --duration=55`
+- Documentação: [tools/onboarding-recorder/README.md](tools/onboarding-recorder/README.md)
+- Reusável pra qualquer página (admin, dash-live, /flash, futuras landings) — basta implementar `?demo=tour` na página alvo
+
 ### Admin (`rhode-vercel/public/admin.html`)
 - Mesmo sistema visual
 - Aba **Analista IA**: resumo cognitivo (Claude) + matriz de oportunidade 4 quadrantes (Stars / Cash Cows / Hidden Gems / Dormentes) + anomalias z-score + movimento MoM + análise IA por creator individual
