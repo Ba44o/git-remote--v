@@ -98,6 +98,14 @@ TIER_RULES = [
     (0,      "Ferro",    0.05),
 ]
 
+# Aliases de handle: creator que trocou o @ no TikTok.
+# Chave = handle ANTIGO (UPPERCASE, sem @), valor = handle CANÔNICO atual.
+# Aplicado em clean_creator_id → toda a história consolida no handle novo,
+# então GMV acumulado/tier somam corretamente em vez de virar 2 creators.
+HANDLE_ALIASES = {
+    "NATMARQUESSS": "NATMARQUESVI",   # @natmarquesss (jan-mar/26) → @natmarquesvi (abr/26+)
+}
+
 
 # ── Helpers de transformação ──────────────────────────────────────────────────
 
@@ -133,11 +141,13 @@ def parse_pct(series: pd.Series) -> pd.Series:
 
 
 def clean_creator_id(series: pd.Series) -> pd.Series:
-    return (
+    cleaned = (
         series.astype(str).str.strip().str.upper()
         .str.replace(r"^@", "", regex=True)
         .replace({"NAN": "", "NONE": "", "": ""})
     )
+    # Consolida handles antigos no canônico (creator trocou o @ no TikTok)
+    return cleaned.replace(HANDLE_ALIASES)
 
 
 def calc_tier(gmv_liq: float) -> tuple[str, float]:
