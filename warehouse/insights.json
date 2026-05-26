@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-25",
+  "generated_at": "2026-05-26",
   "periodos": [
     "2026-01",
     "2026-02",
@@ -1111,7 +1111,7 @@
       "gmv": 0
     },
     "dormentes": {
-      "count": 5125,
+      "count": 5124,
       "gmv": 0
     },
     "retencao_pct": 20.6
