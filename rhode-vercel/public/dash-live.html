@@ -397,6 +397,7 @@ a{color:inherit;text-decoration:none}
   <div class="nav-tab active" onclick="showPage('overview',this)">📊 Overview</div>
   <div class="nav-tab" onclick="showPage('funil',this)">🔁 Funil &amp; Conversão</div>
   <div class="nav-tab" onclick="showPage('operacional',this)">⚙️ Operacional</div>
+  <div class="nav-tab" onclick="showPage('ads',this)">💸 Ads</div>
   <div class="nav-tab" onclick="showPage('kpis',this)">🎯 KPIs &amp; Metas</div>
   <div class="nav-tab" onclick="showPage('alertas',this)">🚨 Alertas</div>
   <div class="nav-tab" onclick="showPage('ia',this)">🤖 IA &amp; Relatório</div>
@@ -603,6 +604,72 @@ a{color:inherit;text-decoration:none}
         <th class="r">CTR</th><th class="r">CTOR</th><th class="r">R$/Viewer</th>
       </tr></thead>
       <tbody id="tbl-top15"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ PAGE: ADS (gasto · GMV · ROAS · ROI) ═══ -->
+<div class="page" id="page-ads">
+  <div class="section-label" style="margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span id="ads-period-label">Investimento em Ads — Lives</span>
+    <span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">
+      Margem de contribuição
+      <input type="number" id="ads-margin" min="0" max="100" step="1" placeholder="ex: 60"
+             style="width:64px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;margin:0 4px;font-size:12px" oninput="recalcAdsRoi()">%
+      <span class="tbl-muted">→ calcula o ROI</span>
+    </span>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--red),var(--orange))"></div>
+      <div class="kpi-label">Investido em Ads</div>
+      <div class="kpi-value" style="color:var(--red)" id="kpi-ads-cost">—</div>
+      <div class="kpi-row"><span class="kpi-delta" id="kpi-ads-cost-delta">—</span><span class="kpi-bench" id="kpi-ads-cost-bench">—</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--green),var(--teal))"></div>
+      <div class="kpi-label">GMV Faturado via Ads</div>
+      <div class="kpi-value" style="color:var(--green)" id="kpi-ads-gmv">—</div>
+      <div class="kpi-row"><span class="kpi-delta" id="kpi-ads-gmv-delta">—</span><span class="kpi-bench" id="kpi-ads-gmv-bench">—</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--purple),var(--blue))"></div>
+      <div class="kpi-label">ROAS (Ads GMV ÷ Investido)</div>
+      <div class="kpi-value" style="color:var(--purple)" id="kpi-ads-roas">—</div>
+      <div class="kpi-row"><span class="kpi-delta" id="kpi-ads-roas-delta">—</span><span class="kpi-bench" id="kpi-ads-roas-bench">—</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--teal),var(--green))"></div>
+      <div class="kpi-label">ROI (com margem)</div>
+      <div class="kpi-value" style="color:var(--teal)" id="kpi-ads-roi">—</div>
+      <div class="kpi-row"><span class="kpi-bench" id="kpi-ads-roi-bench">informe a margem %</span></div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Investido vs GMV Faturado · Evolução Mensal</div>
+      <div class="card-sub">Barras = R$ gasto em ads vs GMV gerado pelos ads, por mês</div>
+      <div class="chart-wrap-lg"><canvas id="c-ads-monthly"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ROAS Mensal — Retorno sobre Ads</div>
+      <div class="card-sub">GMV ÷ investido · verde ≥ 3× · azul ≥ 2× · vermelho &lt; 2×</div>
+      <div class="chart-wrap-lg"><canvas id="c-ads-roas"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Lives com Ads — Detalhe por Live</div>
+    <div class="card-sub">Ordenado por valor investido · % do GMV = quanto dos ads representaram no faturamento total da live</div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Live</th><th>Data</th>
+        <th class="r">Investido</th><th class="r">GMV da Live</th><th class="r">GMV via Ads</th>
+        <th class="r">ROAS</th><th class="r">% do GMV</th>
+      </tr></thead>
+      <tbody id="tbl-ads"></tbody>
     </table>
   </div>
 </div>
@@ -1783,8 +1850,161 @@ function buildDashboard(lives, storeDaily, prevLives = null, periodLabel = null)
     ctx.fillText('Adicione exports de Overview My Business Performance para ver reembolsos', 400, 140);
   }
 
+  // ─── PAGE: ADS (gasto · GMV · ROAS · ROI) ────────────────────────────────
+  buildAdsPage(lives, prevLives);
+
   // ─── PAGE 6: IA (construção do scorecard) ────────────────────────────────
   buildIAPage(lives, storeDaily, prevLives, periodLabel);
+}
+
+// ─── PAGE: ADS — gasto em ads das lives, GMV faturado, ROAS e ROI ─────────────
+// Guarda os totais do período atual pra recalcular o ROI quando o usuário
+// mudar a margem sem precisar reconstruir o resto do dashboard.
+let adsTotals = { cost: 0, adsGmv: 0 };
+
+function buildAdsPage(lives, prevLives) {
+  const withAds   = lives.filter(l => (parseFloat(l.ads_cost) || 0) > 0);
+  const totalCost = sum(withAds, 'ads_cost');
+  const totalGmv  = sum(withAds, 'ads_gmv');        // GMV atribuído diretamente aos ads
+  const liveGmv   = sum(withAds, 'gmv_bruto');      // GMV total das lives que rodaram ads
+  const roas      = totalCost ? totalGmv / totalCost : 0;
+  const pctLives  = lives.length ? withAds.length / lives.length * 100 : 0;
+  adsTotals = { cost: totalCost, adsGmv: totalGmv };
+
+  // Período anterior equivalente (pode vir null no modo "Tudo")
+  const prev     = (prevLives || []).filter(l => (parseFloat(l.ads_cost) || 0) > 0);
+  const hasPrev  = prev.length > 0;
+  const prevCost = sum(prev, 'ads_cost');
+  const prevGmv  = sum(prev, 'ads_gmv');
+  const prevRoas = prevCost ? prevGmv / prevCost : 0;
+  const costChg  = prevCost ? (totalCost - prevCost) / prevCost * 100 : 0;
+  const gmvChg   = prevGmv  ? (totalGmv  - prevGmv)  / prevGmv  * 100 : 0;
+  const roasChg  = prevRoas ? (roas - prevRoas) / prevRoas * 100 : 0;
+
+  const setDelta = (id, pct) => {
+    const de = document.getElementById(id);
+    if (!hasPrev) { de.textContent = '—'; de.className = 'kpi-delta delta-warn'; return; }
+    de.textContent = `${deltaArrow(pct)} ${Math.abs(pct).toFixed(1)}% vs ant.`;
+    de.className = `kpi-delta ${deltaClass(pct)}`;
+  };
+
+  const period = (() => {
+    const ms = [...new Set(withAds.map(l => l.month))].sort();
+    return ms.length ? `${monthLabel(ms[0])} a ${monthLabel(ms[ms.length-1])}` : '—';
+  })();
+  document.getElementById('ads-period-label').textContent = `Investimento em Ads — ${period}`;
+
+  // ── KPI cards ──────────────────────────────────────────────────────────────
+  const fmtK = v => v >= 1000 ? `R$${(v/1000).toFixed(1)}k` : brl2(v);
+  document.getElementById('kpi-ads-cost').textContent = fmtK(totalCost);
+  setDelta('kpi-ads-cost-delta', costChg);
+  document.getElementById('kpi-ads-cost-bench').textContent = `${withAds.length} live${withAds.length===1?'':'s'} c/ ads`;
+
+  document.getElementById('kpi-ads-gmv').textContent = fmtK(totalGmv);
+  setDelta('kpi-ads-gmv-delta', gmvChg);
+  document.getElementById('kpi-ads-gmv-bench').textContent = liveGmv ? `GMV total: ${fmtK(liveGmv)}` : '—';
+
+  document.getElementById('kpi-ads-roas').textContent = roas ? `${roas.toFixed(2)}×` : '—';
+  setDelta('kpi-ads-roas-delta', roasChg);
+  document.getElementById('kpi-ads-roas-bench').textContent =
+    roas ? `cada R$1 → ${brl2(roas)}` : (hasPrev ? `ant: ${prevRoas.toFixed(2)}×` : '—');
+
+  recalcAdsRoi();  // ROI depende da margem digitada pelo usuário
+
+  // ── Agregados mensais ────────────────────────────────────────────────────
+  const months  = [...new Set(withAds.map(l => l.month))].sort();
+  const mLabels  = months.map(monthLabel);
+  const costMo   = months.map(m => sum(withAds.filter(l => l.month === m), 'ads_cost'));
+  const gmvMo    = months.map(m => sum(withAds.filter(l => l.month === m), 'ads_gmv'));
+  const roasMo   = months.map((m, i) => costMo[i] ? gmvMo[i] / costMo[i] : 0);
+
+  if (months.length) {
+    mkChart('c-ads-monthly', {
+      type: 'bar',
+      data: { labels: mLabels, datasets: [
+        { label: 'Investido', data: costMo.map(v => Math.round(v)), backgroundColor: 'rgba(248,113,113,.7)', borderRadius: 6, borderSkipped: false },
+        { label: 'GMV via Ads', data: gmvMo.map(v => Math.round(v)), backgroundColor: 'rgba(74,222,128,.7)', borderRadius: 6, borderSkipped: false },
+      ]},
+      options: { responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'top' },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${brl(ctx.parsed.y)}` } } },
+        scales: { x: { grid: { display: false } },
+          y: { grid: { color: '#1d2238' }, ticks: { callback: v => 'R$' + (v/1000).toFixed(0) + 'k' } } }
+      }
+    });
+    mkChart('c-ads-roas', {
+      type: 'line',
+      data: { labels: mLabels, datasets: [{
+        label: 'ROAS', data: roasMo.map(v => +v.toFixed(2)),
+        borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,.15)',
+        borderWidth: 2, fill: true, tension: .3, pointRadius: 5,
+        pointBackgroundColor: roasMo.map(r => r >= 3 ? '#4ade80' : r >= 2 ? '#60a5fa' : '#f87171')
+      }]},
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `ROAS ${ctx.parsed.y.toFixed(2)}×` } } },
+        scales: { x: { grid: { display: false } },
+          y: { grid: { color: '#1d2238' }, ticks: { callback: v => v.toFixed(1) + '×' }, beginAtZero: true } }
+      }
+    });
+  } else {
+    ['c-ads-monthly', 'c-ads-roas'].forEach(id => {
+      const ex = Chart.getChart(id); if (ex) ex.destroy();
+      const c = document.getElementById(id); const ctx = c && c.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.fillStyle = '#64748b'; ctx.font = '12px Inter,system-ui,sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('Sem dados de Ads no período (lives v2+ TikTok)', (c.clientWidth || 400) / 2, 60);
+      }
+    });
+  }
+
+  // ── Tabela detalhe por live ────────────────────────────────────────────────
+  const rows = [...withAds].sort((a, b) => (parseFloat(b.ads_cost) || 0) - (parseFloat(a.ads_cost) || 0));
+  const tb = document.getElementById('tbl-ads');
+  tb.innerHTML = '';
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted2);padding:20px">Sem dados de Ads no período (lives v2+ TikTok)</td></tr>`;
+  } else {
+    rows.forEach(r => {
+      const cost  = parseFloat(r.ads_cost) || 0;
+      const aGmv  = parseFloat(r.ads_gmv)  || 0;
+      const lGmv  = parseFloat(r.gmv_bruto) || 0;
+      const rs    = parseFloat(r.ads_roas) || (cost ? aGmv / cost : 0);
+      const share = lGmv ? aGmv / lGmv * 100 : 0;
+      const color = rs >= 3 ? '#4ade80' : rs >= 2 ? '#60a5fa' : '#f87171';
+      tb.innerHTML += `<tr>
+        <td class="tbl-name">${r.title || r.titulo || '—'}</td>
+        <td class="tbl-muted">${fmtDate(r.started_at)}</td>
+        <td class="r">${brl2(cost)}</td>
+        <td class="r">${brl(lGmv)}</td>
+        <td class="r">${brl(aGmv)}</td>
+        <td class="r" style="color:${color};font-weight:700">${rs.toFixed(2)}×</td>
+        <td class="r">${p1(share)}</td>
+      </tr>`;
+    });
+  }
+}
+
+// ROI = (GMV via ads × margem − investido) ÷ investido = ROAS × margem − 1.
+// Sem margem informada não dá pra calcular lucro → mostramos "—" (nunca inventa valor).
+function recalcAdsRoi() {
+  const el = document.getElementById('kpi-ads-roi');
+  const bn = document.getElementById('kpi-ads-roi-bench');
+  if (!el) return;
+  const m = parseFloat(document.getElementById('ads-margin').value);
+  if (!(m > 0) || !adsTotals.cost) {
+    el.textContent = '—'; el.style.color = 'var(--teal)';
+    bn.textContent = 'informe a margem %';
+    return;
+  }
+  const margin = m / 100;
+  const lucro  = adsTotals.adsGmv * margin - adsTotals.cost;
+  const roi    = lucro / adsTotals.cost * 100;
+  el.textContent = `${roi >= 0 ? '+' : ''}${roi.toFixed(0)}%`;
+  el.style.color = roi >= 0 ? 'var(--green)' : 'var(--red)';
+  bn.textContent = `lucro ${brl(lucro)} · margem ${m.toFixed(0)}%`;
 }
 
 // ─── PAGE 6: IA & RELATÓRIO ──────────────────────────────────────────────────
