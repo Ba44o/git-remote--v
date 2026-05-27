@@ -4,6 +4,31 @@ Este doc define **quais exports baixar** do TikTok Shop Seller Center pra alimen
 
 ---
 
+## 🎯 Regra de ouro (leia isto antes de exportar)
+
+**Não precisa decorar template nem acertar ordem de coluna. Marque TODAS as métricas disponíveis no export, sempre.** É a regra mais simples e a mais robusta.
+
+Por que isso funciona — o parser ([etl_lives.py](../../agente_rhode/etl_lives.py)) casa coluna pelo **nome**, não pela posição:
+
+| Situação | O que acontece | Quebra o ETL? |
+|---|---|---|
+| Colunas fora de ordem | Casadas por nome do mesmo jeito | ❌ Não |
+| Coluna a mais que você marcou | Ignorada | ❌ Não |
+| Coluna que o ETL espera não veio | Entra como `0` / `NULL` (perde **só** aquela métrica) | ❌ Não |
+| Você marca tudo toda vez | Schema estável, nada se perde | ❌ Não |
+
+➡️ **Você não consegue quebrar o ETL escolhendo "errado".** O único jeito de criar buraco na série é *parar* de marcar uma métrica que antes vinha. Por isso: **marque tudo.**
+
+**Sobre a quebra v1→v2 (mai/2026):** não foi escolha de template. O TikTok *removeu do painel* `Gross revenue`, `Viewers` e `Peak viewers` quando virou v2 — não havia checkbox pra manter. É mudança da plataforma, registrada abaixo só pra explicar por que essas colunas estão `NULL` no histórico novo.
+
+### ✅ Checklist v2 — confira que estão marcadas (36 colunas, ordem irrelevante)
+
+`Livestream` · `Start time` · `Duration` · `Attributed GMV` · `Attributed items sold` · `Customers` · `AOV` · `Attributed orders` · `Attributed SKU orders` · `Views` · `LIVE impressions` · `Impressions per hour` · `GMV Per Hour` · `Show GPM` · `Avg. viewing duration` · `Tap-through rate` · `CTR` · `CTOR` · `LIVE CTR` · `SKU order rate` · `Product clicks` · `CTOR (SKU order)` · `Avg. viewing duration per viewer` · `Product impressions` · `Watch GPM` · `New followers` · `Follow rate` · `Comment rate` · `Share rate` · `Like rate` · `Likes` · `Comments` · `Shares` · `Ads ROAS` · `Ads Cost` · `Ads GMV`
+
+> As 3 obrigatórias pra live ser válida: **`Start time`** (sem isso a linha é descartada), **`Duration`** (lives ≤ 5 min são ignoradas) e **`Livestream`** (título, compõe a chave). O resto, se faltar, só vira `NULL`.
+
+---
+
 ## 📥 O que baixar (semanalmente, toda segunda)
 
 Baixar **2 arquivos** do [TikTok Shop Seller Center](https://seller-br.tiktok.com/) e jogar em `dados/lives/exports/`:
