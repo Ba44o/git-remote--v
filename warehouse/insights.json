@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-26",
+  "generated_at": "2026-05-29",
   "periodos": [
     "2026-01",
     "2026-02",
@@ -9,58 +9,48 @@
   ],
   "periodo_atual": "2026-05",
   "health": {
-    "score": 50.3,
+    "score": 51.3,
     "label": "Atenção",
     "color": "#ea580c",
     "fatores": [
       {
         "fator": "Refund rate",
-        "valor": "24.7%",
-        "impacto": -9.7,
+        "valor": "23.7%",
+        "impacto": -8.7,
         "status": "alerta"
       },
       {
         "fator": "Anomalias críticas",
-        "valor": "53",
+        "valor": "50",
         "impacto": -20,
         "status": "ruim"
       },
       {
         "fator": "GMV vs período ant.",
-        "valor": "-69.4%",
+        "valor": "-64.2%",
         "impacto": -20,
         "status": "ruim"
       }
     ]
   },
   "executive_brief": {
-    "headline": "Período 2026-05 requer ação imediata — 13 anomalia(s) crítica(s).",
+    "headline": "Período 2026-05 requer ação imediata — 12 anomalia(s) crítica(s).",
     "bullets": [
-      "GMV atual (23d de 31d): R$ 203.724,18 → projeção mês completo: R$ 274.584,76.",
-      "⚠ Refund rate 24.7% — acima do limite de 15%. 18 creator(s) com spike crítico.",
+      "GMV atual (27d de 31d): R$ 238.572,29 → projeção mês completo: R$ 273.916,33.",
+      "⚠ Refund rate 23.7% — acima do limite de 15%. 16 creator(s) com spike crítico.",
       "🔻 20 creator(s) em declínio consecutivo — requerem reativação.",
-      "💡 2 creator(s) a menos de 15% de upgrade de tier — candidatas a meta de incentivo.",
-      "Retenção de creators ativas: 20.6% (79 recorrentes, 304 churned)."
+      "💡 3 creator(s) a menos de 15% de upgrade de tier — candidatas a meta de incentivo.",
+      "Retenção de creators ativas: 21.4% (82 recorrentes, 301 churned)."
     ],
     "acoes": [
-      "URGENTE: contatar .FAMILIAPIMENTEL — Refund saltou de 21.6% → 62.3%. Investigar produto/cliente recorrente.",
+      "URGENTE: contatar AKELLO.NUNES — Refund saltou de 15.2% → 186.4%. Investigar produto/cliente recorrente.",
       "Campanha de reativação para 20 creators em queda.",
-      "Meta de tier: ERICAMCABELUDA falta apenas R$ 949,73 para Prata."
+      "Meta de tier: NUMARCHI falta apenas R$ 54,88 para Prata."
     ],
-    "health_score": 50.3,
+    "health_score": 51.3,
     "health_label": "Atenção"
   },
   "anomalias": [
-    {
-      "tipo": "refund_spike",
-      "creator": ".FAMILIAPIMENTEL",
-      "valor_atual": 62.3,
-      "valor_anterior": 21.6,
-      "delta_pct": 188.8,
-      "severidade": "critica",
-      "gmv_em_risco": 856.55,
-      "acao": "Refund saltou de 21.6% → 62.3%. Investigar produto/cliente recorrente."
-    },
     {
       "tipo": "refund_spike",
       "creator": "AKELLO.NUNES",
@@ -74,22 +64,22 @@
     {
       "tipo": "refund_spike",
       "creator": "ARENATAJARDIM",
-      "valor_atual": 72.0,
+      "valor_atual": 64.2,
       "valor_anterior": 16.6,
-      "delta_pct": 334.7,
+      "delta_pct": 287.4,
       "severidade": "critica",
       "gmv_em_risco": 575.21,
-      "acao": "Refund saltou de 16.6% → 72.0%. Investigar produto/cliente recorrente."
+      "acao": "Refund saltou de 16.6% → 64.2%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "refund_spike",
       "creator": "DANIJEANS",
-      "valor_atual": 76.9,
+      "valor_atual": 82.5,
       "valor_anterior": 5.5,
-      "delta_pct": 1311.0,
+      "delta_pct": 1414.1,
       "severidade": "critica",
-      "gmv_em_risco": 928.96,
-      "acao": "Refund saltou de 5.5% → 76.9%. Investigar produto/cliente recorrente."
+      "gmv_em_risco": 996.85,
+      "acao": "Refund saltou de 5.5% → 82.5%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "refund_spike",
@@ -104,12 +94,12 @@
     {
       "tipo": "refund_spike",
       "creator": "GAB_CAROLINE",
-      "valor_atual": 88.8,
+      "valor_atual": 57.2,
       "valor_anterior": 2.9,
-      "delta_pct": 2929.4,
+      "delta_pct": 1850.9,
       "severidade": "critica",
       "gmv_em_risco": 486.04,
-      "acao": "Refund saltou de 2.9% → 88.8%. Investigar produto/cliente recorrente."
+      "acao": "Refund saltou de 2.9% → 57.2%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "refund_spike",
@@ -144,51 +134,51 @@
     {
       "tipo": "refund_spike",
       "creator": "MONICAP.PEREIRA",
-      "valor_atual": 103.7,
+      "valor_atual": 71.5,
       "valor_anterior": 11.2,
-      "delta_pct": 823.2,
+      "delta_pct": 536.6,
       "severidade": "critica",
       "gmv_em_risco": 678.78,
-      "acao": "Refund saltou de 11.2% → 103.7%. Investigar produto/cliente recorrente."
+      "acao": "Refund saltou de 11.2% → 71.5%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "refund_spike",
       "creator": "NATMARQUESVI",
-      "valor_atual": 53.3,
+      "valor_atual": 48.1,
       "valor_anterior": 11.8,
-      "delta_pct": 353.9,
+      "delta_pct": 309.1,
       "severidade": "critica",
-      "gmv_em_risco": 14648.62,
-      "acao": "Refund saltou de 11.8% → 53.3%. Investigar produto/cliente recorrente."
+      "gmv_em_risco": 15727.32,
+      "acao": "Refund saltou de 11.8% → 48.1%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "refund_spike",
       "creator": "PSI.MIRELLARODRIGUES",
-      "valor_atual": 277.3,
+      "valor_atual": 269.4,
       "valor_anterior": 17.7,
-      "delta_pct": 1470.2,
+      "delta_pct": 1425.8,
       "severidade": "critica",
-      "gmv_em_risco": 5637.14,
-      "acao": "Refund saltou de 17.7% → 277.3%. Investigar produto/cliente recorrente."
+      "gmv_em_risco": 5719.73,
+      "acao": "Refund saltou de 17.7% → 269.4%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "refund_spike",
       "creator": "YASMIN.AOLIVEIRA",
-      "valor_atual": 174.0,
+      "valor_atual": 56.2,
       "valor_anterior": 21.7,
-      "delta_pct": 700.8,
+      "delta_pct": 158.5,
       "severidade": "critica",
       "gmv_em_risco": 185.5,
-      "acao": "Refund saltou de 21.7% → 174.0%. Investigar produto/cliente recorrente."
+      "acao": "Refund saltou de 21.7% → 56.2%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "gmv_crash",
       "creator": ".FAMILIAPIMENTEL",
-      "valor_atual": 518.51,
+      "valor_atual": 1441.21,
       "valor_anterior": 5357.24,
-      "delta_pct": -90.3,
+      "delta_pct": -73.1,
       "severidade": "alta",
-      "acao": "GMV caiu 90%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 73%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -202,11 +192,11 @@
     {
       "tipo": "gmv_crash",
       "creator": "ARENATAJARDIM",
-      "valor_atual": 223.32,
+      "valor_atual": 320.81,
       "valor_anterior": 3844.98,
-      "delta_pct": -94.2,
+      "delta_pct": -91.7,
       "severidade": "alta",
-      "acao": "GMV caiu 94%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 92%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -236,41 +226,31 @@
       "acao": "GMV caiu 109%. Verificar frequência de conteúdo e qualidade."
     },
     {
-      "tipo": "refund_spike",
-      "creator": "CINTIA.THIES",
-      "valor_atual": 36.6,
-      "valor_anterior": 17.6,
-      "delta_pct": 107.5,
+      "tipo": "gmv_crash",
+      "creator": "COMPREIA",
+      "valor_atual": 0.0,
+      "valor_anterior": 986.78,
+      "delta_pct": -100.0,
       "severidade": "alta",
-      "gmv_em_risco": 74.9,
-      "acao": "Refund saltou de 17.6% → 36.6%. Investigar produto/cliente recorrente."
+      "acao": "GMV caiu 100%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "DANIJEANS",
-      "valor_atual": 279.04,
+      "valor_atual": 211.15,
       "valor_anterior": 9846.91,
-      "delta_pct": -97.2,
+      "delta_pct": -97.9,
       "severidade": "alta",
-      "acao": "GMV caiu 97%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 98%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "ERICAMCABELUDA",
-      "valor_atual": 7050.27,
+      "valor_atual": 8705.66,
       "valor_anterior": 23288.91,
-      "delta_pct": -69.7,
+      "delta_pct": -62.6,
       "severidade": "alta",
-      "acao": "GMV caiu 70%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "ESCUTA.AMIGA",
-      "valor_atual": 2681.74,
-      "valor_anterior": 7098.59,
-      "delta_pct": -62.2,
-      "severidade": "alta",
-      "acao": "GMV caiu 62%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 63%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -284,20 +264,20 @@
     {
       "tipo": "gmv_crash",
       "creator": "FRANCRUZ.26",
-      "valor_atual": 366.58,
+      "valor_atual": 651.28,
       "valor_anterior": 3196.12,
-      "delta_pct": -88.5,
+      "delta_pct": -79.6,
       "severidade": "alta",
-      "acao": "GMV caiu 88%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 80%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "GAB_CAROLINE",
-      "valor_atual": 61.56,
+      "valor_atual": 364.23,
       "valor_anterior": 2793.02,
-      "delta_pct": -97.8,
+      "delta_pct": -87.0,
       "severidade": "alta",
-      "acao": "GMV caiu 98%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 87%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -339,11 +319,11 @@
     {
       "tipo": "gmv_crash",
       "creator": "LAIANENOVAISSS",
-      "valor_atual": 4640.11,
+      "valor_atual": 5432.75,
       "valor_anterior": 23363.15,
-      "delta_pct": -80.1,
+      "delta_pct": -76.7,
       "severidade": "alta",
-      "acao": "GMV caiu 80%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 77%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -355,22 +335,23 @@
       "acao": "GMV caiu 105%. Verificar frequência de conteúdo e qualidade."
     },
     {
-      "tipo": "gmv_crash",
-      "creator": "LIDIKPF6",
-      "valor_atual": 422.63,
-      "valor_anterior": 2068.6,
-      "delta_pct": -79.6,
+      "tipo": "refund_spike",
+      "creator": "LETICIATSEC",
+      "valor_atual": 25.2,
+      "valor_anterior": 8.9,
+      "delta_pct": 183.5,
       "severidade": "alta",
-      "acao": "GMV caiu 80%. Verificar frequência de conteúdo e qualidade."
+      "gmv_em_risco": 1212.6,
+      "acao": "Refund saltou de 8.9% → 25.2%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "gmv_crash",
-      "creator": "MARITIPS_",
-      "valor_atual": 259.74,
-      "valor_anterior": 793.87,
-      "delta_pct": -67.3,
+      "creator": "LIDIKPF6",
+      "valor_atual": 514.68,
+      "valor_anterior": 2068.6,
+      "delta_pct": -75.1,
       "severidade": "alta",
-      "acao": "GMV caiu 67%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 75%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -393,44 +374,34 @@
     {
       "tipo": "gmv_crash",
       "creator": "MONICAP.PEREIRA",
-      "valor_atual": -24.03,
+      "valor_atual": 270.76,
       "valor_anterior": 5159.42,
-      "delta_pct": -100.5,
+      "delta_pct": -94.8,
       "severidade": "alta",
-      "acao": "GMV caiu 100%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 95%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "NATMARQUESVI",
-      "valor_atual": 12821.31,
+      "valor_atual": 16992.47,
       "valor_anterior": 132586.24,
-      "delta_pct": -90.3,
+      "delta_pct": -87.2,
       "severidade": "alta",
-      "acao": "GMV caiu 90%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "refund_spike",
-      "creator": "PATTYLAZZAROTTO",
-      "valor_atual": 32.2,
-      "valor_anterior": 15.9,
-      "delta_pct": 101.9,
-      "severidade": "alta",
-      "gmv_em_risco": 1532.69,
-      "acao": "Refund saltou de 15.9% → 32.2%. Investigar produto/cliente recorrente."
+      "acao": "GMV caiu 87%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "PATTYLAZZAROTTO",
-      "valor_atual": 3228.21,
+      "valor_atual": 4072.38,
       "valor_anterior": 16037.24,
-      "delta_pct": -79.9,
+      "delta_pct": -74.6,
       "severidade": "alta",
-      "acao": "GMV caiu 80%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 75%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "PSI.MIRELLARODRIGUES",
-      "valor_atual": -3604.29,
+      "valor_atual": -3596.98,
       "valor_anterior": 105532.58,
       "delta_pct": -103.4,
       "severidade": "alta",
@@ -439,11 +410,11 @@
     {
       "tipo": "gmv_crash",
       "creator": "ROBERTAKGUILHERME",
-      "valor_atual": 217.67,
+      "valor_atual": 339.47,
       "valor_anterior": 1859.16,
-      "delta_pct": -88.3,
+      "delta_pct": -81.7,
       "severidade": "alta",
-      "acao": "GMV caiu 88%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 82%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -457,40 +428,40 @@
     {
       "tipo": "refund_spike",
       "creator": "SILSANTIAGOTRC",
-      "valor_atual": 24.9,
+      "valor_atual": 22.8,
       "valor_anterior": 6.2,
-      "delta_pct": 305.7,
+      "delta_pct": 271.2,
       "severidade": "alta",
       "gmv_em_risco": 243.3,
-      "acao": "Refund saltou de 6.2% → 24.9%. Investigar produto/cliente recorrente."
+      "acao": "Refund saltou de 6.2% → 22.8%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "gmv_crash",
       "creator": "SILSANTIAGOTRC",
-      "valor_atual": 731.9,
+      "valor_atual": 822.6,
       "valor_anterior": 3703.01,
-      "delta_pct": -80.2,
+      "delta_pct": -77.8,
       "severidade": "alta",
-      "acao": "GMV caiu 80%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 78%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "refund_spike",
       "creator": "SOMEONEDUDA",
-      "valor_atual": 22.6,
+      "valor_atual": 20.7,
       "valor_anterior": 9.6,
-      "delta_pct": 135.7,
+      "delta_pct": 116.0,
       "severidade": "alta",
       "gmv_em_risco": 692.55,
-      "acao": "Refund saltou de 9.6% → 22.6%. Investigar produto/cliente recorrente."
+      "acao": "Refund saltou de 9.6% → 20.7%. Investigar produto/cliente recorrente."
     },
     {
       "tipo": "gmv_crash",
       "creator": "SOMEONEDUDA",
-      "valor_atual": 2367.32,
+      "valor_atual": 2646.33,
       "valor_anterior": 9815.19,
-      "delta_pct": -75.9,
+      "delta_pct": -73.0,
       "severidade": "alta",
-      "acao": "GMV caiu 76%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 73%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -522,20 +493,20 @@
     {
       "tipo": "gmv_crash",
       "creator": "THAINABEAUTYOFICIAL",
-      "valor_atual": 4749.9,
+      "valor_atual": 6227.82,
       "valor_anterior": 30864.68,
-      "delta_pct": -84.6,
+      "delta_pct": -79.8,
       "severidade": "alta",
-      "acao": "GMV caiu 85%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 80%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
       "creator": "YASMIN.AOLIVEIRA",
-      "valor_atual": -78.9,
+      "valor_atual": 144.75,
       "valor_anterior": 647.12,
-      "delta_pct": -112.2,
+      "delta_pct": -77.6,
       "severidade": "alta",
-      "acao": "GMV caiu 112%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 78%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "gmv_crash",
@@ -575,12 +546,12 @@
     },
     {
       "tipo": "inatividade_subita",
-      "creator": "DAILY.BECA",
+      "creator": "COMPREIA",
       "valor_atual": 0,
-      "valor_anterior": 327.53,
+      "valor_anterior": 986.78,
       "delta_pct": -100.0,
       "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 327,53. Reativar com amostra ou campanha."
+      "acao": "Parou de gerar GMV. Último período: R$ 986,78. Reativar com amostra ou campanha."
     },
     {
       "tipo": "inatividade_subita",
@@ -593,12 +564,21 @@
     },
     {
       "tipo": "gmv_crash",
-      "creator": "GABBIZIE",
-      "valor_atual": 1538.39,
-      "valor_anterior": 3056.98,
-      "delta_pct": -49.7,
+      "creator": "ESCUTA.AMIGA",
+      "valor_atual": 3290.0,
+      "valor_anterior": 7098.59,
+      "delta_pct": -53.7,
       "severidade": "media",
-      "acao": "GMV caiu 50%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 54%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
+      "tipo": "gmv_crash",
+      "creator": "GABBIZIE",
+      "valor_atual": 1448.49,
+      "valor_anterior": 3056.98,
+      "delta_pct": -52.6,
+      "severidade": "media",
+      "acao": "GMV caiu 53%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -648,20 +628,11 @@
     {
       "tipo": "gmv_crash",
       "creator": "LETICIATSEC",
-      "valor_atual": 3587.76,
+      "valor_atual": 3599.8,
       "valor_anterior": 7224.72,
-      "delta_pct": -50.3,
+      "delta_pct": -50.2,
       "severidade": "media",
       "acao": "GMV caiu 50%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "MARIAAUGUSTAREISS",
-      "valor_atual": 305.84,
-      "valor_anterior": 667.76,
-      "delta_pct": -54.2,
-      "severidade": "media",
-      "acao": "GMV caiu 54%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -682,6 +653,15 @@
       "acao": "Parou de gerar GMV. Último período: R$ 311,23. Reativar com amostra ou campanha."
     },
     {
+      "tipo": "gmv_crash",
+      "creator": "MARITIPS_",
+      "valor_atual": 446.5,
+      "valor_anterior": 793.87,
+      "delta_pct": -43.8,
+      "severidade": "media",
+      "acao": "GMV caiu 44%. Verificar frequência de conteúdo e qualidade."
+    },
+    {
       "tipo": "inatividade_subita",
       "creator": "ML5LHBAZC2",
       "valor_atual": 0,
@@ -693,11 +673,11 @@
     {
       "tipo": "gmv_crash",
       "creator": "NATI_SUS",
-      "valor_atual": 3530.32,
+      "valor_atual": 3728.42,
       "valor_anterior": 6585.93,
-      "delta_pct": -46.4,
+      "delta_pct": -43.4,
       "severidade": "media",
-      "acao": "GMV caiu 46%. Verificar frequência de conteúdo e qualidade."
+      "acao": "GMV caiu 43%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -707,15 +687,6 @@
       "delta_pct": -100.0,
       "severidade": "media",
       "acao": "Parou de gerar GMV. Último período: R$ 325,15. Reativar com amostra ou campanha."
-    },
-    {
-      "tipo": "gmv_crash",
-      "creator": "NUMARCHI",
-      "valor_atual": 5649.9,
-      "valor_anterior": 10808.25,
-      "delta_pct": -47.7,
-      "severidade": "media",
-      "acao": "GMV caiu 48%. Verificar frequência de conteúdo e qualidade."
     },
     {
       "tipo": "inatividade_subita",
@@ -767,77 +738,97 @@
     {
       "tipo": "escala_conteudo",
       "creator": ".FAMILIAPIMENTEL",
-      "gmv_atual": 518.51,
-      "aov": 114.59,
+      "gmv_atual": 1441.21,
+      "aov": 108.76,
       "conteudos": 0,
       "prioridade": "alta",
-      "acao": "AOV alto (R$ 114,59) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 108,76) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+    },
+    {
+      "tipo": "escala_conteudo",
+      "creator": "KEYLASBRAGA",
+      "gmv_atual": 662.0,
+      "aov": 110.33,
+      "conteudos": 3,
+      "prioridade": "alta",
+      "acao": "AOV alto (R$ 110,33) com apenas 3 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "LAIANENOVAISSS",
-      "gmv_atual": 4640.11,
-      "aov": 100.78,
+      "gmv_atual": 5432.75,
+      "aov": 100.56,
       "conteudos": 0,
       "prioridade": "alta",
-      "acao": "AOV alto (R$ 100,78) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 100,56) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "LETICIATSEC",
-      "gmv_atual": 3587.76,
-      "aov": 114.92,
+      "gmv_atual": 3599.8,
+      "aov": 114.58,
       "conteudos": 2,
       "prioridade": "alta",
-      "acao": "AOV alto (R$ 114,92) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 114,58) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
+    },
+    {
+      "tipo": "escala_conteudo",
+      "creator": "LIDIKPF6",
+      "gmv_atual": 514.68,
+      "aov": 101.94,
+      "conteudos": 2,
+      "prioridade": "alta",
+      "acao": "AOV alto (R$ 101,94) com apenas 2 conteúdo(s). Dobrar frequência = ~2× GMV."
+    },
+    {
+      "tipo": "tier_upgrade",
+      "creator": "NUMARCHI",
+      "gmv_atual": 7945.12,
+      "tier_atual": "Bronze",
+      "tier_alvo": "Prata",
+      "gmv_faltando": 54.88,
+      "pct_faltando": 0.7,
+      "prioridade": "alta",
+      "acao": "Faltam R$ 54,88 para Prata. Incentivar com meta de conteúdo."
     },
     {
       "tipo": "escala_conteudo",
       "creator": "SILSANTIAGOTRC",
-      "gmv_atual": 731.9,
-      "aov": 108.36,
+      "gmv_atual": 822.6,
+      "aov": 106.59,
       "conteudos": 0,
       "prioridade": "alta",
-      "acao": "AOV alto (R$ 108,36) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "AOV alto (R$ 106,59) com apenas 0 conteúdo(s). Dobrar frequência = ~2× GMV."
     },
     {
       "tipo": "tier_upgrade",
-      "creator": "ERICAMCABELUDA",
-      "gmv_atual": 7050.27,
-      "tier_atual": "Bronze",
-      "tier_alvo": "Prata",
-      "gmv_faltando": 949.73,
-      "pct_faltando": 11.9,
+      "creator": "ADV.DAYANE",
+      "gmv_atual": 52905.89,
+      "tier_atual": "Ouro",
+      "tier_alvo": "Diamante",
+      "gmv_faltando": 7094.11,
+      "pct_faltando": 11.8,
       "prioridade": "media",
-      "acao": "Faltam R$ 949,73 para Prata. Incentivar com meta de conteúdo."
+      "acao": "Faltam R$ 7.094,11 para Diamante. Incentivar com meta de conteúdo."
+    },
+    {
+      "tipo": "tier_upgrade",
+      "creator": "ALINECAVANELLAS",
+      "gmv_atual": 23075.13,
+      "tier_atual": "Prata",
+      "tier_alvo": "Ouro",
+      "gmv_faltando": 1924.87,
+      "pct_faltando": 7.7,
+      "prioridade": "media",
+      "acao": "Faltam R$ 1.924,87 para Ouro. Incentivar com meta de conteúdo."
     },
     {
       "tipo": "sem_videos",
       "creator": "ESCUTA.AMIGA",
-      "gmv_atual": 2681.74,
-      "lives": 30,
+      "gmv_atual": 3290.0,
+      "lives": 32,
       "prioridade": "media",
-      "acao": "Só faz lives (30). Vídeos evergreen têm descoberta orgânica constante."
-    },
-    {
-      "tipo": "tier_upgrade",
-      "creator": "JESSICAMESANT",
-      "gmv_atual": 1734.25,
-      "tier_atual": "Ferro",
-      "tier_alvo": "Bronze",
-      "gmv_faltando": 265.75,
-      "pct_faltando": 13.3,
-      "prioridade": "media",
-      "acao": "Faltam R$ 265,75 para Bronze. Incentivar com meta de conteúdo."
-    },
-    {
-      "tipo": "escala_conteudo",
-      "creator": "SOMEONEDUDA",
-      "gmv_atual": 2367.32,
-      "aov": 95.62,
-      "conteudos": 3,
-      "prioridade": "media",
-      "acao": "AOV alto (R$ 95,62) com apenas 3 conteúdo(s). Dobrar frequência = ~2× GMV."
+      "acao": "Só faz lives (32). Vídeos evergreen têm descoberta orgânica constante."
     }
   ],
   "stars": [],
@@ -864,18 +855,6 @@
         3652.33,
         2449.11,
         -227.69
-      ]
-    },
-    {
-      "creator": "YASMIN.AOLIVEIRA",
-      "gmv_pico": 8301.48,
-      "gmv_atual": -78.9,
-      "queda_total_pct": -102.9,
-      "tier": "Ferro",
-      "tendencia": [
-        2699.23,
-        647.12,
-        -78.9
       ]
     },
     {
@@ -975,15 +954,15 @@
       ]
     },
     {
-      "creator": "MARITIPS_",
-      "gmv_pico": 6355.61,
-      "gmv_atual": 259.74,
-      "queda_total_pct": -95.9,
+      "creator": "YASMIN.AOLIVEIRA",
+      "gmv_pico": 8301.48,
+      "gmv_atual": 144.75,
+      "queda_total_pct": -94.6,
       "tier": "Ferro",
       "tendencia": [
-        6355.61,
-        793.87,
-        259.74
+        2699.23,
+        647.12,
+        144.75
       ]
     },
     {
@@ -999,15 +978,15 @@
       ]
     },
     {
-      "creator": ".FAMILIAPIMENTEL",
-      "gmv_pico": 15718.22,
-      "gmv_atual": 518.51,
-      "queda_total_pct": -92.8,
+      "creator": "MARITIPS_",
+      "gmv_pico": 6355.61,
+      "gmv_atual": 446.5,
+      "queda_total_pct": -93.0,
       "tier": "Ferro",
       "tendencia": [
-        7194.4,
-        5357.24,
-        518.51
+        6355.61,
+        793.87,
+        446.5
       ]
     },
     {
@@ -1025,106 +1004,118 @@
     {
       "creator": "LIDIKPF6",
       "gmv_pico": 5785.57,
-      "gmv_atual": 422.63,
-      "queda_total_pct": -90.3,
+      "gmv_atual": 514.68,
+      "queda_total_pct": -88.2,
       "tier": "Ferro",
       "tendencia": [
         4358.52,
         2068.6,
-        422.63
+        514.68
       ]
     },
     {
       "creator": "PATTYLAZZAROTTO",
       "gmv_pico": 32420.81,
-      "gmv_atual": 3228.21,
-      "queda_total_pct": -88.5,
+      "gmv_atual": 4072.38,
+      "queda_total_pct": -85.6,
       "tier": "Bronze",
       "tendencia": [
         28185.49,
         16037.24,
-        3228.21
+        4072.38
       ]
     },
     {
       "creator": "THAINABEAUTYOFICIAL",
       "gmv_pico": 68972.21,
-      "gmv_atual": 4749.9,
-      "queda_total_pct": -87.8,
+      "gmv_atual": 6227.82,
+      "queda_total_pct": -84.1,
       "tier": "Bronze",
       "tendencia": [
         39088.13,
         30864.68,
-        4749.9
+        6227.82
       ]
     },
     {
-      "creator": "CINTIA.THIES",
-      "gmv_pico": 5122.16,
-      "gmv_atual": 129.9,
-      "queda_total_pct": -85.1,
+      "creator": "THALYYTAGUEDES",
+      "gmv_pico": 886.42,
+      "gmv_atual": 101.2,
+      "queda_total_pct": -81.4,
       "tier": "Ferro",
       "tendencia": [
-        869.75,
-        373.48,
-        129.9
+        545.55,
+        142.69,
+        101.2
       ]
     },
     {
-      "creator": "DPAULA57",
-      "gmv_pico": 563.64,
-      "gmv_atual": 88.3,
-      "queda_total_pct": -84.3,
+      "creator": "LETICIATSEC",
+      "gmv_pico": 25073.31,
+      "gmv_atual": 3599.8,
+      "queda_total_pct": -81.1,
+      "tier": "Bronze",
+      "tendencia": [
+        19069.26,
+        7224.72,
+        3599.8
+      ]
+    },
+    {
+      "creator": ".FAMILIAPIMENTEL",
+      "gmv_pico": 15718.22,
+      "gmv_atual": 1441.21,
+      "queda_total_pct": -80.0,
       "tier": "Ferro",
       "tendencia": [
-        563.64,
-        425.34,
-        88.3
+        7194.4,
+        5357.24,
+        1441.21
       ]
     }
   ],
   "novos_destaques": [
     {
       "creator": "TACIANECREATOR",
-      "gmv_estreia": 19878.19,
-      "tier": "Prata",
+      "gmv_estreia": 25028.95,
+      "tier": "Ouro",
       "acao": "Primeira aparição com GMV relevante. Priorizar onboarding e amostra."
     },
     {
       "creator": "LAIZMACANEIRO",
-      "gmv_estreia": 2848.4,
+      "gmv_estreia": 2479.75,
       "tier": "Bronze",
       "acao": "Primeira aparição com GMV relevante. Priorizar onboarding e amostra."
     }
   ],
   "cohorts": {
     "novos": {
-      "count": 97,
-      "gmv": 35540.28
+      "count": 105,
+      "gmv": 42071.87
     },
     "recorrentes": {
-      "count": 79,
-      "gmv": 171385.84
+      "count": 82,
+      "gmv": 199690.38
     },
     "churned": {
-      "count": 304,
+      "count": 301,
       "gmv": 0
     },
     "dormentes": {
-      "count": 5124,
+      "count": 5177,
       "gmv": 0
     },
-    "retencao_pct": 20.6
+    "retencao_pct": 21.4
   },
   "projecoes": {
     "periodo_atual": "2026-05",
     "is_parcial": true,
-    "dias_cobertos": 23,
+    "dias_cobertos": 27,
     "dias_mes": 31,
-    "gmv_atual": 203724.18,
-    "gmv_projetado_mes": 274584.76,
-    "pedidos_projetados": 3812,
+    "gmv_atual": 238572.29,
+    "gmv_projetado_mes": 273916.33,
+    "pedidos_projetados": 3730,
     "crescimento_medio_pct": 0.2,
-    "gmv_proximo_periodo": 275250.79
+    "gmv_proximo_periodo": 274580.74
   }
 }
