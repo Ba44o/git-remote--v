@@ -2,7 +2,7 @@
 
 > **Como usar este arquivo:** fonte de verdade do projeto. Antes de iniciar trabalho novo, leia daqui em diante. Atualizar conforme features são concluídas ou repriorizadas.
 >
-> **Última atualização:** 2026-05-12
+> **Última atualização:** 2026-06-01
 
 ---
 
@@ -114,6 +114,20 @@ _(nada no momento)_
    - Por que aqui: combina com a política da triagem ("não dar moral pra quem não provou") e o controle de amostra (amostra grátis só via missão/campanha) — fecha o loop pra não virar self-service de freebie.
 
 **Decisão arquitetural pendente:** caminho A (proxy `/api/*` + RLS `false` pra anon) escolhido sobre B (RPC de validação de token + RLS por linha) e C (migrar pra Supabase Auth nativo) — A reaproveita o padrão `/api/get-hub.js` que já existe e resolve o admin (que lê todo mundo) sem complicação de policy.
+
+---
+
+### ✅ 9. Alinhar `TIER_RULES` do ETL ao programa público — concluído jun/2026
+
+**Problema:** o ETL ([`etl_v2.py:93`](agente_rhode/etl_v2.py#L93)) tinha um sistema de tiers legado — `Ferro/Bronze/Prata/Ouro/Diamante` com thresholds 0/2k/8k/25k/60k e comissões 5/7/9/11/13%. Isso era inconsistente com o programa público que hub.html, admin.html e disparo.js usam (5 tiers `Iniciante/Bronze/Silver/Gold/Diamond/Black` com 20k/50k/80k/150k/500k e 0/10/11/12/12/12%). O ETL escrevia `affiliates.current_tier="diamante"` (label antigo, threshold antigo) e `performance_periods.tier=Ferro/Prata/...`, mas hub/admin **ignoravam** essa coluna e recalculavam tier client-side — então não havia bug visível pra creator, mas qualquer query SQL direta nas colunas `tier`/`current_tier` retornava lixo do programa antigo.
+
+**Entregue:**
+- `TIER_RULES` reescrito alinhado ao programa: `Black(500k+, 12%)` · `Diamond(150k, 12%)` · `Gold(80k, 12%)` · `Silver(50k, 11%)` · `Bronze(20k, 10%)` · `Iniciante(0, 0%)`
+- Fallback do `calc_tier` ajustado de `("Ferro", 0.05)` pra `("Iniciante", 0.00)`
+- Comentário explicando os dois usos do `calc_tier`: per-período (`performance_periods.tier`, informativo) e lifetime (`creators_master → affiliates.current_tier`, autoritativo)
+- Push disparou o ETL → todos os 5 períodos reprocessados → Supabase atualizado com labels e thresholds novos
+
+**Não muda:** `comissao` real (paga pelo TikTok Shop direto, vem do export). O `comissao_calculada` do ETL é só projeção/sanity-check com a % oficial.
 
 ---
 

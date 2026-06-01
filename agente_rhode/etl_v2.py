@@ -90,12 +90,19 @@ COLUMN_ALIASES = {
     "status_reembolso": "status_reembolso",
 }
 
+# Alinhado com o programa público (hub.html TIERS / TIER_COMM_PCT, admin tier(),
+# disparo.js TIER_COMM). Threshold por GMV LÍQUIDO. calc_tier é usado em 2 lugares:
+# (a) per-período em performance_periods.tier (informativo: "tier-equivalente desse
+#     mês"), (b) lifetime em creators_master → affiliates.current_tier (autoritativo).
+# A comissão real é paga pelo TikTok Shop direto; comissao_calculada aqui é
+# projeção pra sanity-check usando a % oficial do programa.
 TIER_RULES = [
-    (60_000, "Diamante", 0.13),
-    (25_000, "Ouro",     0.11),
-    (8_000,  "Prata",    0.09),
-    (2_000,  "Bronze",   0.07),
-    (0,      "Ferro",    0.05),
+    (500_000, "Black",     0.12),
+    (150_000, "Diamond",   0.12),
+    ( 80_000, "Gold",      0.12),
+    ( 50_000, "Silver",    0.11),
+    ( 20_000, "Bronze",    0.10),
+    (      0, "Iniciante", 0.00),
 ]
 
 # Aliases de handle: creator que trocou o @ no TikTok.
@@ -154,7 +161,7 @@ def calc_tier(gmv_liq: float) -> tuple[str, float]:
     for threshold, label, rate in TIER_RULES:
         if gmv_liq >= threshold:
             return label, rate
-    return "Ferro", 0.05
+    return "Iniciante", 0.00
 
 
 # ── Detecção de período ───────────────────────────────────────────────────────
