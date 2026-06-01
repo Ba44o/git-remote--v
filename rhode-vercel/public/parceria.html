@@ -64,13 +64,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .climb-txt{font-size:14px;color:var(--dim);line-height:1.55}
 .climb-txt strong{color:var(--text)}
 
-/* ── Benefits ── */
-.benefits{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:2px}
-.benefits li{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--text)}
-.benefits li:last-child{border-bottom:none}
-.benefits .b-emoji{font-size:18px;flex-shrink:0;width:24px;text-align:center}
-.benefits .b-txt b{font-weight:700}
-.benefits .b-txt span{display:block;font-size:12.5px;color:var(--dim);margin-top:2px;line-height:1.45}
+/* ── Benefits por tier ── */
+.tbens{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.tben{border:1px solid var(--border);border-radius:16px;padding:15px 16px;background:var(--bg)}
+.tben-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.tben-name{font-weight:700;font-size:15px}
+.tben-tag{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--dimmer);border:1px solid var(--border);padding:2px 8px;border-radius:99px}
+.tben-plus{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:6px 10px;line-height:1.3;color:var(--text)}
 
 /* ── CTA ── */
 .cta-section{text-align:center;padding:30px 22px}
@@ -167,14 +169,71 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   <div class="section">
     <div class="sec-eyebrow">O que destrava</div>
     <div class="sec-title">Cada nível abre novos acessos.</div>
-    <div class="sec-sub">Real, não decorativo — conforme você cresce, a Rhode entra junto.</div>
-    <ul class="benefits">
-      <li><span class="b-emoji">👖</span><span class="b-txt"><b>Peças pra conteúdo</b><span>Mais modelos enviados pra você criar e vender.</span></span></li>
-      <li><span class="b-emoji">🏅</span><span class="b-txt"><b>Placa física do seu tier</b><span>Reconhecimento real entregue na sua casa.</span></span></li>
-      <li><span class="b-emoji">🚀</span><span class="b-txt"><b>Spark Ads no seu vídeo</b><span>A Rhode investe em ADS no seu próprio conteúdo pra escalar suas vendas.</span></span></li>
-      <li><span class="b-emoji">🎬</span><span class="b-txt"><b>Studio Day &amp; Live oficial</b><span>Produção e presença nos canais da marca nos níveis mais altos.</span></span></li>
-      <li><span class="b-emoji">⭐</span><span class="b-txt"><b>Vitrine no perfil oficial</b><span>Seu conteúdo amplificado pela Rhode Jeans.</span></span></li>
-    </ul>
+    <div class="sec-sub">Real, não decorativo — cada nível mantém tudo do anterior e soma novos acessos.</div>
+    <div class="tbens">
+
+      <div class="tben">
+        <div class="tben-head"><span class="tier-dot" style="background:var(--bronze)"></span><span class="tben-name">Bronze</span><span class="tben-tag">entrada</span></div>
+        <div class="chips">
+          <span class="chip">Dashboard de performance</span>
+          <span class="chip">Media Kit automático</span>
+          <span class="chip">Playbook de Lives (PDF)</span>
+          <span class="chip">Targeted Collaboration</span>
+          <span class="chip">Cupom 10% rastreável</span>
+          <span class="chip">Banco de Hooks Rhode (30/SKU semanal)</span>
+          <span class="chip">Grupo no WhatsApp</span>
+          <span class="chip">Resposta em 48h</span>
+        </div>
+      </div>
+
+      <div class="tben">
+        <div class="tben-head"><span class="tier-dot" style="background:var(--silver)"></span><span class="tben-name">Prata</span></div>
+        <div class="tben-plus">Tudo do Bronze +</div>
+        <div class="chips">
+          <span class="chip">Placa acrílica Prata</span>
+          <span class="chip">+2 amostras</span>
+          <span class="chip">Spark Ads pontual (R$ 300–500/mês)</span>
+          <span class="chip">Mentoria mensal em grupo</span>
+          <span class="chip">Resposta em 24h</span>
+        </div>
+      </div>
+
+      <div class="tben">
+        <div class="tben-head"><span class="tier-dot" style="background:var(--gold)"></span><span class="tben-name">Gold</span></div>
+        <div class="tben-plus">Tudo da Prata +</div>
+        <div class="chips">
+          <span class="chip">+2 amostras antecipadas no lançamento</span>
+          <span class="chip">Alerta de Estoque VIP (2h antes)</span>
+          <span class="chip">Briefing dias antes</span>
+          <span class="chip">Spark Ads semanal (R$ 500–1k)</span>
+          <span class="chip">GMV Max Creative Pool</span>
+        </div>
+      </div>
+
+      <div class="tben">
+        <div class="tben-head"><span class="tier-dot" style="background:var(--diamond)"></span><span class="tben-name">Diamond</span></div>
+        <div class="tben-plus">Tudo do Gold +</div>
+        <div class="chips">
+          <span class="chip">Studio Day</span>
+          <span class="chip">Feature @rhodejeans</span>
+          <span class="chip">Live oficial mensal "[Nome] na Rhode"</span>
+          <span class="chip">Spark Ads contínuo (R$ 3–5k/mês)</span>
+          <span class="chip">Reunião mensal exclusiva</span>
+          <span class="chip">Canal de escalation TTK</span>
+        </div>
+      </div>
+
+      <div class="tben">
+        <div class="tben-head"><span class="tier-dot" style="background:var(--black)"></span><span class="tben-name">Black</span></div>
+        <div class="tben-plus">Tudo do Diamond +</div>
+        <div class="chips">
+          <span class="chip">Embaixadora oficial</span>
+          <span class="chip">Jantar anual de elite</span>
+          <span class="chip">Vitrine curada na bio do TikTok Shop Rhode (8–12 SKUs à sua escolha, trocados a cada trimestre)</span>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- CTA -->
