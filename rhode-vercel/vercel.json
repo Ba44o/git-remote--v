@@ -9,7 +9,7 @@
   ],
   "headers": [
     {
-      "source": "/(admin|hub|acesso|cadastro|bem-vinda|sac|index|dash-live)\\.html",
+      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live)\\.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
