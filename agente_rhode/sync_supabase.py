@@ -46,13 +46,45 @@ def sync_affiliates():
         rows.append({
             "affiliate_id":   str(r.get("creator_id", "")).strip(),
             "tiktok_handle":  str(r.get("creator_id", "")).strip(),
-            "current_tier":   str(r.get("tier", "starter")).lower(),
+            "current_tier":   str(r.get("tier", "iniciante")).lower(),
             "gmv_live_mtd":   float(r.get("gmv_liquido", 0) or 0),
             "gmv_video_mtd":  0,
             "last_updated_at": str(r.get("last_updated_at", "")) or None,
         })
     rows = [r for r in rows if r["affiliate_id"]]
     upsert("affiliates", rows, on_conflict="affiliate_id")
+    cleanup_legacy_tier_labels()
+
+
+# Mapa labels do programa antigo (Ferro/Prata/Ouro/Diamante etc) → novo programa.
+# Aplicado em affiliates pra cobrir rows fantasma que existiam antes do ETL alinhar
+# TIER_RULES com o programa público — upsert sem delete deixa essas rows congeladas.
+LEGACY_TIER_MAP = {
+    "ferro":    "iniciante",
+    "starter":  "iniciante",
+    "prata":    "silver",
+    "ouro":     "gold",
+    "diamante": "diamond",
+    # "bronze" é nome comum entre velho e novo programa — só threshold mudou.
+    # Como o sync_affiliates re-upserta com o tier novo pra qualquer creator em
+    # creators_master.csv, as rows "bronze" que sobram são creators sumidos
+    # do warehouse — manter como bronze é razoável (não tem como saber o GMV atual).
+}
+
+def cleanup_legacy_tier_labels():
+    """PATCH em affiliates traduzindo labels do programa antigo pro novo."""
+    fixed = 0
+    for old, new in LEGACY_TIER_MAP.items():
+        url = f"{SUPABASE_URL}/rest/v1/affiliates?current_tier=eq.{old}"
+        r = requests.patch(url, headers={**HEADERS, "Prefer": "return=minimal"},
+                           json={"current_tier": new})
+        if r.status_code in (200, 204):
+            fixed += 1
+            print(f"  [✓] cleanup current_tier: {old} → {new}")
+        else:
+            print(f"  [AVISO] cleanup {old} → {new}: {r.status_code} {r.text[:200]}")
+    if fixed:
+        print(f"  Total: {fixed} label(s) migrado(s) do programa antigo.")
 
 def sync_performance_periods():
     df = pd.read_csv(WAREHOUSE / "raw_imports.csv").fillna("")
