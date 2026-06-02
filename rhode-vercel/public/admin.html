@@ -890,27 +890,21 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <span class="pill-filter" data-devf="90" onclick="filterDev(this,90)">90d</span>
           <span class="pill-filter" data-devf="all" onclick="filterDev(this,'all')">Tudo</span>
         </div>
+        <div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label">Motivo</span>
+          <select id="dev-motivo" onchange="DEV_MOTIVO=this.value;renderDev()" class="finput" style="max-width:300px;padding:7px 10px"><option value="all">Todos os motivos</option></select>
+          <span class="pbar-label" style="margin-left:10px">Agrupar por</span>
+          <span class="pill-filter" data-devg="produto" onclick="groupDev(this,'produto')">Produto</span>
+          <span class="pill-filter on" data-devg="sku" onclick="groupDev(this,'sku')">SKU / Tamanho</span>
+          <span class="pill-filter" data-devg="motivo" onclick="groupDev(this,'motivo')">Motivo</span>
+        </div>
         <div id="dev-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
         <div id="dev-chart" style="margin-bottom:20px"></div>
-        <div class="tbl-card" style="margin-bottom:16px">
-          <div class="tbl-head"><div class="tbl-title">Top Produtos Devolvidos</div><div class="tbl-meta" id="dev-meta"></div></div>
-          <div class="tw"><table>
-            <thead><tr><th>Produto</th><th>SKU</th><th>Devoluções</th><th>Reembolso</th></tr></thead>
-            <tbody id="dev-body"><tr><td colspan="4" class="spin">Carregando…</td></tr></tbody>
-          </table></div>
-        </div>
-        <div class="tbl-card" style="margin-bottom:16px">
-          <div class="tbl-head"><div class="tbl-title">Por SKU / Tamanho</div><div class="tbl-meta">variante mais devolvida no topo</div></div>
-          <div class="tw"><table>
-            <thead><tr><th>SKU</th><th>Variante</th><th>Devoluções</th><th>Reembolso</th></tr></thead>
-            <tbody id="dev-skus"><tr><td colspan="4" class="spin">—</td></tr></tbody>
-          </table></div>
-        </div>
         <div class="tbl-card">
-          <div class="tbl-head"><div class="tbl-title">Por Motivo</div></div>
+          <div class="tbl-head"><div class="tbl-title" id="dev-tbl-title">Por SKU / Tamanho</div><div class="tbl-meta" id="dev-meta"></div></div>
           <div class="tw"><table>
-            <thead><tr><th>Motivo</th><th>Devoluções</th><th>%</th></tr></thead>
-            <tbody id="dev-reasons"><tr><td colspan="3" class="spin">—</td></tr></tbody>
+            <thead id="dev-thead"><tr><th>SKU</th><th>Variante</th><th>Itens</th><th>Reembolso</th></tr></thead>
+            <tbody id="dev-body"><tr><td colspan="4" class="spin">Carregando…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2379,9 +2373,15 @@ function renderFin(){
 // ── Sub-aba Devoluções (reembolsos TikTok Shop, grão = item devolvido)
 let DEV_DATA=[];
 let DEV_WIN=60;
+let DEV_MOTIVO='all';
+let DEV_GROUP='sku';
 function filterDev(btn,win){
   document.querySelectorAll('.dev-controls .pill-filter').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');DEV_WIN=win;renderDev();
+}
+function groupDev(btn,g){
+  document.querySelectorAll('[data-devg]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');DEV_GROUP=g;renderDev();
 }
 async function loadDev(){
   if(DEV_DATA.length){renderDev();return}
@@ -2404,38 +2404,51 @@ function renderDevChart(byDay){
   htm('dev-chart',`<div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:12px;overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:480px;display:block">${yLabels}${bars}${xLabels}</svg></div>`);
 }
 function renderDev(){
-  if(!DEV_DATA.length){htm('dev-body','<tr><td colspan="4" class="empty">Sem dados. Rode <code>python agente_rhode/etl_devolucoes.py &amp;&amp; python agente_rhode/sync_supabase.py --only devolucoes</code>.</td></tr>');htm('dev-chart','');htm('dev-kpis','');htm('dev-reasons','');htm('dev-skus','');set('dev-meta','');return}
-  // janela: filtra por data (DEV_DATA vem desc → [0] é a data mais recente)
+  if(!DEV_DATA.length){htm('dev-body','<tr><td colspan="4" class="empty">Sem dados. Rode <code>python agente_rhode/etl_devolucoes.py &amp;&amp; python agente_rhode/sync_supabase.py --only devolucoes</code>.</td></tr>');htm('dev-chart','');htm('dev-kpis','');set('dev-meta','');return}
+  // 1) janela (DEV_DATA vem desc → [0] é a data mais recente)
   let rows=DEV_DATA;
   if(DEV_WIN!=='all'){const cut=new Date(DEV_DATA[0].data);cut.setDate(cut.getDate()-DEV_WIN);const cs=cut.toISOString().slice(0,10);rows=DEV_DATA.filter(r=>r.data>=cs)}
-  // dedupe por return_id pro total/contagem reais
-  const rseen={};rows.forEach(r=>{if(!rseen[r.return_id])rseen[r.return_id]={refund:+r.refund_return||0,reason:r.return_reason||'—'}});
-  const returns=Object.values(rseen);
-  const totRefund=returns.reduce((s,r)=>s+r.refund,0),nRet=returns.length;
-  // por dia (item-level pro shape do chart)
-  const byDayM={};rows.forEach(r=>{byDayM[r.data]=(byDayM[r.data]||0)+(+r.refund_item||0)});
-  const byDay=Object.entries(byDayM).map(([data,v])=>({data,v}));
-  // por produto
-  const byProdM={};rows.forEach(r=>{const k=r.product_name||'—';const o=byProdM[k]||(byProdM[k]={produto:k,sku:r.seller_sku||'',n:0,refund:0});o.n++;o.refund+=+r.refund_item||0});
-  const byProd=Object.values(byProdM).sort((a,b)=>b.refund-a.refund);
-  // por SKU/variante (cor + tamanho) — ordenado por nº de devoluções (acha o tamanho que falha)
-  const bySkuM={};rows.forEach(r=>{const k=r.seller_sku||'—';const o=bySkuM[k]||(bySkuM[k]={sku:k,variante:r.sku_name||'',n:0,refund:0});o.n++;o.refund+=+r.refund_item||0});
-  const bySku=Object.values(bySkuM).sort((a,b)=>b.n-a.n);
-  // por motivo (return-level)
-  const byReasonM={};returns.forEach(r=>{byReasonM[r.reason]=(byReasonM[r.reason]||0)+1});
-  const byReason=Object.entries(byReasonM).map(([m,c])=>({m,c})).sort((a,b)=>b.c-a.c);
-  // KPIs
+  // 2) popula dropdown de motivo (a partir da janela)
+  const reasons=[...new Set(rows.map(r=>r.return_reason||'—'))].sort();
+  if(DEV_MOTIVO!=='all'&&!reasons.includes(DEV_MOTIVO))DEV_MOTIVO='all';
+  el('dev-motivo').innerHTML='<option value="all">Todos os motivos</option>'+reasons.map(m=>`<option value="${m.replace(/"/g,'&quot;')}"${m===DEV_MOTIVO?' selected':''}>${m}</option>`).join('');
+  // 3) filtro de motivo
+  const frows=DEV_MOTIVO==='all'?rows:rows.filter(r=>(r.return_reason||'—')===DEV_MOTIVO);
+  // 4) totais (dedupe por return_id)
+  const rseen={};frows.forEach(r=>{if(!(r.return_id in rseen))rseen[r.return_id]=+r.refund_return||0});
+  const nRet=Object.keys(rseen).length,totRefund=Object.values(rseen).reduce((s,v)=>s+v,0);
+  const nProd=new Set(frows.map(r=>r.product_name||'—')).size;
   htm('dev-kpis',[
     finCard('Total reembolsado',fmtK(totRefund),`${nRet.toLocaleString('pt-BR')} devoluções`,true),
-    finCard('Devoluções',nRet.toLocaleString('pt-BR'),`${(DEV_WIN==='all'?'todo período':DEV_WIN+' dias')}`),
+    finCard('Devoluções',nRet.toLocaleString('pt-BR'),DEV_MOTIVO==='all'?(DEV_WIN==='all'?'todo período':DEV_WIN+' dias'):'filtrado por motivo'),
     finCard('Reembolso médio',fmtR(nRet?totRefund/nRet:0),'por devolução'),
-    finCard('Produtos afetados',byProd.length.toLocaleString('pt-BR'),''),
+    finCard('Produtos afetados',nProd.toLocaleString('pt-BR'),''),
   ].join(''));
-  set('dev-meta',`${nRet.toLocaleString('pt-BR')} devoluções · ${fmtK(totRefund)} reembolsado · ${byProd.length} produtos`);
-  renderDevChart(byDay);
-  htm('dev-body',byProd.slice(0,40).map(p=>`<tr><td>${p.produto}</td><td class="mono">${p.sku}</td><td class="mono">${p.n.toLocaleString('pt-BR')}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(p.refund)}</td></tr>`).join(''));
-  htm('dev-skus',bySku.slice(0,40).map(s=>`<tr><td class="mono">${s.sku}</td><td>${s.variante||'—'}</td><td class="mono">${s.n.toLocaleString('pt-BR')}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(s.refund)}</td></tr>`).join(''));
-  htm('dev-reasons',byReason.map(r=>`<tr><td>${r.m}</td><td class="mono">${r.c.toLocaleString('pt-BR')}</td><td class="mono">${(r.c/nRet*100).toFixed(1)}%</td></tr>`).join(''));
+  // 5) chart (reembolso/dia da seleção atual)
+  const byDayM={};frows.forEach(r=>{byDayM[r.data]=(byDayM[r.data]||0)+(+r.refund_item||0)});
+  renderDevChart(Object.entries(byDayM).map(([data,v])=>({data,v})));
+  // 6) tabela conforme agrupamento
+  let head,body,title;
+  if(DEV_GROUP==='produto'){
+    const m={};frows.forEach(r=>{const k=r.product_name||'—';const o=m[k]||(m[k]={a:k,b:r.seller_sku||'',n:0,refund:0});o.n++;o.refund+=+r.refund_item||0});
+    const a=Object.values(m).sort((x,y)=>y.refund-x.refund);
+    title='Por Produto';head='<tr><th>Produto</th><th>SKU</th><th>Itens</th><th>Reembolso</th></tr>';
+    body=a.slice(0,80).map(o=>`<tr><td>${o.a}</td><td class="mono">${o.b}</td><td class="mono">${o.n.toLocaleString('pt-BR')}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.refund)}</td></tr>`).join('');
+  }else if(DEV_GROUP==='motivo'){
+    const seen={},cnt={},val={};frows.forEach(r=>{const k=r.return_reason||'—';if(!(r.return_id in seen)){seen[r.return_id]=1;cnt[k]=(cnt[k]||0)+1;val[k]=(val[k]||0)+(+r.refund_return||0)}});
+    const a=Object.keys(cnt).map(k=>({a:k,n:cnt[k],refund:val[k]})).sort((x,y)=>y.n-x.n);
+    title='Por Motivo';head='<tr><th>Motivo</th><th>Devoluções</th><th>%</th><th>Reembolso</th></tr>';
+    body=a.map(o=>`<tr><td>${o.a}</td><td class="mono">${o.n.toLocaleString('pt-BR')}</td><td class="mono">${nRet?(o.n/nRet*100).toFixed(1):0}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.refund)}</td></tr>`).join('');
+  }else{ // sku (default)
+    const m={};frows.forEach(r=>{const k=r.seller_sku||'—';const o=m[k]||(m[k]={a:k,b:r.sku_name||'',n:0,refund:0});o.n++;o.refund+=+r.refund_item||0});
+    const a=Object.values(m).sort((x,y)=>y.n-x.n);
+    title='Por SKU / Tamanho';head='<tr><th>SKU</th><th>Variante</th><th>Itens</th><th>Reembolso</th></tr>';
+    body=a.slice(0,80).map(o=>`<tr><td class="mono">${o.a}</td><td>${o.b||'—'}</td><td class="mono">${o.n.toLocaleString('pt-BR')}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.refund)}</td></tr>`).join('');
+  }
+  set('dev-tbl-title',title);
+  set('dev-meta',`${nRet.toLocaleString('pt-BR')} devoluções · ${fmtK(totRefund)} reembolsado${DEV_MOTIVO!=='all'?' · '+DEV_MOTIVO:''}`);
+  htm('dev-thead',head);
+  htm('dev-body',body||'<tr><td colspan="4" class="empty">Nada nesse filtro.</td></tr>');
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
