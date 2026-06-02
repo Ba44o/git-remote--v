@@ -2403,6 +2403,8 @@ function renderDevChart(byDay){
   const xLabels=sorted.map((r,i)=>{if(i%step!==0&&i!==sorted.length-1)return'';const x=P.l+i*barW+barW/2;return`<text x="${x}" y="${H-8}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ink-48)">${r.data.slice(5)}</text>`}).join('');
   htm('dev-chart',`<div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:12px;overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:480px;display:block">${yLabels}${bars}${xLabels}</svg></div>`);
 }
+function addTopReason(o){let t='—',c=0;for(const k in o.rz)if(o.rz[k]>c){c=o.rz[k];t=k}o.mot=t;o.motp=o.n?c/o.n*100:0;return o}
+function reasonCell(o){const m=o.mot||'—';const sh=m.length>34?m.slice(0,32)+'…':m;return`<td title="${m.replace(/"/g,'&quot;')}">${sh} <span style="color:var(--ink-48);font-size:11px">${(o.motp||0).toFixed(0)}%</span></td>`}
 function renderDev(){
   if(!DEV_DATA.length){htm('dev-body','<tr><td colspan="4" class="empty">Sem dados. Rode <code>python agente_rhode/etl_devolucoes.py &amp;&amp; python agente_rhode/sync_supabase.py --only devolucoes</code>.</td></tr>');htm('dev-chart','');htm('dev-kpis','');set('dev-meta','');return}
   // 1) janela (DEV_DATA vem desc → [0] é a data mais recente)
@@ -2430,20 +2432,20 @@ function renderDev(){
   // 6) tabela conforme agrupamento
   let head,body,title;
   if(DEV_GROUP==='produto'){
-    const m={};frows.forEach(r=>{const k=r.product_name||'—';const o=m[k]||(m[k]={a:k,b:r.seller_sku||'',n:0,refund:0});o.n++;o.refund+=+r.refund_item||0});
-    const a=Object.values(m).sort((x,y)=>y.refund-x.refund);
-    title='Por Produto';head='<tr><th>Produto</th><th>SKU</th><th>Itens</th><th>Reembolso</th></tr>';
-    body=a.slice(0,80).map(o=>`<tr><td>${o.a}</td><td class="mono">${o.b}</td><td class="mono">${o.n.toLocaleString('pt-BR')}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.refund)}</td></tr>`).join('');
+    const m={};frows.forEach(r=>{const k=r.product_name||'—';const o=m[k]||(m[k]={a:k,b:r.seller_sku||'',n:0,refund:0,rz:{}});o.n++;o.refund+=+r.refund_item||0;const z=r.return_reason||'—';o.rz[z]=(o.rz[z]||0)+1});
+    const a=Object.values(m).map(addTopReason).sort((x,y)=>y.refund-x.refund);
+    title='Por Produto';head='<tr><th>Produto</th><th>SKU</th><th>Itens</th><th>Motivo principal</th><th>Reembolso</th></tr>';
+    body=a.slice(0,80).map(o=>`<tr><td>${o.a}</td><td class="mono">${o.b}</td><td class="mono">${o.n.toLocaleString('pt-BR')}</td>${reasonCell(o)}<td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.refund)}</td></tr>`).join('');
   }else if(DEV_GROUP==='motivo'){
     const seen={},cnt={},val={};frows.forEach(r=>{const k=r.return_reason||'—';if(!(r.return_id in seen)){seen[r.return_id]=1;cnt[k]=(cnt[k]||0)+1;val[k]=(val[k]||0)+(+r.refund_return||0)}});
     const a=Object.keys(cnt).map(k=>({a:k,n:cnt[k],refund:val[k]})).sort((x,y)=>y.n-x.n);
     title='Por Motivo';head='<tr><th>Motivo</th><th>Devoluções</th><th>%</th><th>Reembolso</th></tr>';
     body=a.map(o=>`<tr><td>${o.a}</td><td class="mono">${o.n.toLocaleString('pt-BR')}</td><td class="mono">${nRet?(o.n/nRet*100).toFixed(1):0}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.refund)}</td></tr>`).join('');
   }else{ // sku (default)
-    const m={};frows.forEach(r=>{const k=r.seller_sku||'—';const o=m[k]||(m[k]={a:k,b:r.sku_name||'',n:0,refund:0});o.n++;o.refund+=+r.refund_item||0});
-    const a=Object.values(m).sort((x,y)=>y.n-x.n);
-    title='Por SKU / Tamanho';head='<tr><th>SKU</th><th>Variante</th><th>Itens</th><th>Reembolso</th></tr>';
-    body=a.slice(0,80).map(o=>`<tr><td class="mono">${o.a}</td><td>${o.b||'—'}</td><td class="mono">${o.n.toLocaleString('pt-BR')}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.refund)}</td></tr>`).join('');
+    const m={};frows.forEach(r=>{const k=r.seller_sku||'—';const o=m[k]||(m[k]={a:k,b:r.sku_name||'',n:0,refund:0,rz:{}});o.n++;o.refund+=+r.refund_item||0;const z=r.return_reason||'—';o.rz[z]=(o.rz[z]||0)+1});
+    const a=Object.values(m).map(addTopReason).sort((x,y)=>y.n-x.n);
+    title='Por SKU / Tamanho';head='<tr><th>SKU</th><th>Variante</th><th>Itens</th><th>Motivo principal</th><th>Reembolso</th></tr>';
+    body=a.slice(0,80).map(o=>`<tr><td class="mono">${o.a}</td><td>${o.b||'—'}</td><td class="mono">${o.n.toLocaleString('pt-BR')}</td>${reasonCell(o)}<td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.refund)}</td></tr>`).join('');
   }
   set('dev-tbl-title',title);
   set('dev-meta',`${nRet.toLocaleString('pt-BR')} devoluções · ${fmtK(totRefund)} reembolsado${DEV_MOTIVO!=='all'?' · '+DEV_MOTIVO:''}`);
