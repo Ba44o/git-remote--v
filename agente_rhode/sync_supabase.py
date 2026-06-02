@@ -200,6 +200,7 @@ def sync_devolucoes():
             "data":          str(r.get("data", "")) or None,
             "product_name":  str(r.get("product_name", "")),
             "seller_sku":    str(r.get("seller_sku", "")),
+            "sku_name":      str(r.get("sku_name", "")),
             "refund_item":   float(r.get("refund_item", 0) or 0),
             "refund_return": float(r.get("refund_return", 0) or 0),
             "return_reason": str(r.get("return_reason", "")),

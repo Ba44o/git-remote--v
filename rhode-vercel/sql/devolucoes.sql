@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS devolucoes (
   data            DATE,
   product_name    TEXT,
   seller_sku      TEXT,
+  sku_name        TEXT,                               -- variante: cor + tamanho
   refund_item     NUMERIC(12,2) DEFAULT 0,            -- reembolso do item
   refund_return   NUMERIC(12,2) DEFAULT 0,            -- reembolso do return inteiro
   return_reason   TEXT,

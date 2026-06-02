@@ -63,6 +63,7 @@ def coletar(dias: int) -> pd.DataFrame:
                 "data":          data,
                 "product_name":  it.get("product_name", "") or "",
                 "seller_sku":    it.get("seller_sku", "") or "",
+                "sku_name":      it.get("sku_name", "") or "",      # variante: cor + tamanho
                 "refund_item":   _f(it.get("refund_amount", {}).get("refund_total")),
                 "refund_return": refund_return,
                 "return_reason": reason,

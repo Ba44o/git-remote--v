@@ -899,6 +899,13 @@ tr:hover td{background:rgba(254,44,85,0.015)}
             <tbody id="dev-body"><tr><td colspan="4" class="spin">Carregando…</td></tr></tbody>
           </table></div>
         </div>
+        <div class="tbl-card" style="margin-bottom:16px">
+          <div class="tbl-head"><div class="tbl-title">Por SKU / Tamanho</div><div class="tbl-meta">variante mais devolvida no topo</div></div>
+          <div class="tw"><table>
+            <thead><tr><th>SKU</th><th>Variante</th><th>Devoluções</th><th>Reembolso</th></tr></thead>
+            <tbody id="dev-skus"><tr><td colspan="4" class="spin">—</td></tr></tbody>
+          </table></div>
+        </div>
         <div class="tbl-card">
           <div class="tbl-head"><div class="tbl-title">Por Motivo</div></div>
           <div class="tw"><table>
@@ -2380,7 +2387,7 @@ async function loadDev(){
   if(DEV_DATA.length){renderDev();return}
   htm('dev-body','<tr><td colspan="4" class="spin">Carregando…</td></tr>');
   try{
-    DEV_DATA=await sbGetPaged('devolucoes?select=return_id,data,product_name,seller_sku,refund_item,refund_return,return_reason&order=data.desc');
+    DEV_DATA=await sbGetPaged('devolucoes?select=return_id,data,product_name,seller_sku,sku_name,refund_item,refund_return,return_reason&order=data.desc');
     renderDev();
   }catch(e){htm('dev-body',`<tr><td colspan="4" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
 }
@@ -2397,7 +2404,7 @@ function renderDevChart(byDay){
   htm('dev-chart',`<div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:12px;overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:480px;display:block">${yLabels}${bars}${xLabels}</svg></div>`);
 }
 function renderDev(){
-  if(!DEV_DATA.length){htm('dev-body','<tr><td colspan="4" class="empty">Sem dados. Rode <code>python agente_rhode/etl_devolucoes.py &amp;&amp; python agente_rhode/sync_supabase.py --only devolucoes</code>.</td></tr>');htm('dev-chart','');htm('dev-kpis','');htm('dev-reasons','');set('dev-meta','');return}
+  if(!DEV_DATA.length){htm('dev-body','<tr><td colspan="4" class="empty">Sem dados. Rode <code>python agente_rhode/etl_devolucoes.py &amp;&amp; python agente_rhode/sync_supabase.py --only devolucoes</code>.</td></tr>');htm('dev-chart','');htm('dev-kpis','');htm('dev-reasons','');htm('dev-skus','');set('dev-meta','');return}
   // janela: filtra por data (DEV_DATA vem desc → [0] é a data mais recente)
   let rows=DEV_DATA;
   if(DEV_WIN!=='all'){const cut=new Date(DEV_DATA[0].data);cut.setDate(cut.getDate()-DEV_WIN);const cs=cut.toISOString().slice(0,10);rows=DEV_DATA.filter(r=>r.data>=cs)}
@@ -2411,6 +2418,9 @@ function renderDev(){
   // por produto
   const byProdM={};rows.forEach(r=>{const k=r.product_name||'—';const o=byProdM[k]||(byProdM[k]={produto:k,sku:r.seller_sku||'',n:0,refund:0});o.n++;o.refund+=+r.refund_item||0});
   const byProd=Object.values(byProdM).sort((a,b)=>b.refund-a.refund);
+  // por SKU/variante (cor + tamanho) — ordenado por nº de devoluções (acha o tamanho que falha)
+  const bySkuM={};rows.forEach(r=>{const k=r.seller_sku||'—';const o=bySkuM[k]||(bySkuM[k]={sku:k,variante:r.sku_name||'',n:0,refund:0});o.n++;o.refund+=+r.refund_item||0});
+  const bySku=Object.values(bySkuM).sort((a,b)=>b.n-a.n);
   // por motivo (return-level)
   const byReasonM={};returns.forEach(r=>{byReasonM[r.reason]=(byReasonM[r.reason]||0)+1});
   const byReason=Object.entries(byReasonM).map(([m,c])=>({m,c})).sort((a,b)=>b.c-a.c);
@@ -2424,6 +2434,7 @@ function renderDev(){
   set('dev-meta',`${nRet.toLocaleString('pt-BR')} devoluções · ${fmtK(totRefund)} reembolsado · ${byProd.length} produtos`);
   renderDevChart(byDay);
   htm('dev-body',byProd.slice(0,40).map(p=>`<tr><td>${p.produto}</td><td class="mono">${p.sku}</td><td class="mono">${p.n.toLocaleString('pt-BR')}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(p.refund)}</td></tr>`).join(''));
+  htm('dev-skus',bySku.slice(0,40).map(s=>`<tr><td class="mono">${s.sku}</td><td>${s.variante||'—'}</td><td class="mono">${s.n.toLocaleString('pt-BR')}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(s.refund)}</td></tr>`).join(''));
   htm('dev-reasons',byReason.map(r=>`<tr><td>${r.m}</td><td class="mono">${r.c.toLocaleString('pt-BR')}</td><td class="mono">${(r.c/nRet*100).toFixed(1)}%</td></tr>`).join(''));
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
