@@ -131,6 +131,24 @@ _(nada no momento)_
 
 ---
 
+### 🔵 10. Migrar dados por-creator pra API (Order List API → creator×dia) — **não iniciado, exploração** (jun/2026)
+
+**Hoje:** o per-creator (Hub + ranking/mensal do admin → `performance_periods`/`affiliates`) vem dos **exports manuais xlsx/Sheets via `etl_v2.py`**. Só o shop-wide diário (`performance_diario`) é API (ver 4.1). Granularidade do per-creator: **mensal** (decisão #5 — o export `Creator_List` não tem `transactionDate`).
+
+**Proposta:** trocar a fonte do per-creator de export manual → **Order List API** (`/order/202309/orders/search`, escopo **já ATIVO** — confirmado no probe, ver decisão #11). Cada pedido traz timestamp individual → dá pra montar **creator × dia** e eliminar o upload manual de planilha.
+
+**Ganhos:** Hub e admin com dados diários por creator (não só mensal); fim da dependência de export manual; base pra automação tipo o 4.1 (cron semanal/diário).
+
+**Trade-offs / perguntas em aberto (resolver antes de comprometer):**
+- **Atribuição:** confirmar que o payload do Order List traz o identificador da creator/afiliada (handle/affiliate_id) por pedido. Se não trouxer, não dá pra fazer creator×dia direto — vira bloqueio.
+- **Volume/rate limit:** 4.926 creators, milhares de pedidos/dia → paginação + rate limit. Order List API estoura timeout em janelas grandes (mesmo padrão do analytics — ver 4.1); vai precisar de chunking.
+- **Consistência com a fonte oficial:** GMV/comissão por creator precisa bater com o painel TikTok da própria creator (hoje o export já é a fonte de verdade) — validar com `audit_data.py` antes de cortar o xlsx.
+- **Escopo de impacto:** mexe no data layer do Hub → fazer **depois** do item 8 (hardening/proxy), pra não retrabalhar.
+
+**Por que não foi feito agora:** ativação do 4.1 (shop-wide) era self-contained e não tocava o Hub. Migrar o per-creator é projeto à parte, com risco de impacto no Hub — exige sprint dedicada e validação de atribuição primeiro.
+
+---
+
 ### ✅ ~~1. Amostras Enviadas (admin)~~ — concluído mai/2026
 
 **Entregue:**
