@@ -26,7 +26,16 @@ const SB_HEADERS = {
 };
 
 const TIER_RANK = { Iniciante: 0, Bronze: 1, Silver: 2, Gold: 3, Diamond: 4, Black: 5 };
-const TIER_COMM = { Iniciante: '—', Bronze: '10%', Silver: '11%', Gold: '12%', Diamond: '12%', Black: '12%' };
+// Comissão dual (parceria.html): % orgânica + bônus em vendas via ADS.
+// Template `{{tier_comissao}}` renderiza ambos pra deixar explícito no WhatsApp.
+const TIER_COMM = {
+  Iniciante: '—',
+  Bronze:    '8% (+3% em ads)',
+  Silver:    '9% (+3% em ads)',
+  Gold:      '10% (+3% em ads)',
+  Diamond:   '12% (+5% em ads)',
+  Black:     '12% (+5% em ads)',
+};
 
 const SLEEP = (ms) => new Promise((r) => setTimeout(r, ms));
 

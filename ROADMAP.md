@@ -119,15 +119,29 @@ _(nada no momento)_
 
 ### ✅ 9. Alinhar `TIER_RULES` do ETL ao programa público — concluído jun/2026
 
-**Problema:** o ETL ([`etl_v2.py:93`](agente_rhode/etl_v2.py#L93)) tinha um sistema de tiers legado — `Ferro/Bronze/Prata/Ouro/Diamante` com thresholds 0/2k/8k/25k/60k e comissões 5/7/9/11/13%. Isso era inconsistente com o programa público que hub.html, admin.html e disparo.js usam (5 tiers `Iniciante/Bronze/Silver/Gold/Diamond/Black` com 20k/50k/80k/150k/500k e 0/10/11/12/12/12%). O ETL escrevia `affiliates.current_tier="diamante"` (label antigo, threshold antigo) e `performance_periods.tier=Ferro/Prata/...`, mas hub/admin **ignoravam** essa coluna e recalculavam tier client-side — então não havia bug visível pra creator, mas qualquer query SQL direta nas colunas `tier`/`current_tier` retornava lixo do programa antigo.
+**Problema (primeira passada):** ETL tinha sistema legado `Ferro/Bronze/Prata/Ouro/Diamante` em 0/2k/8k/25k/60k @ 5/7/9/11/13%. Resolvido com TIER_RULES alinhado a 5 tiers + Iniciante em 20k/50k/80k/150k/500k.
+
+**Problema (segunda passada — descoberto depois):** a primeira passada usou comissões `0/10/11/12/12/12%` (números da `hub.html TIERS` que estavam hardcoded e _também_ desalinhados). A fonte de verdade real é a [`parceria.html`](rhode-vercel/public/parceria.html) que publicamos com estrutura DUAL: **% orgânica + bônus em vendas via ADS**.
+
+| Tier | Org | + ADS |
+|---|---|---|
+| Bronze (20k) | 8% | +3% |
+| Silver (50k) | 9% | +3% |
+| Gold (80k) | 10% | +3% |
+| Diamond (150k) | 12% | +5% |
+| Black (500k) | 12% | +5% |
 
 **Entregue:**
-- `TIER_RULES` reescrito alinhado ao programa: `Black(500k+, 12%)` · `Diamond(150k, 12%)` · `Gold(80k, 12%)` · `Silver(50k, 11%)` · `Bronze(20k, 10%)` · `Iniciante(0, 0%)`
-- Fallback do `calc_tier` ajustado de `("Ferro", 0.05)` pra `("Iniciante", 0.00)`
-- Comentário explicando os dois usos do `calc_tier`: per-período (`performance_periods.tier`, informativo) e lifetime (`creators_master → affiliates.current_tier`, autoritativo)
-- Push disparou o ETL → todos os 5 períodos reprocessados → Supabase atualizado com labels e thresholds novos
+- ETL [`etl_v2.py TIER_RULES`](agente_rhode/etl_v2.py): `rate` = org rate (8/9/10/12/12%) usado em `comissao_calculada` como projeção. ADS é condicional, não dá pra projetar sem split por tipo de venda.
+- Hub [`hub.html TIERS`](rhode-vercel/public/hub.html): `comm:N` virou `commOrg:N, commAds:M`. Rendering atualizado (status card + benefit eyebrow) pra mostrar "8% + 3% ads" — bate visualmente com parceria.html.
+- Hub [`TIER_COMM_PCT`](rhode-vercel/public/hub.html): atualizado pra org rate (Novidades mostra "ganho por venda" = org, que é o piso garantido). Adicionado `TIER_COMM_ADS` pra quando precisar do bônus.
+- API [`disparo.js TIER_COMM`](rhode-vercel/api/disparo.js): templates WhatsApp `{{tier_comissao}}` agora renderizam `"8% (+3% em ads)"` explícito.
+- Sync labels legados (ferro/prata/ouro/diamante/starter) → equivalentes novos via `cleanup_legacy_tier_labels()` em `sync_supabase.py` (mantido da primeira passada).
+- ROADMAP estado atual e tabela de Riscos atualizados.
 
-**Não muda:** `comissao` real (paga pelo TikTok Shop direto, vem do export). O `comissao_calculada` do ETL é só projeção/sanity-check com a % oficial.
+**Fonte de verdade:** `rhode-vercel/public/parceria.html`. Qualquer ajuste futuro de % parte dali e cascateia pros 4 lugares acima.
+
+**Não muda:** `comissao` real (paga pelo TikTok Shop direto, vem do export). O `comissao_calculada` do ETL é só projeção/sanity-check com a % oficial orgânica.
 
 ---
 

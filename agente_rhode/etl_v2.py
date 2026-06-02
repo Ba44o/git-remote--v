@@ -90,18 +90,20 @@ COLUMN_ALIASES = {
     "status_reembolso": "status_reembolso",
 }
 
-# Alinhado com o programa público (hub.html TIERS / TIER_COMM_PCT, admin tier(),
-# disparo.js TIER_COMM). Threshold por GMV LÍQUIDO. calc_tier é usado em 2 lugares:
-# (a) per-período em performance_periods.tier (informativo: "tier-equivalente desse
-#     mês"), (b) lifetime em creators_master → affiliates.current_tier (autoritativo).
-# A comissão real é paga pelo TikTok Shop direto; comissao_calculada aqui é
-# projeção pra sanity-check usando a % oficial do programa.
+# Alinhado com a fonte de verdade pública (rhode-vercel/public/parceria.html).
+# Threshold por GMV LÍQUIDO acumulado. Comissão é DUAL no programa real:
+# % orgânica (sempre) + bônus em vendas via ADS (condicional).
+# A `rate` aqui é a ORGÂNICA — usada em `comissao_calculada = gmv_liquido * rate`
+# como projeção/sanity-check (ADS é condicional, não dá pra projetar sem split
+# por tipo de venda). A comissão REAL paga é controlada pelo TikTok Shop.
+# calc_tier é usado em 2 lugares: (a) per-período em performance_periods.tier,
+# (b) lifetime em creators_master → affiliates.current_tier (autoritativo).
 TIER_RULES = [
-    (500_000, "Black",     0.12),
-    (150_000, "Diamond",   0.12),
-    ( 80_000, "Gold",      0.12),
-    ( 50_000, "Silver",    0.11),
-    ( 20_000, "Bronze",    0.10),
+    (500_000, "Black",     0.12),  # org 12% + 5% ads
+    (150_000, "Diamond",   0.12),  # org 12% + 5% ads
+    ( 80_000, "Gold",      0.10),  # org 10% + 3% ads
+    ( 50_000, "Silver",    0.09),  # org 9%  + 3% ads
+    ( 20_000, "Bronze",    0.08),  # org 8%  + 3% ads
     (      0, "Iniciante", 0.00),
 ]
 
