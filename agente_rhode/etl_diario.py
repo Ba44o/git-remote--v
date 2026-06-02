@@ -1,21 +1,22 @@
 """
 Rhode Jeans — ETL Diário (loja toda)
 =====================================
-Lê todos os exports Overview_*.xlsx em dados/marketplace/tiktokshop/, junta
-a aba "Diario" de cada um e salva um CSV consolidado em warehouse/raw_diario.csv.
+Gera warehouse/raw_diario.csv (1 linha por dia, loja toda agregada — NÃO por
+creator). Duas fontes:
 
-Quando o mesmo dia aparece em múltiplos snapshots, mantém o do snapshot
-mais recente (mtime do arquivo) — assume que coletas mais novas têm dados
-mais corretos.
+  --source api   (DEFAULT) → TikTok Shop API GET /analytics/202405/shop/performance
+                  via coletar_dados.buscar_analytics(). Respeita o lag de ~2 dias
+                  (só dias finalizados). Esta é a fonte canônica de ativação do 4.1.
 
-Granularidade: 1 linha por dia (loja toda agregada). Não é por creator.
+  --source xlsx  (legado) → junta a aba "Diario" dos Overview_*.xlsx. Quando o mesmo
+                  dia aparece em múltiplos snapshots, mantém o de mtime mais recente.
 
 Uso:
-  python agente_rhode/etl_diario.py
-  python agente_rhode/etl_diario.py --dir dados/marketplace/tiktokshop
+  python agente_rhode/etl_diario.py --source api --dias 90
+  python agente_rhode/etl_diario.py --source xlsx --dir dados/marketplace/tiktokshop
 
 Output:
-  warehouse/raw_diario.csv
+  warehouse/raw_diario.csv  →  sync via sync_supabase.py::sync_performance_diario()
 """
 
 import argparse
@@ -94,15 +95,86 @@ def normalizar(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _map_interval(iv: dict) -> dict:
+    """Mapeia 1 intervalo da API pro schema do CSV (documentado — ajuste aqui
+    se a definição de um KPI mudar):
+      gmv_bruto       = gmv.amount
+      gmv_liquido     = gmv.amount - refunds.amount      (líquido de devoluções)
+      pedidos         = orders
+      cancelados      = cancellations_and_returns
+      itens           = units_sold
+      clientes        = buyers
+      ticket          = avg_order_value.amount           (AOV oficial do TikTok)
+      taxa_cancel_pct = cancelados / pedidos * 100
+    """
+    gmv     = float(iv.get("gmv", {}).get("amount", 0) or 0)
+    refunds = float(iv.get("refunds", {}).get("amount", 0) or 0)
+    pedidos = int(iv.get("orders", 0) or 0)
+    cancel  = int(iv.get("cancellations_and_returns", 0) or 0)
+    return {
+        "data":            iv.get("start_date"),
+        "gmv_bruto":       round(gmv, 2),
+        "gmv_liquido":     round(gmv - refunds, 2),
+        "pedidos":         pedidos,
+        "cancelados":      cancel,
+        "itens":           int(iv.get("units_sold", 0) or 0),
+        "clientes":        int(iv.get("buyers", 0) or 0),
+        "ticket":          round(float(iv.get("avg_order_value", {}).get("amount", 0) or 0), 2),
+        "taxa_cancel_pct": round(cancel / pedidos * 100, 2) if pedidos else 0.0,
+    }
+
+
+def coletar_api(dias: int, chunk_dias: int = 10, chunk_retries: int = 3) -> pd.DataFrame:
+    """Busca Performance da loja via API em janelas de `chunk_dias` (a API estoura
+    timeout em janelas grandes de granularidade diária) e concatena os dias.
+    Cada chunk é re-tentado até `chunk_retries` vezes; gaps em território já
+    finalizado são logados explicitamente (nunca truncados em silêncio)."""
+    # coletar_dados.py está na raiz do projeto (um nível acima de agente_rhode/)
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from coletar_dados import buscar_analytics
+    from datetime import date, timedelta
+
+    hoje   = date.today()
+    cursor = hoje - timedelta(days=dias)
+    rows, gaps = [], []
+    while cursor <= hoje:
+        chunk_fim = min(cursor + timedelta(days=chunk_dias - 1), hoje)
+        ini_s, fim_s = cursor.strftime("%Y-%m-%d"), chunk_fim.strftime("%Y-%m-%d")
+        ivs = []
+        for _ in range(chunk_retries):
+            ivs = buscar_analytics(ini_s, fim_s, "1D")
+            if ivs:
+                break
+        if ivs:
+            rows.extend(_map_interval(iv) for iv in ivs)
+        elif chunk_fim < hoje - timedelta(days=1):   # ignora janela do lag (esperada vazia)
+            gaps.append(f"{ini_s}→{fim_s}")
+        cursor = chunk_fim + timedelta(days=1)
+
+    if gaps:
+        print(f"  ⚠  {len(gaps)} janela(s) sem dados mesmo após retries (rode de novo p/ preencher): {', '.join(gaps)}")
+    if not rows:
+        print("[ERRO] API não retornou nenhum intervalo finalizado.")
+        sys.exit(1)
+
+    out = pd.DataFrame(rows).drop_duplicates("data", keep="last")
+    return out.sort_values("data").reset_index(drop=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--source", choices=["api", "xlsx"], default="api",
+                    help="api (default) = TikTok Shop API; xlsx = Overview_*.xlsx (legado)")
+    ap.add_argument("--dias", type=int, default=90, help="janela em dias (modo api)")
     ap.add_argument("--dir", default=str(DEFAULT_DIR),
-                    help="Diretório com os Overview_*.xlsx")
+                    help="Diretório com os Overview_*.xlsx (modo xlsx)")
     ap.add_argument("--output", default=str(WAREHOUSE / "raw_diario.csv"))
     args = ap.parse_args()
 
-    full = consolidar(Path(args.dir))
-    out = normalizar(full)
+    if args.source == "api":
+        out = coletar_api(args.dias)
+    else:
+        out = normalizar(consolidar(Path(args.dir)))
 
     WAREHOUSE.mkdir(exist_ok=True)
     out.to_csv(args.output, index=False)

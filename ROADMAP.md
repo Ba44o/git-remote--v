@@ -212,26 +212,19 @@ _(nada no momento)_
 
 ---
 
-### 🟡 4.1. Performance Diária da Loja — **código no main, ativação adiada** (mai/2026)
+### ✅ 4.1. Performance Diária da Loja — **ativado via API** (jun/2026)
 
-**Status:** código merged em `main` e deployado, mas **inerte** porque a tabela
-`performance_diario` ainda não foi criada no Supabase e o sync não rodou.
-A sub-aba "Diário" no admin existe e mostra erro (`relation does not exist`)
-até a ativação acontecer. Decisão de adiar: economia de tempo operacional —
-retomar em sprint dedicada.
+**Status:** **ATIVO.** Tabela `performance_diario` criada no Supabase e populada via
+API (não mais xlsx manual). 89 dias carregados (2026-03-04 → 2026-05-31, GMV líquido
+R$ 1.870.495,62). A sub-aba "Diário (loja toda)" do admin já popula direto.
 
-**Código pronto (commit `c14aea3`):**
-- SQL idempotente: [rhode-vercel/sql/performance_diario.sql](rhode-vercel/sql/performance_diario.sql) — 1 linha/dia, loja toda, com GMV bruto/líq, pedidos, cancelados, itens, clientes, ticket, taxa_cancel
-- ETL: [agente_rhode/etl_diario.py](agente_rhode/etl_diario.py) — lê aba "Diario" dos `Overview_*.xlsx`, dedup por data (mantém snapshot mais recente do mtime), exporta `warehouse/raw_diario.csv`
-- Sync: `sync_performance_diario()` em [agente_rhode/sync_supabase.py](agente_rhode/sync_supabase.py) — UPSERT por `data` PK
-- Admin UI: sub-aba "Diário (loja toda)" em Evolução, ao lado de "Mensal (por creator)" — chart SVG bar (filtros 30/60/90/Tudo) + tabela com Δ vs dia anterior + KPIs do recorte
+**Fonte de dados (substituiu o xlsx):**
+- ETL: [agente_rhode/etl_diario.py](agente_rhode/etl_diario.py) `--source api` (default) → puxa de `coletar_dados.buscar_analytics()` (`GET /analytics/202405/shop/performance`, ver decisão #12). Chunking de 10 dias + retry por chunk (API estoura timeout em janelas grandes) + respeito ao lag de ~2 dias (descarta dias não finalizados). Modo `--source xlsx` mantido como legado.
+- Mapeamento API→coluna documentado em `_map_interval()`: `gmv_liquido = gmv − refunds`, `pedidos = orders`, `cancelados = cancellations_and_returns`, `itens = units_sold`, `clientes = buyers`, `ticket = avg_order_value`, `taxa_cancel = cancelados/pedidos`.
+- Sync: `sync_performance_diario()` em [sync_supabase.py](agente_rhode/sync_supabase.py) — UPSERT por `data` PK. **Roda com `python3 agente_rhode/etl_diario.py --source api --dias N` + sync** (precisa `SUPABASE_SERVICE_KEY` no env).
+- Admin UI: sub-aba "Diário (loja toda)" em Evolução — chart SVG bar (filtros 30/60/90/Tudo) + tabela com Δ vs dia anterior + KPIs do recorte.
 
-**Pra ativar quando der (3 passos manuais):**
-1. Aplicar o SQL no Supabase SQL Editor (cola conteúdo de `rhode-vercel/sql/performance_diario.sql`)
-2. Rodar ETL local com `python3 agente_rhode/etl_diario.py` (já testado: 34 dias 18/02→23/03)
-3. Sync com `python3 agente_rhode/sync_supabase.py --only performance_diario` (precisa `SUPABASE_SERVICE_KEY` no env)
-
-**Janela coberta hoje:** apenas 18/02→23/03 (Overview xlsx em `dados/marketplace/tiktokshop/`). Pra estender, rodar `python3 coletar_dados.py --dias N` ou exportar manualmente do painel TikTok antes do passo 2.
+**Próximos polimentos:** rodar ETL+sync via cron (semanal) pra manter atualizado; backfill < 03-04 se quiser histórico mais longo (rodar com `--dias` maior). ⚠️ Nota de consistência: linhas API-era usam `gmv_liquido = gmv − refunds`; se houver linhas antigas do xlsx (GMV_CF) pra datas sobrepostas, o UPSERT da API prevalece.
 
 **Decisão arquitetural (escopo):** granularidade *shop-wide diária* — NÃO é por creator/dia. Pra ter creator×dia precisaria de outro coletor (TikTok Order List API com timestamps individuais), trade-off não compensava esta sprint. O Transaction_Analysis export do TikTok não traz coluna de data — vem agregado da janela.
 
@@ -379,6 +372,8 @@ retomar em sprint dedicada.
 | 8 | ETL processa 1 arquivo canônico por mês | Snapshots intermediários geravam duplicatas e o dedup pegava o errado | mai/26 |
 | 9 | DELETE-then-UPSERT no sync_supabase | Sem isso, creators que somem do export ficavam fantasmas | mai/26 |
 | 10 | Tiers Bronze 20k / Silver 50k / Gold 80k / Diamond 150k / Black 500k (GMV acumulado lifetime) | Calibrado em cima de 982 creators reais — 8% atinge Bronze | abr/26 |
+| 11 | **Mapa de escopos da API TikTok Shop** (app `6jebftqsep751`): ATIVOS = Order, Finance (`seller.finance.info`), Shop Analytics (`data.shop_analytics.public.read`), Affiliate Messages (`seller.affiliate_messages.write`). INATIVOS (toggle, self-enable + reauth) = Product (suíte), Logistics, TAP campaigns. "Aplicar"/sensíveis (não usar) = Customer Service, Content Posting, test scope. | Levantado via `probe_scopes.py` + painel "Gerenciar API" do Partner Center (jun/26). 0 escopos em análise/rejeitados. Catálogo vem do site (`rhodejeans.com.br`), não da Product API → **não ligar Product**. Finance ativo destrava *Faturamento líquido* (KPI hoje em construção). | jun/26 |
+| 12 | **Shop Analytics path corrigido.** Era `/analytics/202309/reports/shop_analytics` (morto). Path vivo descoberto e verificado: **`GET /analytics/202405/shop/performance`** com `start_date_ge` / `end_date_lt` (exclusivo) / `granularity` (`1D`\|`ALL`). Retorna `data.performance.intervals[]` (GMV, buyers, avg_order_value, cancellations, breakdown LIVE/VIDEO/PRODUCT_CARD). `buscar_analytics()` reescrita e testada — mas **ainda não wirada no main()** (ativação = item 4.1, adiado). Endpoint pode dar `36009007` timeout transiente → função já faz retry. | Descoberto via `discover_analytics.py` + `confirm_analytics.py` com token vivo (jun/26): só versão 202405 valida, demais dão "invalid version". | jun/26 |
 
 ---
 
