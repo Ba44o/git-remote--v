@@ -183,11 +183,39 @@ def sync_finance():
     upsert("finance_statements", rows, on_conflict="id")
 
 
+def sync_devolucoes():
+    """Sincroniza warehouse/raw_devolucoes.csv → devolucoes (1 linha/item devolvido).
+    UPSERT por id (return_line_item_id)."""
+    src = WAREHOUSE / "raw_devolucoes.csv"
+    if not src.exists():
+        print(f"  [AVISO] {src} não existe. Rode 'python agente_rhode/etl_devolucoes.py' antes.")
+        return
+    df = pd.read_csv(src).fillna("")
+    rows = []
+    for _, r in df.iterrows():
+        rows.append({
+            "id":            str(r["id"]),
+            "return_id":     str(r.get("return_id", "")),
+            "order_id":      str(r.get("order_id", "")),
+            "data":          str(r.get("data", "")) or None,
+            "product_name":  str(r.get("product_name", "")),
+            "seller_sku":    str(r.get("seller_sku", "")),
+            "refund_item":   float(r.get("refund_item", 0) or 0),
+            "refund_return": float(r.get("refund_return", 0) or 0),
+            "return_reason": str(r.get("return_reason", "")),
+            "return_status": str(r.get("return_status", "")),
+            "return_type":   str(r.get("return_type", "")),
+        })
+    rows = [r for r in rows if r["id"]]
+    upsert("devolucoes", rows, on_conflict="id")
+
+
 JOBS = {
     "affiliates":           sync_affiliates,
     "performance_periods":  sync_performance_periods,
     "performance_diario":   sync_performance_diario,
     "finance":              sync_finance,
+    "devolucoes":           sync_devolucoes,
 }
 
 def main():
