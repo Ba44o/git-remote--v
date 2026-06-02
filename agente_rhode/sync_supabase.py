@@ -156,10 +156,38 @@ def sync_performance_diario():
     upsert("performance_diario", rows, on_conflict="data")
 
 
+def sync_finance():
+    """Sincroniza warehouse/raw_finance.csv → finance_statements (1 linha/statement).
+    UPSERT por id (PK). Statements antigos não mudam; novos são adicionados."""
+    src = WAREHOUSE / "raw_finance.csv"
+    if not src.exists():
+        print(f"  [AVISO] {src} não existe. Rode 'python agente_rhode/etl_finance.py' antes.")
+        return
+    df = pd.read_csv(src).fillna(0)
+    rows = []
+    for _, r in df.iterrows():
+        rows.append({
+            "id":             str(r["id"]),
+            "data":           str(r.get("data", "")) or None,
+            "statement_time": int(r.get("statement_time", 0) or 0),
+            "revenue_amount": float(r.get("revenue_amount", 0) or 0),
+            "fee_amount":     float(r.get("fee_amount", 0) or 0),
+            "shipping_cost":  float(r.get("shipping_cost", 0) or 0),
+            "adjustment":     float(r.get("adjustment", 0) or 0),
+            "net_sales":      float(r.get("net_sales", 0) or 0),
+            "settlement":     float(r.get("settlement", 0) or 0),
+            "payment_status": str(r.get("payment_status", "")),
+            "currency":       str(r.get("currency", "BRL")),
+        })
+    rows = [r for r in rows if r["id"] and r["id"] != "0"]
+    upsert("finance_statements", rows, on_conflict="id")
+
+
 JOBS = {
     "affiliates":           sync_affiliates,
     "performance_periods":  sync_performance_periods,
     "performance_diario":   sync_performance_diario,
+    "finance":              sync_finance,
 }
 
 def main():

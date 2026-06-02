@@ -830,6 +830,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
       <div class="op-subnav" style="margin-bottom:18px">
         <button class="op-subtab on" data-evosub="mensal" onclick="evoSubtab('mensal',this)">Mensal (por creator)</button>
         <button class="op-subtab" data-evosub="diario" onclick="evoSubtab('diario',this)">Diário (loja toda)</button>
+        <button class="op-subtab" data-evosub="fin" onclick="evoSubtab('fin',this)">Financeiro</button>
       </div>
 
       <div id="evo-sub-mensal">
@@ -857,6 +858,25 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tw"><table>
             <thead><tr><th>Data</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Δ</th><th>Pedidos</th><th>Cancel.</th><th>Cancel %</th><th>Itens</th><th>Clientes</th><th>Ticket</th></tr></thead>
             <tbody id="diario-body"><tr><td colspan="10" class="spin">Carregando…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="evo-sub-fin" style="display:none">
+        <div class="fin-controls" style="margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label" style="margin-right:4px">Janela</span>
+          <span class="pill-filter" data-finf="30" onclick="filterFin(this,30)">30d</span>
+          <span class="pill-filter on" data-finf="60" onclick="filterFin(this,60)">60d</span>
+          <span class="pill-filter" data-finf="90" onclick="filterFin(this,90)">90d</span>
+          <span class="pill-filter" data-finf="all" onclick="filterFin(this,'all')">Tudo</span>
+        </div>
+        <div id="fin-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
+        <div id="fin-chart" style="margin-bottom:20px"></div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Financeiro — Por Dia (settlement)</div><div class="tbl-meta" id="fin-meta"></div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Data</th><th>Receita</th><th>Taxa TikTok</th><th>Taxa %</th><th>Frete</th><th>Ajuste</th><th>Settlement Líq.</th></tr></thead>
+            <tbody id="fin-body"><tr><td colspan="7" class="spin">Carregando…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2204,9 +2224,11 @@ let DIARIO_WIN=60;                                     // janela default em dias
 function evoSubtab(which,btn){
   document.querySelectorAll('.op-subtab[data-evosub]').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  const m=el('evo-sub-mensal'),d=el('evo-sub-diario');
-  if(which==='diario'){m.style.display='none';d.style.display='block';loadDiario()}
-  else                {m.style.display='block';d.style.display='none';renderEvolucao()}
+  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin');
+  m.style.display='none';d.style.display='none';f.style.display='none';
+  if(which==='diario'){d.style.display='block';loadDiario()}
+  else if(which==='fin'){f.style.display='block';loadFin()}
+  else{m.style.display='block';renderEvolucao()}
 }
 
 function filterDiario(btn,win){
@@ -2261,6 +2283,62 @@ function renderDiario(){
     const cancelCls=cancelPct>25?'b-red':cancelPct>15?'b-orange':'b-green';
     return`<tr><td class="mono" style="font-weight:600;color:var(--rhode-red)">${r.data}</td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600">${fmtK(r.gmv_liquido)}</td><td>${dlt(d)}</td><td class="mono">${(r.pedidos||0).toLocaleString('pt-BR')}</td><td class="mono">${(r.cancelados||0).toLocaleString('pt-BR')}</td><td><span class="badge ${cancelCls}">${cancelPct.toFixed(1)}%</span></td><td class="mono">${(r.itens||0).toLocaleString('pt-BR')}</td><td class="mono">${(r.clientes||0).toLocaleString('pt-BR')}</td><td class="mono">${fmtR(r.ticket)}</td></tr>`;
   }).join(''));
+}
+
+// ── Sub-aba Financeiro (settlements TikTok Shop, agregado por dia)
+let FIN_DATA=[];                                        // statements crus (1/settlement)
+let FIN_WIN=60;
+function filterFin(btn,win){
+  document.querySelectorAll('.fin-controls .pill-filter').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');FIN_WIN=win;renderFin();
+}
+async function loadFin(){
+  if(FIN_DATA.length){renderFin();return}
+  htm('fin-body','<tr><td colspan="7" class="spin">Carregando…</td></tr>');
+  try{
+    FIN_DATA=await sbGetPaged('finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.desc');
+    renderFin();
+  }catch(e){htm('fin-body',`<tr><td colspan="7" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
+}
+// agrega os statements por dia (pode haver vários settlements no mesmo dia)
+function finByDay(rows){
+  const m={};
+  rows.forEach(r=>{const d=r.data;if(!d)return;const o=m[d]||(m[d]={data:d,rev:0,fee:0,ship:0,adj:0,set:0});
+    o.rev+=+r.revenue_amount||0;o.fee+=+r.fee_amount||0;o.ship+=+r.shipping_cost||0;o.adj+=+r.adjustment||0;o.set+=+r.settlement||0});
+  return Object.values(m).sort((a,b)=>b.data.localeCompare(a.data));   // desc
+}
+function renderFinChart(days){
+  const W=720,H=180,P={t:10,r:10,b:24,l:42};
+  if(!days.length){htm('fin-chart','');return}
+  const sorted=[...days].sort((a,b)=>a.data.localeCompare(b.data));
+  const max=Math.max(...sorted.map(r=>r.set),1);
+  const innerW=W-P.l-P.r,innerH=H-P.t-P.b,barW=innerW/sorted.length;
+  const yLabels=[0,max/2,max].map(v=>{const y=P.t+innerH-(v/max*innerH);return`<line x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}" stroke="var(--hairline)" stroke-width="1"/><text x="${P.l-6}" y="${y+3}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="var(--ink-48)">${fmtK(v)}</text>`}).join('');
+  const bars=sorted.map((r,i)=>{const h=Math.max(0,r.set/max*innerH);const x=P.l+i*barW+1;const y=P.t+innerH-h;return`<rect x="${x}" y="${y}" width="${Math.max(1,barW-2)}" height="${h}" fill="var(--rhode-red)" opacity="0.85"><title>${r.data}: ${fmtK(r.set)} líq · taxa ${fmtK(r.fee)}</title></rect>`}).join('');
+  const step=Math.max(1,Math.ceil(sorted.length/8));
+  const xLabels=sorted.map((r,i)=>{if(i%step!==0&&i!==sorted.length-1)return'';const x=P.l+i*barW+barW/2;return`<text x="${x}" y="${H-8}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ink-48)">${r.data.slice(5)}</text>`}).join('');
+  htm('fin-chart',`<div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:12px;overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:480px;display:block">${yLabels}${bars}${xLabels}</svg></div>`);
+}
+function finCard(label,value,sub,accent){
+  return`<div style="flex:1;min-width:150px;background:var(--canvas);border:1px solid var(--hairline);border-radius:12px;padding:14px 16px"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-48);margin-bottom:8px">${label}</div><div class="mono" style="font-size:22px;font-weight:600;letter-spacing:-0.02em;${accent?'color:var(--rhode-red)':''}">${value}</div>${sub?`<div style="font-size:11px;color:var(--body-muted);margin-top:4px">${sub}</div>`:''}</div>`;
+}
+function fmtKsig(v){return (v<0?'-':'')+fmtK(Math.abs(+v||0))}   // fmtK não trata negativos
+function renderFin(){
+  if(!FIN_DATA.length){htm('fin-body','<tr><td colspan="7" class="empty">Sem dados. Rode <code>python agente_rhode/etl_finance.py &amp;&amp; python agente_rhode/sync_supabase.py --only finance</code>.</td></tr>');htm('fin-chart','');htm('fin-kpis','');set('fin-meta','');return}
+  const allDays=finByDay(FIN_DATA);
+  const days=FIN_WIN==='all'?allDays:allDays.slice(0,FIN_WIN);
+  const rev=days.reduce((s,r)=>s+r.rev,0),fee=days.reduce((s,r)=>s+r.fee,0),ship=days.reduce((s,r)=>s+r.ship,0),setl=days.reduce((s,r)=>s+r.set,0);
+  const feePct=rev?Math.abs(fee)/rev*100:0;
+  htm('fin-kpis',[
+    finCard('Receita bruta',fmtK(rev),`${days.length} dias`),
+    finCard('Taxa TikTok',fmtKsig(fee),`${feePct.toFixed(1)}% da receita`),
+    finCard('Frete',fmtKsig(ship),''),
+    finCard('Settlement líquido',fmtK(setl),'o que a loja recebe',true),
+  ].join(''));
+  set('fin-meta',`${days.length} dias · ${fmtK(setl)} líq · ${feePct.toFixed(1)}% taxa`);
+  renderFinChart(days);
+  htm('fin-body',days.map(r=>{const fp=r.rev?Math.abs(r.fee)/r.rev*100:0;
+    return`<tr><td class="mono" style="font-weight:600;color:var(--rhode-red)">${r.data}</td><td class="mono">${fmtK(r.rev)}</td><td class="mono">${fmtKsig(r.fee)}</td><td class="mono">${fp.toFixed(1)}%</td><td class="mono">${fmtKsig(r.ship)}</td><td class="mono">${fmtKsig(r.adj)}</td><td class="mono" style="font-weight:600">${fmtK(r.set)}</td></tr>`}).join(''));
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
