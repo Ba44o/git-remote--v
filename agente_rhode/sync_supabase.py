@@ -211,12 +211,37 @@ def sync_devolucoes():
     upsert("devolucoes", rows, on_conflict="id")
 
 
+def sync_affiliate_perf():
+    """Sincroniza warehouse/raw_affiliate.csv → affiliate_perf (creator×dia×conteúdo).
+    UPSERT por id."""
+    src = WAREHOUSE / "raw_affiliate.csv"
+    if not src.exists():
+        print(f"  [AVISO] {src} não existe. Rode 'python agente_rhode/etl_affiliate.py' antes.")
+        return
+    df = pd.read_csv(src).fillna("")
+    rows = []
+    for _, r in df.iterrows():
+        rows.append({
+            "id":           str(r["id"]),
+            "creator":      str(r.get("creator", "")),
+            "data":         str(r.get("data", "")) or None,
+            "content_type": str(r.get("content_type", "")),
+            "gmv":          float(r.get("gmv", 0) or 0),
+            "comissao":     float(r.get("comissao", 0) or 0),
+            "pedidos":      int(r.get("pedidos", 0) or 0),
+            "itens":        int(r.get("itens", 0) or 0),
+        })
+    rows = [r for r in rows if r["id"]]
+    upsert("affiliate_perf", rows, on_conflict="id")
+
+
 JOBS = {
     "affiliates":           sync_affiliates,
     "performance_periods":  sync_performance_periods,
     "performance_diario":   sync_performance_diario,
     "finance":              sync_finance,
     "devolucoes":           sync_devolucoes,
+    "affiliate_perf":       sync_affiliate_perf,
 }
 
 def main():

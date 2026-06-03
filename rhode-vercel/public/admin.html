@@ -832,6 +832,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <button class="op-subtab" data-evosub="diario" onclick="evoSubtab('diario',this)">Diário (loja toda)</button>
         <button class="op-subtab" data-evosub="fin" onclick="evoSubtab('fin',this)">Financeiro</button>
         <button class="op-subtab" data-evosub="dev" onclick="evoSubtab('dev',this)">Devoluções</button>
+        <button class="op-subtab" data-evosub="aff" onclick="evoSubtab('aff',this)">Afiliadas</button>
       </div>
 
       <div id="evo-sub-mensal">
@@ -905,6 +906,29 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tw"><table>
             <thead id="dev-thead"><tr><th>SKU</th><th>Variante</th><th>Itens</th><th>Reembolso</th></tr></thead>
             <tbody id="dev-body"><tr><td colspan="4" class="spin">Carregando…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="evo-sub-aff" style="display:none">
+        <div class="aff-controls" style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label" style="margin-right:4px">Janela</span>
+          <span class="pill-filter" data-afff="30" onclick="filterAff(this,30)">30d</span>
+          <span class="pill-filter on" data-afff="60" onclick="filterAff(this,60)">60d</span>
+          <span class="pill-filter" data-afff="90" onclick="filterAff(this,90)">90d</span>
+          <span class="pill-filter" data-afff="all" onclick="filterAff(this,'all')">Tudo</span>
+        </div>
+        <div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label">Conteúdo</span>
+          <select id="aff-ct" onchange="AFF_CT=this.value;renderAff()" class="finput" style="max-width:240px;padding:7px 10px"><option value="all">Todos os conteúdos</option></select>
+        </div>
+        <div id="aff-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
+        <div id="aff-chart" style="margin-bottom:20px"></div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Leaderboard de Creators</div><div class="tbl-meta" id="aff-meta"></div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>GMV</th><th>Comissão</th><th>Itens</th><th>Conteúdo principal</th></tr></thead>
+            <tbody id="aff-body"><tr><td colspan="5" class="spin">Carregando…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2252,11 +2276,12 @@ let DIARIO_WIN=60;                                     // janela default em dias
 function evoSubtab(which,btn){
   document.querySelectorAll('.op-subtab[data-evosub]').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev');
-  m.style.display='none';d.style.display='none';f.style.display='none';g.style.display='none';
+  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff');
+  [m,d,f,g,h].forEach(x=>x.style.display='none');
   if(which==='diario'){d.style.display='block';loadDiario()}
   else if(which==='fin'){f.style.display='block';loadFin()}
   else if(which==='dev'){g.style.display='block';loadDev()}
+  else if(which==='aff'){h.style.display='block';loadAff()}
   else{m.style.display='block';renderEvolucao()}
 }
 
@@ -2451,6 +2476,51 @@ function renderDev(){
   set('dev-meta',`${nRet.toLocaleString('pt-BR')} devoluções · ${fmtK(totRefund)} reembolsado${DEV_MOTIVO!=='all'?' · '+DEV_MOTIVO:''}`);
   htm('dev-thead',head);
   htm('dev-body',body||'<tr><td colspan="4" class="empty">Nada nesse filtro.</td></tr>');
+}
+
+// ── Sub-aba Afiliadas (performance por creator — Affiliate Orders API)
+let AFF_DATA=[]; let AFF_WIN=60; let AFF_CT='all';
+function filterAff(btn,win){document.querySelectorAll('.aff-controls .pill-filter').forEach(b=>b.classList.remove('on'));btn.classList.add('on');AFF_WIN=win;renderAff()}
+async function loadAff(){
+  if(AFF_DATA.length){renderAff();return}
+  htm('aff-body','<tr><td colspan="5" class="spin">Carregando…</td></tr>');
+  try{AFF_DATA=await sbGetPaged('affiliate_perf?select=creator,data,content_type,gmv,comissao,itens&order=data.desc');renderAff()}
+  catch(e){htm('aff-body',`<tr><td colspan="5" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
+}
+function renderAffChart(byDay){
+  const W=720,H=180,P={t:10,r:10,b:24,l:42};
+  if(!byDay.length){htm('aff-chart','');return}
+  const sorted=[...byDay].sort((a,b)=>a.data.localeCompare(b.data));
+  const max=Math.max(...sorted.map(r=>r.v),1);
+  const innerW=W-P.l-P.r,innerH=H-P.t-P.b,barW=innerW/sorted.length;
+  const yLabels=[0,max/2,max].map(v=>{const y=P.t+innerH-(v/max*innerH);return`<line x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}" stroke="var(--hairline)" stroke-width="1"/><text x="${P.l-6}" y="${y+3}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="var(--ink-48)">${fmtK(v)}</text>`}).join('');
+  const bars=sorted.map((r,i)=>{const h=Math.max(0,r.v/max*innerH);const x=P.l+i*barW+1;const y=P.t+innerH-h;return`<rect x="${x}" y="${y}" width="${Math.max(1,barW-2)}" height="${h}" fill="var(--rhode-red)" opacity="0.85"><title>${r.data}: ${fmtK(r.v)} GMV</title></rect>`}).join('');
+  const step=Math.max(1,Math.ceil(sorted.length/8));
+  const xLabels=sorted.map((r,i)=>{if(i%step!==0&&i!==sorted.length-1)return'';const x=P.l+i*barW+barW/2;return`<text x="${x}" y="${H-8}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ink-48)">${r.data.slice(5)}</text>`}).join('');
+  htm('aff-chart',`<div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:12px;overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;min-width:480px;display:block">${yLabels}${bars}${xLabels}</svg></div>`);
+}
+function renderAff(){
+  if(!AFF_DATA.length){htm('aff-body','<tr><td colspan="5" class="empty">Sem dados. Rode <code>python agente_rhode/etl_affiliate.py &amp;&amp; python agente_rhode/sync_supabase.py --only affiliate_perf</code>.</td></tr>');htm('aff-chart','');htm('aff-kpis','');set('aff-meta','');return}
+  let rows=AFF_DATA;
+  if(AFF_WIN!=='all'){const cut=new Date(AFF_DATA[0].data);cut.setDate(cut.getDate()-AFF_WIN);const cs=cut.toISOString().slice(0,10);rows=AFF_DATA.filter(r=>r.data>=cs)}
+  const cts=[...new Set(rows.map(r=>r.content_type||'—'))].sort();
+  if(AFF_CT!=='all'&&!cts.includes(AFF_CT))AFF_CT='all';
+  el('aff-ct').innerHTML='<option value="all">Todos os conteúdos</option>'+cts.map(c=>`<option value="${c}"${c===AFF_CT?' selected':''}>${c}</option>`).join('');
+  const frows=AFF_CT==='all'?rows:rows.filter(r=>(r.content_type||'—')===AFF_CT);
+  const gmv=frows.reduce((s,r)=>s+(+r.gmv||0),0),com=frows.reduce((s,r)=>s+(+r.comissao||0),0),itens=frows.reduce((s,r)=>s+(+r.itens||0),0);
+  const ncr=new Set(frows.map(r=>r.creator)).size;
+  htm('aff-kpis',[
+    finCard('GMV afiliado',fmtK(gmv),`${ncr} creators ativas`,true),
+    finCard('Comissão',fmtK(com),`${gmv?(com/gmv*100).toFixed(1):0}% do GMV`),
+    finCard('Creators ativas',ncr.toLocaleString('pt-BR'),AFF_CT==='all'?(AFF_WIN==='all'?'todo período':AFF_WIN+' dias'):AFF_CT),
+    finCard('Itens vendidos',itens.toLocaleString('pt-BR'),''),
+  ].join(''));
+  const byDayM={};frows.forEach(r=>{byDayM[r.data]=(byDayM[r.data]||0)+(+r.gmv||0)});
+  renderAffChart(Object.entries(byDayM).map(([data,v])=>({data,v})));
+  const bc={};frows.forEach(r=>{const k=r.creator;const o=bc[k]||(bc[k]={creator:k,gmv:0,com:0,itens:0,ct:{}});o.gmv+=+r.gmv||0;o.com+=+r.comissao||0;o.itens+=+r.itens||0;const c=r.content_type||'—';o.ct[c]=(o.ct[c]||0)+(+r.gmv||0)});
+  const arr=Object.values(bc).map(o=>{let t='—',c=-1;for(const k in o.ct)if(o.ct[k]>c){c=o.ct[k];t=k}o.cmain=t;o.cpct=o.gmv?c/o.gmv*100:0;return o}).sort((a,b)=>b.gmv-a.gmv);
+  set('aff-meta',`${ncr} creators · ${fmtK(gmv)} GMV · ${fmtK(com)} comissão${AFF_CT!=='all'?' · '+AFF_CT:''}`);
+  htm('aff-body',arr.slice(0,100).map((o,i)=>{const cls=o.cmain==='LIVE'?'b-red':o.cmain==='VIDEO'?'b-orange':'b-green';return`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> @${o.creator}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.gmv)}</td><td class="mono">${fmtK(o.com)}</td><td class="mono">${o.itens.toLocaleString('pt-BR')}</td><td><span class="badge ${cls}">${o.cmain}</span> <span style="color:var(--ink-48);font-size:11px">${o.cpct.toFixed(0)}%</span></td></tr>`}).join(''));
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
