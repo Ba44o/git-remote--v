@@ -51,6 +51,21 @@ avançado, TAP campaign write, etc. — toggle + reautorizar pra ligar.)
 
 ## 4. APIs de AFILIADAS (creators) ⭐ — o coração da Rhode
 
+### 4.0 Os 3 papéis do ecossistema de afiliados
+| Papel | Quem | Escopos | Faz |
+|-------|------|---------|-----|
+| **Seller** | a loja (Rhode) | `seller.*` | vende, roda programa de creators direto |
+| **Creator** | a afiliada | (lado dela) | promove e ganha comissão |
+| **Affiliate Partner (TAP)** | agência/intermediário | `partner.tap_campaign.*` (OFF hoje) | gerencia campanhas/creators p/ várias lojas em escala |
+
+Rhode é **Seller** → usa `affiliate_seller/*`. TAP só importaria se a Rhode virasse
+**agência** gerenciando creators p/ terceiros (gancho do pivot de operador).
+
+**Tipos de campanha do seller:**
+- **Open Collaboration** — campanha aberta: qualquer creator entra com a % definida.
+- **Target Collaboration** — convite **direto a creators específicos**, com termos
+  customizados (comissão própria, amostra). É o modelo "convido você pessoalmente".
+
 **Descoberta-chave:** o pedido NORMAL (`/order/...`) **não tem atribuição de creator**.
 Pra saber qual creator vendeu, é a **API de Afiliado** abaixo.
 
@@ -75,6 +90,7 @@ manual mensal → `etl_v2` → `performance_periods`), reconciliação de comiss
 split por tipo de conteúdo (live vs vídeo vs card). É a base do item 10 do ROADMAP.
 
 ### 4.2 Outros endpoints de afiliado (existem, a explorar)
+- `POST /affiliate_seller/202409/target_collaborations/search` — **convites diretos a creators** (= o modelo de seeding/amostra da Rhode). Exige campo string `collaboration_status` (enum exato pendente do guia de API — chutes ALL/ONGOING/EXPIRED não passaram). Cruzar com Affiliate Orders = **ROI de seeding automático** por creator convidada (hoje é a planilha manual de seeding).
 - `POST /affiliate_seller/202410/open_collaborations/search` — campanhas abertas que creators entram
 - `POST /affiliate_creator/202407/orders/search` — pedidos na ótica da creator
 - `/affiliate_partner/202405/campaigns/...` — campanhas TAP (TikTok Affiliate Partner)
