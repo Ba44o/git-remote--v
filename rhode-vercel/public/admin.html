@@ -833,6 +833,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <button class="op-subtab" data-evosub="fin" onclick="evoSubtab('fin',this)">Financeiro</button>
         <button class="op-subtab" data-evosub="dev" onclick="evoSubtab('dev',this)">Devoluções</button>
         <button class="op-subtab" data-evosub="aff" onclick="evoSubtab('aff',this)">Afiliadas</button>
+        <button class="op-subtab" data-evosub="seed" onclick="evoSubtab('seed',this)">Seeding ROI</button>
       </div>
 
       <div id="evo-sub-mensal">
@@ -929,6 +930,22 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tw"><table>
             <thead><tr><th>Creator</th><th>GMV</th><th>Comissão</th><th>Itens</th><th>Conteúdo principal</th></tr></thead>
             <tbody id="aff-body"><tr><td colspan="5" class="spin">Carregando…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="evo-sub-seed" style="display:none">
+        <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label">Custo médio por peça (R$)</span>
+          <input id="seed-custo" type="number" value="35" min="0" step="5" onchange="SEED_CUSTO=this.value;renderSeed()" class="finput" style="width:100px;padding:7px 10px">
+          <span style="font-size:12px;color:var(--body-muted)">premissa ajustável · comissão paga é real · GMV = afiliado últimos 30d</span>
+        </div>
+        <div id="seed-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">ROI de Seeding por Creator</div><div class="tbl-meta" id="seed-meta"></div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>Amostras</th><th>Tier</th><th>Investido</th><th>GMV gerado</th><th>ROI</th><th>Status</th></tr></thead>
+            <tbody id="seed-body"><tr><td colspan="7" class="spin">Carregando…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2276,12 +2293,13 @@ let DIARIO_WIN=60;                                     // janela default em dias
 function evoSubtab(which,btn){
   document.querySelectorAll('.op-subtab[data-evosub]').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff');
-  [m,d,f,g,h].forEach(x=>x.style.display='none');
+  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed');
+  [m,d,f,g,h,s].forEach(x=>x.style.display='none');
   if(which==='diario'){d.style.display='block';loadDiario()}
   else if(which==='fin'){f.style.display='block';loadFin()}
   else if(which==='dev'){g.style.display='block';loadDev()}
   else if(which==='aff'){h.style.display='block';loadAff()}
+  else if(which==='seed'){s.style.display='block';loadSeed()}
   else{m.style.display='block';renderEvolucao()}
 }
 
@@ -2521,6 +2539,44 @@ function renderAff(){
   const arr=Object.values(bc).map(o=>{let t='—',c=-1;for(const k in o.ct)if(o.ct[k]>c){c=o.ct[k];t=k}o.cmain=t;o.cpct=o.gmv?c/o.gmv*100:0;return o}).sort((a,b)=>b.gmv-a.gmv);
   set('aff-meta',`${ncr} creators · ${fmtK(gmv)} GMV · ${fmtK(com)} comissão${AFF_CT!=='all'?' · '+AFF_CT:''}`);
   htm('aff-body',arr.slice(0,100).map((o,i)=>{const cls=o.cmain==='LIVE'?'b-red':o.cmain==='VIDEO'?'b-orange':'b-green';return`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> @${o.creator}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.gmv)}</td><td class="mono">${fmtK(o.com)}</td><td class="mono">${o.itens.toLocaleString('pt-BR')}</td><td><span class="badge ${cls}">${o.cmain}</span> <span style="color:var(--ink-48);font-size:11px">${o.cpct.toFixed(0)}%</span></td></tr>`}).join(''));
+}
+
+// ── Sub-aba Seeding ROI (amostras_enviadas × affiliate_perf, match por handle lowercased)
+let SEED_AMO={}; let SEED_AFF={}; let SEED_CUSTO=35;
+async function loadSeed(){
+  htm('seed-body','<tr><td colspan="7" class="spin">Carregando…</td></tr>');
+  try{
+    const [amo,aff]=await Promise.all([
+      sbGetPaged('amostras_enviadas?select=creator_id,quantidade,data_envio,tier_no_envio&aprovada=eq.true&dispensada=not.eq.true'),
+      sbGetPaged('affiliate_perf?select=creator,gmv,comissao')
+    ]);
+    SEED_AMO={};
+    amo.forEach(a=>{const k=(a.creator_id||'').toLowerCase();if(!k)return;const o=SEED_AMO[k]||(SEED_AMO[k]={creator:a.creator_id,amostras:0,tier:a.tier_no_envio||'',ultimo:a.data_envio||''});o.amostras+=+a.quantidade||0;if((a.data_envio||'')>(o.ultimo||''))o.ultimo=a.data_envio||'';});
+    SEED_AFF={};
+    aff.forEach(x=>{const k=(x.creator||'').toLowerCase();const o=SEED_AFF[k]||(SEED_AFF[k]={gmv:0,com:0});o.gmv+=+x.gmv||0;o.com+=+x.comissao||0;});
+    renderSeed();
+  }catch(e){htm('seed-body',`<tr><td colspan="7" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
+}
+function renderSeed(){
+  const keys=Object.keys(SEED_AMO);
+  if(!keys.length){htm('seed-body','<tr><td colspan="7" class="empty">Nenhuma amostra registrada em amostras_enviadas.</td></tr>');htm('seed-kpis','');set('seed-meta','');return}
+  const custo=+SEED_CUSTO||0;
+  const rows=keys.map(k=>{
+    const a=SEED_AMO[k],p=SEED_AFF[k]||{gmv:0,com:0};
+    const investido=a.amostras*custo+p.com, retorno=p.gmv;
+    return {creator:a.creator,amostras:a.amostras,tier:a.tier,investido,retorno,roi:investido>0?retorno/investido:0,conv:retorno>0};
+  }).sort((x,y)=>y.retorno-x.retorno);
+  const nSeed=rows.length, nConv=rows.filter(r=>r.conv).length;
+  const totRet=rows.reduce((s,r)=>s+r.retorno,0), totInv=rows.reduce((s,r)=>s+r.investido,0);
+  const totAmo=rows.reduce((s,r)=>s+r.amostras,0);
+  htm('seed-kpis',[
+    finCard('Creators seedadas',nSeed.toLocaleString('pt-BR'),`${totAmo} amostras enviadas`),
+    finCard('Converteram',`${nConv}/${nSeed}`,`${nSeed?(nConv/nSeed*100).toFixed(0):0}% geraram venda`,true),
+    finCard('GMV gerado',fmtK(totRet),'afiliado · últimos 30d'),
+    finCard('ROI estimado',(totInv?totRet/totInv:0).toFixed(1)+'x',`custo R$${custo}/peça`),
+  ].join(''));
+  set('seed-meta',`${nSeed} creators · ${totAmo} amostras · ROI ${(totInv?totRet/totInv:0).toFixed(1)}x`);
+  htm('seed-body',rows.map(r=>{const st=r.conv?'b-green':'b-red';const rc=r.roi>=3?'b-green':r.roi>=1?'b-orange':'b-red';return`<tr><td>@${r.creator}</td><td class="mono">${r.amostras}</td><td>${r.tier||'—'}</td><td class="mono">${fmtK(r.investido)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.retorno)}</td><td><span class="badge ${rc}">${r.roi.toFixed(1)}x</span></td><td><span class="badge ${st}">${r.conv?'converteu':'sem venda'}</span></td></tr>`}).join(''));
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
