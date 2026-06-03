@@ -163,6 +163,19 @@ _(nada no momento)_
 
 ---
 
+### 🔵 11. ROI de Seeding por SKU (v2b — atribuição cirúrgica) — **não iniciado** (jun/2026)
+
+**Hoje (v2a, no ar):** painel "Seeding ROI" (admin → Evolução) cruza `amostras_enviadas` × `affiliate_perf` por creator (match handle lowercased). **Limitação conhecida:** o GMV é o **total de afiliação da creator (todos os produtos, 30d)**, não só o item seedado → ROI é **estimativa superestimada**. Custo da peça é premissa ajustável (custo real não está em `custo_unitario_snapshot`, 0% preenchido).
+
+**v2b (atribuição real):**
+- Re-coletar affiliate orders guardando `product_id`/`sku_id` → agregar **GMV por creator × SKU**.
+- Mapear `sku_id` (numérico) → `seller_sku` (`REF...`) pra casar com `amostras_enviadas.sku` (via Product API ou tabela `produtos`).
+- Janela "desde a `data_envio`" (hoje é fixo 30d) → ROI do **produto seedado** especificamente.
+
+**Bônus de dados:** `amostras_enviadas.video_postado_em` está 0/55 e `confirmada_em` 4/55 — se preenchidos, dá pra mostrar "postou conteúdo?" e funil amostra→conteúdo→venda. Custo real por peça destravaria ROI monetário exato.
+
+---
+
 ### ✅ ~~1. Amostras Enviadas (admin)~~ — concluído mai/2026
 
 **Entregue:**
