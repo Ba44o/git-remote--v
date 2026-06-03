@@ -835,6 +835,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <button class="op-subtab" data-evosub="aff" onclick="evoSubtab('aff',this)">Afiliadas</button>
         <button class="op-subtab" data-evosub="seed" onclick="evoSubtab('seed',this)">Seeding</button>
         <button class="op-subtab" data-evosub="cp" onclick="evoSubtab('cp',this)">Creator×Produto</button>
+        <button class="op-subtab" data-evosub="fun" onclick="evoSubtab('fun',this)">Ativação</button>
       </div>
 
       <div id="evo-sub-mensal">
@@ -966,6 +967,25 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tw"><table>
             <thead id="cp-thead"></thead>
             <tbody id="cp-body"><tr><td colspan="4" class="spin">Carregando…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="evo-sub-fun" style="display:none">
+        <div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label" style="margin-right:4px">Segmento</span>
+          <span class="pill-filter on" data-funseg="ativar" onclick="funSeg(this,'ativar')">Nunca venderam (ativar)</span>
+          <span class="pill-filter" data-funseg="reativar" onclick="funSeg(this,'reativar')">Esfriaram (reativar)</span>
+          <span class="pill-filter" data-funseg="ativas" onclick="funSeg(this,'ativas')">Ativas</span>
+          <span class="pill-filter" data-funseg="todas" onclick="funSeg(this,'todas')">Todas</span>
+        </div>
+        <div style="margin-bottom:16px;padding:10px 14px;background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;font-size:12px;color:var(--body-muted);line-height:1.55">Funil das <b>convidadas</b> (target collaborations): venderam o produto convidado? estão <b>ativas</b> (venda de afiliação nos últimos 14d)? <b>Reativar</b> = venderam mas esfriaram. <b>Ativar</b> = convidadas que nunca venderam.</div>
+        <div id="fun-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Convidadas por estágio</div><div class="tbl-meta" id="fun-meta"></div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>Amostra</th><th>GMV no produto convidado</th><th>Pedidos</th><th>Estágio</th></tr></thead>
+            <tbody id="fun-body"><tr><td colspan="5" class="spin">Carregando…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2313,14 +2333,15 @@ let DIARIO_WIN=60;                                     // janela default em dias
 function evoSubtab(which,btn){
   document.querySelectorAll('.op-subtab[data-evosub]').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed'),j=el('evo-sub-cp');
-  [m,d,f,g,h,s,j].forEach(x=>x.style.display='none');
+  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed'),j=el('evo-sub-cp'),k2=el('evo-sub-fun');
+  [m,d,f,g,h,s,j,k2].forEach(x=>x.style.display='none');
   if(which==='diario'){d.style.display='block';loadDiario()}
   else if(which==='fin'){f.style.display='block';loadFin()}
   else if(which==='dev'){g.style.display='block';loadDev()}
   else if(which==='aff'){h.style.display='block';loadAff()}
   else if(which==='seed'){s.style.display='block';loadSeed()}
   else if(which==='cp'){j.style.display='block';loadCP()}
+  else if(which==='fun'){el('evo-sub-fun').style.display='block';loadFun()}
   else{m.style.display='block';renderEvolucao()}
 }
 
@@ -2642,6 +2663,42 @@ function renderCP(){
     htm('cp-thead','<tr><th>Produto</th><th>GMV</th><th>Pedidos</th><th>Comissão</th></tr>');
     htm('cp-body',rows.slice(0,100).map(r=>`<tr><td>${r.produto}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${(+r.pedidos||0).toLocaleString('pt-BR')}</td><td class="mono">${fmtK(r.comissao)}</td></tr>`).join(''));
   }
+}
+// ── Sub-aba Ativação (funil: convidada → vendeu o produto → ativa / reativar)
+let FUN_DATA=null; let FUN_SEG='ativar';
+function funSeg(btn,s){document.querySelectorAll('[data-funseg]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');FUN_SEG=s;renderFun()}
+async function loadFun(){
+  if(FUN_DATA){renderFun();return}
+  htm('fun-body','<tr><td colspan="5" class="spin">Carregando…</td></tr>');
+  try{
+    const [seed,perf]=await Promise.all([
+      sbGetPaged('seeding?select=creator,has_free_sample,gmv_seedado,pedidos_seedados'),
+      sbGetPaged('affiliate_perf?select=creator,data,gmv')
+    ]);
+    const maxd=perf.reduce((mx,r)=>r.data>mx?r.data:mx, perf.length?perf[0].data:'');
+    let cut='';
+    if(maxd){const c=new Date(maxd);c.setDate(c.getDate()-14);cut=c.toISOString().slice(0,10);}
+    const recent=new Set(perf.filter(r=>r.data>=cut && (+r.gmv||0)>0).map(r=>(r.creator||'').toLowerCase()));
+    FUN_DATA=seed.map(s=>{const vendeu=(+s.gmv_seedado||0)>0;const ativa=recent.has((s.creator||'').toLowerCase());
+      return {creator:s.creator,has_free_sample:s.has_free_sample,gmv:+s.gmv_seedado||0,ped:+s.pedidos_seedados||0,
+              seg:!vendeu?'ativar':(ativa?'ativas':'reativar')};});
+    renderFun();
+  }catch(e){htm('fun-body',`<tr><td colspan="5" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
+}
+function renderFun(){
+  if(!FUN_DATA)return;
+  const d=FUN_DATA;
+  const conv=d.length, vend=d.filter(x=>x.seg!=='ativar').length, ativ=d.filter(x=>x.seg==='ativas').length, react=d.filter(x=>x.seg==='reativar').length;
+  htm('fun-kpis',[
+    finCard('Convidadas',conv.toLocaleString('pt-BR'),'target collaborations'),
+    finCard('Venderam o produto',vend.toLocaleString('pt-BR'),`${conv?(vend/conv*100).toFixed(0):0}% das convidadas`,true),
+    finCard('Ativas (14d)',ativ.toLocaleString('pt-BR'),'venderam recente'),
+    finCard('Reativar',react.toLocaleString('pt-BR'),'venderam e esfriaram'),
+  ].join(''));
+  const rows=(FUN_SEG==='todas'?d:d.filter(x=>x.seg===FUN_SEG)).sort((a,b)=>b.gmv-a.gmv);
+  set('fun-meta',`${rows.length} creators`);
+  const lbl={ativar:['sem venda','b-red'],reativar:['reativar','b-orange'],ativas:['ativa','b-green']};
+  htm('fun-body',rows.map(r=>{const L=lbl[r.seg]||['—',''];return`<tr><td>${cLink(r.creator)}</td><td>${r.has_free_sample?'<span class="badge b-green">sim</span>':'<span style="color:var(--ink-48)">—</span>'}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${r.ped.toLocaleString('pt-BR')}</td><td><span class="badge ${L[1]}">${L[0]}</span></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhuma nesse segmento.</td></tr>');
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
