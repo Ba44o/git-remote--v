@@ -235,6 +235,33 @@ def sync_affiliate_perf():
     upsert("affiliate_perf", rows, on_conflict="id")
 
 
+def sync_seeding():
+    """Sincroniza warehouse/raw_seeding.csv → seeding (convite×creator, atribuição por produto)."""
+    src = WAREHOUSE / "raw_seeding.csv"
+    if not src.exists():
+        print(f"  [AVISO] {src} não existe. Rode 'python agente_rhode/etl_seeding.py' antes.")
+        return
+    df = pd.read_csv(src).fillna("")
+    rows = []
+    for _, r in df.iterrows():
+        fs = str(r.get("has_free_sample", ""))
+        rows.append({
+            "id":               str(r["id"]),
+            "creator":          str(r.get("creator", "")),
+            "creator_nick":     str(r.get("creator_nick", "")),
+            "convites":         int(float(r.get("convites", 0) or 0)),
+            "n_produtos":       int(float(r.get("n_produtos", 0) or 0)),
+            "has_free_sample":  fs not in ("", "False", "false", "0", "nan"),
+            "status":           str(r.get("status", "")),
+            "commission_pct":   float(r.get("commission_pct", 0) or 0),
+            "gmv_seedado":      float(r.get("gmv_seedado", 0) or 0),
+            "comissao_seedada": float(r.get("comissao_seedada", 0) or 0),
+            "pedidos_seedados": int(float(r.get("pedidos_seedados", 0) or 0)),
+        })
+    rows = [r for r in rows if r["id"]]
+    upsert("seeding", rows, on_conflict="id")
+
+
 JOBS = {
     "affiliates":           sync_affiliates,
     "performance_periods":  sync_performance_periods,
@@ -242,6 +269,7 @@ JOBS = {
     "finance":              sync_finance,
     "devolucoes":           sync_devolucoes,
     "affiliate_perf":       sync_affiliate_perf,
+    "seeding":              sync_seeding,
 }
 
 def main():

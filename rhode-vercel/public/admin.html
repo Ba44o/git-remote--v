@@ -833,7 +833,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <button class="op-subtab" data-evosub="fin" onclick="evoSubtab('fin',this)">Financeiro</button>
         <button class="op-subtab" data-evosub="dev" onclick="evoSubtab('dev',this)">Devoluções</button>
         <button class="op-subtab" data-evosub="aff" onclick="evoSubtab('aff',this)">Afiliadas</button>
-        <button class="op-subtab" data-evosub="seed" onclick="evoSubtab('seed',this)">Seeding ROI</button>
+        <button class="op-subtab" data-evosub="seed" onclick="evoSubtab('seed',this)">Seeding</button>
       </div>
 
       <div id="evo-sub-mensal">
@@ -935,17 +935,18 @@ tr:hover td{background:rgba(254,44,85,0.015)}
       </div>
 
       <div id="evo-sub-seed" style="display:none">
-        <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <span class="pbar-label">Custo médio por peça (R$)</span>
-          <input id="seed-custo" type="number" value="35" min="0" step="5" onchange="SEED_CUSTO=this.value;renderSeed()" class="finput" style="width:100px;padding:7px 10px">
-          <span style="font-size:12px;color:var(--body-muted)">comissão é real · custo é premissa</span>
+        <div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label" style="margin-right:4px">Filtro</span>
+          <span class="pill-filter on" data-seedf="all" onclick="filterSeed(this,'all')">Todos os convites</span>
+          <span class="pill-filter" data-seedf="sample" onclick="filterSeed(this,'sample')">Só com amostra grátis</span>
+          <span class="pill-filter" data-seedf="novenda" onclick="filterSeed(this,'novenda')">Não venderam</span>
         </div>
-        <div style="margin-bottom:16px;padding:10px 14px;background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;font-size:12px;color:var(--body-muted);line-height:1.55">⚠️ <b>GMV afiliado</b> = total da creator (todos os produtos, últimos 30 dias) — <b>não</b> só o item seedado. Logo o <b>ROI é estimativa</b> (superestima quem já vendia bem). Atribuição cirúrgica por SKU seedado: ROADMAP v2b (item 11).</div>
+        <div style="margin-bottom:16px;padding:10px 14px;background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;font-size:12px;color:var(--body-muted);line-height:1.55">Fonte: <b>Target Collaborations</b> (convites reais da API). <b>GMV nos produtos convidados</b> = vendas de afiliação só dos produtos do convite, por essa creator (deduplicado, 60d). Convidadas a ~todo o catálogo ≈ GMV total; o sinal forte de seeding é o filtro <b>com amostra grátis</b> + as que <b>não venderam</b>.</div>
         <div id="seed-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
         <div class="tbl-card">
-          <div class="tbl-head"><div class="tbl-title">Seeding por Creator</div><div class="tbl-meta" id="seed-meta"></div></div>
+          <div class="tbl-head"><div class="tbl-title">Convites de Colaboração por Creator</div><div class="tbl-meta" id="seed-meta"></div></div>
           <div class="tw"><table>
-            <thead><tr><th>Creator</th><th>Amostras</th><th>SKUs seedados</th><th>Enviado</th><th>Comissão</th><th>GMV afiliado (total)</th><th>ROI est.</th><th>Status</th></tr></thead>
+            <thead><tr><th>Creator</th><th>Convites</th><th>Produtos</th><th>Amostra</th><th>Comissão</th><th>GMV nos produtos convidados</th><th>Pedidos</th><th>Status</th></tr></thead>
             <tbody id="seed-body"><tr><td colspan="8" class="spin">Carregando…</td></tr></tbody>
           </table></div>
         </div>
@@ -2542,46 +2543,36 @@ function renderAff(){
   htm('aff-body',arr.slice(0,100).map((o,i)=>{const cls=o.cmain==='LIVE'?'b-red':o.cmain==='VIDEO'?'b-orange':'b-green';return`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> @${o.creator}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.gmv)}</td><td class="mono">${fmtK(o.com)}</td><td class="mono">${o.itens.toLocaleString('pt-BR')}</td><td><span class="badge ${cls}">${o.cmain}</span> <span style="color:var(--ink-48);font-size:11px">${o.cpct.toFixed(0)}%</span></td></tr>`}).join(''));
 }
 
-// ── Sub-aba Seeding ROI (amostras_enviadas × affiliate_perf, match por handle lowercased)
-let SEED_AMO={}; let SEED_AFF={}; let SEED_CUSTO=35;
+// ── Sub-aba Seeding (Target Collaborations × vendas por produto convidado, grão por creator)
+let SEED_DATA=[]; let SEED_FILTER='all';
+function filterSeed(btn,f){document.querySelectorAll('[data-seedf]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');SEED_FILTER=f;renderSeed()}
 async function loadSeed(){
-  htm('seed-body','<tr><td colspan="7" class="spin">Carregando…</td></tr>');
+  if(SEED_DATA.length){renderSeed();return}
+  htm('seed-body','<tr><td colspan="8" class="spin">Carregando…</td></tr>');
   try{
-    const [amo,aff]=await Promise.all([
-      sbGetPaged('amostras_enviadas?select=creator_id,sku,quantidade,data_envio,tier_no_envio&aprovada=eq.true&dispensada=not.eq.true'),
-      sbGetPaged('affiliate_perf?select=creator,gmv,comissao')
-    ]);
-    SEED_AMO={};
-    amo.forEach(a=>{const k=(a.creator_id||'').toLowerCase();if(!k)return;const o=SEED_AMO[k]||(SEED_AMO[k]={creator:a.creator_id,amostras:0,tier:a.tier_no_envio||'',ultimo:a.data_envio||'',skus:new Set()});o.amostras+=+a.quantidade||0;if(a.sku)o.skus.add(a.sku);if((a.data_envio||'')>(o.ultimo||''))o.ultimo=a.data_envio||'';});
-    SEED_AFF={};
-    aff.forEach(x=>{const k=(x.creator||'').toLowerCase();const o=SEED_AFF[k]||(SEED_AFF[k]={gmv:0,com:0});o.gmv+=+x.gmv||0;o.com+=+x.comissao||0;});
+    SEED_DATA=await sbGetPaged('seeding?select=creator,creator_nick,convites,n_produtos,has_free_sample,status,commission_pct,gmv_seedado,comissao_seedada,pedidos_seedados&order=gmv_seedado.desc');
     renderSeed();
-  }catch(e){htm('seed-body',`<tr><td colspan="7" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
+  }catch(e){htm('seed-body',`<tr><td colspan="8" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
 }
 function renderSeed(){
-  const keys=Object.keys(SEED_AMO);
-  if(!keys.length){htm('seed-body','<tr><td colspan="8" class="empty">Nenhuma amostra registrada em amostras_enviadas.</td></tr>');htm('seed-kpis','');set('seed-meta','');return}
-  const custo=+SEED_CUSTO||0;
-  const rows=keys.map(k=>{
-    const a=SEED_AMO[k],p=SEED_AFF[k]||{gmv:0,com:0};
-    const investido=a.amostras*custo+p.com, retorno=p.gmv;
-    return {creator:a.creator,amostras:a.amostras,skus:[...a.skus],ultimo:a.ultimo,com:p.com,investido,retorno,roi:investido>0?retorno/investido:0,conv:retorno>0};
-  }).sort((x,y)=>y.retorno-x.retorno);
-  const nSeed=rows.length, nConv=rows.filter(r=>r.conv).length;
-  const totRet=rows.reduce((s,r)=>s+r.retorno,0), totInv=rows.reduce((s,r)=>s+r.investido,0);
-  const totAmo=rows.reduce((s,r)=>s+r.amostras,0);
+  if(!SEED_DATA.length){htm('seed-body','<tr><td colspan="8" class="empty">Sem dados. Rode <code>python agente_rhode/etl_seeding.py &amp;&amp; python agente_rhode/sync_supabase.py --only seeding</code>.</td></tr>');htm('seed-kpis','');set('seed-meta','');return}
+  let rows=SEED_DATA;
+  if(SEED_FILTER==='sample') rows=rows.filter(r=>r.has_free_sample);
+  else if(SEED_FILTER==='novenda') rows=rows.filter(r=>(+r.gmv_seedado||0)===0);
+  const n=rows.length, conv=rows.filter(r=>(+r.gmv_seedado||0)>0).length;
+  const comAmostra=rows.filter(r=>r.has_free_sample).length;
+  const totGmv=rows.reduce((s,r)=>s+(+r.gmv_seedado||0),0);
   htm('seed-kpis',[
-    finCard('Creators seedadas',nSeed.toLocaleString('pt-BR'),`${totAmo} amostras enviadas`),
-    finCard('Converteram',`${nConv}/${nSeed}`,`${nSeed?(nConv/nSeed*100).toFixed(0):0}% geraram venda`,true),
-    finCard('GMV afiliado',fmtK(totRet),'total das seedadas · 30d'),
-    finCard('ROI estimado',(totInv?totRet/totInv:0).toFixed(1)+'x',`custo R$${custo}/peça`),
+    finCard('Creators convidadas',n.toLocaleString('pt-BR'),`${comAmostra} com amostra grátis`),
+    finCard('Venderam o produto',`${conv}/${n}`,`${n?(conv/n*100).toFixed(0):0}% converteram`,true),
+    finCard('GMV nos produtos convidados',fmtK(totGmv),'afiliação · 60d'),
+    finCard('Sem venda',(n-conv).toLocaleString('pt-BR'),'convidadas, R$0 no produto'),
   ].join(''));
-  set('seed-meta',`${nSeed} creators · ${totAmo} amostras · ROI est. ${(totInv?totRet/totInv:0).toFixed(1)}x`);
+  set('seed-meta',`${n} creators · ${conv} venderam · ${fmtK(totGmv)}`);
   htm('seed-body',rows.map(r=>{
-    const st=r.conv?'b-green':'b-red';const rc=r.roi>=3?'b-green':r.roi>=1?'b-orange':'b-red';
-    const skuStr=r.skus.slice(0,2).join(', ')+(r.skus.length>2?` +${r.skus.length-2}`:'');
-    const dias=r.ultimo?Math.floor((Date.now()-new Date(r.ultimo))/864e5):'';
-    return`<tr><td>@${r.creator}</td><td class="mono">${r.amostras}</td><td class="mono" title="${r.skus.join(', ')}">${skuStr||'—'}</td><td class="mono">${r.ultimo||'—'}${dias!==''?` <span style="color:var(--ink-48);font-size:11px">${dias}d</span>`:''}</td><td class="mono">${fmtK(r.com)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.retorno)}</td><td><span class="badge ${rc}">${r.roi.toFixed(1)}x</span></td><td><span class="badge ${st}">${r.conv?'converteu':'sem venda'}</span></td></tr>`}).join(''));
+    const v=(+r.gmv_seedado||0)>0; const st=v?'b-green':'b-red';
+    const am=r.has_free_sample?'<span class="badge b-green">sim</span>':'<span style="color:var(--ink-48)">—</span>';
+    return`<tr><td>@${r.creator}</td><td class="mono">${r.convites}</td><td class="mono">${r.n_produtos}</td><td>${am}</td><td class="mono">${(+r.commission_pct||0).toFixed(1)}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_seedado)}</td><td class="mono">${(+r.pedidos_seedados||0).toLocaleString('pt-BR')}</td><td><span class="badge ${st}">${v?'vendeu':'sem venda'}</span></td></tr>`}).join(''));
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
