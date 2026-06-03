@@ -40,32 +40,14 @@ def _d(ts):
 
 def coletar(dias: int) -> pd.DataFrame:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from coletar_dados import buscar_target_collaborations, buscar_affiliate_orders
+    from coletar_dados import buscar_target_collaborations
 
-    # 1) convites reais (com creators + product_ids)
+    # convites reais (creators + product_ids). NÃO coleta affiliate orders — o GMV do
+    # produto seedado é computado no PAINEL a partir de affiliate_creator_product
+    # (day-level), respeitando a janela global → consistência garantida.
     colabs = buscar_target_collaborations()
 
-    # 2) affiliate orders → agrega por (creator_username, product_id)
-    hoje = date.today()
-    ini  = (hoje - timedelta(days=dias)).strftime("%Y-%m-%d")
-    fim  = hoje.strftime("%Y-%m-%d")
-    orders = buscar_affiliate_orders(ini, fim)
-    aff = {}
-    for o in orders:
-        oid = o.get("id", "")
-        for s in o.get("skus", []):
-            cr  = (s.get("creator_username") or "").lower()
-            pid = s.get("product_id") or ""
-            if not cr or not pid:
-                continue
-            a = aff.get((cr, pid))
-            if a is None:
-                a = aff[(cr, pid)] = {"gmv": 0.0, "com": 0.0, "orders": set()}
-            a["gmv"] += _f(s.get("estimated_commission_base", {}).get("amount"))
-            a["com"] += _f(s.get("estimated_paid_commission", {}).get("amount"))
-            a["orders"].add(oid)
-
-    # 3) agrega por CREATOR, DEDUPLICANDO produtos entre os convites dela
+    # agrega por CREATOR, DEDUPLICANDO produtos entre os convites dela
     #    (uma creator pode ter vários convites com produtos sobrepostos →
     #     somar por convite triplicava a venda. Aqui cada produto conta 1x.)
     byc = {}
@@ -91,26 +73,19 @@ def coletar(dias: int) -> pd.DataFrame:
 
     rows = []
     for k, o in byc.items():
-        gmv = com = 0.0; peds = set()
-        for pid in o["pids"]:                      # cada produto convidado, 1x
-            a = aff.get((k, pid))
-            if a:
-                gmv += a["gmv"]; com += a["com"]; peds |= a["orders"]
         rows.append({
-            "id":               k,
-            "creator":          o["creator"],
-            "creator_nick":     o["nick"],
-            "convites":         o["convites"],
-            "n_produtos":       len(o["pids"]),                 # produtos únicos convidados
-            "has_free_sample":  o["free"],
-            "status":           "·".join(sorted(s for s in o["statuses"] if s)),
-            "commission_pct":   round(sum(o["rates"]) / len(o["rates"]) / 100, 1) if o["rates"] else 0.0,
-            "gmv_seedado":      round(gmv, 2),                  # GMV nos produtos convidados (dedup)
-            "comissao_seedada": round(com, 2),
-            "pedidos_seedados": len(peds),
+            "id":              k,
+            "creator":         o["creator"],
+            "creator_nick":    o["nick"],
+            "convites":        o["convites"],
+            "n_produtos":      len(o["pids"]),                  # produtos únicos convidados
+            "has_free_sample": o["free"],
+            "status":          "·".join(sorted(s for s in o["statuses"] if s)),
+            "commission_pct":  round(sum(o["rates"]) / len(o["rates"]) / 100, 1) if o["rates"] else 0.0,
+            "product_ids":     ",".join(sorted(o["pids"])),     # lista pro painel atribuir o GMV por janela
         })
     out = pd.DataFrame([r for r in rows if r["creator"]])
-    return out.sort_values("gmv_seedado", ascending=False).reset_index(drop=True)
+    return out.sort_values("n_produtos", ascending=False).reset_index(drop=True)
 
 
 def main():
@@ -126,9 +101,9 @@ def main():
     WAREHOUSE.mkdir(exist_ok=True)
     out.to_csv(args.output, index=False)
 
-    n = len(out); conv = (out["gmv_seedado"] > 0).sum()
-    print(f"\n  ✓ {n} creators com convite · {conv} venderam o produto convidado ({conv/n*100:.0f}%)")
-    print(f"  ✓ GMV nos produtos convidados (dedup, total): R$ {out['gmv_seedado'].sum():,.2f}")
+    n = len(out)
+    print(f"\n  ✓ {n} creators com convite (target collaboration)")
+    print(f"  ✓ com amostra grátis: {int(out['has_free_sample'].sum())} · GMV é computado no painel por janela")
     print(f"  ✓ com amostra grátis: {int(out['has_free_sample'].sum())}")
     print(f"  ✓ Salvo em {args.output}")
 

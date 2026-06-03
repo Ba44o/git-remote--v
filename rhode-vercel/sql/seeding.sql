@@ -11,8 +11,11 @@
 --
 -- Substitui o painel v2a (que usava amostras_enviadas manual + GMV total da creator).
 
--- Grão: 1 linha por CREATOR (produtos deduplicados entre os convites dela).
-CREATE TABLE IF NOT EXISTS seeding (
+-- Grão: 1 linha por CREATOR (só metadados do convite). O GMV do produto seedado
+-- é computado no PAINEL a partir de affiliate_creator_product (day-level) na janela
+-- global → consistente com Afiliadas/Creator×Produto. Recriada (schema mudou).
+DROP TABLE IF EXISTS seeding;
+CREATE TABLE seeding (
   id                TEXT PRIMARY KEY,                 -- creator (handle lowercased)
   creator           TEXT,
   creator_nick      TEXT,
@@ -21,14 +24,12 @@ CREATE TABLE IF NOT EXISTS seeding (
   has_free_sample   BOOLEAN DEFAULT FALSE,
   status            TEXT,                             -- VALID·COMPLETED·...
   commission_pct    NUMERIC(5,1) DEFAULT 0,
-  gmv_seedado       NUMERIC(12,2) DEFAULT 0,          -- GMV nos produtos convidados (dedup, por essa creator)
-  comissao_seedada  NUMERIC(12,2) DEFAULT 0,
-  pedidos_seedados  INT DEFAULT 0,
+  product_ids       TEXT,                             -- CSV de product_ids convidados (atribuição no painel)
   created_at        TIMESTAMPTZ DEFAULT NOW(),
   updated_at        TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_seeding_gmv ON seeding(gmv_seedado DESC);
+CREATE INDEX IF NOT EXISTS idx_seeding_creator ON seeding(creator);
 
 ALTER TABLE seeding DISABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "anon_all_seeding" ON seeding;

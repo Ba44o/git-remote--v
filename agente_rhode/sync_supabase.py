@@ -254,9 +254,7 @@ def sync_seeding():
             "has_free_sample":  fs not in ("", "False", "false", "0", "nan"),
             "status":           str(r.get("status", "")),
             "commission_pct":   float(r.get("commission_pct", 0) or 0),
-            "gmv_seedado":      float(r.get("gmv_seedado", 0) or 0),
-            "comissao_seedada": float(r.get("comissao_seedada", 0) or 0),
-            "pedidos_seedados": int(float(r.get("pedidos_seedados", 0) or 0)),
+            "product_ids":      str(r.get("product_ids", "")),
         })
     rows = [r for r in rows if r["id"]]
     upsert("seeding", rows, on_conflict="id")
@@ -275,6 +273,7 @@ def sync_creator_product():
             "id":         str(r["id"]),
             "creator":    str(r.get("creator", "")),
             "product_id": str(r.get("product_id", "")),
+            "data":       str(r.get("data", "")) or None,
             "produto":    str(r.get("produto", "")),
             "seller_sku": str(r.get("seller_sku", "")),
             "gmv":        float(r.get("gmv", 0) or 0),

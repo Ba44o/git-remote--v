@@ -8,10 +8,14 @@
 -- ETL: agente_rhode/etl_creator_product.py → warehouse/raw_creator_product.csv.
 -- Sync: agente_rhode/sync_supabase.py::sync_creator_product().
 
-CREATE TABLE IF NOT EXISTS affiliate_creator_product (
-  id          TEXT PRIMARY KEY,                       -- creator|product_id
+-- Grão = creator × produto × DIA (permite janela global ajustável). Recriada
+-- (o grão mudou de creator×produto p/ creator×produto×dia → id novo).
+DROP TABLE IF EXISTS affiliate_creator_product;
+CREATE TABLE affiliate_creator_product (
+  id          TEXT PRIMARY KEY,                       -- creator|product_id|data
   creator     TEXT,
   product_id  TEXT,
+  data        DATE,
   produto     TEXT,                                   -- título do produto
   seller_sku  TEXT,
   gmv         NUMERIC(12,2) DEFAULT 0,
@@ -22,6 +26,7 @@ CREATE TABLE IF NOT EXISTS affiliate_creator_product (
 );
 
 CREATE INDEX IF NOT EXISTS idx_cp_creator ON affiliate_creator_product(creator);
+CREATE INDEX IF NOT EXISTS idx_cp_data    ON affiliate_creator_product(data DESC);
 CREATE INDEX IF NOT EXISTS idx_cp_gmv     ON affiliate_creator_product(gmv DESC);
 
 ALTER TABLE affiliate_creator_product DISABLE ROW LEVEL SECURITY;

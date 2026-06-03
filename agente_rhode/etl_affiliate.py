@@ -80,7 +80,7 @@ def coletar(dias: int) -> pd.DataFrame:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dias", type=int, default=30, help="janela em dias (volume alto de afiliado)")
+    ap.add_argument("--dias", type=int, default=90, help="janela em dias (máx 90 = limite da API por request)")
     ap.add_argument("--output", default=str(WAREHOUSE / "raw_affiliate.csv"))
     args = ap.parse_args()
 
