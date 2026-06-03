@@ -262,6 +262,29 @@ def sync_seeding():
     upsert("seeding", rows, on_conflict="id")
 
 
+def sync_creator_product():
+    """Sincroniza warehouse/raw_creator_product.csv → affiliate_creator_product."""
+    src = WAREHOUSE / "raw_creator_product.csv"
+    if not src.exists():
+        print(f"  [AVISO] {src} não existe. Rode 'python agente_rhode/etl_creator_product.py' antes.")
+        return
+    df = pd.read_csv(src).fillna("")
+    rows = []
+    for _, r in df.iterrows():
+        rows.append({
+            "id":         str(r["id"]),
+            "creator":    str(r.get("creator", "")),
+            "product_id": str(r.get("product_id", "")),
+            "produto":    str(r.get("produto", "")),
+            "seller_sku": str(r.get("seller_sku", "")),
+            "gmv":        float(r.get("gmv", 0) or 0),
+            "comissao":   float(r.get("comissao", 0) or 0),
+            "pedidos":    int(float(r.get("pedidos", 0) or 0)),
+        })
+    rows = [r for r in rows if r["id"]]
+    upsert("affiliate_creator_product", rows, on_conflict="id")
+
+
 JOBS = {
     "affiliates":           sync_affiliates,
     "performance_periods":  sync_performance_periods,
@@ -270,6 +293,7 @@ JOBS = {
     "devolucoes":           sync_devolucoes,
     "affiliate_perf":       sync_affiliate_perf,
     "seeding":              sync_seeding,
+    "creator_product":      sync_creator_product,
 }
 
 def main():

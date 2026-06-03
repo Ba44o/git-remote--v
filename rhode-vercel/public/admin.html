@@ -834,6 +834,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <button class="op-subtab" data-evosub="dev" onclick="evoSubtab('dev',this)">Devoluções</button>
         <button class="op-subtab" data-evosub="aff" onclick="evoSubtab('aff',this)">Afiliadas</button>
         <button class="op-subtab" data-evosub="seed" onclick="evoSubtab('seed',this)">Seeding</button>
+        <button class="op-subtab" data-evosub="cp" onclick="evoSubtab('cp',this)">Creator×Produto</button>
       </div>
 
       <div id="evo-sub-mensal">
@@ -948,6 +949,23 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tw"><table>
             <thead><tr><th>Creator</th><th>Convites</th><th>Produtos</th><th>Amostra</th><th>Comissão</th><th>GMV nos produtos convidados</th><th>Pedidos</th><th>Status</th></tr></thead>
             <tbody id="seed-body"><tr><td colspan="8" class="spin">Carregando…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="evo-sub-cp" style="display:none">
+        <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label">Ver por</span>
+          <span class="pill-filter on" data-cpmode="produto" onclick="cpMode(this,'produto')">Produto</span>
+          <span class="pill-filter" data-cpmode="creator" onclick="cpMode(this,'creator')">Creator</span>
+          <select id="cp-sel" onchange="CP_SEL=this.value;renderCP()" class="finput" style="max-width:380px;padding:7px 10px;margin-left:8px"></select>
+        </div>
+        <div id="cp-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title" id="cp-title">—</div><div class="tbl-meta" id="cp-meta"></div></div>
+          <div class="tw"><table>
+            <thead id="cp-thead"></thead>
+            <tbody id="cp-body"><tr><td colspan="4" class="spin">Carregando…</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2295,13 +2313,14 @@ let DIARIO_WIN=60;                                     // janela default em dias
 function evoSubtab(which,btn){
   document.querySelectorAll('.op-subtab[data-evosub]').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed');
-  [m,d,f,g,h,s].forEach(x=>x.style.display='none');
+  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed'),j=el('evo-sub-cp');
+  [m,d,f,g,h,s,j].forEach(x=>x.style.display='none');
   if(which==='diario'){d.style.display='block';loadDiario()}
   else if(which==='fin'){f.style.display='block';loadFin()}
   else if(which==='dev'){g.style.display='block';loadDev()}
   else if(which==='aff'){h.style.display='block';loadAff()}
   else if(which==='seed'){s.style.display='block';loadSeed()}
+  else if(which==='cp'){j.style.display='block';loadCP()}
   else{m.style.display='block';renderEvolucao()}
 }
 
@@ -2573,6 +2592,56 @@ function renderSeed(){
     const v=(+r.gmv_seedado||0)>0; const st=v?'b-green':'b-red';
     const am=r.has_free_sample?'<span class="badge b-green">sim</span>':'<span style="color:var(--ink-48)">—</span>';
     return`<tr><td>@${r.creator}</td><td class="mono">${r.convites}</td><td class="mono">${r.n_produtos}</td><td>${am}</td><td class="mono">${(+r.commission_pct||0).toFixed(1)}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_seedado)}</td><td class="mono">${(+r.pedidos_seedados||0).toLocaleString('pt-BR')}</td><td><span class="badge ${st}">${v?'vendeu':'sem venda'}</span></td></tr>`}).join(''));
+}
+
+// ── Sub-aba Creator × Produto (matriz: quem vende o quê)
+let CP_DATA=[]; let CP_MODE='produto'; let CP_SEL='';
+function cpMode(btn,m){document.querySelectorAll('[data-cpmode]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');CP_MODE=m;CP_SEL='';renderCP()}
+async function loadCP(){
+  if(CP_DATA.length){renderCP();return}
+  htm('cp-body','<tr><td colspan="4" class="spin">Carregando…</td></tr>');
+  try{CP_DATA=await sbGetPaged('affiliate_creator_product?select=creator,product_id,produto,gmv,comissao,pedidos&order=gmv.desc');renderCP()}
+  catch(e){htm('cp-body',`<tr><td colspan="4" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
+}
+function renderCP(){
+  if(!CP_DATA.length){htm('cp-body','<tr><td colspan="4" class="empty">Sem dados. Rode etl_creator_product.py + sync.</td></tr>');htm('cp-kpis','');return}
+  const sel=el('cp-sel');
+  if(CP_MODE==='produto'){
+    const byp={};CP_DATA.forEach(r=>{const o=byp[r.product_id]||(byp[r.product_id]={produto:r.produto,gmv:0});o.gmv+=+r.gmv||0});
+    const prods=Object.entries(byp).sort((a,b)=>b[1].gmv-a[1].gmv);
+    if(!CP_SEL||!byp[CP_SEL])CP_SEL=prods[0][0];
+    sel.innerHTML=prods.map(([pid,o])=>`<option value="${pid}"${pid===CP_SEL?' selected':''}>${(o.produto||pid).slice(0,55)} — ${fmtK(o.gmv)}</option>`).join('');
+    const rows=CP_DATA.filter(r=>r.product_id===CP_SEL).sort((a,b)=>(+b.gmv||0)-(+a.gmv||0));
+    const gmv=rows.reduce((s,r)=>s+(+r.gmv||0),0),ped=rows.reduce((s,r)=>s+(+r.pedidos||0),0);
+    const top5=rows.slice(0,5).reduce((s,r)=>s+(+r.gmv||0),0);
+    htm('cp-kpis',[
+      finCard('GMV do produto',fmtK(gmv),`${rows.length} creators vendendo`,true),
+      finCard('Creators',rows.length.toLocaleString('pt-BR'),''),
+      finCard('Pedidos',ped.toLocaleString('pt-BR'),''),
+      finCard('Concentração top 5',`${gmv?(top5/gmv*100).toFixed(0):0}%`,'do GMV nas 5 maiores'),
+    ].join(''));
+    set('cp-title',(byp[CP_SEL]||{}).produto||'Produto');
+    set('cp-meta',`${rows.length} creators · ${fmtK(gmv)}`);
+    htm('cp-thead','<tr><th>Creator</th><th>GMV</th><th>Pedidos</th><th>Comissão</th></tr>');
+    htm('cp-body',rows.slice(0,100).map((r,i)=>`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> @${r.creator}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${(+r.pedidos||0).toLocaleString('pt-BR')}</td><td class="mono">${fmtK(r.comissao)}</td></tr>`).join(''));
+  }else{
+    const byc={};CP_DATA.forEach(r=>{const o=byc[r.creator]||(byc[r.creator]={gmv:0});o.gmv+=+r.gmv||0});
+    const crs=Object.entries(byc).sort((a,b)=>b[1].gmv-a[1].gmv);
+    if(!CP_SEL||!byc[CP_SEL])CP_SEL=crs[0][0];
+    sel.innerHTML=crs.map(([c,o])=>`<option value="${c}"${c===CP_SEL?' selected':''}>@${c} — ${fmtK(o.gmv)}</option>`).join('');
+    const rows=CP_DATA.filter(r=>r.creator===CP_SEL).sort((a,b)=>(+b.gmv||0)-(+a.gmv||0));
+    const gmv=rows.reduce((s,r)=>s+(+r.gmv||0),0),ped=rows.reduce((s,r)=>s+(+r.pedidos||0),0);
+    htm('cp-kpis',[
+      finCard('GMV da creator',fmtK(gmv),`${rows.length} produtos`,true),
+      finCard('Produtos',rows.length.toLocaleString('pt-BR'),''),
+      finCard('Pedidos',ped.toLocaleString('pt-BR'),''),
+      finCard('Top produto',`${gmv?(((+rows[0].gmv)||0)/gmv*100).toFixed(0):0}%`,'do GMV no produto #1'),
+    ].join(''));
+    set('cp-title','@'+CP_SEL);
+    set('cp-meta',`${rows.length} produtos · ${fmtK(gmv)}`);
+    htm('cp-thead','<tr><th>Produto</th><th>GMV</th><th>Pedidos</th><th>Comissão</th></tr>');
+    htm('cp-body',rows.slice(0,100).map(r=>`<tr><td>${r.produto}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${(+r.pedidos||0).toLocaleString('pt-BR')}</td><td class="mono">${fmtK(r.comissao)}</td></tr>`).join(''));
+  }
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
