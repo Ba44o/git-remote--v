@@ -2559,7 +2559,7 @@ function renderAff(){
   const bc={};frows.forEach(r=>{const k=r.creator;const o=bc[k]||(bc[k]={creator:k,gmv:0,com:0,itens:0,ct:{}});o.gmv+=+r.gmv||0;o.com+=+r.comissao||0;o.itens+=+r.itens||0;const c=r.content_type||'—';o.ct[c]=(o.ct[c]||0)+(+r.gmv||0)});
   const arr=Object.values(bc).map(o=>{let t='—',c=-1;for(const k in o.ct)if(o.ct[k]>c){c=o.ct[k];t=k}o.cmain=t;o.cpct=o.gmv?c/o.gmv*100:0;return o}).sort((a,b)=>b.gmv-a.gmv);
   set('aff-meta',`${ncr} creators · ${fmtK(gmv)} GMV · ${fmtK(com)} comissão${AFF_CT!=='all'?' · '+AFF_CT:''}`);
-  htm('aff-body',arr.slice(0,100).map((o,i)=>{const cls=o.cmain==='LIVE'?'b-red':o.cmain==='VIDEO'?'b-orange':'b-green';return`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> @${o.creator}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.gmv)}</td><td class="mono">${fmtK(o.com)}</td><td class="mono">${o.itens.toLocaleString('pt-BR')}</td><td><span class="badge ${cls}">${o.cmain}</span> <span style="color:var(--ink-48);font-size:11px">${o.cpct.toFixed(0)}%</span></td></tr>`}).join(''));
+  htm('aff-body',arr.slice(0,100).map((o,i)=>{const cls=o.cmain==='LIVE'?'b-red':o.cmain==='VIDEO'?'b-orange':'b-green';return`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> ${cLink(o.creator)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.gmv)}</td><td class="mono">${fmtK(o.com)}</td><td class="mono">${o.itens.toLocaleString('pt-BR')}</td><td><span class="badge ${cls}">${o.cmain}</span> <span style="color:var(--ink-48);font-size:11px">${o.cpct.toFixed(0)}%</span></td></tr>`}).join(''));
 }
 
 // ── Sub-aba Seeding (Target Collaborations × vendas por produto convidado, grão por creator)
@@ -2591,7 +2591,7 @@ function renderSeed(){
   htm('seed-body',rows.map(r=>{
     const v=(+r.gmv_seedado||0)>0; const st=v?'b-green':'b-red';
     const am=r.has_free_sample?'<span class="badge b-green">sim</span>':'<span style="color:var(--ink-48)">—</span>';
-    return`<tr><td>@${r.creator}</td><td class="mono">${r.convites}</td><td class="mono">${r.n_produtos}</td><td>${am}</td><td class="mono">${(+r.commission_pct||0).toFixed(1)}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_seedado)}</td><td class="mono">${(+r.pedidos_seedados||0).toLocaleString('pt-BR')}</td><td><span class="badge ${st}">${v?'vendeu':'sem venda'}</span></td></tr>`}).join(''));
+    return`<tr><td>${cLink(r.creator)}</td><td class="mono">${r.convites}</td><td class="mono">${r.n_produtos}</td><td>${am}</td><td class="mono">${(+r.commission_pct||0).toFixed(1)}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_seedado)}</td><td class="mono">${(+r.pedidos_seedados||0).toLocaleString('pt-BR')}</td><td><span class="badge ${st}">${v?'vendeu':'sem venda'}</span></td></tr>`}).join(''));
 }
 
 // ── Sub-aba Creator × Produto (matriz: quem vende o quê)
@@ -2623,7 +2623,7 @@ function renderCP(){
     set('cp-title',(byp[CP_SEL]||{}).produto||'Produto');
     set('cp-meta',`${rows.length} creators · ${fmtK(gmv)}`);
     htm('cp-thead','<tr><th>Creator</th><th>GMV</th><th>Pedidos</th><th>Comissão</th></tr>');
-    htm('cp-body',rows.slice(0,100).map((r,i)=>`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> @${r.creator}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${(+r.pedidos||0).toLocaleString('pt-BR')}</td><td class="mono">${fmtK(r.comissao)}</td></tr>`).join(''));
+    htm('cp-body',rows.slice(0,100).map((r,i)=>`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> ${cLink(r.creator)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${(+r.pedidos||0).toLocaleString('pt-BR')}</td><td class="mono">${fmtK(r.comissao)}</td></tr>`).join(''));
   }else{
     const byc={};CP_DATA.forEach(r=>{const o=byc[r.creator]||(byc[r.creator]={gmv:0});o.gmv+=+r.gmv||0});
     const crs=Object.entries(byc).sort((a,b)=>b[1].gmv-a[1].gmv);
@@ -2645,6 +2645,40 @@ function renderCP(){
 }
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
+
+// ── Drill-down: perfil da creator (vendas, produtos, mix de conteúdo, seeding)
+function cLink(u){return `<a onclick="creatorProfile('${u}')" style="cursor:pointer;border-bottom:1px dashed var(--ink-48)">@${u}</a>`}
+async function creatorProfile(u){
+  el('modal-title').textContent='@'+u;
+  htm('modal-body','<div class="spin">Carregando…</div>');
+  el('modal').classList.add('on');
+  try{
+    const enc=encodeURIComponent(u);
+    const [prods,perf,seed]=await Promise.all([
+      sbGet(`affiliate_creator_product?select=produto,gmv,comissao,pedidos&creator=eq.${enc}&order=gmv.desc`),
+      sbGet(`affiliate_perf?select=content_type,gmv&creator=eq.${enc}`),
+      sbGet(`seeding?select=convites,n_produtos,has_free_sample,gmv_seedado,status&id=eq.${enc}`)
+    ]);
+    const gmv=prods.reduce((s,r)=>s+(+r.gmv||0),0), com=prods.reduce((s,r)=>s+(+r.comissao||0),0), ped=prods.reduce((s,r)=>s+(+r.pedidos||0),0);
+    const byCt={}; perf.forEach(r=>{byCt[r.content_type]=(byCt[r.content_type]||0)+(+r.gmv||0)});
+    const ctTot=Object.values(byCt).reduce((a,b)=>a+b,0)||1;
+    const ctStr=Object.entries(byCt).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} <b>${(v/ctTot*100).toFixed(0)}%</b>`).join(' · ')||'—';
+    const sd=seed[0];
+    const seedStr=sd?`${sd.convites} convite(s) · ${sd.n_produtos} produtos convidados · amostra grátis <b>${sd.has_free_sample?'sim':'não'}</b> · vendeu <b>${fmtK(sd.gmv_seedado)}</b> no produto convidado`:'sem convite de colaboração registrado';
+    htm('modal-body',`
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+        ${finCard('GMV afiliado',fmtK(gmv),`${prods.length} produtos · 60d`,true)}
+        ${finCard('Comissão',fmtK(com),'')}
+        ${finCard('Pedidos',ped.toLocaleString('pt-BR'),'')}
+      </div>
+      <div style="margin-bottom:12px;font-size:13px;color:var(--body)"><span style="color:var(--ink-48)">Mix de conteúdo (30d):</span> ${ctStr}</div>
+      <div style="margin-bottom:16px;font-size:13px;color:var(--body)"><span style="color:var(--ink-48)">Seeding:</span> ${seedStr}</div>
+      <div class="tbl-card"><div class="tbl-head"><div class="tbl-title">Produtos que vende</div><div class="tbl-meta">${prods.length} produtos</div></div>
+        <div class="tw"><table><thead><tr><th>Produto</th><th>GMV</th><th>Pedidos</th><th>Comissão</th></tr></thead>
+        <tbody>${prods.slice(0,25).map(p=>`<tr><td>${p.produto}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(p.gmv)}</td><td class="mono">${(+p.pedidos||0).toLocaleString('pt-BR')}</td><td class="mono">${fmtK(p.comissao)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Sem vendas de afiliação.</td></tr>'}</tbody></table></div>
+      </div>`);
+  }catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}
+}
 
 // ---- ABA EVENTO ----
 let EV_DATA=[],EV_FILTERED=[],EV_PAGE=1;
