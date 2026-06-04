@@ -1798,6 +1798,18 @@ const SB_URL='https://ivzpykuluxcxefhyzfsf.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
 const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
+// ── Data layer via proxy autenticado (/api/hub-data) ──────────────────────
+// Toda leitura/escrita de dado da creator passa por aqui: o servidor resolve a
+// identidade pelo access_token e segura a service key. _token é setado no boot.
+// (hub_eventos/analytics segue indo direto — é insert anônimo, não-sensível.)
+let _token=null;
+async function hub(action, params={}){
+  const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token:_token, action, ...params})});
+  if(!r.ok){ let e={}; try{e=await r.json();}catch(_){} throw new Error(e.error||('HTTP '+r.status)); }
+  return r.json();
+}
+
 // ════════════════════════════════════════════════════════════════════
 //  ANALYTICS DE COMPORTAMENTO — tracking → hub_eventos (Supabase)
 //  Captura: session_start, tab_view (com duração), session_end, action.
@@ -2158,13 +2170,10 @@ function clearToken(){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} }
 })();
 
 async function validateToken(token){
+  _token=token;
   try{
-    let r=await fetch(`${SB_URL}/rest/v1/affiliates?access_token=eq.${encodeURIComponent(token)}&limit=1`,{headers:SBH});
-    let rows=await r.json();
-    if(rows?.length) return {source:'affiliates',row:rows[0],handle:(rows[0].tiktok_handle||rows[0].affiliate_id||'').replace(/^[@.]+/,'').toLowerCase()};
-    r=await fetch(`${SB_URL}/rest/v1/eventos_creators?access_token=eq.${encodeURIComponent(token)}&limit=1`,{headers:SBH});
-    rows=await r.json();
-    if(rows?.length) return {source:'eventos',row:rows[0],handle:(rows[0].handle||'').replace(/^[@.]+/,'').toLowerCase()};
+    const data=await hub('bootstrap');     // {source,row,handle} — servidor resolve o token
+    if(data && data.handle!==undefined) return data;
   }catch(e){}
   return null;
 }
@@ -2662,9 +2671,7 @@ function renderEventoBoot(row,nome){
 
 async function loadPerf(handle,row){
   try{
-    const affId=(row?.affiliate_id||row?.tiktok_handle||handle||'').toUpperCase();
-    const r=await fetch(`${SB_URL}/rest/v1/performance_periods?affiliate_id=ilike.${encodeURIComponent(affId)}&order=periodo.desc&limit=24`,{headers:SBH});
-    const rows=await r.json();
+    const rows=await hub('perf');
     const nome=(_creator.row?.nome||_creator.row?.name||'@'+handle).split(' ')[0];
     if(!rows?.length){
       document.getElementById('hero-section').innerHTML=heroHTML(nome,null,null);
@@ -3149,8 +3156,7 @@ let _flashCdInterval=null;
 
 async function loadFlashSales(creatorTier){
   try{
-    const r=await fetch(`${SB_URL}/rest/v1/flash_sales_ativas?select=*&order=fim_at.asc`,{headers:SBH});
-    const flashes=await r.json();
+    const flashes=await hub('flash');
     if(!flashes?.length){renderFlashBanner(null);return;}
 
     // Filtra por tier mínimo
@@ -3277,15 +3283,8 @@ async function loadTarefasRhode(affId){
   try{
     // Busca os envios da creator que ainda têm vídeo pendente OU recente (últimos 30d)
     const cutoff=new Date(Date.now()-30*86400000).toISOString().split('T')[0];
-    const r=await fetch(`${SB_URL}/rest/v1/amostras_enviadas?creator_id=eq.${encodeURIComponent(affId)}&or=(video_url.is.null,data_envio.gte.${cutoff})&order=data_envio.desc&limit=20`,{headers:SBH});
-    const rows=await r.json();
+    const {amostras:rows,produtos:prods,campanhas:camps}=await hub('tarefas',{cutoff});
     if(!rows||!rows.length){renderTarefas([]);return;}
-
-    // Carrega catálogo + campanhas pra montar labels
-    const [prods,camps]=await Promise.all([
-      fetch(`${SB_URL}/rest/v1/produtos?select=sku,nome`,{headers:SBH}).then(r=>r.json()),
-      fetch(`${SB_URL}/rest/v1/campanhas?select=*`,{headers:SBH}).then(r=>r.json()),
-    ]);
     const prodMap={};(prods||[]).forEach(p=>prodMap[p.sku]=p);
     const campMap={};(camps||[]).forEach(c=>campMap[c.id]=c);
 
@@ -3368,11 +3367,7 @@ async function confirmarRecebimentoTarefa(idsStr){
   const ids=idsStr.split(',').map(Number).filter(Boolean);
   if(!ids.length)return;
   try{
-    await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=in.(${ids.join(',')})`,{
-      method:'PATCH',
-      headers:{...SBH,'Prefer':'return=minimal'},
-      body:JSON.stringify({confirmada_em:new Date().toISOString()})
-    });
+    await hub('confirmar_tarefa',{ids});
     loadTarefasRhode((_creator?.row?.affiliate_id||_creator?.row?.tiktok_handle||_creator?.handle||'').toUpperCase());
   }catch(e){alert('Erro ao confirmar: '+e.message);}
 }
@@ -3384,15 +3379,7 @@ async function anexarVideoTarefa(idsStr){
   if(!url||!url.trim())return;
   if(!url.match(/^https?:\/\//)){alert('Cola o link completo (com https://)');return;}
   try{
-    await fetch(`${SB_URL}/rest/v1/amostras_enviadas?id=in.(${ids.join(',')})`,{
-      method:'PATCH',
-      headers:{...SBH,'Prefer':'return=minimal'},
-      body:JSON.stringify({
-        video_url:url.trim(),
-        video_postado_em:new Date().toISOString(),
-        confirmada_em:new Date().toISOString(),
-      })
-    });
+    await hub('anexar_video',{ids,url:url.trim()});
     loadTarefasRhode((_creator?.row?.affiliate_id||_creator?.row?.tiktok_handle||_creator?.handle||'').toUpperCase());
   }catch(e){alert('Erro ao salvar: '+e.message);}
 }
@@ -3400,12 +3387,11 @@ async function anexarVideoTarefa(idsStr){
 async function loadLeaderboard(handle,periodo){
   if(!periodo||!handle)return;
   try{
-    const r=await fetch(`${SB_URL}/rest/v1/performance_periods?periodo=eq.${encodeURIComponent(periodo)}&select=affiliate_id,gmv_liquido&order=gmv_liquido.desc&limit=500`,{headers:SBH});
-    const rows=await r.json();
-    if(!rows?.length)return;
-    const active=rows.filter(r=>(+r.gmv_liquido||0)>0);
+    const data=await hub('leaderboard',{periodo});
+    const active=data.ranking||[];      // array de affiliate_id (gmv>0, já ordenado desc, sem GMV)
+    if(!active.length)return;
     const norm=h=>(h||'').replace(/^[@.]+/,'').toLowerCase();
-    const myIdx=active.findIndex(r=>norm(r.affiliate_id)===norm(handle));
+    const myIdx=active.findIndex(a=>norm(a)===norm(handle));
     const myRank=myIdx>=0?myIdx+1:null;
     const medals=['🥇','🥈','🥉'];
     const top=active.slice(0,5);
@@ -3415,10 +3401,10 @@ async function loadLeaderboard(handle,periodo){
       return`<div class="rank-row${isMe?' me':''}">
         <span class="rank-pos">${i+1}</span>
         <span class="rank-medal">${medals[i]||''}</span>
-        <span class="rank-handle${isMe?' me':''}">@${norm(r.affiliate_id)}${isMe?' ← você':''}</span>
+        <span class="rank-handle${isMe?' me':''}">@${norm(r)}${isMe?' ← você':''}</span>
       </div>`;
     }).join('');
-    if(!inTop&&myRank)body+=`<div class="rank-sep">···</div><div class="rank-row me"><span class="rank-pos">${myRank}</span><span class="rank-medal"></span><span class="rank-handle me">@${norm(active[myIdx]?.affiliate_id)} ← você</span></div>`;
+    if(!inTop&&myRank)body+=`<div class="rank-sep">···</div><div class="rank-row me"><span class="rank-pos">${myRank}</span><span class="rank-medal"></span><span class="rank-handle me">@${norm(active[myIdx])} ← você</span></div>`;
     else if(!myRank)body+=`<div class="rank-empty">VOCÊ AINDA NÃO APARECE NO RANKING DESTE PERÍODO</div>`;
 
     _leaderboardHTML=`
@@ -3672,9 +3658,7 @@ async function loadNotifs(){
   if(!handle) return;
   try{
     // Busca não-lidas + últimas lidas (até 30 total)
-    const r = await fetch(`${SB_URL}/rest/v1/notificacoes?select=id,tipo,titulo,corpo,link,lida,created_at&creator_id=eq.${encodeURIComponent(handle)}&order=lida.asc,created_at.desc&limit=30`,{headers:SBH});
-    if(!r.ok) return;
-    _notifs = await r.json();
+    _notifs = await hub('notifs');
     updateNotifBadge();
     if(document.getElementById('notif-drawer').classList.contains('on')) renderNotifList();
   }catch(e){
@@ -3742,11 +3726,7 @@ async function onNotifClick(id){
     n.lida = true;
     updateNotifBadge();
     renderNotifList();
-    fetch(`${SB_URL}/rest/v1/notificacoes?id=eq.${id}`,{
-      method:'PATCH',
-      headers:{...SBH,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({lida:true,read_at:new Date().toISOString()})
-    }).catch(()=>{});
+    hub('marcar_notif',{id}).catch(()=>{});
   }
   if(n.link){
     closeNotifDrawer();
@@ -3768,11 +3748,7 @@ async function markAllNotifsRead(){
   updateNotifBadge();
   renderNotifList();
   try{
-    await fetch(`${SB_URL}/rest/v1/notificacoes?creator_id=eq.${encodeURIComponent(handle)}&lida=eq.false`,{
-      method:'PATCH',
-      headers:{...SBH,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({lida:true,read_at:new Date().toISOString()})
-    });
+    await hub('marcar_todas_notif');
   }catch(_){}
 }
 
@@ -3805,21 +3781,13 @@ async function loadNovidades(){
   slot.innerHTML = '<div class="spin-wrap">CARREGANDO</div>';
   try{
     // Lançamentos curados (lista NOVIDADES_SKUS) — ativos, ordem da lista
-    const inList = NOVIDADES_SKUS.map(s=>encodeURIComponent(s)).join(',');
-    const r = await fetch(`${SB_URL}/rest/v1/produtos?select=sku,nome,preco_venda,foto_url,categoria,colecao,created_at&ativo=eq.true&sku=in.(${inList})`,{headers:SBH});
-    const fetched = await r.json();
+    // dispensada=not.eq.true cobre default FALSE + null legado (vide bug debug 2026-05-05) — tratado no proxy
+    const {produtos:fetched, solicitadas} = await hub('novidades',{skus:NOVIDADES_SKUS});
     // Reordena conforme NOVIDADES_SKUS e descarta SKU que sumiu/inativou
     const bySku = {}; (Array.isArray(fetched)?fetched:[]).forEach(p=>{bySku[p.sku]=p;});
     const rows = NOVIDADES_SKUS.map(s=>bySku[s]).filter(Boolean);
     _novidadesCache = rows;
-    // Carrega solicitações pendentes da creator pra mostrar estado "já pediu"
-    const handle = (_creator?.row?.affiliate_id || _creator?.row?.tiktok_handle || _creator?.handle || '').toUpperCase();
-    if(handle){
-      // dispensada=not.eq.true cobre default FALSE + null legado (vide bug debug 2026-05-05)
-      const r2 = await fetch(`${SB_URL}/rest/v1/amostras_enviadas?select=sku&creator_id=eq.${encodeURIComponent(handle)}&aprovada=eq.false&dispensada=not.eq.true&origem=eq.solicitacao_creator`,{headers:SBH});
-      const pend = await r2.json();
-      _solicitadasCache = new Set((pend||[]).map(p=>p.sku));
-    }
+    _solicitadasCache = new Set(solicitadas||[]);
     renderNovidades(rows);
   }catch(e){
     slot.innerHTML = `<div class="nov-empty">Erro ao carregar: ${e.message}</div>`;
@@ -3879,24 +3847,7 @@ async function pedirAmostra(sku, btnEl){
   btnEl.disabled = true;
   btnEl.textContent = 'Enviando…';
   try{
-    const tier = (_creator?.row?.current_tier || '').toString();
-    const r = await fetch(`${SB_URL}/rest/v1/amostras_enviadas`, {
-      method:'POST',
-      headers:{...SBH, 'Content-Type':'application/json', 'Prefer':'return=minimal'},
-      body: JSON.stringify({
-        creator_id: handle,
-        sku: sku,
-        quantidade: 1,
-        origem: 'solicitacao_creator',
-        aprovada: false,
-        solicitada_em: new Date().toISOString(),
-        tier_no_envio: tier,
-      })
-    });
-    if(!r.ok){
-      const txt = await r.text();
-      throw new Error(`${r.status}: ${txt.slice(0,200)}`);
-    }
+    await hub('pedir_amostra',{sku});
     _solicitadasCache.add(sku);
     btnEl.classList.add('requested');
     btnEl.textContent = '✓ Solicitada';
@@ -3947,8 +3898,7 @@ function copyScript(id,btn){
 
 async function loadProfile(handle){
   try{
-    const r=await fetch(`${SB_URL}/rest/v1/creator_profiles?affiliate_id=eq.${encodeURIComponent(handle)}&limit=1`,{headers:SBH});
-    const rows=await r.json();
+    const rows=await hub('profile');
     if(!rows?.length) return;
     const p=rows[0];
     ['c-nome','c-peso','c-quadril','c-cintura'].forEach(id=>{const k=id.replace('c-','');if(p[k]) document.getElementById(id).value=p[k];});
@@ -3963,7 +3913,7 @@ async function saveProfile(){
   const btn=document.getElementById('save-profile-btn');
   btn.disabled=true;btn.textContent='Salvando...';
   try{
-    await fetch(`${SB_URL}/rest/v1/creator_profiles`,{method:'POST',headers:{...SBH,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({affiliate_id:_creator.handle,nome:document.getElementById('c-nome').value.trim(),altura:document.getElementById('c-altura').value,peso:document.getElementById('c-peso').value.trim(),quadril:document.getElementById('c-quadril').value.trim(),tamanho:document.getElementById('c-tam').value,updated_at:new Date().toISOString()})});
+    await hub('salvar_profile',{fields:{nome:document.getElementById('c-nome').value.trim(),altura:document.getElementById('c-altura').value,peso:document.getElementById('c-peso').value.trim(),quadril:document.getElementById('c-quadril').value.trim(),tamanho:document.getElementById('c-tam').value}});
     const ps=document.getElementById('profile-status');ps.textContent='Perfil salvo';ps.className='profile-st ok';
     btn.textContent='Salvo!';setTimeout(()=>{btn.textContent='Salvar perfil';btn.disabled=false;},2000);
   }catch(e){btn.textContent='Erro';btn.disabled=false;}
@@ -3971,15 +3921,14 @@ async function saveProfile(){
 
 async function saveScript(data){
   if(!_creator?.handle) return;
-  await fetch(`${SB_URL}/rest/v1/scripts_gerados`,{method:'POST',headers:{...SBH,'Prefer':'return=minimal'},body:JSON.stringify({affiliate_id:_creator.handle,produto:_selProd,formato:_selType,titulo:data.titulo||'',hooks:data.hooks||[],script:data.script||'',ctas:data.ctas||[],hashtags:data.hashtags||[],notas_direcao:data.notas_direcao||[],status:'pendente'})});
+  await hub('salvar_script',{produto:_selProd,formato:_selType,data});
 }
 
 async function loadHistorico(){
   if(!_creator?.handle){document.getElementById('hist-content').innerHTML='<div class="empty">FAÇA LOGIN PARA VER O HISTÓRICO</div>';return;}
   document.getElementById('hist-content').innerHTML='<div class="spin-wrap">CARREGANDO</div>';
   try{
-    const r=await fetch(`${SB_URL}/rest/v1/scripts_gerados?affiliate_id=eq.${encodeURIComponent(_creator.handle)}&order=created_at.desc&limit=30`,{headers:SBH});
-    const rows=await r.json();
+    const rows=await hub('scripts');
     if(!rows?.length){document.getElementById('hist-content').innerHTML='<div class="empty">NENHUM SCRIPT GERADO AINDA</div>';return;}
     const fmt={hook:'Hooks','30s':'30s','60s':'60s','90s':'90s',live:'Live'};
     const sBadge={pendente:'<span class="s-pendente">Em revisão</span>',aprovado:'<span class="s-aprovado">Aprovado</span>',rejeitado:'<span class="s-rejeitado">Rejeitado</span>'};
@@ -4019,7 +3968,7 @@ function toggleHist(i){
 async function toggleConverteu(id,btn,current){
   const novo=!current;
   try{
-    await fetch(`${SB_URL}/rest/v1/scripts_gerados?id=eq.${id}`,{method:'PATCH',headers:{...SBH,'Prefer':'return=minimal'},body:JSON.stringify({converteu:novo})});
+    await hub('script_converteu',{id,novo});
     btn.classList.toggle('conv-on',novo);btn.textContent=novo?'✓ Converteu':'Converteu?';
     btn.onclick=()=>toggleConverteu(id,btn,novo);
   }catch(e){}

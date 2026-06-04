@@ -4,7 +4,7 @@
 // o operador via WhatsApp. UPSERT em tier_milestones evita duplicação.
 
 const SB_URL = 'https://ivzpykuluxcxefhyzfsf.supabase.co';
-const SB_SVC = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTczNzkzNiwiZXhwIjoyMDkxMzEzOTM2fQ.qlHnvGOnGSMwniuS_YYKQaQa-gD_F5asDQTIT2B42hk';
+const SB_SVC = process.env.SUPABASE_SERVICE_KEY;
 
 const ZAPI_INSTANCE = '3F173410FA03D317C69AAAE399BC1248';
 const ZAPI_TOKEN    = '23F1D0021AF2CC2A39C7AFE3';

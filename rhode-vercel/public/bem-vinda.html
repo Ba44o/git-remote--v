@@ -402,29 +402,15 @@ function screenResult(){
 
 /* ───────────────── BOOTSTRAP ───────────────── */
 async function getByToken(token){
+  // Resolve o token via proxy autenticado (servidor segura a service key e só
+  // devolve o resumo da creator dona do token — nunca a base inteira).
   try{
-    let r=await fetch(`${SB_URL}/rest/v1/affiliates?access_token=eq.${encodeURIComponent(token)}&limit=1`,{headers:SBH});
-    let rows=r.ok?await r.json():[];
-    if(rows&&rows.length){
-      const row=rows[0];
-      const handle=normHandle(row.tiktok_handle||row.affiliate_id||'').toLowerCase();
-      let gmv60d=0;
-      try{
-        const since=new Date(Date.now()-60*864e5).toISOString().slice(0,7);
-        const pr=await fetch(`${SB_URL}/rest/v1/performance_periods?affiliate_id=ilike.${encodeURIComponent(handle.toUpperCase())}&periodo=gte.${since}&select=gmv_liquido`,{headers:SBH});
-        const ps=pr.ok?await pr.json():[];
-        gmv60d=(ps||[]).reduce((s,p)=>s+(+p.gmv_liquido||0),0);
-      }catch(e){}
-      return {kind:'affiliate',nome:(row.nome||row.name||'@'+handle).split(' ')[0],handle,gmv60d,modelo:row.modelo||null};
-    }
-    r=await fetch(`${SB_URL}/rest/v1/eventos_creators?access_token=eq.${encodeURIComponent(token)}&limit=1`,{headers:SBH});
-    rows=r.ok?await r.json():[];
-    if(rows&&rows.length){
-      const row=rows[0];
-      return {kind:'evento',nome:(row.nome||row.name||'').split(' ')[0],handle:normHandle(row.handle||'').toLowerCase(),whatsapp:row.whatsapp||''};
-    }
-  }catch(e){}
-  return null;
+    const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token, action:'triagem_lookup'})});
+    if(!r.ok) return null;
+    const data=await r.json();
+    return (data && data.handle!==undefined) ? data : null;
+  }catch(e){ return null; }
 }
 
 (async()=>{

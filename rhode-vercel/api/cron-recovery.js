@@ -1,5 +1,5 @@
 const SB_URL = 'https://ivzpykuluxcxefhyzfsf.supabase.co';
-const SB_SERVICE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTczNzkzNiwiZXhwIjoyMDkxMzEzOTM2fQ.qlHnvGOnGSMwniuS_YYKQaQa-gD_F5asDQTIT2B42hk';
+const SB_SERVICE = process.env.SUPABASE_SERVICE_KEY;
 const ZAPI = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3';
 const CLIENT_TOKEN = 'F92b6dc75c19f490188eea81fcc29b6aaS';
 const SB_SH = { 'apikey': SB_SERVICE, 'Authorization': `Bearer ${SB_SERVICE}`, 'Content-Type': 'application/json' };

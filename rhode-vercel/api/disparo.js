@@ -12,7 +12,7 @@
  */
 
 const SB_URL     = 'https://ivzpykuluxcxefhyzfsf.supabase.co/rest/v1';
-const SB_SVC_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTczNzkzNiwiZXhwIjoyMDkxMzEzOTM2fQ.qlHnvGOnGSMwniuS_YYKQaQa-gD_F5asDQTIT2B42hk';
+const SB_SVC_KEY = process.env.SUPABASE_SERVICE_KEY;
 const ADMIN_PASS = 'rhode2026';
 
 const ZAPI_URL     = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3';
