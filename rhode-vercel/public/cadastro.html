@@ -205,27 +205,17 @@
         }
 
         async function saveToSupabase(nome, handle, whatsapp) {
+            // Via proxy autenticado — o servidor segura a service key e faz o upsert
+            // em eventos_creators (tabela 100% deny-anon).
             try {
-                const token = generateToken();
-                const res = await fetch(`${SB_URL}/rest/v1/eventos_creators`, {
+                const res = await fetch('/api/get-hub', {
                     method: 'POST',
-                    headers: {
-                        'apikey': SB_KEY,
-                        'Authorization': `Bearer ${SB_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'resolution=merge-duplicates,return=representation'
-                    },
-                    body: JSON.stringify({
-                        handle: normalizeHandle(handle),
-                        nome: nome.trim(),
-                        whatsapp: whatsapp.trim(),
-                        evento: 'Evento_13_04',
-                        access_token: token
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'cadastro', nome, handle, whatsapp })
                 });
                 if (res.ok) {
-                    const rows = await res.json();
-                    return rows[0]?.access_token || token;
+                    const d = await res.json();
+                    return d.token || null;
                 }
                 return null;
             } catch(e) {

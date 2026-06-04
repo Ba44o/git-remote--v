@@ -125,6 +125,25 @@ async function handleAdminQuery(body, res) {
   return res.json({ ok: true, status: r.status, data });
 }
 
+// ════════════ CADASTRO (signup público) ═════════════════════════════════════
+// Insert/upsert de novo cadastro em eventos_creators com a service key, pra essa
+// tabela poder ficar 100% deny-anon. É público (form de cadastro) — mesmo nível
+// de exposição do insert anônimo de antes, mas sem expor a tabela pra leitura.
+async function handleCadastro(body, res) {
+  const nome = (body.nome || '').toString().trim();
+  const handleRaw = (body.handle || '').toString().trim();
+  const whatsapp = (body.whatsapp || '').toString().trim();
+  if (!nome || !handleRaw) return res.status(400).json({ error: 'nome e @ obrigatórios' });
+  const handle = handleRaw.replace(/^@/, '').toUpperCase(); // = normalizeHandle do cadastro.html
+  const token = generateToken();
+  const r = await sbWrite('POST', 'eventos_creators',
+    { handle, nome, whatsapp, evento: 'Evento_13_04', access_token: token },
+    'resolution=merge-duplicates,return=representation');
+  if (!r.ok) return res.status(500).json({ error: (await r.text()).slice(0, 200) });
+  let rows = []; try { rows = await r.json(); } catch (_) {}
+  return res.json({ token: (rows[0] && rows[0].access_token) || token });
+}
+
 async function handleData(body, res) {
   const { token, action } = body;
   const creator = await resolveToken(token);
@@ -287,6 +306,8 @@ export default async function handler(req, res) {
   // Modo ADMIN: login + passthrough autenticado (admin.html)
   if (body.action === 'admin_login') return handleAdminLogin(body, res);
   if (body.action === 'admin_query') return handleAdminQuery(body, res);
+  // Cadastro público (cadastro.html)
+  if (body.action === 'cadastro') return handleCadastro(body, res);
   // Modo DATA: demais `action` resolvem por access_token (hub.html / bem-vinda.html)
   if (body.action) return handleData(body, res);
 
