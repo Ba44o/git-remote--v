@@ -13,7 +13,8 @@
 
 const SB_URL     = 'https://ivzpykuluxcxefhyzfsf.supabase.co/rest/v1';
 const SB_SVC_KEY = process.env.SUPABASE_SERVICE_KEY;
-const ADMIN_PASS = 'rhode2026';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'rhode2026';
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
 
 const ZAPI_URL     = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3';
 const ZAPI_CLIENT  = 'F92b6dc75c19f490188eea81fcc29b6aaS';
@@ -211,7 +212,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
   const pass = req.headers['x-admin-pass'];
-  if (pass !== ADMIN_PASS) return res.status(401).json({ error: 'Unauthorized' });
+  if (pass !== ADMIN_PASS && (!ADMIN_TOKEN || pass !== ADMIN_TOKEN)) return res.status(401).json({ error: 'Unauthorized' });
 
   const { template_id, filtros = {}, dry_run = true } = req.body || {};
   if (!template_id) return res.status(400).json({ error: 'template_id obrigatório' });

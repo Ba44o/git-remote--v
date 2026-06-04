@@ -10,7 +10,8 @@
 const SITEMAP_URL = 'https://www.rhodejeans.com.br/sitemap-produto.xml';
 const SB_URL      = 'https://ivzpykuluxcxefhyzfsf.supabase.co/rest/v1';
 const SB_SVC_KEY  = process.env.SUPABASE_SERVICE_KEY;
-const ADMIN_PASS  = 'rhode2026';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'rhode2026';
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
 
 const HTTP_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (compatible; Rhode-Catalog-Sync/1.0)',
@@ -152,7 +153,7 @@ export default async function handler(req, res) {
 
   // Auth simples
   const pass = req.headers['x-admin-pass'] || (req.body && req.body.admin_pass);
-  if (pass !== ADMIN_PASS) return res.status(401).json({ error: 'Unauthorized' });
+  if (pass !== ADMIN_PASS && (!ADMIN_TOKEN || pass !== ADMIN_TOKEN)) return res.status(401).json({ error: 'Unauthorized' });
 
   const t0 = Date.now();
   try {

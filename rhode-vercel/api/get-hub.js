@@ -69,6 +69,62 @@ function affIdOf(creator) {
   return (r.affiliate_id || r.tiktok_handle || creator.handle || '').toString().toUpperCase();
 }
 
+// ════════════ ADMIN MODE ════════════════════════════════════════════════════
+// Login: verifica a senha (env, nunca no client) e devolve o ADMIN_TOKEN — um
+// segredo de servidor. Só quem tem a senha consegue o token; o token é o que
+// libera as queries. Mesmo que alguém finja o flag de sessão no admin.html, sem
+// o token toda query falha (401).
+async function handleAdminLogin(body, res) {
+  const pass = (body.pass || '').toString();
+  if (!process.env.ADMIN_PASS || pass !== process.env.ADMIN_PASS) {
+    await new Promise(r => setTimeout(r, 1000)); // anti brute-force
+    return res.status(401).json({ error: 'Senha incorreta.' });
+  }
+  return res.json({ token: process.env.ADMIN_TOKEN });
+}
+
+// Passthrough PostgREST autenticado pelo ADMIN_TOKEN. Admin é papel all-access
+// (lê/escreve tudo legitimamente) — a service key fica no servidor; o acesso
+// exige o token (obtido só via senha). Bloqueia path com barra inicial/.. .
+async function handleAdminQuery(body, res) {
+  if (!process.env.ADMIN_TOKEN || body.adminToken !== process.env.ADMIN_TOKEN) {
+    return res.status(401).json({ error: 'não autorizado' });
+  }
+  const method = (body.method || 'GET').toUpperCase();
+  const path = (body.path || '').toString();
+  if (!/^[a-zA-Z]/.test(path) || path.includes('..')) {
+    return res.status(400).json({ error: 'path inválido' });
+  }
+  // Modo paginado: o servidor faz o loop de offset (co-localizado com o Supabase,
+  // rápido) e devolve TUDO numa resposta só — evita N round-trips do cliente.
+  if (body.paged && method === 'GET') {
+    const all = []; let offset = 0; const PS = 1000;
+    const sep = path.includes('?') ? '&' : '?';
+    while (true) {
+      const rr = await fetch(`${SB_URL}/rest/v1/${path}${sep}limit=${PS}&offset=${offset}`, { headers: SBSH });
+      if (!rr.ok) return res.status(rr.status).json({ error: (await rr.text()).slice(0, 300) });
+      const batch = await rr.json();
+      if (Array.isArray(batch)) all.push(...batch);
+      if (!Array.isArray(batch) || batch.length < PS) break;
+      offset += PS;
+      if (offset > 200000) break; // safeguard
+    }
+    return res.json({ ok: true, status: 200, data: all });
+  }
+
+  const opts = { method, headers: { ...SBSH } };
+  if (body.prefer) opts.headers['Prefer'] = body.prefer;
+  if (method !== 'GET' && method !== 'HEAD' && body.body !== undefined) {
+    opts.body = JSON.stringify(body.body);
+  }
+  const r = await fetch(`${SB_URL}/rest/v1/${path}`, opts);
+  const text = await r.text();
+  if (!r.ok) return res.status(r.status).json({ error: text.slice(0, 300) });
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch (_) { data = text; }
+  return res.json({ ok: true, status: r.status, data });
+}
+
 async function handleData(body, res) {
   const { token, action } = body;
   const creator = await resolveToken(token);
@@ -228,7 +284,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const body = req.body || {};
-  // Modo DATA: qualquer body com `action` (hub.html / bem-vinda.html)
+  // Modo ADMIN: login + passthrough autenticado (admin.html)
+  if (body.action === 'admin_login') return handleAdminLogin(body, res);
+  if (body.action === 'admin_query') return handleAdminQuery(body, res);
+  // Modo DATA: demais `action` resolvem por access_token (hub.html / bem-vinda.html)
   if (body.action) return handleData(body, res);
 
   // Modo LOGIN: fluxo de PIN/WhatsApp (acesso.html)
