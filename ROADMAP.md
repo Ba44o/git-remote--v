@@ -161,6 +161,23 @@ _(nada no momento)_
 
 **Por que não foi feito agora:** ativação do 4.1 (shop-wide) era self-contained e não tocava o Hub. Migrar o per-creator é projeto à parte, com risco de impacto no Hub — exige sprint dedicada e validação de atribuição primeiro.
 
+**⭐ ATUALIZAÇÃO jun/2026 — caminho mudou (melhor):** não é Order List, é a **Affiliate Orders API** (`/affiliate_seller/202410/orders/search`) — **já ATIVA e em uso** nos painéis de creator (Afiliadas/Seeding/Creator×Produto). Ela traz `creator_username` por pedido → creator×dia direto. Mapeamento do export `Creator_List` → API:
+
+| Coluna do export | Vem da API? |
+|---|---|
+| Creator name, GMV atribuído, Pedidos, Itens vendidos, AOV, Média diária, Comissão estimada | ✅ direto (affiliate orders: `creator_username`, `estimated_commission_base`, `estimated_paid_commission`, `quantity`, `orders`) |
+| Reembolsos, Itens reembolsados | ⚠️ do campo `fully_return` do affiliate order (+ refund amount via Return API, já ativa) |
+| Vídeos, Transmissões ao vivo | ⚠️ `content_id` distinto por `content_type` (VIDEO/LIVE) — conta conteúdo que **gerou venda** (≈, não idêntico ao export que conta tudo) |
+| Amostras enviadas | ⚠️ Target Collaborations (seeding, já ativa) |
+
+→ ~80% mapeia direto; o resto (refund amount, contagem de vídeo/live, amostras) cruza com APIs que **já temos ligadas**. Caveat: o **Hub lê `performance_periods`** — a migração tem que continuar alimentando essa tabela (fonte API em vez de xlsx), e fazer **depois do item 8** (proxy).
+
+**📦 ARMAZENAMENTO HISTÓRICO (esquema definido jun/2026):** o limite de 90 dias é só **por request** da API, não de storage. As tabelas Supabase **acumulam** (sync faz UPSERT por id-com-data, nunca DELETE) → histórico cresce pra sempre. Plano de "histórico que só cresce":
+1. **Coleta diária incremental** — launchd diário puxando só ~14d (leve) + UPSERT → base cresce 1 dia/dia, sempre fresca (hoje o launchd é semanal · 90d).
+2. **Backfill único** em chunks de 90d voltando até ~jan/2026 → popula o passado de uma vez.
+3. **Janelas longas nos painéis** (180d/365d/Tudo) — filtro client-side, funciona pra qualquer período que a tabela tiver (não chama a API).
+> Vale pra TODAS as bases via API (diário, finance, devoluções, affiliate_perf, creator_product). Implementar como feature dedicada.
+
 ---
 
 ### 🔵 11. ROI de Seeding por SKU (v2b — atribuição cirúrgica) — **não iniciado** (jun/2026)
