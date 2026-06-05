@@ -1007,19 +1007,19 @@ function deltaArrow(pct) {
 
 // ─── FETCH ───────────────────────────────────────────────────────────────────
 async function fetchLives() {
-  const r = await fetch(
-    `${SB_URL}/rest/v1/lives?select=*&order=started_at.asc&limit=2000`,
-    { headers: SB_HDR }
-  );
+  const r = await fetch('/api/get-hub', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'dashlive', which: 'lives' })
+  });
   if (!r.ok) throw new Error(`lives: ${r.status}`);
   return r.json();
 }
 
 async function fetchStoreDaily() {
-  const r = await fetch(
-    `${SB_URL}/rest/v1/store_daily?select=date,month,gmv_bruto,reembolsos&order=date.asc&limit=2000`,
-    { headers: SB_HDR }
-  );
+  const r = await fetch('/api/get-hub', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'dashlive', which: 'store_daily' })
+  });
   if (!r.ok) return [];
   return r.json();
 }

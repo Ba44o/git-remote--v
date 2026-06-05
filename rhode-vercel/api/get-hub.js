@@ -144,6 +144,18 @@ async function handleCadastro(body, res) {
   return res.json({ token: (rows[0] && rows[0].access_token) || token });
 }
 
+// ════════════ DASH-LIVE (dashboard público de lives) ════════════════════════
+// lives/store_daily são métricas agregadas da loja (sem credencial/PII). Público
+// como antes — só sai do anon key direto pro proxy, pra essas 2 tabelas poderem
+// ficar deny-anon também (anon key vira inútil pra leitura de qualquer tabela).
+async function handleDashlive(body, res) {
+  if (body.which === 'lives')
+    return res.json(await sbGet('lives?select=*&order=started_at.asc&limit=2000'));
+  if (body.which === 'store_daily')
+    return res.json(await sbGet('store_daily?select=date,month,gmv_bruto,reembolsos&order=date.asc&limit=2000'));
+  return res.status(400).json({ error: 'which inválido' });
+}
+
 async function handleData(body, res) {
   const { token, action } = body;
   const creator = await resolveToken(token);
@@ -308,6 +320,8 @@ export default async function handler(req, res) {
   if (body.action === 'admin_query') return handleAdminQuery(body, res);
   // Cadastro público (cadastro.html)
   if (body.action === 'cadastro') return handleCadastro(body, res);
+  // Dash de lives público (dash-live.html) — dado agregado da loja, sem PII
+  if (body.action === 'dashlive') return handleDashlive(body, res);
   // Modo DATA: demais `action` resolvem por access_token (hub.html / bem-vinda.html)
   if (body.action) return handleData(body, res);
 
