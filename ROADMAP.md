@@ -178,6 +178,17 @@ _(nada no momento)_
 3. **Janelas longas nos painéis** (180d/365d/Tudo) — filtro client-side, funciona pra qualquer período que a tabela tiver (não chama a API).
 > Vale pra TODAS as bases via API (diário, finance, devoluções, affiliate_perf, creator_product). Implementar como feature dedicada.
 
+**🔒 PROTOCOLO DE MIGRAÇÃO SEGURA (vinculante — definido com o usuário jun/2026).** A migração export→API alimenta a `performance_periods` que o **Hub das creators** lê. Regra firme do usuário: *não perder dado/informação e não afetar as usuárias do Hub* (ver memória `feedback_hub_dados_intocaveis`). A migração é segura **por construção**, nesta ordem:
+1. **Shadow mode** — a ETL nova grava numa tabela SEPARADA (`performance_periods_api`), sem encostar na `performance_periods` que o Hub lê. Creators veem o de hoje durante toda a validação. Impacto zero.
+2. **Validação número a número** — `audit_data.py` compara as duas por **creator × período** (GMV líq/bruto, pedidos, comissão, AOV, reembolso) com tolerância definida. Soma aliases de handle juntos (`natmarquesss`=`natmarquesvi`). Só avança quando bate.
+3. **Aditivo, nunca destrutivo** — sync é UPSERT por id, NUNCA DELETE. Histórico só cresce.
+4. **Snapshot antes do 1º write** na `performance_periods` real → restore point / rollback instantâneo.
+5. **Cutover = flip de config, não move dado** — a ETL passa a alimentar a MESMA `performance_periods` (UPSERT). Hub não muda (mesma tabela, mesmo proxy). Se divergir, não flipa.
+6. **Export de paraquedas** — roda export + API em paralelo por ~semanas; se a API abrir gap, o export preenche. Só desliga o export depois de estável.
+7. **Coleta fail-loud** — coletor aborta em timeout/parcial (bug já corrigido), nunca grava pela metade.
+
+**⭐ DECISÃO DE CAMPO (usuário escolheu "A", jun/2026):** GMV/pedidos/comissão/AOV/reembolso migram pra API (mapeiam 1:1). **`vídeos` e `lives` continuam vindos do EXPORT** — porque a definição diverge (export conta tudo que a creator postou; API contaria só o que gerou venda). Não trocar esses 2 campos pela API sem novo OK do usuário.
+
 ---
 
 ### 🔵 11. ROI de Seeding por SKU (v2b — atribuição cirúrgica) — **não iniciado** (jun/2026)
