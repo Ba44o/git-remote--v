@@ -84,7 +84,12 @@ _(nada no momento)_
 
 ## 🔜 Próximos — priorizados
 
-### 🔴 8. Hardening de Segurança e Escala — **PRIORIDADE · não iniciado** (mai/2026)
+### ✅ 8. Hardening de Segurança e Escala — **CONCLUÍDO** (jun/2026)
+
+**✅ ENTREGUE (jun/2026):** vazamento fechado. Todo o frontend (hub, bem-vinda, admin, cadastro, dash-live) lê/escreve via proxy autenticado `/api/get-hub` (service key no servidor). RLS deny-anon ligado em 21 tabelas sensíveis — probe confirma anon=0 linhas em `affiliates`/`eventos_creators`/`performance_periods`/etc; hub e admin idênticos (R$ 275.425,32 / R$ 2,7M batem). Admin com auth real (token server-side, não bypassável) + paginação server-side (sync 52s→6s). Service key saiu do source de 9 `api/*.js` → `process.env`. Detalhes por incremento: commits `852f0af` (Inc.1 Hub), `faaaa02` (Inc.2 Admin), `1770c30` (cadastro), `d14a611` (dash-live). SQLs: `sql/rls_hardening.sql` (rodado) + `sql/rls_dashlive.sql` (lives/store_daily).
+**Pendências (não-bloqueantes):** (1) rodar `rls_dashlive.sql` p/ trancar lives/store_daily; (2) **rotação da service key** — a antiga está no histórico do git, mas **repo é privado e só o dono acessa → risco baixo**, rotação é boa prática pra "um dia" (rotacionar o JWT secret troca a anon junto → exige trocar anon no source de 4 arquivos + env + redeploy). Realtime nas notificações e gate de "1ª venda" (sub-partes originais 2 e 4) ficaram fora — são melhorias, não o vazamento; reabrir como itens próprios se quiser.
+
+<details><summary>Contexto histórico (o risco que foi fechado)</summary>
 
 **Contexto — risco conhecido e confirmado:** hoje todas as tabelas têm `RLS DISABLE` + policy `anon all (true)`, e a `anon key` do Supabase está no source de `hub.html`/`admin.html`. Consequência: qualquer pessoa que abrir o source, copiar a anon key e mandar `GET /rest/v1/affiliates?select=affiliate_id,access_token,pin_acesso` baixa **todos os `access_token` e `pin_acesso`** (= login bypass de qualquer creator), **todos os WhatsApp** (`eventos_creators.whatsapp`) e **GMV das 4.926 creators**. A auth PIN+token é cosmética — validação é client-side e os dados por baixo estão abertos. Testado: o GET funciona. ⚠️ **Não ligar RLS antes do proxy estar pronto — derruba hub e admin na hora** (os dois leem PostgREST direto com a anon key).
 
@@ -113,7 +118,9 @@ _(nada no momento)_
    - Faz junto com o passo 1 (já vai mexer no data layer do Hub de qualquer jeito). Esforço incremental: ~0.5 dia.
    - Por que aqui: combina com a política da triagem ("não dar moral pra quem não provou") e o controle de amostra (amostra grátis só via missão/campanha) — fecha o loop pra não virar self-service de freebie.
 
-**Decisão arquitetural pendente:** caminho A (proxy `/api/*` + RLS `false` pra anon) escolhido sobre B (RPC de validação de token + RLS por linha) e C (migrar pra Supabase Auth nativo) — A reaproveita o padrão `/api/get-hub.js` que já existe e resolve o admin (que lê todo mundo) sem complicação de policy.
+**Decisão arquitetural pendente:** caminho A (proxy `/api/*` + RLS `false` pra anon) escolhido sobre B (RPC de validação de token + RLS por linha) e C (migrar pra Supabase Auth nativo) — A reaproveita o padrão `/api/get-hub.js` que já existe e resolve o admin (que lê todo mundo) sem complicação de policy. **← foi exatamente o caminho A que se implementou.**
+
+</details>
 
 ---
 
