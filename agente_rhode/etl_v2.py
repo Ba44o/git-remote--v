@@ -113,6 +113,11 @@ TIER_RULES = [
 # então GMV acumulado/tier somam corretamente em vez de virar 2 creators.
 HANDLE_ALIASES = {
     "NATMARQUESSS": "NATMARQUESVI",   # @natmarquesss (jan-mar/26) → @natmarquesvi (abr/26+)
+    # Taci: 1 pessoa em 3 handles ativos em paralelo (confirmado jun/26 no cruzamento
+    # export×API por GMV: 3 handles somam R$326k, batem +0,3% com a API que junta tudo).
+    # Sem isso ela fica fragmentada no Hub (torress R$275k diamond / creator R$48k / recomenda R$2k).
+    "TACIANECREATOR": "TACIANETORRESS",
+    "TACIRECOMENDA":  "TACIANETORRESS",
 }
 
 
