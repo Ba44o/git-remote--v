@@ -3229,7 +3229,7 @@ async function loadFlashSales(creatorTier){
       setTimeout(()=>openFlashModal(),1200);
       sessionStorage.setItem(seenKey,'1');
     }
-  }catch(e){renderFlashBanner(null);}
+  }catch(e){console.error('loadFlashSales:',e);renderFlashBanner(null);}
 }
 
 function renderFlashBanner(f){
@@ -3353,7 +3353,7 @@ async function loadTarefasRhode(affId){
       if(a.video_url && !lotes[k].video_url)lotes[k].video_url=a.video_url;
     });
     renderTarefas(Object.values(lotes));
-  }catch(e){renderTarefas([]);}
+  }catch(e){console.error('loadTarefasRhode:',e);renderTarefas([]);}
 }
 
 const TIPO_TAREFA_META = {
@@ -3473,7 +3473,7 @@ async function loadLeaderboard(handle,periodo){
 
     const slot=document.getElementById('leaderboard-section');
     if(slot)slot.innerHTML=_leaderboardHTML;
-  }catch(e){}
+  }catch(e){console.error('loadLeaderboard:',e);}
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -3793,9 +3793,7 @@ async function loadNotifs(){
     _notifs = await hub('notifs');
     updateNotifBadge();
     if(document.getElementById('notif-drawer').classList.contains('on')) renderNotifList();
-  }catch(e){
-    // silent
-  }
+  }catch(e){ console.error('loadNotifs:',e); }
 }
 
 function updateNotifBadge(){
@@ -3922,6 +3920,7 @@ async function loadNovidades(){
     _solicitadasCache = new Set(solicitadas||[]);
     renderNovidades(rows);
   }catch(e){
+    console.error('loadNovidades:',e);
     slot.innerHTML = `<div class="nov-empty">Erro ao carregar: ${e.message}</div>`;
   }
 }
@@ -4037,7 +4036,7 @@ async function loadProfile(handle){
     if(p.altura) document.getElementById('c-altura').value=p.altura;
     if(p.tamanho) document.getElementById('c-tam').value=p.tamanho;
     const ps=document.getElementById('profile-status');ps.textContent='Perfil salvo';ps.className='profile-st ok';
-  }catch(e){}
+  }catch(e){console.error('loadProfile:',e);}
 }
 
 async function saveProfile(){
@@ -4090,7 +4089,7 @@ async function loadHistorico(){
         </div>
       </div>`;
     }).join('');
-  }catch(e){document.getElementById('hist-content').innerHTML='<div class="empty">ERRO AO CARREGAR</div>';}
+  }catch(e){console.error('loadHistorico:',e);document.getElementById('hist-content').innerHTML='<div class="empty">ERRO AO CARREGAR</div>';}
 }
 
 function toggleHist(i){
@@ -4103,7 +4102,7 @@ async function toggleConverteu(id,btn,current){
     await hub('script_converteu',{id,novo});
     btn.classList.toggle('conv-on',novo);btn.textContent=novo?'✓ Converteu':'Converteu?';
     btn.onclick=()=>toggleConverteu(id,btn,novo);
-  }catch(e){}
+  }catch(e){console.error('toggleConverteu:',e);}
 }
 
 function logout(){
