@@ -2747,9 +2747,10 @@ async function loadPerf(handle,row){
     renderPerf(rows,stats,tier);
     renderEntregaveis();
     loadLeaderboard(handle,rows[0]?.periodo);
-    loadTarefasRhode(affId);
+    loadTarefasRhode();   // resolve a creator pelo token no proxy (param era morto — causava ReferenceError)
     loadFlashSales(tier?.name||'Iniciante');
   }catch(e){
+    console.error('loadPerf falhou:',e);   // não engolir: erro silencioso escondeu o bug do affId
     document.getElementById('perf-main').innerHTML='<div class="empty">ERRO AO CARREGAR<br>Tente recarregar a página.</div>';
   }
 }
