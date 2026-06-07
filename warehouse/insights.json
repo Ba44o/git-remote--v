@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-03",
+  "generated_at": "2026-06-06",
   "periodos": [
     "2026-01",
     "2026-02",
@@ -21,7 +21,7 @@
       },
       {
         "fator": "Anomalias críticas",
-        "valor": "51",
+        "valor": "50",
         "impacto": -20,
         "status": "ruim"
       },
@@ -39,7 +39,7 @@
       "GMV atual (30d de 31d): R$ 280.801,86 → projeção mês completo: R$ 290.161,92.",
       "⚠ Refund rate 22.1% — acima do limite de 15%. 17 creator(s) com spike crítico.",
       "🔻 20 creator(s) em declínio consecutivo — requerem reativação.",
-      "Retenção de creators ativas: 21.9% (84 recorrentes, 299 churned)."
+      "Retenção de creators ativas: 22.3% (85 recorrentes, 297 churned)."
     ],
     "acoes": [
       "URGENTE: contatar AKELLO.NUNES — Refund saltou de 15.2% → 186.4%. Investigar produto/cliente recorrente.",
@@ -473,15 +473,6 @@
     },
     {
       "tipo": "gmv_crash",
-      "creator": "TACIRECOMENDA",
-      "valor_atual": -84.99,
-      "valor_anterior": 1269.07,
-      "delta_pct": -106.7,
-      "severidade": "alta",
-      "acao": "GMV caiu 107%. Verificar frequência de conteúdo e qualidade."
-    },
-    {
-      "tipo": "gmv_crash",
       "creator": "TALITABRAZSOUZA",
       "valor_atual": -161.78,
       "valor_anterior": 2295.99,
@@ -713,15 +704,6 @@
       "delta_pct": -100.0,
       "severidade": "media",
       "acao": "Parou de gerar GMV. Último período: R$ 321,09. Reativar com amostra ou campanha."
-    },
-    {
-      "tipo": "inatividade_subita",
-      "creator": "TACIRECOMENDA",
-      "valor_atual": 0,
-      "valor_anterior": 1269.07,
-      "delta_pct": -100.0,
-      "severidade": "media",
-      "acao": "Parou de gerar GMV. Último período: R$ 1.269,07. Reativar com amostra ou campanha."
     },
     {
       "tipo": "inatividade_subita",
@@ -1051,12 +1033,6 @@
   ],
   "novos_destaques": [
     {
-      "creator": "TACIANECREATOR",
-      "gmv_estreia": 48198.03,
-      "tier": "Ouro",
-      "acao": "Primeira aparição com GMV relevante. Priorizar onboarding e amostra."
-    },
-    {
       "creator": "LAIZMACANEIRO",
       "gmv_estreia": 2397.49,
       "tier": "Bronze",
@@ -1065,22 +1041,22 @@
   ],
   "cohorts": {
     "novos": {
-      "count": 117,
-      "gmv": 67938.19
+      "count": 116,
+      "gmv": 19740.16
     },
     "recorrentes": {
-      "count": 84,
-      "gmv": 216053.63
+      "count": 85,
+      "gmv": 264166.67
     },
     "churned": {
-      "count": 299,
+      "count": 297,
       "gmv": 0
     },
     "dormentes": {
       "count": 5217,
       "gmv": 0
     },
-    "retencao_pct": 21.9
+    "retencao_pct": 22.3
   },
   "projecoes": {
     "periodo_atual": "2026-05",
