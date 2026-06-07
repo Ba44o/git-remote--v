@@ -414,6 +414,39 @@ npx vercel inspect <production-url> | grep -i cron
 
 ---
 
+## 9. Hub: hero aparece mas o detalhe abaixo dá "ERRO AO CARREGAR"
+
+### Sintoma
+O topo do Painel (GMV/tier no hero) renderiza, mas a seção `#perf-main` logo
+abaixo mostra "ERRO AO CARREGAR / Tente recarregar a página". Pode afetar TODA
+creator com dados (não só uma).
+
+### Causa
+`loadPerf()` tem um `try/catch` que envolve hero + render + chamadas auxiliares
+(`renderPerf`, `loadLeaderboard`, `loadTarefasRhode`, `loadFlashSales`). O hero
+é renderizado ANTES; se QUALQUER linha depois lançar, o catch sobrescreve o
+`#perf-main` com "ERRO AO CARREGAR". Como o catch era silencioso, o erro real
+ficava escondido. **Já aconteceu (jun/2026):** `loadTarefasRhode(affId)` com
+`affId` indefinido (removido numa migração pro proxy) → `ReferenceError`. Fix:
+commit que removeu o arg morto + `console.error` no catch.
+
+### Diagnóstico
+```
+# 1. Abre o hub com um token e olha o CONSOLE do browser (F12) — agora o catch loga "loadPerf falhou: ..."
+# 2. Reproduz local sem deploy:
+cd rhode-vercel && vercel dev --listen 3010
+# Playwright: carrega hub.html?token=TACI-PREVIEW-2026 e checa textContent('#perf-main') NÃO contém "ERRO AO CARREGAR"
+```
+
+### Fix conhecido
+- Achar a linha que lança dentro do `try` do `loadPerf` (variável indefinida,
+  função renomeada, shape de dado). Corrigir.
+- **Lição:** smoke test do hub tem que checar o conteúdo do `#perf-main`, não só
+  o hero (que renderiza antes do erro). E nunca deixar catch silencioso —
+  sempre `console.error(e)`.
+
+---
+
 ## 🛠️ Comandos úteis (cheatsheet)
 
 ```bash

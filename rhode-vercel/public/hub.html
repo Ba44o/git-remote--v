@@ -3697,7 +3697,10 @@ async function loadComissoesCard(){
     const rows=await hub('extrato_resumo');
     if(!rows||!rows.length){slot.innerHTML='';return;}
     _exData=rows;
-    const cur=rows[0]; // mais recente (periodo.desc)
+    // esconde o card se não há atividade real (ex: Iniciante com tudo R$0/reembolsado)
+    const ativ=rows.reduce((s,r)=>s+(+r.gmv_liquidado||0)+(+r.gmv_a_liquidar||0)+(+r.comissao_paga||0),0);
+    if(ativ<=0){slot.innerHTML='';return;}
+    const cur=rows.find(r=>(+r.gmv_liquidado||0)+(+r.gmv_a_liquidar||0)>0)||rows[0]; // mês com atividade
     slot.innerHTML=`<div class="cc-card"><div class="cc-inner" onclick="goTab('comissoes')">
       <div class="cc-eyebrow">💰 Central de Comissões · ${_exMesLbl(cur.periodo)}</div>
       <div class="cc-row">
