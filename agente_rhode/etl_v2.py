@@ -113,6 +113,10 @@ TIER_RULES = [
 # então GMV acumulado/tier somam corretamente em vez de virar 2 creators.
 HANDLE_ALIASES = {
     "NATMARQUESSS": "NATMARQUESVI",   # @natmarquesss (jan-mar/26) → @natmarquesvi (abr/26+)
+    # Taci: 1 pessoa em 3 handles ativos em paralelo. Agora SEGURO (collapse_duplicates
+    # soma colisões por creator-período antes do sync — bug de jun/26 corrigido).
+    "TACIANECREATOR": "TACIANETORRESS",
+    "TACIRECOMENDA":  "TACIANETORRESS",
 }
 
 
@@ -321,6 +325,39 @@ def transform(df: pd.DataFrame, periodo_ym: str, inicio: str, fim: str) -> pd.Da
     df = df[[c for c in priority + extra if c in df.columns]]
 
     return df.reset_index(drop=True)
+
+
+# ── Colapsa colisões de alias ─────────────────────────────────────────────────
+
+def collapse_duplicates(raw: pd.DataFrame) -> pd.DataFrame:
+    """Soma linhas duplicadas (creator_id, periodo).
+
+    Surgem quando HANDLE_ALIASES mapeia 2+ handles do MESMO creator que venderam
+    no MESMO período (ex: Taci = tacianetorress + tacirecomenda em fev/mar/abr).
+    Sem colapsar, o sync per-período colide por (affiliate_id, periodo) e PERDE
+    dado (incidente jun/2026). NO-OP no caso comum (1 linha por creator-período).
+    Médias/percentuais/tier são RECOMPUTADOS (não são somáveis)."""
+    if raw.empty or not raw.duplicated(subset=["creator_id", "periodo"]).any():
+        return raw
+    n_antes = len(raw)
+    cols = list(raw.columns)
+    SUM = [c for c in ["gmv_bruto", "gmv_liquido", "reembolso", "pedidos", "videos",
+                       "lives", "comissao", "items_vendidos", "items_reembolsados",
+                       "amostras"] if c in cols]
+    FIRST = [c for c in cols if c not in SUM and c not in ("creator_id", "periodo")]
+    agg = {**{c: "sum" for c in SUM}, **{c: "first" for c in FIRST}}
+    out = raw.groupby(["creator_id", "periodo"], as_index=False, sort=False).agg(agg)
+    # Recomputa derivados a partir dos totais somados
+    out["refund_pct"] = ((out["reembolso"] / out["gmv_bruto"] * 100)
+                         .where(out["gmv_bruto"] > 0, 0).round(2))
+    out["aov"] = ((out["gmv_bruto"] / out["pedidos"])
+                  .where(out["pedidos"] > 0, 0).round(2))
+    tiers = out["gmv_liquido"].apply(calc_tier)            # (label, rate)
+    out["tier"] = tiers.apply(lambda t: t[0])
+    out["comissao_calculada"] = (out["gmv_liquido"] * tiers.apply(lambda t: t[1])).round(2)
+    out = out[cols]   # preserva ordem original das colunas
+    print(f"  [collapse] {n_antes} → {len(out)} linhas ({n_antes - len(out)} colisões de alias somadas)")
+    return out
 
 
 # ── Derivar tabelas do warehouse ──────────────────────────────────────────────
@@ -600,6 +637,7 @@ def run(input_files: list[Path], warehouse_dir: Path = WAREHOUSE_DIR) -> None:
 
     print(f"\n▶ Mesclando com histórico existente...")
     raw_full = append_to_raw_imports(new_combined, warehouse_dir)
+    raw_full = collapse_duplicates(raw_full)   # soma colisões de alias (creator,periodo)
     print(f"  Total histórico: {len(raw_full)} linhas | {raw_full['periodo'].nunique()} períodos | {raw_full['creator_id'].nunique()} creators únicas")
 
     print(f"\n▶ Salvando warehouse em ./{warehouse_dir}/")
