@@ -1477,6 +1477,42 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
 }
 .onb-reopen:hover{color:var(--ink)}
 
+/* ── Central de Comissões / Extrato ─────────────────────────────────── */
+.back-link{display:inline-flex;align-items:center;gap:4px;margin:20px 24px 0;padding:8px 14px;border:1px solid rgba(0,0,0,0.1);border-radius:999px;background:#fff;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer}
+.cc-card{max-width:980px;margin:0 auto;padding:0 24px}
+.cc-inner{border:1px solid rgba(0,0,0,0.08);border-radius:18px;padding:20px 22px;background:linear-gradient(135deg,rgba(254,44,85,0.04),rgba(0,0,0,0.015));cursor:pointer;transition:transform .15s}
+.cc-inner:active{transform:scale(.99)}
+.cc-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rhode-red);font-weight:600;margin-bottom:10px}
+.cc-row{display:flex;gap:24px;flex-wrap:wrap;align-items:baseline}
+.cc-metric{display:flex;flex-direction:column}
+.cc-val{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.cc-lbl{font-size:11px;color:var(--ink-48,#888);margin-top:2px}
+.cc-go{margin-top:14px;font-size:13px;color:var(--rhode-red);font-weight:500}
+.ex-mes{border:1px solid rgba(0,0,0,0.08);border-radius:16px;margin-bottom:14px;overflow:hidden}
+.ex-mes-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;cursor:pointer;gap:12px}
+.ex-mes-per{font-size:15px;font-weight:600;color:var(--ink)}
+.ex-mes-liq{font-size:15px;font-weight:600;color:var(--ink)}
+.ex-mes-sub{font-size:12px;color:var(--ink-48,#888);margin-top:2px}
+.ex-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:0 18px 14px}
+.ex-bar i{display:block;height:100%}
+.ex-bar .liq{background:#16a34a}.ex-bar .pen{background:#f59e0b}.ex-bar .ine{background:#d1d5db}
+.ex-legend{display:flex;gap:14px;flex-wrap:wrap;padding:0 18px 16px;font-size:12px;color:var(--ink-48,#888)}
+.ex-legend b{color:var(--ink);font-weight:600}
+.ex-dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.ex-body{border-top:1px solid rgba(0,0,0,0.06);padding:6px 0;display:none}
+.ex-body.open{display:block}
+.ex-ped{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid rgba(0,0,0,0.04)}
+.ex-ped:last-child{border-bottom:none}
+.ex-ped-l{min-width:0}
+.ex-ped-prod{font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.ex-ped-meta{font-size:11px;color:var(--ink-48,#888);margin-top:2px}
+.ex-ped-r{text-align:right;flex-shrink:0}
+.ex-ped-gmv{font-size:13px;font-weight:600;color:var(--ink)}
+.ex-st{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;margin-top:3px}
+.ex-st.liquidado{background:rgba(22,163,74,.12);color:#15803d}
+.ex-st.a_liquidar{background:rgba(245,158,11,.14);color:#b45309}
+.ex-st.inelegivel{background:rgba(0,0,0,.06);color:#6b7280}
+.ex-st.reemb{background:rgba(254,44,85,.1);color:var(--rhode-red)}
 </style>
 </head>
 <body>
@@ -1501,7 +1537,19 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
   <!-- Painel: Performance -->
   <div class="panel on" id="panel-perf">
     <div id="hero-section"></div>
+    <div id="comissoes-card"></div>
     <div id="perf-main"><div class="spin-wrap">CARREGANDO</div></div>
+  </div>
+
+  <!-- Painel: Central de Comissões → Meu Extrato -->
+  <div class="panel" id="panel-comissoes">
+    <button class="back-link" onclick="goTab('perf')">‹ Painel</button>
+    <div class="hero-tile">
+      <div class="hero-greeting">Central de Comissões</div>
+      <div class="hero-name">Seu extrato<br><span class="accent">de verdade.</span></div>
+      <div class="hero-sub">Liquidado, a liquidar e reembolsos — direto da TikTok Shop, do jeito que o painel deles não mostra.</div>
+    </div>
+    <div class="section" id="extrato-main"><div class="spin-wrap">CARREGANDO</div></div>
   </div>
 
   <!-- Painel: Performance Detalhada (histórico temporal) -->
@@ -2191,6 +2239,9 @@ async function boot(creator){
   } else {
     await Promise.all([loadPerf(creator.handle,creator.row), loadProfile(creator.handle)]);
   }
+
+  // Card-índice da Central de Comissões (esconde sozinho se sem dado)
+  loadComissoesCard();
 
   // Inbox de notificações: badge inicial + polling a cada 60s
   loadNotifs();
@@ -3622,13 +3673,90 @@ function goTab(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
   document.getElementById('panel-'+id).classList.add('on');
-  document.getElementById('nav-'+id).classList.add('on');
+  const navBtn=document.getElementById('nav-'+id);   // painéis sem botão na nav (ex: comissoes) → guarda
+  if(navBtn)navBtn.classList.add('on');
   if(id==='hist')loadHistorico();
   if(id==='entregaveis')renderEntregaveis();
   if(id==='perfdetail')renderPerfDetail();
   if(id==='novidades')loadNovidades();
+  if(id==='comissoes')loadExtrato();
   window.scrollTo({top:0,behavior:'instant'});
   try{ Track.tab(id); }catch(e){}
+}
+
+// ── Central de Comissões / Meu Extrato ──────────────────────────────
+const _exR=v=>'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const _exRk=v=>{v=+v||0;return v>=1000?('R$ '+(v/1000).toFixed(1).replace('.',',')+'k'):('R$ '+v.toFixed(0));};
+const _exMesLbl=p=>{const M=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];const[y,m]=String(p).split('-');return M[+m-1]+'/'+y.slice(2);};
+let _exData=null;
+
+async function loadComissoesCard(){
+  const slot=document.getElementById('comissoes-card'); if(!slot)return;
+  try{
+    const rows=await hub('extrato_resumo');
+    if(!rows||!rows.length){slot.innerHTML='';return;}
+    _exData=rows;
+    const cur=rows[0]; // mais recente (periodo.desc)
+    slot.innerHTML=`<div class="cc-card"><div class="cc-inner" onclick="goTab('comissoes')">
+      <div class="cc-eyebrow">💰 Central de Comissões · ${_exMesLbl(cur.periodo)}</div>
+      <div class="cc-row">
+        <div class="cc-metric"><span class="cc-val">${_exRk(cur.gmv_liquidado)}</span><span class="cc-lbl">liquidado</span></div>
+        <div class="cc-metric"><span class="cc-val">${_exRk(cur.gmv_a_liquidar)}</span><span class="cc-lbl">a liquidar</span></div>
+        <div class="cc-metric"><span class="cc-val">${_exRk(cur.comissao_paga)}</span><span class="cc-lbl">comissão paga</span></div>
+      </div>
+      <div class="cc-go">Ver meu extrato completo ›</div>
+    </div></div>`;
+  }catch(e){slot.innerHTML='';}
+}
+
+async function loadExtrato(){
+  const main=document.getElementById('extrato-main');
+  main.innerHTML='<div class="spin-wrap">CARREGANDO</div>';
+  try{
+    const rows=_exData||await hub('extrato_resumo');
+    _exData=rows;
+    if(!rows||!rows.length){main.innerHTML='<div class="empty">SEM DADOS DE COMISSÃO AINDA<br>Seu extrato aparece conforme suas vendas entram.</div>';return;}
+    main.innerHTML=rows.map(r=>{
+      const tot=((+r.gmv_liquidado||0)+(+r.gmv_a_liquidar||0)+(+r.gmv_inelegivel||0))||1;
+      const pl=100*(+r.gmv_liquidado||0)/tot, pp=100*(+r.gmv_a_liquidar||0)/tot, pi=100*(+r.gmv_inelegivel||0)/tot;
+      return `<div class="ex-mes">
+        <div class="ex-mes-head" onclick="toggleExMes('${r.periodo}')">
+          <div><div class="ex-mes-per">${_exMesLbl(r.periodo)}</div><div class="ex-mes-sub">${r.pedidos} pedidos${(+r.reembolsos_n)?` · ${r.reembolsos_n} reembolso${r.reembolsos_n>1?'s':''}`:''}</div></div>
+          <div style="text-align:right"><div class="ex-mes-liq">${_exR(r.gmv_liquidado)}</div><div class="ex-mes-sub">liquidado</div></div>
+        </div>
+        <div class="ex-bar"><i class="liq" style="width:${pl}%"></i><i class="pen" style="width:${pp}%"></i><i class="ine" style="width:${pi}%"></i></div>
+        <div class="ex-legend">
+          <span><span class="ex-dot" style="background:#16a34a"></span>Liquidado <b>${_exR(r.gmv_liquidado)}</b></span>
+          <span><span class="ex-dot" style="background:#f59e0b"></span>A liquidar <b>${_exR(r.gmv_a_liquidar)}</b></span>
+          ${(+r.gmv_inelegivel)?`<span><span class="ex-dot" style="background:#d1d5db"></span>Inelegível <b>${_exR(r.gmv_inelegivel)}</b></span>`:''}
+          <span>Comissão paga <b>${_exR(r.comissao_paga)}</b></span>
+        </div>
+        <div class="ex-body" id="exbody-${r.periodo}"><div class="spin-wrap">CARREGANDO</div></div>
+      </div>`;
+    }).join('');
+  }catch(e){main.innerHTML='<div class="empty">ERRO AO CARREGAR EXTRATO</div>';}
+}
+
+async function toggleExMes(per){
+  const body=document.getElementById('exbody-'+per); if(!body)return;
+  const open=body.classList.toggle('open');
+  if(open && !body.dataset.loaded){
+    try{
+      const peds=await hub('extrato_pedidos',{periodo:per});
+      body.dataset.loaded='1';
+      if(!peds||!peds.length){body.innerHTML='<div class="ex-ped"><span class="ex-ped-meta">Sem pedidos neste mês.</span></div>';return;}
+      body.innerHTML=peds.map(p=>{
+        const dt=p.data?new Date(p.data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
+        const stLbl={liquidado:'Liquidado',a_liquidar:'A liquidar',inelegivel:'Inelegível'}[p.status]||p.status;
+        return `<div class="ex-ped">
+          <div class="ex-ped-l"><div class="ex-ped-prod">${(p.produto||p.product_id||'—').replace(/</g,'&lt;')}</div>
+            <div class="ex-ped-meta">${dt}${p.content_type?' · '+String(p.content_type).toLowerCase():''}</div></div>
+          <div class="ex-ped-r"><div class="ex-ped-gmv">${_exR(p.gmv)}</div>
+            <span class="ex-st ${p.status}">${stLbl}</span>${p.reembolso?'<span class="ex-st reemb">reembolso</span>':''}</div>
+        </div>`;
+      }).join('');
+    }catch(e){body.innerHTML='<div class="ex-ped"><span class="ex-ped-meta">Erro ao carregar pedidos.</span></div>';}
+  }
 }
 
 // ── Inbox de notificações ───────────────────────────────────────────

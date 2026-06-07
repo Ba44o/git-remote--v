@@ -35,6 +35,14 @@ async function sbPatch(path, body) { await sbWrite('PATCH', path, body); }
 const norm = h => (h || '').toString().replace(/^[@.]+/, '').toLowerCase();
 const enc  = encodeURIComponent;
 
+// Aliases de creator p/ o Extrato: handle de login → canônico onde o dado vive.
+// Mesmo mapa do coletor (coletar_extrato.py). Taci tem 3 @ = 1 pessoa.
+const EXTRATO_ALIASES = {
+  tacianecreator: 'tacianetorress',
+  tacirecomenda:  'tacianetorress',
+  natmarquesss:   'natmarquesvi',
+};
+
 function normalizePhone(phone) {
   const digits = (phone || '').replace(/\D/g, '');
   return digits.startsWith('55') ? digits : '55' + digits;
@@ -217,6 +225,21 @@ async function handleData(body, res) {
       case 'scripts':
         return res.json(await sbGet(
           `scripts_gerados?affiliate_id=eq.${enc(handle)}&order=created_at.desc&limit=30`));
+
+      // ── Central de Comissões / Meu Extrato (só o dado da própria creator) ──
+      // Resolve aliases de handle p/ o canônico (ex: Taci loga com qualquer um
+      // dos 3 @ e cai no extrato consolidado). Mesmo mapa do coletor.
+      case 'extrato_resumo': {
+        const eh = EXTRATO_ALIASES[handle] || handle;
+        return res.json(await sbGet(`extrato_resumo?creator=eq.${enc(eh)}&order=periodo.desc`));
+      }
+
+      case 'extrato_pedidos': {
+        const eh = EXTRATO_ALIASES[handle] || handle;
+        const per = p.periodo ? `&periodo=eq.${enc(p.periodo)}` : '';
+        return res.json(await sbGet(
+          `extrato_pedidos?creator=eq.${enc(eh)}${per}&order=data.desc&limit=500`));
+      }
 
       // ════ ESCRITAS — escopadas à creator dona do token ════
       case 'confirmar_tarefa': {
