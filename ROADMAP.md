@@ -152,8 +152,11 @@ _(nada no momento)_
 
 ---
 
-### 🔵 10. Migrar dados por-creator pra API (Order List API → creator×dia) — **não iniciado, exploração** (jun/2026)
+### 🟢 10. Migrar dados por-creator pra API — **FORWARD-ONLY NO AR** (jun/2026)
 
+**✅ ENTREGUE (forward-only, jun/2026):** Jan–Mai continuam do **export** (congelados, intocados); **Jun+ vem da API** (Affiliate Orders) direto na `performance_periods`. Implementado em `coletar_extrato.py::build_performance_forward` (roda no daily local — não dispara o etl_sync). Guarda `periodo >= FORWARD_FROM (2026-06)` protege o passado. `gmv_liquido = liquidado + a_liquidar` (exclui reembolso/inelegível; mesma base dos meses passados, não encolhe). Validado: Jan–Mai inalterados, junho R$96,5k/85 creators, Hub hero e admin passam a mostrar junho. **Ressalvas:** (a) creators 100%-novas de junho ficam de fora até existirem na `affiliates` (FK) — pequenas; (b) `vídeos`/`lives` de junho vêm da API (content_id distinto ≈ conteúdo que gerou venda), não do export. Coleta diária às 8h mantém fresco.
+
+**Contexto histórico (a exploração que levou aqui):**
 **Hoje:** o per-creator (Hub + ranking/mensal do admin → `performance_periods`/`affiliates`) vem dos **exports manuais xlsx/Sheets via `etl_v2.py`**. Só o shop-wide diário (`performance_diario`) é API (ver 4.1). Granularidade do per-creator: **mensal** (decisão #5 — o export `Creator_List` não tem `transactionDate`).
 
 **Proposta:** trocar a fonte do per-creator de export manual → **Order List API** (`/order/202309/orders/search`, escopo **já ATIVO** — confirmado no probe, ver decisão #11). Cada pedido traz timestamp individual → dá pra montar **creator × dia** e eliminar o upload manual de planilha.
