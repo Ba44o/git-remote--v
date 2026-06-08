@@ -241,6 +241,37 @@ async function handleData(body, res) {
           `extrato_pedidos?creator=eq.${enc(eh)}${per}&order=data.desc&limit=2000`));
       }
 
+      // ── Produtos campeões da creator (top SKU por GMV) ────────────────────
+      case 'top_produtos': {
+        const eh = EXTRATO_ALIASES[handle] || handle;
+        // pagina todos os pedidos da creator (server-side) e agrega por produto
+        const all = []; let off = 0;
+        while (true) {
+          const batch = await sbGet(
+            `extrato_pedidos?creator=eq.${enc(eh)}&select=product_id,produto,gmv,comissao_estimada,comissao_paga,status,reembolso,order_id&limit=1000&offset=${off}`);
+          if (!Array.isArray(batch) || !batch.length) break;
+          all.push(...batch);
+          if (batch.length < 1000) break;
+          off += 1000; if (off > 30000) break;
+        }
+        const m = {};
+        for (const x of all) {
+          if (x.reembolso) continue;                       // exclui reembolsado
+          const k = x.product_id || x.produto || '?';
+          const d = m[k] || (m[k] = { produto: x.produto || x.product_id, product_id: x.product_id,
+                                      gmv: 0, comissao: 0, orders: new Set() });
+          d.gmv += (+x.gmv || 0);
+          d.comissao += (x.status === 'liquidado' ? (+x.comissao_paga || 0) : (+x.comissao_estimada || 0));
+          if (x.order_id) d.orders.add(x.order_id);
+        }
+        const top = Object.values(m)
+          .map(d => ({ produto: d.produto, product_id: d.product_id,
+                       gmv: Math.round(d.gmv * 100) / 100, comissao: Math.round(d.comissao * 100) / 100,
+                       pedidos: d.orders.size }))
+          .sort((a, b) => b.gmv - a.gmv).slice(0, Math.min(+p.limit || 6, 20));
+        return res.json(top);
+      }
+
       // ════ ESCRITAS — escopadas à creator dona do token ════
       case 'confirmar_tarefa': {
         const ids = (p.ids || []).map(Number).filter(Boolean);

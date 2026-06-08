@@ -1538,6 +1538,22 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
 .ex-help-tag{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-48,#999);font-weight:500;background:rgba(0,0,0,0.05);padding:1px 6px;border-radius:4px;margin-left:4px}
 .ex-help-note{font-size:13px;line-height:1.5;color:var(--ink-48,#777);background:rgba(0,0,0,0.025);border-radius:12px;padding:14px 16px;margin-top:12px}
 .ex-help-note b{color:var(--ink);font-weight:600}
+/* Produtos campeões (aba Performance) */
+.tp-wrap{max-width:980px;margin:0 auto;padding:32px 24px 0}
+.tp-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rhode-red);font-weight:600;margin-bottom:12px}
+.tp-hero{border:1px solid rgba(0,0,0,0.08);border-radius:18px;padding:22px;background:linear-gradient(135deg,rgba(254,44,85,0.05),rgba(0,0,0,0.02))}
+.tp-hero-name{font-size:18px;font-weight:600;letter-spacing:-.01em;color:var(--ink);line-height:1.3;margin-bottom:16px}
+.tp-hero-stats{display:flex;gap:28px;flex-wrap:wrap}
+.tp-stat{display:flex;flex-direction:column}
+.tp-val{font-size:20px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.tp-lbl{font-size:11px;color:var(--ink-48,#888);margin-top:2px}
+.tp-list-title{font-size:12px;color:var(--ink-48,#888);margin:18px 0 8px;font-weight:500}
+.tp-row{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,0.05)}
+.tp-row:last-child{border-bottom:none}
+.tp-pos{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.05);color:var(--ink-48,#777);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.tp-row-name{flex:1;min-width:0;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-row-gmv{text-align:right;font-size:14px;font-weight:600;color:var(--ink);flex-shrink:0;display:flex;flex-direction:column}
+.tp-row-gmv small{font-size:10px;font-weight:400;color:var(--ink-48,#999)}
 </style>
 </head>
 <body>
@@ -1605,6 +1621,7 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
       <div class="hero-name">Sua evolução<br><span class="accent">no tempo.</span></div>
       <div class="hero-sub">Selecione qualquer recorte de períodos. GMV, comissão, conteúdos publicados e tendência — tudo em uma visão.</div>
     </div>
+    <div id="top-produtos"></div>
     <div class="section" id="perfdetail-main"><div class="spin-wrap">CARREGANDO</div></div>
   </div>
 
@@ -3724,7 +3741,7 @@ function goTab(id){
   if(navBtn)navBtn.classList.add('on');
   if(id==='hist')loadHistorico();
   if(id==='entregaveis')renderEntregaveis();
-  if(id==='perfdetail')renderPerfDetail();
+  if(id==='perfdetail'){renderPerfDetail();loadTopProdutos();}
   if(id==='novidades')loadNovidades();
   if(id==='comissoes')loadExtrato();
   window.scrollTo({top:0,behavior:'instant'});
@@ -3858,6 +3875,38 @@ function exCsv(per){
 function openExtratoHelp(){document.getElementById('ex-help-modal').classList.add('on');try{Track.action('extrato_help');}catch(e){}}
 function closeExtratoHelp(){document.getElementById('ex-help-modal').classList.remove('on');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeExtratoHelp();});
+
+// ── Produtos campeões (aba Performance) — o "hero" da creator ────────
+let _topProd=null;
+async function loadTopProdutos(){
+  const slot=document.getElementById('top-produtos'); if(!slot)return;
+  if(_topProd){renderTopProdutos(_topProd);return;}
+  slot.innerHTML='<div class="tp-wrap"><div class="spin-wrap" style="padding:20px">CARREGANDO</div></div>';
+  try{ _topProd=await hub('top_produtos',{limit:6}); renderTopProdutos(_topProd); }
+  catch(e){ console.error('loadTopProdutos:',e); slot.innerHTML=''; }
+}
+function renderTopProdutos(top){
+  const slot=document.getElementById('top-produtos'); if(!slot)return;
+  if(!top||!top.length){slot.innerHTML='';return;}
+  const hero=top[0], rest=top.slice(1);
+  slot.innerHTML=`<div class="tp-wrap">
+    <div class="tp-eyebrow">🏆 Seu produto-herói</div>
+    <div class="tp-hero">
+      <div class="tp-hero-name">${(hero.produto||'—').replace(/</g,'&lt;')}</div>
+      <div class="tp-hero-stats">
+        <div class="tp-stat"><span class="tp-val">${_exR(hero.gmv)}</span><span class="tp-lbl">em vendas</span></div>
+        <div class="tp-stat"><span class="tp-val">${hero.pedidos}</span><span class="tp-lbl">pedidos</span></div>
+        <div class="tp-stat"><span class="tp-val">${_exR(hero.comissao)}</span><span class="tp-lbl">comissão</span></div>
+      </div>
+    </div>
+    ${rest.length?`<div class="tp-list-title">Outros campeões</div>`+rest.map((x,i)=>`
+      <div class="tp-row">
+        <span class="tp-pos">${i+2}</span>
+        <span class="tp-row-name">${(x.produto||'—').replace(/</g,'&lt;')}</span>
+        <span class="tp-row-gmv">${_exR(x.gmv)}<small>${x.pedidos} ped · ${_exR(x.comissao)} com.</small></span>
+      </div>`).join(''):''}
+  </div>`;
+}
 
 // ── Inbox de notificações ───────────────────────────────────────────
 // (declaração movida pra topo do script — TDZ quebrava boot síncrono)
