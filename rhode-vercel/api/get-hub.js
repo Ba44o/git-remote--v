@@ -238,7 +238,7 @@ async function handleData(body, res) {
         const eh = EXTRATO_ALIASES[handle] || handle;
         const per = p.periodo ? `&periodo=eq.${enc(p.periodo)}` : '';
         return res.json(await sbGet(
-          `extrato_pedidos?creator=eq.${enc(eh)}${per}&order=data.desc&limit=500`));
+          `extrato_pedidos?creator=eq.${enc(eh)}${per}&order=data.desc&limit=2000`));
       }
 
       // ════ ESCRITAS — escopadas à creator dona do token ════

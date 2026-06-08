@@ -77,8 +77,16 @@ def agregar(orders, prod_nomes=None):
             ret = (s.get("fully_return") == "Yes")
             est = money(s.get("estimated_commission_base"))
             act = money(s.get("actual_commission_base"))
-            com_est = money(s.get("estimated_paid_commission"))
-            com_pago = money(s.get("actual_paid_commission"))
+            # Comissão da CREATOR = orgânica + ADS (shop ads) + bônus cofinanciado.
+            # Vendas via Spark Ads têm a orgânica zerada e pagam pelo shop_ads —
+            # somar só a orgânica subcontava ~metade (bug pego jun/26). Partner =
+            # comissão da agência/TAP, NÃO entra.
+            com_est = (money(s.get("estimated_paid_commission"))
+                       + money(s.get("estimated_paid_shop_ads_commission"))
+                       + money(s.get("estimated_cofunded_creator_bonus_amount")))
+            com_pago = (money(s.get("actual_paid_commission"))
+                        + money(s.get("actual_paid_shop_ads_commission"))
+                        + money(s.get("actual_cofunded_creator_bonus_amount")))
 
             r = resumo.setdefault((c, per), dict(
                 gmv_estimado=0.0, gmv_liquidado=0.0, gmv_a_liquidar=0.0, gmv_inelegivel=0.0,
