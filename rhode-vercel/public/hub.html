@@ -1522,6 +1522,22 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
 .ex-csv{font-size:12px;font-weight:600;padding:5px 12px;border-radius:999px;border:1px solid rgba(22,163,74,.3);background:rgba(22,163,74,.08);color:#15803d;cursor:pointer;white-space:nowrap}
 .ex-ped-list{max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .ex-ped-count{font-size:11px;color:var(--ink-48,#888);padding:8px 18px 4px;position:sticky;top:0;background:#fff}
+/* Modal "como funciona a liquidação" */
+.ex-help-btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:9px 16px;border:1px solid rgba(0,0,0,0.12);border-radius:999px;background:#fff;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer}
+.ex-help-q{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--rhode-red);color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+.ex-help-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+.ex-help-overlay.on{display:flex}
+.ex-help-card{background:#fff;border-radius:22px;max-width:460px;width:100%;max-height:85vh;overflow-y:auto;padding:30px 26px;position:relative}
+.ex-help-close{position:absolute;top:14px;right:18px;border:none;background:none;font-size:26px;line-height:1;color:var(--ink-48,#999);cursor:pointer}
+.ex-help-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rhode-red);font-weight:600}
+.ex-help-title{font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--ink);margin:6px 0 12px}
+.ex-help-intro{font-size:14px;line-height:1.55;color:var(--ink-48,#777);margin:0 0 20px}
+.ex-help-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;font-size:14px;line-height:1.5;color:var(--ink)}
+.ex-help-item b{font-weight:600}
+.ex-help-dot{flex-shrink:0;width:12px;height:12px;border-radius:4px;margin-top:4px}
+.ex-help-tag{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-48,#999);font-weight:500;background:rgba(0,0,0,0.05);padding:1px 6px;border-radius:4px;margin-left:4px}
+.ex-help-note{font-size:13px;line-height:1.5;color:var(--ink-48,#777);background:rgba(0,0,0,0.025);border-radius:12px;padding:14px 16px;margin-top:12px}
+.ex-help-note b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
@@ -1557,8 +1573,29 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
       <div class="hero-greeting">Central de Comissões</div>
       <div class="hero-name">Seu extrato<br><span class="accent">de verdade.</span></div>
       <div class="hero-sub">Liquidado, a liquidar e reembolsos — direto da TikTok Shop, do jeito que o painel deles não mostra.</div>
+      <button class="ex-help-btn" onclick="openExtratoHelp()"><span class="ex-help-q">?</span> Como funciona a liquidação</button>
     </div>
     <div class="section" id="extrato-main"><div class="spin-wrap">CARREGANDO</div></div>
+  </div>
+
+  <!-- Modal: como funciona a comissão / liquidação (creator-facing) -->
+  <div class="ex-help-overlay" id="ex-help-modal" onclick="if(event.target===this)closeExtratoHelp()">
+    <div class="ex-help-card">
+      <button class="ex-help-close" onclick="closeExtratoHelp()" aria-label="Fechar">×</button>
+      <div class="ex-help-eyebrow">Central de Comissões</div>
+      <div class="ex-help-title">Como funciona sua comissão</div>
+      <p class="ex-help-intro">A TikTok paga sua comissão em etapas. Aqui você acompanha cada uma — o que já é seu, o que está a caminho, e o que não conta.</p>
+      <div class="ex-help-item"><span class="ex-help-dot" style="background:#16a34a"></span>
+        <div><b>Recebida <span class="ex-help-tag">liquidado</span></b><br>Comissão já confirmada e paga pela TikTok. É seu, garantido.</div></div>
+      <div class="ex-help-item"><span class="ex-help-dot" style="background:#f59e0b"></span>
+        <div><b>A receber <span class="ex-help-tag">a liquidar</span></b><br>A venda aconteceu e a comissão está a caminho. A TikTok leva cerca de <b>30 a 45 dias</b> pra liquidar (confirmar e liberar). Conforme cada pedido liquida, esse valor vira "recebida".</div></div>
+      <div class="ex-help-item"><span class="ex-help-dot" style="background:#d1d5db"></span>
+        <div><b>Inelegível</b><br>Pedidos que não vão pagar comissão — cancelados ou que não se qualificaram nas regras da campanha.</div></div>
+      <div class="ex-help-item"><span class="ex-help-dot" style="background:#fe2c55"></span>
+        <div><b>Reembolso</b><br>A cliente devolveu o produto. Sem venda, sem comissão (e se já tinha entrado, é estornado).</div></div>
+      <div class="ex-help-note"><b>Por que o mês atual muda?</b><br>O mês corrente é "vivo": conforme os pedidos liquidam (e alguns são reembolsados), os números se ajustam nas semanas seguintes. Depois de ~45 dias o mês fica estável.</div>
+      <div class="ex-help-note"><b>Comissão orgânica + ADS</b><br>Sua comissão soma a parte do seu conteúdo (orgânica) + o bônus de vendas via ADS (Spark Ads), quando houver.</div>
+    </div>
   </div>
 
   <!-- Painel: Performance Detalhada (histórico temporal) -->
@@ -3817,6 +3854,10 @@ function exCsv(per){
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   try{ Track.action('extrato_csv',{periodo:per,n:peds.length}); }catch(e){}
 }
+
+function openExtratoHelp(){document.getElementById('ex-help-modal').classList.add('on');try{Track.action('extrato_help');}catch(e){}}
+function closeExtratoHelp(){document.getElementById('ex-help-modal').classList.remove('on');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeExtratoHelp();});
 
 // ── Inbox de notificações ───────────────────────────────────────────
 // (declaração movida pra topo do script — TDZ quebrava boot síncrono)
