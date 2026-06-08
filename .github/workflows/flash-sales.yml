@@ -1,0 +1,41 @@
+name: Rhode — Flash Sales ao vivo (Promotion API)
+
+# Atualiza a tabela flash_sales (Hub) com as flash sales ATIVAS da TikTok Shop.
+# Roda a cada 30 min — flash sale é time-sensitive. USA o access_token da
+# api_tokens em modo READ-ONLY (NÃO dá refresh) → não corre o refresh_token em
+# paralelo com o daily-collect (sem race). O access_token vale ~7 dias e o
+# daily-collect (11h BRT) o renova bem dentro da janela.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+# Não acumula runs de flash (grupo próprio, separado do daily-collect)
+concurrency:
+  group: rhode-flash-sales
+  cancel-in-progress: true
+
+jobs:
+  flash:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      TIKTOK_APP_KEY:       ${{ secrets.TIKTOK_APP_KEY }}
+      TIKTOK_APP_SECRET:    ${{ secrets.TIKTOK_APP_SECRET }}
+      TIKTOK_SHOP_CIPHER:   ${{ secrets.TIKTOK_SHOP_CIPHER }}
+      PYTHONUNBUFFERED: "1"
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependências
+        run: pip install requests pandas openpyxl python-dotenv numpy
+
+      - name: Coletar flash sales ativas
+        run: python3 coletar_flash_sales.py
