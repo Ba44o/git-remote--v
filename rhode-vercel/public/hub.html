@@ -2592,6 +2592,8 @@ function startMaskObserver(fakeName){
 }
 
 function startHubTour(){
+  // pré-carrega o produto-herói (agregação lenta) pra estar pronto no finale
+  try{ loadTopProdutos(); }catch(e){}
   // cria cursor fantasma global no app
   let cur=document.getElementById('hub-tour-cursor');
   if(!cur){
@@ -2666,10 +2668,30 @@ function startHubTour(){
     cb=>smoothScrollTo(window.scrollY+350, cb),
     cb=>pause(4000, cb),
     cb=>moveTo(tabBtn('novidades'), cb),                      // 5: aponta aba Novidades
-    tabAndPause('novidades', 5000),
-    cb=>moveTo(tabBtn('perf'), cb),                           // 6: volta pra Painel
+    tabAndPause('novidades', 4200),
+    // ── 6: volta pro Painel e revela a Central de Comissões ──
+    cb=>moveTo(tabBtn('perf'), cb),
     cb=>{ goTab('perf'); retriggerPanelAnim('perf'); smoothScrollTo(0, cb); },
-    cb=>pause(3500, cb),
+    cb=>pause(1200, cb),
+    cb=>{ const c=document.querySelector('#comissoes-card'); if(c)c.scrollIntoView({behavior:'smooth',block:'center'}); pause(1600,cb); },
+    cb=>moveTo('#comissoes-card .cc-inner', cb),              // aponta o card de comissões
+    cb=>{ goTab('comissoes'); retriggerPanelAnim('comissoes'); smoothScrollTo(0,cb); },
+    cb=>pause(2400, cb),                                      // hero do extrato (comissão-first)
+    cb=>smoothScrollTo(470, cb),                              // revela meses + barras recebida/a-receber
+    cb=>pause(4200, cb),
+    cb=>moveTo('.ex-help-btn', cb),                           // aponta o "?"
+    cb=>{ try{openExtratoHelp();}catch(e){} pause(4200, cb); },// abre o explicador da liquidação
+    cb=>{ try{closeExtratoHelp();}catch(e){} pause(700, cb); },
+    // ── 7: Performance → produto-herói ──
+    cb=>moveTo(tabBtn('perfdetail'), cb),
+    cb=>{ goTab('perfdetail'); retriggerPanelAnim('perfdetail'); smoothScrollTo(0,cb); },
+    cb=>pause(1600, cb),
+    cb=>smoothScrollTo(420, cb),                             // revela o produto-herói
+    cb=>pause(4200, cb),
+    // ── fecha voltando pro Painel ──
+    cb=>moveTo(tabBtn('perf'), cb),
+    cb=>{ goTab('perf'); retriggerPanelAnim('perf'); smoothScrollTo(0, cb); },
+    cb=>pause(3000, cb),
   ];
   let i=0;
   function next(){
