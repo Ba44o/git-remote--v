@@ -3787,7 +3787,7 @@ function exRenderPeds(per, filtro){
   if(filtro!=='todos') peds=peds.filter(p=>p.status===filtro);
   if(!peds.length){list.innerHTML='<div class="ex-ped"><span class="ex-ped-meta">Nenhum pedido neste filtro.</span></div>';return;}
   const stLbl={liquidado:'Liquidado',a_liquidar:'A liquidar',inelegivel:'Inelegível'};
-  list.innerHTML=`<div class="ex-ped-count">${peds.length} pedido${peds.length>1?'s':''}</div>`+peds.map(p=>{
+  list.innerHTML=`<div class="ex-ped-count">${peds.length} ${peds.length>1?'itens':'item'}</div>`+peds.map(p=>{
     const dt=p.data?new Date(p.data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
     return `<div class="ex-ped">
       <div class="ex-ped-l"><div class="ex-ped-prod">${(p.produto||p.product_id||'—').replace(/</g,'&lt;')}</div>
