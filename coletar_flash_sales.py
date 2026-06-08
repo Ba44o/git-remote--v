@@ -34,10 +34,6 @@ SBH = {"apikey": SB_KEY, "Authorization": f"Bearer {SB_KEY}", "Content-Type": "a
 ALIAS = {k.lower(): v.lower() for k, v in HANDLE_ALIASES.items()}
 ALIAS.update({"tacianecreator": "tacianetorress", "tacirecomenda": "tacianetorress"})
 
-# títulos genéricos (sem dono) → loja toda
-GENERIC_RX = re.compile(r"\b(geral|chat do dia|desconto|todos|todas|loja)\b", re.I)
-
-
 def canon(h):
     h = (h or "").strip().lstrip("@.").lower()
     return ALIAS.get(h, h)
@@ -152,9 +148,15 @@ def upsert(rows):
     r.raise_for_status()
 
 
-def limpa_expiradas(now_ts):
-    requests.delete(f"{SB_URL}/rest/v1/flash_sales?end_ts=lt.{now_ts}",
-                    headers={**SBH, "Prefer": "return=minimal"}, timeout=60)
+def reconcile(now_ts, ids_atuais):
+    """Tabela espelha exatamente as flashes dedicadas ATIVAS desta coleta.
+    Apaga expiradas sempre; e tudo que não veio nesta coleta (loja/Geral antigas,
+    canceladas, de-targetadas) — só quando há coleta, p/ não zerar por hiccup."""
+    H = {**SBH, "Prefer": "return=minimal"}
+    requests.delete(f"{SB_URL}/rest/v1/flash_sales?end_ts=lt.{now_ts}", headers=H, timeout=60)
+    if ids_atuais:
+        lst = ",".join(f'"{i}"' for i in ids_atuais)
+        requests.delete(f"{SB_URL}/rest/v1/flash_sales?id=not.in.({lst})", headers=H, timeout=60)
 
 
 def main():
@@ -173,16 +175,14 @@ def main():
     flash = flash_ongoing()
     print(f"  FLASHSALE ongoing: {len(flash)}")
 
-    rows, n_creator, n_loja, n_skip = [], 0, 0, 0
+    # Regra firme: cada creator vê SÓ a flash dedicada do @handle dela.
+    # Flashes sem @handle nosso (Geral/loja/de outra creator) → não entram.
+    rows, n_skip = [], 0
     for a_ in flash:
         title = a_.get("title") or ""
         h = handle_do_titulo(title)
-        if h and h in nossas:
-            scope, creator = "creator", h; n_creator += 1
-        elif h and not GENERIC_RX.search(title):
-            n_skip += 1; continue                       # @handle de outra creator → ignora
-        else:
-            scope, creator = "loja", None; n_loja += 1
+        if not (h and h in nossas):
+            n_skip += 1; continue
 
         det = detalhe(a_.get("id"))
         prods = produtos_da_flash(det, titulos, precos)
@@ -192,8 +192,8 @@ def main():
             "id": str(a_.get("id")),
             "title": title,
             "activity_type": a_.get("activity_type"),
-            "scope": scope,
-            "creator": creator,
+            "scope": "creator",
+            "creator": h,
             "begin_ts": int(a_.get("begin_time") or 0),
             "end_ts": int(a_.get("end_time") or 0),
             "status": a_.get("status"),
@@ -201,21 +201,19 @@ def main():
             "updated_at": datetime.now(tz=timezone.utc).isoformat(),
         })
 
-    print(f"  → por creator: {n_creator} · loja: {n_loja} · ignoradas (outra creator): {n_skip}")
-    print(f"  → linhas a gravar: {len(rows)}")
+    print(f"  → dedicadas por creator: {len(rows)} · ignoradas (sem @handle nosso): {n_skip}")
 
     if a.dry_run:
         for r in rows[:8]:
             top = r["products"][0]
-            tag = f"@{r['creator']}" if r["creator"] else "LOJA"
-            print(f"    [{tag}] {r['title'][:45]} · {top['nome'][:30]} "
+            print(f"    [@{r['creator']}] {r['title'][:42]} · {top['nome'][:28]} "
                   f"R$ {top['preco_promo']} ({top['pct_off']}% off) · {len(r['products'])} prod")
         print("  [DRY-RUN] nada gravado.")
         return
 
     upsert(rows)
-    limpa_expiradas(now_ts)
-    print(f"  ✓ gravado em flash_sales · expiradas removidas")
+    reconcile(now_ts, [r["id"] for r in rows])
+    print(f"  ✓ gravado em flash_sales · tabela reconciliada (só dedicadas ativas)")
 
 
 if __name__ == "__main__":

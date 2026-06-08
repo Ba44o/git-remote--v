@@ -191,12 +191,13 @@ async function handleData(body, res) {
       }
 
       case 'flash': {
-        // Flash sales ATIVAS pra esta creator (a dela) OU da loja toda. Fonte: Promotion API
-        // (coletar_flash_sales.py). Filtro por janela begin/end em epoch — robusto a tabela stale.
+        // Flash sales ATIVAS DESTA creator — SÓ a flash dedicada do @handle dela.
+        // Nunca flashes da loja/"Geral" (regra: o time sobe flash dedicada por handle).
+        // Fonte: Promotion API (coletar_flash_sales.py). Janela begin/end em epoch.
         const eh = EXTRATO_ALIASES[handle] || handle;
         const now = Math.floor(Date.now() / 1000);
         return res.json(await sbGet(
-          `flash_sales?or=(creator.eq.${enc(eh)},scope.eq.loja)&end_ts=gt.${now}&begin_ts=lte.${now}&order=end_ts.asc`));
+          `flash_sales?creator=eq.${enc(eh)}&end_ts=gt.${now}&begin_ts=lte.${now}&order=end_ts.asc`));
       }
 
       case 'tarefas': {

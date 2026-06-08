@@ -1756,7 +1756,7 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
     <div class="hero-tile">
       <div class="hero-greeting">⚡ Flash Sales</div>
       <div class="hero-name">Ofertas<br><span class="accent">no ar agora.</span></div>
-      <div class="hero-sub">Descontos relâmpago ativos da loja — direto da TikTok Shop. Quando tem uma sua, ela aparece aqui e no topo do painel. Repassa pra sua audiência enquanto está rolando.</div>
+      <div class="hero-sub">Sua flash sale dedicada na TikTok Shop. Quando tem uma ativa pra você, ela aparece aqui e no topo do painel — repassa pra sua audiência enquanto está rolando.</div>
     </div>
     <div id="flash-list"><div class="spin-wrap">CARREGANDO</div></div>
   </div>
@@ -3381,7 +3381,7 @@ function renderFlashTab(){
       </div>`).join('');
     const n=(f.products||[]).length;
     const extra=n>12?`<div class="fl-mais">+ ${n-12} produtos nesta oferta</div>`:'';
-    const tag=f.scope==='loja'?'Loja toda':'Sua flash';
+    const tag='Sua flash';
     return `<div class="fl-card">
       <div class="fl-card-head">
         <div class="fl-eyebrow">🔥 ${tag}</div>
