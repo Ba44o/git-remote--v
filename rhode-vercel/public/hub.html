@@ -190,8 +190,7 @@ body{
 .flash-banner{
   background:linear-gradient(135deg,var(--rhode-red) 0%,#ff4d6e 100%);color:#fff;
   padding:14px 24px;display:flex;align-items:center;gap:14px;
-  position:sticky;top:96px;z-index:48;cursor:pointer;
-  box-shadow:0 2px 12px rgba(254,44,85,0.18);
+  cursor:pointer;
 }
 .flash-banner-icon{font-size:18px;line-height:1;flex-shrink:0}
 .flash-banner-text{flex:1;min-width:0;font-size:13px;line-height:1.35;letter-spacing:-0.006em}
@@ -257,7 +256,7 @@ body{
 .flash-modal-btn-secondary:hover{color:var(--ink)}
 
 @media(max-width:520px){
-  .flash-banner{padding:12px 18px;gap:10px;top:96px}
+  .flash-banner{padding:12px 18px;gap:10px}
   .flash-banner-text{font-size:12px}
   .flash-banner-cd{font-size:12px;padding:4px 10px}
   .flash-modal{max-width:100%;border-radius:18px}
@@ -1582,6 +1581,8 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
 
   <!-- Painel: Performance -->
   <div class="panel on" id="panel-perf">
+    <!-- Flash Sale: banner no topo do Painel (ativo = vermelho+countdown · idle = CTA solicitar) -->
+    <div id="flash-banner-slot"></div>
     <div id="hero-section"></div>
     <div id="comissoes-card"></div>
     <div id="perf-main"><div class="spin-wrap">CARREGANDO</div></div>
@@ -1768,9 +1769,6 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
     </button>
   </nav>
 </div>
-
-<!-- Flash Sale Banner (sticky abaixo da nav, só aparece se ativa) → toca pra abrir a aba Flash -->
-<div id="flash-banner-slot"></div>
 
 <!-- Onboarding Modal — primeiro acesso, mostra valor antes do CTA -->
 <div class="onb-overlay" id="onb-modal" aria-hidden="true">
