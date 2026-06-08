@@ -199,6 +199,23 @@ body{
 .flash-banner-cd{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;letter-spacing:0.04em;background:rgba(0,0,0,0.18);padding:6px 12px;border-radius:8px;flex-shrink:0}
 .flash-banner-arrow{font-size:18px;flex-shrink:0;opacity:.85}
 
+/* ── Aba Flash Sales (lista) ── */
+#flash-list{padding:4px 0 8px}
+.fl-empty{text-align:center;color:var(--ink-48);font-size:14px;line-height:1.6;padding:48px 24px}
+.fl-card{background:#fff;border:1px solid var(--hairline,rgba(0,0,0,0.08));border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
+.fl-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--hairline,rgba(0,0,0,0.07))}
+.fl-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:var(--rhode-red)}
+.fl-cd{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--ink-80);background:var(--parchment);padding:4px 10px;border-radius:8px}
+.fl-prods{display:flex;flex-direction:column;gap:2px}
+.fl-prod{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--hairline,rgba(0,0,0,0.05))}
+.fl-prod:last-child{border-bottom:none}
+.fl-prod-nome{flex:1;min-width:0;font-size:13px;line-height:1.3;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fl-prod-precos{display:flex;align-items:baseline;gap:8px;flex-shrink:0}
+.fl-de{text-decoration:line-through;color:var(--ink-48);font-size:12px}
+.fl-por{color:var(--rhode-red);font-weight:700;font-size:15px;letter-spacing:-0.02em}
+.fl-off{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--rhode-red);background:rgba(254,44,85,0.1);padding:2px 7px;border-radius:99px}
+.fl-mais{font-size:12px;color:var(--ink-48);padding-top:10px;text-align:center}
+
 .flash-modal-overlay{
   position:fixed;inset:0;background:rgba(29,29,31,0.7);backdrop-filter:blur(8px);
   display:none;align-items:center;justify-content:center;z-index:200;padding:20px;
@@ -1735,6 +1752,15 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
     <div class="deliv-wrap" id="deliv-content"><div class="spin-wrap">CARREGANDO</div></div>
   </div>
 
+  <div class="panel" id="panel-flashsales">
+    <div class="hero-tile">
+      <div class="hero-greeting">⚡ Flash Sales</div>
+      <div class="hero-name">Ofertas<br><span class="accent">no ar agora.</span></div>
+      <div class="hero-sub">Descontos relâmpago ativos da loja — direto da TikTok Shop. Quando tem uma sua, ela aparece aqui e no topo do painel. Repassa pra sua audiência enquanto está rolando.</div>
+    </div>
+    <div id="flash-list"><div class="spin-wrap">CARREGANDO</div></div>
+  </div>
+
   <!-- Bottom nav -->
   <nav class="bottom-nav">
     <button class="nav-btn on" id="nav-perf" onclick="goTab('perf')">
@@ -1748,6 +1774,10 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
     <button class="nav-btn" id="nav-novidades" onclick="goTab('novidades')">
       <svg class="nav-icon" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2.5l2.5 5.5 5.5.6-4 3.8 1.1 5.6L11 15.3l-5.1 2.7 1.1-5.6L3 8.6l5.5-.6L11 2.5z"/></svg>
       <span class="nav-label">Novidades</span>
+    </button>
+    <button class="nav-btn" id="nav-flashsales" onclick="goTab('flashsales')">
+      <svg class="nav-icon" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 12h6l-1 8 8-11h-6l1-7z"/></svg>
+      <span class="nav-label">Flash</span>
     </button>
     <button class="nav-btn" id="nav-copy" onclick="goTab('copy')">
       <svg class="nav-icon" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3.5l4 4-9.5 9.5H5v-4l9.5-9.5z"/></svg>
@@ -1764,13 +1794,8 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
   </nav>
 </div>
 
-<!-- Flash Sale Banner (sticky abaixo da nav, só aparece se ativa) -->
+<!-- Flash Sale Banner (sticky abaixo da nav, só aparece se ativa) → toca pra abrir a aba Flash -->
 <div id="flash-banner-slot"></div>
-
-<!-- Flash Sale Modal -->
-<div class="flash-modal-overlay" id="flash-modal" onclick="if(event.target===this)closeFlashModal()">
-  <div class="flash-modal" id="flash-modal-content"></div>
-</div>
 
 <!-- Onboarding Modal — primeiro acesso, mostra valor antes do CTA -->
 <div class="onb-overlay" id="onb-modal" aria-hidden="true">
@@ -2833,7 +2858,7 @@ async function loadPerf(handle,row){
     renderEntregaveis();
     loadLeaderboard(handle,rows[0]?.periodo);
     loadTarefasRhode();   // resolve a creator pelo token no proxy (param era morto — causava ReferenceError)
-    loadFlashSales(tier?.name||'Iniciante');
+    loadFlashSales();
   }catch(e){
     console.error('loadPerf falhou:',e);   // não engolir: erro silencioso escondeu o bug do affId
     document.getElementById('perf-main').innerHTML='<div class="empty">ERRO AO CARREGAR<br>Tente recarregar a página.</div>';
@@ -3288,33 +3313,28 @@ function renderPainelBody(){
 // Disparado uma vez quando os dados carregam — escreve no slot e cacheia
 // ── Flash Sales · banner + modal countdown
 const TIER_RANK={'Iniciante':0,'Bronze':1,'Silver':2,'Gold':3,'Diamond':4,'Black':5};
-let _flashAtiva=null;
+// ── Flash Sales (fonte: TikTok Promotion API, via /api/get-hub) ──────
+// O proxy já devolve só as flashes ATIVAS desta creator (a dela) OU da loja.
+let _flashList=[];
 let _flashCdInterval=null;
+const _fR=v=>'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const _flashFimMs=f=>(+f.end_ts||0)*1000;
+const _flashTop=f=>(f.products&&f.products[0])||null;
 
-async function loadFlashSales(creatorTier){
+async function loadFlashSales(){
   try{
     const flashes=await hub('flash');
-    if(!flashes?.length){renderFlashBanner(null);return;}
+    _flashList=Array.isArray(flashes)?flashes:[];
+  }catch(e){console.error('loadFlashSales:',e);_flashList=[];}
+  renderFlashTab();
+  renderFlashBanner(_flashList[0]||null);   // [0] = a que expira primeiro (order=end_ts.asc)
+}
 
-    // Filtra por tier mínimo
-    const meuRank=TIER_RANK[creatorTier]??0;
-    const elegiveis=flashes.filter(f=>{
-      const minRank=TIER_RANK[f.tier_minimo]??0;
-      const convidadasOk=!f.creators_convidadas||!f.creators_convidadas.length||f.creators_convidadas.includes(_creator?.handle?.toUpperCase());
-      return meuRank>=minRank && convidadasOk;
-    });
-    if(!elegiveis.length){renderFlashBanner(null);return;}
-
-    _flashAtiva=elegiveis[0]; // pega a que vai expirar primeiro
-    renderFlashBanner(_flashAtiva);
-
-    // Auto-abre modal se ainda não viu nessa sessão
-    const seenKey=`flash-seen-${_flashAtiva.id}`;
-    if(!sessionStorage.getItem(seenKey)){
-      setTimeout(()=>openFlashModal(),1200);
-      sessionStorage.setItem(seenKey,'1');
-    }
-  }catch(e){console.error('loadFlashSales:',e);renderFlashBanner(null);}
+function _flashCdLong(end_ts){
+  const ms=(+end_ts||0)*1000-Date.now();
+  if(ms<=0)return'encerrando';
+  const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000);
+  return d>0?`termina em ${d}d ${h}h`:(h>0?`termina em ${h}h ${m}min`:`termina em ${m}min`);
 }
 
 function renderFlashBanner(f){
@@ -3322,98 +3342,55 @@ function renderFlashBanner(f){
   if(!slot)return;
   if(_flashCdInterval){clearInterval(_flashCdInterval);_flashCdInterval=null;}
   if(!f){slot.innerHTML='';return;}
-
-  const isSheets=f.origem==='sheets';
-  const fimD=new Date(f.fim_at);
-  const fimLabel=fimD.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' às '+fimD.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  const headlineText=isSheets
-    ? `<strong>Flash Sale ativa</strong> · termina ${fimLabel}`
-    : `<strong>Flash Sale ativa</strong> · ${f.produto_nome||''}${f.desconto_pct?` · ${f.desconto_pct}% OFF`:''} · termina ${fimLabel}`;
-  slot.innerHTML=`<div class="flash-banner" onclick="openFlashModal()">
+  const top=_flashTop(f);
+  const off=top&&top.pct_off?` · até <strong>${top.pct_off}% OFF</strong>`:'';
+  slot.innerHTML=`<div class="flash-banner" onclick="goTab('flashsales')">
     <span class="flash-banner-icon">🔥</span>
-    <div class="flash-banner-text">${headlineText}</div>
+    <div class="flash-banner-text"><strong>Flash Sale ativa</strong>${off} · toca pra ver</div>
     <span class="flash-banner-cd" id="flash-banner-cd">--:--:--</span>
     <span class="flash-banner-arrow">›</span>
   </div>`;
-
-  // Countdown ao vivo (inclui dias quando duração > 24h)
   const tick=()=>{
-    const ms=new Date(f.fim_at)-new Date();
-    if(ms<=0){
-      clearInterval(_flashCdInterval);
-      slot.innerHTML='';
-      _flashAtiva=null;
-      return;
-    }
-    const dias=Math.floor(ms/86400000);
-    const h=Math.floor((ms%86400000)/3600000);
-    const m=Math.floor((ms%3600000)/60000);
-    const s=Math.floor((ms%60000)/1000);
+    const ms=_flashFimMs(f)-Date.now();
+    if(ms<=0){clearInterval(_flashCdInterval);loadFlashSales();return;}  // expirou → recarrega
+    const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);
     const pad=v=>String(v).padStart(2,'0');
-    const txtCompacto = dias>0 ? `${dias}d ${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(h)}:${pad(m)}:${pad(s)}`;
-    const cdEl=document.getElementById('flash-banner-cd');
-    if(cdEl) cdEl.textContent=txtCompacto;
-    const cdMod=document.getElementById('flash-modal-cd');
-    if(cdMod) cdMod.textContent=txtCompacto;
+    const el=document.getElementById('flash-banner-cd');
+    if(el)el.textContent=d>0?`${d}d ${pad(h)}:${pad(m)}:${pad(s)}`:`${pad(h)}:${pad(m)}:${pad(s)}`;
   };
   tick();
   _flashCdInterval=setInterval(tick,1000);
 }
 
-function openFlashModal(){
-  if(!_flashAtiva)return;
-  const f=_flashAtiva;
-  const isSheets=f.origem==='sheets';
-  const desc=f.desconto_pct?`${f.desconto_pct}% OFF`:'';
-  const fimD=new Date(f.fim_at);
-  const fimDataFmt=fimD.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const fimHoraFmt=fimD.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-
-  let titulo, briefing, precosHTML='', fotoHTML='', descontoHTML='';
-  if(isSheets){
-    titulo='Flash Sale Rhode';
-    briefing=f.briefing||'Sua janela de Flash Sale Rhode está ativa. Aproveita para abrir sua live agora!';
-  }else{
-    titulo=f.produto_nome||'Flash Sale Rhode';
-    briefing=f.briefing||'Aproveite enquanto está rolando — repassa pra sua audiência com seu link de afiliada Rhode.';
-    fotoHTML=f.produto_foto?`<div class="flash-modal-foto"><img src="${f.produto_foto}" alt=""></div>`:'';
-    descontoHTML=desc?`<span class="flash-modal-desconto">${desc}</span>`:'';
-    precosHTML=`<div class="flash-modal-precos">
-      ${f.preco_de?`<span class="de">R$ ${(+f.preco_de).toFixed(2)}</span>`:''}
-      ${f.preco_por?`<span class="por">R$ ${(+f.preco_por).toFixed(2)}</span>`:''}
-    </div>`;
+function renderFlashTab(){
+  const slot=document.getElementById('flash-list');
+  if(!slot)return;
+  if(!_flashList.length){
+    slot.innerHTML=`<div class="fl-empty">⚡ Nenhuma flash sale ativa pra você agora.<br>Quando rolar uma, ela aparece aqui e no topo do painel.</div>`;
+    return;
   }
-
-  document.getElementById('flash-modal-content').innerHTML=`
-    <div class="flash-modal-header">
-      <button class="flash-modal-close" onclick="closeFlashModal()">×</button>
-      <div class="flash-modal-eyebrow">🔥 Flash Sale Rhode</div>
-      <div class="flash-modal-title">${titulo}</div>
-    </div>
-    <div class="flash-modal-body">
-      ${fotoHTML}
-      ${descontoHTML}
-      ${precosHTML}
-      <div class="flash-modal-briefing">${briefing}</div>
-      <div class="flash-modal-cd-block">
-        <div class="flash-modal-cd-label">Termina em ${fimDataFmt} · ${fimHoraFmt}</div>
-        <div class="flash-modal-cd-time" id="flash-modal-cd">--:--:--</div>
+  slot.innerHTML=_flashList.map(f=>{
+    const prods=(f.products||[]).slice(0,12).map(p=>`
+      <div class="fl-prod">
+        <div class="fl-prod-nome">${p.nome||'Produto'}</div>
+        <div class="fl-prod-precos">
+          ${p.preco_original?`<span class="fl-de">${_fR(p.preco_original)}</span>`:''}
+          <span class="fl-por">${_fR(p.preco_promo)}</span>
+          ${p.pct_off?`<span class="fl-off">-${p.pct_off}%</span>`:''}
+        </div>
+      </div>`).join('');
+    const n=(f.products||[]).length;
+    const extra=n>12?`<div class="fl-mais">+ ${n-12} produtos nesta oferta</div>`:'';
+    const tag=f.scope==='loja'?'Loja toda':'Sua flash';
+    return `<div class="fl-card">
+      <div class="fl-card-head">
+        <div class="fl-eyebrow">🔥 ${tag}</div>
+        <div class="fl-cd">${_flashCdLong(f.end_ts)}</div>
       </div>
-      <div class="flash-modal-actions">
-        <button class="flash-modal-btn flash-modal-btn-primary" onclick="closeFlashModal()">Vou aproveitar agora</button>
-        <button class="flash-modal-btn flash-modal-btn-secondary" onclick="closeFlashModal()">Lembrar depois</button>
-      </div>
+      <div class="fl-prods">${prods}${extra}</div>
     </div>`;
-  document.getElementById('flash-modal').classList.add('on');
+  }).join('');
 }
-
-function closeFlashModal(){
-  document.getElementById('flash-modal').classList.remove('on');
-}
-
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')closeFlashModal();
-});
 
 // ── Tarefas Rhode (campanhas + amostras enviadas)
 async function loadTarefasRhode(affId){
@@ -3766,6 +3743,7 @@ function goTab(id){
   if(id==='perfdetail'){renderPerfDetail();loadTopProdutos();}
   if(id==='novidades')loadNovidades();
   if(id==='comissoes')loadExtrato();
+  if(id==='flashsales')loadFlashSales();
   window.scrollTo({top:0,behavior:'instant'});
   try{ Track.tab(id); }catch(e){}
 }

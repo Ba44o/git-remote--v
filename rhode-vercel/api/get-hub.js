@@ -190,8 +190,14 @@ async function handleData(body, res) {
         return res.json({ ranking: active, total: active.length });
       }
 
-      case 'flash':
-        return res.json(await sbGet(`flash_sales_ativas?select=*&order=fim_at.asc`));
+      case 'flash': {
+        // Flash sales ATIVAS pra esta creator (a dela) OU da loja toda. Fonte: Promotion API
+        // (coletar_flash_sales.py). Filtro por janela begin/end em epoch — robusto a tabela stale.
+        const eh = EXTRATO_ALIASES[handle] || handle;
+        const now = Math.floor(Date.now() / 1000);
+        return res.json(await sbGet(
+          `flash_sales?or=(creator.eq.${enc(eh)},scope.eq.loja)&end_ts=gt.${now}&begin_ts=lte.${now}&order=end_ts.asc`));
+      }
 
       case 'tarefas': {
         const cutoff = p.cutoff || '';
