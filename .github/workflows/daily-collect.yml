@@ -1,0 +1,41 @@
+name: Rhode — Coleta diária via API (fora do Mac)
+
+# Roda os coletores da API TikTok (ETLs diários + extrato + GMV forward de junho)
+# direto no GitHub, sem depender do Mac. O token vem da tabela api_tokens no
+# Supabase (ver token_store.py) — renovado no início de cada run.
+#
+# Cron 14:00 UTC = 11:00 BRT (desencontrado do launchd do Mac às 8h, pra não
+# correr o refresh_token em paralelo durante a fase de migração — ver P4).
+on:
+  schedule:
+    - cron: "0 14 * * *"
+  workflow_dispatch: {}
+
+# Garante 1 execução por vez (evita 2 runs correndo o refresh_token juntos)
+concurrency:
+  group: rhode-daily-collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      TIKTOK_APP_KEY:       ${{ secrets.TIKTOK_APP_KEY }}
+      TIKTOK_APP_SECRET:    ${{ secrets.TIKTOK_APP_SECRET }}
+      TIKTOK_SHOP_CIPHER:   ${{ secrets.TIKTOK_SHOP_CIPHER }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependências
+        run: pip install requests pandas openpyxl python-dotenv numpy
+
+      - name: Coleta diária (refresh token + ETLs API + extrato + GMV forward)
+        run: bash refresh_performance_diario.sh

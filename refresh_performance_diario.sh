@@ -7,7 +7,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
-PROJ="/Users/user/Documents/VS Claude Teste"
+# Diretório do próprio script — funciona no Mac (launchd) E no GitHub Actions.
+PROJ="$(cd "$(dirname "$0")" && pwd)"
 cd "$PROJ" || { echo "[ERRO] não achei $PROJ"; exit 1; }
 mkdir -p "$PROJ/logs"
 

@@ -35,27 +35,29 @@ def set_env(env_text, key, value):
     return env_text + f"{sep}{key}={value}\n"
 
 def salvar(data):
-    """Persiste access_token, refresh_token e shop_id no .env."""
-    with open(ENV_PATH) as f:
-        env = f.read()
-    env = set_env(env, "TIKTOK_ACCESS_TOKEN",  data["access_token"])
-    env = set_env(env, "TIKTOK_REFRESH_TOKEN", data["refresh_token"])
-    if data.get("open_id"):
-        env = set_env(env, "TIKTOK_SHOP_ID", data["open_id"])
-    with open(ENV_PATH, "w") as f:
-        f.write(env)
+    """Persiste access_token, refresh_token e shop_id no Supabase (sempre) e no
+    .env (se existir — no GitHub Actions não existe, então é best-effort)."""
+    try:
+        with open(ENV_PATH) as f:
+            env = f.read()
+        env = set_env(env, "TIKTOK_ACCESS_TOKEN",  data["access_token"])
+        env = set_env(env, "TIKTOK_REFRESH_TOKEN", data["refresh_token"])
+        if data.get("open_id"):
+            env = set_env(env, "TIKTOK_SHOP_ID", data["open_id"])
+        with open(ENV_PATH, "w") as f:
+            f.write(env)
+        print("\n✅ Tokens salvos no .env")
+    except FileNotFoundError:
+        print("\n(.env ausente — gravando só no Supabase, ok em ambiente sem .env)")
 
-    # Dual-write: também grava no Supabase (api_tokens) pra rodar fora do Mac.
-    # Best-effort — se falhar, o .env já foi salvo e o local segue funcionando.
-    if token_store:
-        if token_store.save(data):
-            print("   ↳ também salvo no Supabase (api_tokens) ✓")
+    # Supabase (api_tokens) — fonte de verdade pra rodar fora do Mac. Sempre.
+    if token_store and token_store.save(data):
+        print("   ↳ salvo no Supabase (api_tokens) ✓")
 
     # expire_in vem como timestamp ABSOLUTO (epoch), não duração → subtrai agora
     now = int(time.time())
     acc_h = max(0, data.get("access_token_expire_in", 0)  - now) // 3600
     ref_d = max(0, data.get("refresh_token_expire_in", 0) - now) // 86400
-    print("\n✅ Tokens salvos no .env")
     print(f"   Access token  expira em ~{acc_h}h")
     print(f"   Refresh token expira em ~{ref_d}d (renove antes com --refresh)")
 
