@@ -82,13 +82,13 @@ def agregar(orders, prod_nomes=None):
 
             r = resumo.setdefault((c, per), dict(
                 gmv_estimado=0.0, gmv_liquidado=0.0, gmv_a_liquidar=0.0, gmv_inelegivel=0.0,
-                comissao_estimada=0.0, comissao_paga=0.0, reembolsos_valor=0.0))
+                comissao_estimada=0.0, comissao_paga=0.0, comissao_a_receber=0.0, reembolsos_valor=0.0))
             r["gmv_estimado"] += est
             r["comissao_estimada"] += com_est
             if st == "liquidado":
                 r["gmv_liquidado"] += act; r["comissao_paga"] += com_pago
             elif st == "a_liquidar":
-                r["gmv_a_liquidar"] += est
+                r["gmv_a_liquidar"] += est; r["comissao_a_receber"] += com_est  # comissão que VAI pagar
             else:
                 r["gmv_inelegivel"] += est
             if ret:
@@ -120,6 +120,7 @@ def agregar(orders, prod_nomes=None):
             gmv_inelegivel=round(r["gmv_inelegivel"], 2),
             comissao_estimada=round(r["comissao_estimada"], 2),
             comissao_paga=round(r["comissao_paga"], 2),
+            comissao_a_receber=round(r["comissao_a_receber"], 2),
             reembolsos_n=len(reemb_orders.get((c, per), set())),
             reembolsos_valor=round(r["reembolsos_valor"], 2),
             videos=len(content.get((c, per), {}).get("VIDEO", set())),
@@ -143,7 +144,7 @@ def upsert(table, rows, chunk=500, on_conflict=None):
 
 EXTRATO_COLS = ("id","creator","periodo","pedidos","gmv_estimado","gmv_liquidado",
                 "gmv_a_liquidar","gmv_inelegivel","comissao_estimada","comissao_paga",
-                "reembolsos_n","reembolsos_valor")
+                "comissao_a_receber","reembolsos_n","reembolsos_valor")
 
 def build_performance_forward(resumo_rows, forward_from=FORWARD_FROM):
     """performance_periods rows pra meses >= forward_from (FORWARD-ONLY).

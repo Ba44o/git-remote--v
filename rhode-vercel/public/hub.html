@@ -1513,6 +1513,15 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
 .ex-st.a_liquidar{background:rgba(245,158,11,.14);color:#b45309}
 .ex-st.inelegivel{background:rgba(0,0,0,.06);color:#6b7280}
 .ex-st.reemb{background:rgba(254,44,85,.1);color:var(--rhode-red)}
+.ex-ped-comlbl{font-size:10px;color:var(--ink-48,#888);margin-top:1px}
+/* toolbar do drill-down: filtros + CSV */
+.ex-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px 10px;border-top:1px solid rgba(0,0,0,0.06);flex-wrap:wrap}
+.ex-filters{display:flex;gap:6px;flex-wrap:wrap}
+.ex-chip{font-size:12px;font-weight:500;padding:5px 12px;border-radius:999px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:var(--ink-48,#777);cursor:pointer}
+.ex-chip.on{background:var(--ink,#111);color:#fff;border-color:var(--ink,#111)}
+.ex-csv{font-size:12px;font-weight:600;padding:5px 12px;border-radius:999px;border:1px solid rgba(22,163,74,.3);background:rgba(22,163,74,.08);color:#15803d;cursor:pointer;white-space:nowrap}
+.ex-ped-list{max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.ex-ped-count{font-size:11px;color:var(--ink-48,#888);padding:8px 18px 4px;position:sticky;top:0;background:#fff}
 </style>
 </head>
 <body>
@@ -3690,6 +3699,11 @@ const _exR=v=>'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maxi
 const _exRk=v=>{v=+v||0;return v>=1000?('R$ '+(v/1000).toFixed(1).replace('.',',')+'k'):('R$ '+v.toFixed(0));};
 const _exMesLbl=p=>{const M=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];const[y,m]=String(p).split('-');return M[+m-1]+'/'+y.slice(2);};
 let _exData=null;
+let _exPeds={};   // cache de pedidos por período (filtro + CSV sem refetch)
+
+// comissão "que conta" = recebida + a receber (exclui inelegível/reembolso que não paga)
+const _exCom=r=>(+r.comissao_paga||0)+(+r.comissao_a_receber||0);
+const _exVendas=r=>(+r.gmv_liquidado||0)+(+r.gmv_a_liquidar||0);
 
 async function loadComissoesCard(){
   const slot=document.getElementById('comissoes-card'); if(!slot)return;
@@ -3697,16 +3711,15 @@ async function loadComissoesCard(){
     const rows=await hub('extrato_resumo');
     if(!rows||!rows.length){slot.innerHTML='';return;}
     _exData=rows;
-    // esconde o card se não há atividade real (ex: Iniciante com tudo R$0/reembolsado)
-    const ativ=rows.reduce((s,r)=>s+(+r.gmv_liquidado||0)+(+r.gmv_a_liquidar||0)+(+r.comissao_paga||0),0);
-    if(ativ<=0){slot.innerHTML='';return;}
-    const cur=rows.find(r=>(+r.gmv_liquidado||0)+(+r.gmv_a_liquidar||0)>0)||rows[0]; // mês com atividade
+    // só mostra se há comissão real
+    if(rows.reduce((s,r)=>s+_exCom(r),0)<=0){slot.innerHTML='';return;}
+    const cur=rows.find(r=>_exCom(r)>0)||rows[0];
     slot.innerHTML=`<div class="cc-card"><div class="cc-inner" onclick="goTab('comissoes')">
       <div class="cc-eyebrow">💰 Central de Comissões · ${_exMesLbl(cur.periodo)}</div>
       <div class="cc-row">
-        <div class="cc-metric"><span class="cc-val">${_exRk(cur.gmv_liquidado)}</span><span class="cc-lbl">liquidado</span></div>
-        <div class="cc-metric"><span class="cc-val">${_exRk(cur.gmv_a_liquidar)}</span><span class="cc-lbl">a liquidar</span></div>
-        <div class="cc-metric"><span class="cc-val">${_exRk(cur.comissao_paga)}</span><span class="cc-lbl">comissão paga</span></div>
+        <div class="cc-metric"><span class="cc-val">${_exRk(_exCom(cur))}</span><span class="cc-lbl">comissão do mês</span></div>
+        <div class="cc-metric"><span class="cc-val">${_exRk(cur.comissao_paga)}</span><span class="cc-lbl">já recebida</span></div>
+        <div class="cc-metric"><span class="cc-val">${_exRk(cur.comissao_a_receber)}</span><span class="cc-lbl">a receber</span></div>
       </div>
       <div class="cc-go">Ver meu extrato completo ›</div>
     </div></div>`;
@@ -3721,46 +3734,88 @@ async function loadExtrato(){
     _exData=rows;
     if(!rows||!rows.length){main.innerHTML='<div class="empty">SEM DADOS DE COMISSÃO AINDA<br>Seu extrato aparece conforme suas vendas entram.</div>';return;}
     main.innerHTML=rows.map(r=>{
-      const tot=((+r.gmv_liquidado||0)+(+r.gmv_a_liquidar||0)+(+r.gmv_inelegivel||0))||1;
-      const pl=100*(+r.gmv_liquidado||0)/tot, pp=100*(+r.gmv_a_liquidar||0)/tot, pi=100*(+r.gmv_inelegivel||0)/tot;
+      const paga=+r.comissao_paga||0, arec=+r.comissao_a_receber||0, com=paga+arec;
+      const tot=com||1, pp=100*paga/tot, pa=100*arec/tot;
       return `<div class="ex-mes">
         <div class="ex-mes-head" onclick="toggleExMes('${r.periodo}')">
-          <div><div class="ex-mes-per">${_exMesLbl(r.periodo)}</div><div class="ex-mes-sub">${r.pedidos} pedidos${(+r.reembolsos_n)?` · ${r.reembolsos_n} reembolso${r.reembolsos_n>1?'s':''}`:''}</div></div>
-          <div style="text-align:right"><div class="ex-mes-liq">${_exR(r.gmv_liquidado)}</div><div class="ex-mes-sub">liquidado</div></div>
+          <div><div class="ex-mes-per">${_exMesLbl(r.periodo)}</div>
+            <div class="ex-mes-sub">${r.pedidos} pedidos${(+r.reembolsos_n)?` · ${r.reembolsos_n} reemb.`:''} · em ${_exR(_exVendas(r))} de vendas</div></div>
+          <div style="text-align:right"><div class="ex-mes-liq">${_exR(com)}</div><div class="ex-mes-sub">comissão do mês</div></div>
         </div>
-        <div class="ex-bar"><i class="liq" style="width:${pl}%"></i><i class="pen" style="width:${pp}%"></i><i class="ine" style="width:${pi}%"></i></div>
+        <div class="ex-bar"><i class="liq" style="width:${pp}%"></i><i class="pen" style="width:${pa}%"></i></div>
         <div class="ex-legend">
-          <span><span class="ex-dot" style="background:#16a34a"></span>Liquidado <b>${_exR(r.gmv_liquidado)}</b></span>
-          <span><span class="ex-dot" style="background:#f59e0b"></span>A liquidar <b>${_exR(r.gmv_a_liquidar)}</b></span>
-          ${(+r.gmv_inelegivel)?`<span><span class="ex-dot" style="background:#d1d5db"></span>Inelegível <b>${_exR(r.gmv_inelegivel)}</b></span>`:''}
-          <span>Comissão paga <b>${_exR(r.comissao_paga)}</b></span>
+          <span><span class="ex-dot" style="background:#16a34a"></span>Recebida <b>${_exR(paga)}</b></span>
+          <span><span class="ex-dot" style="background:#f59e0b"></span>A receber <b>${_exR(arec)}</b></span>
         </div>
         <div class="ex-body" id="exbody-${r.periodo}"><div class="spin-wrap">CARREGANDO</div></div>
       </div>`;
     }).join('');
-  }catch(e){main.innerHTML='<div class="empty">ERRO AO CARREGAR EXTRATO</div>';}
+  }catch(e){console.error('loadExtrato:',e);main.innerHTML='<div class="empty">ERRO AO CARREGAR EXTRATO</div>';}
 }
 
 async function toggleExMes(per){
   const body=document.getElementById('exbody-'+per); if(!body)return;
   const open=body.classList.toggle('open');
   if(open && !body.dataset.loaded){
+    body.innerHTML='<div class="spin-wrap" style="padding:20px">CARREGANDO</div>';
     try{
       const peds=await hub('extrato_pedidos',{periodo:per});
       body.dataset.loaded='1';
+      _exPeds[per]=peds||[];
       if(!peds||!peds.length){body.innerHTML='<div class="ex-ped"><span class="ex-ped-meta">Sem pedidos neste mês.</span></div>';return;}
-      body.innerHTML=peds.map(p=>{
-        const dt=p.data?new Date(p.data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
-        const stLbl={liquidado:'Liquidado',a_liquidar:'A liquidar',inelegivel:'Inelegível'}[p.status]||p.status;
-        return `<div class="ex-ped">
-          <div class="ex-ped-l"><div class="ex-ped-prod">${(p.produto||p.product_id||'—').replace(/</g,'&lt;')}</div>
-            <div class="ex-ped-meta">${dt}${p.content_type?' · '+String(p.content_type).toLowerCase():''}</div></div>
-          <div class="ex-ped-r"><div class="ex-ped-gmv">${_exR(p.gmv)}</div>
-            <span class="ex-st ${p.status}">${stLbl}</span>${p.reembolso?'<span class="ex-st reemb">reembolso</span>':''}</div>
-        </div>`;
-      }).join('');
-    }catch(e){body.innerHTML='<div class="ex-ped"><span class="ex-ped-meta">Erro ao carregar pedidos.</span></div>';}
+      body.innerHTML=`
+        <div class="ex-tools">
+          <div class="ex-filters" id="exf-${per}">
+            <button class="ex-chip on" onclick="exFilter('${per}','todos',this)">Todos</button>
+            <button class="ex-chip" onclick="exFilter('${per}','liquidado',this)">Liquidado</button>
+            <button class="ex-chip" onclick="exFilter('${per}','a_liquidar',this)">A liquidar</button>
+            <button class="ex-chip" onclick="exFilter('${per}','inelegivel',this)">Inelegível</button>
+          </div>
+          <button class="ex-csv" onclick="exCsv('${per}')">⬇ CSV</button>
+        </div>
+        <div class="ex-ped-list" id="exlist-${per}"></div>`;
+      exRenderPeds(per,'todos');
+    }catch(e){console.error('extrato_pedidos:',e);body.innerHTML='<div class="ex-ped"><span class="ex-ped-meta">Erro ao carregar pedidos.</span></div>';}
   }
+}
+
+const _exPedCom=p=>(p.status==='liquidado'?(+p.comissao_paga||0):(+p.comissao_estimada||0));
+
+function exRenderPeds(per, filtro){
+  const list=document.getElementById('exlist-'+per); if(!list)return;
+  let peds=_exPeds[per]||[];
+  if(filtro!=='todos') peds=peds.filter(p=>p.status===filtro);
+  if(!peds.length){list.innerHTML='<div class="ex-ped"><span class="ex-ped-meta">Nenhum pedido neste filtro.</span></div>';return;}
+  const stLbl={liquidado:'Liquidado',a_liquidar:'A liquidar',inelegivel:'Inelegível'};
+  list.innerHTML=`<div class="ex-ped-count">${peds.length} pedido${peds.length>1?'s':''}</div>`+peds.map(p=>{
+    const dt=p.data?new Date(p.data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
+    return `<div class="ex-ped">
+      <div class="ex-ped-l"><div class="ex-ped-prod">${(p.produto||p.product_id||'—').replace(/</g,'&lt;')}</div>
+        <div class="ex-ped-meta">${dt}${p.content_type?' · '+String(p.content_type).toLowerCase():''} · ${_exR(p.gmv)} vendido</div></div>
+      <div class="ex-ped-r"><div class="ex-ped-gmv">${_exR(_exPedCom(p))}</div><div class="ex-ped-comlbl">comissão</div>
+        <span class="ex-st ${p.status}">${stLbl[p.status]||p.status}</span>${p.reembolso?'<span class="ex-st reemb">reemb.</span>':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function exFilter(per, filtro, btn){
+  document.querySelectorAll('#exf-'+per+' .ex-chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); exRenderPeds(per, filtro);
+}
+
+function exCsv(per){
+  const peds=_exPeds[per]||[]; if(!peds.length)return;
+  const esc=v=>{v=(v==null?'':String(v));return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const head=['data','produto','tipo','gmv_vendido','comissao','status','reembolso'];
+  const linhas=peds.map(p=>[p.data||'', p.produto||p.product_id||'', (p.content_type||'').toLowerCase(),
+    (+p.gmv||0).toFixed(2), _exPedCom(p).toFixed(2), p.status||'', p.reembolso?'sim':'nao'].map(esc).join(';'));
+  const csv='﻿'+head.join(';')+'\n'+linhas.join('\n');   // BOM p/ Excel abrir certo (PT-BR)
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=`extrato_${(_creator?.handle||'creator')}_${per}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  try{ Track.action('extrato_csv',{periodo:per,n:peds.length}); }catch(e){}
 }
 
 // ── Inbox de notificações ───────────────────────────────────────────
