@@ -198,20 +198,11 @@ body{
 .flash-banner-text strong{font-weight:700;letter-spacing:-0.011em}
 .flash-banner-cd{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;letter-spacing:0.04em;background:rgba(0,0,0,0.18);padding:6px 12px;border-radius:8px;flex-shrink:0}
 .flash-banner-arrow{font-size:18px;flex-shrink:0;opacity:.85}
-
-/* ── Aba Flash Sales (lista) ── */
-#flash-list{padding:4px 0 8px}
-.fl-empty{text-align:center;color:var(--ink-48);font-size:14px;line-height:1.6;padding:48px 24px}
-.fl-card{background:#fff;border:1px solid var(--hairline,rgba(0,0,0,0.08));border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
-.fl-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--hairline,rgba(0,0,0,0.07))}
-.fl-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:var(--rhode-red)}
-.fl-cd{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--ink-80);background:var(--parchment);padding:4px 10px;border-radius:8px}
-.fl-body{font-size:14px;line-height:1.55;color:var(--ink-80);letter-spacing:-0.006em}
-.fl-body strong{color:var(--ink);font-weight:700}
-.fl-req-btn{display:block;width:100%;margin-top:6px;padding:15px;border:none;border-radius:14px;background:var(--rhode-red);color:#fff;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;letter-spacing:-0.01em;cursor:pointer;transition:transform .12s ease,background .15s ease}
-.fl-req-btn:hover{background:var(--rhode-red-hover)}
-.fl-req-btn:active{transform:scale(.98)}
-.fl-req-hint{text-align:center;font-size:12px;color:var(--ink-48);margin-top:10px;line-height:1.4;padding:0 12px}
+/* estados: ativa = vermelho urgente · idle = CTA discreto pra solicitar */
+.flash-banner--active{cursor:default}
+.flash-banner--idle{background:#fff;color:var(--rhode-red);box-shadow:0 1px 8px rgba(0,0,0,0.05);border-bottom:1px solid var(--hairline,rgba(0,0,0,0.08))}
+.flash-banner--idle .flash-banner-text{font-weight:600}
+.flash-banner--idle .flash-banner-arrow{color:var(--rhode-red);opacity:1}
 
 .flash-modal-overlay{
   position:fixed;inset:0;background:rgba(29,29,31,0.7);backdrop-filter:blur(8px);
@@ -1749,15 +1740,6 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
     <div class="deliv-wrap" id="deliv-content"><div class="spin-wrap">CARREGANDO</div></div>
   </div>
 
-  <div class="panel" id="panel-flashsales">
-    <div class="hero-tile">
-      <div class="hero-greeting">⚡ Flash Sales</div>
-      <div class="hero-name">Ofertas<br><span class="accent">no ar agora.</span></div>
-      <div class="hero-sub">Sua flash sale dedicada na TikTok Shop. Quando tem uma ativa pra você, ela aparece aqui e no topo do painel — repassa pra sua audiência enquanto está rolando.</div>
-    </div>
-    <div id="flash-list"><div class="spin-wrap">CARREGANDO</div></div>
-  </div>
-
   <!-- Bottom nav -->
   <nav class="bottom-nav">
     <button class="nav-btn on" id="nav-perf" onclick="goTab('perf')">
@@ -1771,10 +1753,6 @@ body.tour-mode .nav-btn{transition: color .5s ease, background .5s ease}
     <button class="nav-btn" id="nav-novidades" onclick="goTab('novidades')">
       <svg class="nav-icon" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2.5l2.5 5.5 5.5.6-4 3.8 1.1 5.6L11 15.3l-5.1 2.7 1.1-5.6L3 8.6l5.5-.6L11 2.5z"/></svg>
       <span class="nav-label">Novidades</span>
-    </button>
-    <button class="nav-btn" id="nav-flashsales" onclick="goTab('flashsales')">
-      <svg class="nav-icon" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 12h6l-1 8 8-11h-6l1-7z"/></svg>
-      <span class="nav-label">Flash</span>
     </button>
     <button class="nav-btn" id="nav-copy" onclick="goTab('copy')">
       <svg class="nav-icon" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3.5l4 4-9.5 9.5H5v-4l9.5-9.5z"/></svg>
@@ -3311,45 +3289,42 @@ function renderPainelBody(){
 // ── Flash Sales · banner + modal countdown
 const TIER_RANK={'Iniciante':0,'Bronze':1,'Silver':2,'Gold':3,'Diamond':4,'Black':5};
 // ── Flash Sales (fonte: TikTok Promotion API, via /api/get-hub) ──────
-// O proxy já devolve só as flashes ATIVAS desta creator (a dela) OU da loja.
+// Sem aba/card: só um banner adaptativo no topo. Com flash ativa → aviso +
+// countdown ao vivo; sem flash → CTA discreto pra solicitar a sua.
 let _flashList=[];
 let _flashCdInterval=null;
-const _fR=v=>'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const _flashFimMs=f=>(+f.end_ts||0)*1000;
-const _flashTop=f=>(f.products&&f.products[0])||null;
 
 async function loadFlashSales(){
   try{
     const flashes=await hub('flash');
     _flashList=Array.isArray(flashes)?flashes:[];
   }catch(e){console.error('loadFlashSales:',e);_flashList=[];}
-  renderFlashTab();
   renderFlashBanner(_flashList[0]||null);   // [0] = a que expira primeiro (order=end_ts.asc)
-}
-
-function _flashCdLong(end_ts){
-  const ms=(+end_ts||0)*1000-Date.now();
-  if(ms<=0)return'encerrando';
-  const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000);
-  return d>0?`termina em ${d}d ${h}h`:(h>0?`termina em ${h}h ${m}min`:`termina em ${m}min`);
 }
 
 function renderFlashBanner(f){
   const slot=document.getElementById('flash-banner-slot');
   if(!slot)return;
   if(_flashCdInterval){clearInterval(_flashCdInterval);_flashCdInterval=null;}
-  if(!f){slot.innerHTML='';return;}
-  const top=_flashTop(f);
-  const off=top&&top.pct_off?` · até <strong>${top.pct_off}% OFF</strong>`:'';
-  slot.innerHTML=`<div class="flash-banner" onclick="goTab('flashsales')">
+  if(!f){
+    // sem flash ativa → CTA discreto pra solicitar
+    slot.innerHTML=`<div class="flash-banner flash-banner--idle" onclick="solicitarFlash()">
+      <span class="flash-banner-icon">⚡</span>
+      <div class="flash-banner-text">Solicitar minha flash sale</div>
+      <span class="flash-banner-arrow">›</span>
+    </div>`;
+    return;
+  }
+  const off=Math.max(0,...(f.products||[]).map(p=>+p.pct_off||0));
+  slot.innerHTML=`<div class="flash-banner flash-banner--active">
     <span class="flash-banner-icon">🔥</span>
-    <div class="flash-banner-text"><strong>Flash Sale ativa</strong>${off} · toca pra ver</div>
+    <div class="flash-banner-text"><strong>Flash sale ativa</strong>${off?` · até <strong>${off}% OFF</strong>`:''}</div>
     <span class="flash-banner-cd" id="flash-banner-cd">--:--:--</span>
-    <span class="flash-banner-arrow">›</span>
   </div>`;
   const tick=()=>{
     const ms=_flashFimMs(f)-Date.now();
-    if(ms<=0){clearInterval(_flashCdInterval);loadFlashSales();return;}  // expirou → recarrega
+    if(ms<=0){clearInterval(_flashCdInterval);loadFlashSales();return;}  // expirou → vira CTA
     const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);
     const pad=v=>String(v).padStart(2,'0');
     const el=document.getElementById('flash-banner-cd');
@@ -3359,34 +3334,10 @@ function renderFlashBanner(f){
   _flashCdInterval=setInterval(tick,1000);
 }
 
-function renderFlashTab(){
-  const slot=document.getElementById('flash-list');
-  if(!slot)return;
-  let html='';
-  if(!_flashList.length){
-    html=`<div class="fl-empty">⚡ Nenhuma flash sale ativa pra você agora.<br>Quando tiver uma sua, ela aparece aqui e no topo do painel.</div>`;
-  }else{
-    html=_flashList.map(f=>{
-      const off=Math.max(0,...(f.products||[]).map(p=>+p.pct_off||0));
-      return `<div class="fl-card">
-        <div class="fl-card-head">
-          <div class="fl-eyebrow">🔥 Sua flash</div>
-          <div class="fl-cd">${_flashCdLong(f.end_ts)}</div>
-        </div>
-        <div class="fl-body">Sua flash sale está <strong>ativa agora</strong>${off?` — com até <strong>${off}% OFF</strong>`:''}. Bora divulgar pra sua audiência enquanto está rolando.</div>
-      </div>`;
-    }).join('');
-  }
-  // botão de solicitar flash sale (sempre visível)
-  html+=`<button class="fl-req-btn" onclick="solicitarFlash()">⚡ Solicitar minha flash sale</button>
-    <div class="fl-req-hint">A gente monta uma oferta relâmpago dedicada pro seu @ e te avisa aqui.</div>`;
-  slot.innerHTML=html;
-}
-
 function solicitarFlash(){
   const h=_creator?.handle?('@'+_creator.handle):'';
   const tier=(_creator?.row?.current_tier||'').toString();
-  const msg=encodeURIComponent(`Oi! Sou a ${h}${tier?` · ${tier}`:''} e queria solicitar uma flash sale dedicada pra mim 🔥`);
+  const msg=encodeURIComponent(`Oi! Sou a ${h}${tier?` · ${tier}`:''} e queria solicitar uma flash sale dedicada pra mim.`);
   try{ Track.action('solicitar_flash'); }catch(e){}
   window.open(`https://wa.me/5511952759126?text=${msg}`,'_blank');
 }
@@ -3742,7 +3693,6 @@ function goTab(id){
   if(id==='perfdetail'){renderPerfDetail();loadTopProdutos();}
   if(id==='novidades')loadNovidades();
   if(id==='comissoes')loadExtrato();
-  if(id==='flashsales')loadFlashSales();
   window.scrollTo({top:0,behavior:'instant'});
   try{ Track.tab(id); }catch(e){}
 }
