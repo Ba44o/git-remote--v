@@ -26,8 +26,10 @@ jobs:
       TIKTOK_APP_SECRET:    ${{ secrets.TIKTOK_APP_SECRET }}
       TIKTOK_SHOP_CIPHER:   ${{ secrets.TIKTOK_SHOP_CIPHER }}
       PYTHONUNBUFFERED: "1"
+      # Silencia o aviso de deprecação do Node 20 (força Node 24 nas js-actions)
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
