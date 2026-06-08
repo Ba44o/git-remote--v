@@ -2651,24 +2651,24 @@ function startHubTour(){
   }
   // Sequência do tour — pacing contemplativo (~55s total)
   const steps=[
-    cb=>pause(4500, cb),                                     // 0: hero respira (stagger anim ~1.5s + 3s leitura)
+    cb=>pause(3300, cb),                                     // 0: hero respira (stagger anim ~1.5s + leitura)
     cb=>smoothScrollTo(420, cb),                              // 1: scroll suave revelando KPIs
-    cb=>pause(4500, cb),
+    cb=>pause(3300, cb),
     cb=>smoothScrollTo(0, cb),                                // 2: volta pro topo
-    cb=>pause(1800, cb),
+    cb=>pause(1200, cb),
     cb=>moveTo(tabBtn('copy'), cb),                           // 3: aponta aba Copy
-    tabAndPause('copy', 4500),                                // mostra form
+    tabAndPause('copy', 3200),                                // mostra form
     cb=>{
       const chip=document.querySelector('#panel-copy .prod-chip, #panel-copy [data-prod], #panel-copy .form-card button');
-      if(chip){ chip.scrollIntoView({behavior:'smooth', block:'center'}); pause(1200, cb); } else pause(800, cb);
+      if(chip){ chip.scrollIntoView({behavior:'smooth', block:'center'}); pause(1000, cb); } else pause(700, cb);
     },
-    cb=>pause(3500, cb),
+    cb=>pause(2400, cb),
     cb=>moveTo(tabBtn('entregaveis'), cb),                    // 4: aponta aba Acessos
-    tabAndPause('entregaveis', 5000),
+    tabAndPause('entregaveis', 3500),
     cb=>smoothScrollTo(window.scrollY+350, cb),
-    cb=>pause(4000, cb),
+    cb=>pause(2600, cb),
     cb=>moveTo(tabBtn('novidades'), cb),                      // 5: aponta aba Novidades
-    tabAndPause('novidades', 4200),
+    tabAndPause('novidades', 3300),
     // ── 6: volta pro Painel e revela a Central de Comissões ──
     cb=>moveTo(tabBtn('perf'), cb),
     cb=>{ goTab('perf'); retriggerPanelAnim('perf'); smoothScrollTo(0, cb); },
