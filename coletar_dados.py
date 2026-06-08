@@ -14,10 +14,15 @@ from datetime import datetime, timedelta, date
 from dotenv import load_dotenv
 
 load_dotenv()
+try:
+    import token_store                       # access_token da tabela api_tokens (fallback .env)
+except Exception:
+    token_store = None
 
 APP_KEY      = os.getenv("TIKTOK_APP_KEY")
 APP_SECRET   = os.getenv("TIKTOK_APP_SECRET")
-ACCESS_TOKEN = os.getenv("TIKTOK_ACCESS_TOKEN")
+# Token da tabela (fonte de verdade na nuvem) → fallback .env (local).
+ACCESS_TOKEN = (token_store.get_access_token() if token_store else None) or os.getenv("TIKTOK_ACCESS_TOKEN")
 SHOP_CIPHER  = os.getenv("TIKTOK_SHOP_CIPHER")
 BASE_URL     = "https://api.tiktok-shops.com"
 PASTA        = "dados/marketplace/tiktokshop"

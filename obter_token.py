@@ -14,6 +14,10 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+try:
+    import token_store
+except Exception:
+    token_store = None
 
 APP_KEY     = os.getenv("TIKTOK_APP_KEY")
 APP_SECRET  = os.getenv("TIKTOK_APP_SECRET")
@@ -41,6 +45,12 @@ def salvar(data):
     with open(ENV_PATH, "w") as f:
         f.write(env)
 
+    # Dual-write: também grava no Supabase (api_tokens) pra rodar fora do Mac.
+    # Best-effort — se falhar, o .env já foi salvo e o local segue funcionando.
+    if token_store:
+        if token_store.save(data):
+            print("   ↳ também salvo no Supabase (api_tokens) ✓")
+
     # expire_in vem como timestamp ABSOLUTO (epoch), não duração → subtrai agora
     now = int(time.time())
     acc_h = max(0, data.get("access_token_expire_in", 0)  - now) // 3600
@@ -64,9 +74,10 @@ def get_token(auth_code):
         print(f"\n❌ Erro: {data.get('message')} (code {data.get('code')})")
 
 def refresh():
-    refresh_token = os.getenv("TIKTOK_REFRESH_TOKEN")
+    # refresh_token: Supabase primeiro (fonte de verdade na nuvem), senão .env
+    refresh_token = (token_store.get_refresh_token() if token_store else None) or os.getenv("TIKTOK_REFRESH_TOKEN")
     if not refresh_token:
-        print("❌ Sem TIKTOK_REFRESH_TOKEN no .env — rode o fluxo de auth_code no browser primeiro.")
+        print("❌ Sem refresh_token (Supabase nem .env) — rode o fluxo de auth_code no browser primeiro.")
         sys.exit(1)
     params = {
         "app_key":       APP_KEY,
