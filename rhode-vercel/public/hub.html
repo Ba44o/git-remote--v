@@ -3823,14 +3823,16 @@ function openExtratoHelp(){document.getElementById('ex-help-modal').classList.ad
 function closeExtratoHelp(){document.getElementById('ex-help-modal').classList.remove('on');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeExtratoHelp();});
 
-// ── Produtos campeões (aba Performance) — o "hero" da creator ────────
+// ── Produtos campeões (top SKU) na aba Performance ──────────────────
 let _topProd=null;
 async function loadTopProdutos(){
   const slot=document.getElementById('top-produtos'); if(!slot)return;
   if(_topProd){renderTopProdutos(_topProd);return;}
-  slot.innerHTML='<div class="tp-wrap"><div class="spin-wrap" style="padding:20px">CARREGANDO</div></div>';
-  try{ _topProd=await hub('top_produtos',{limit:6}); renderTopProdutos(_topProd); }
-  catch(e){ console.error('loadTopProdutos:',e); slot.innerHTML=''; }
+  slot.innerHTML='<div class="tp-wrap"><div class="spin-wrap" style="padding:24px">CARREGANDO</div></div>';
+  try{
+    const top=await hub('top_produtos',{limit:6});
+    _topProd=top; renderTopProdutos(top);
+  }catch(e){console.error('loadTopProdutos:',e);slot.innerHTML='';}
 }
 function renderTopProdutos(top){
   const slot=document.getElementById('top-produtos'); if(!slot)return;
@@ -3850,10 +3852,11 @@ function renderTopProdutos(top){
       <div class="tp-row">
         <span class="tp-pos">${i+2}</span>
         <span class="tp-row-name">${(x.produto||'—').replace(/</g,'&lt;')}</span>
-        <span class="tp-row-gmv">${_exR(x.gmv)}<small>${x.pedidos} ped · ${_exR(x.comissao)} com.</small></span>
+        <span class="tp-row-gmv">${_exR(x.gmv)}<small>${x.pedidos} ped · ${_exR(x.comissao)} com</small></span>
       </div>`).join(''):''}
   </div>`;
 }
+
 
 // ── Inbox de notificações ───────────────────────────────────────────
 // (declaração movida pra topo do script — TDZ quebrava boot síncrono)
