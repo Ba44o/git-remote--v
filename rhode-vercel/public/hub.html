@@ -3058,6 +3058,17 @@ const PERIOD_FILTERS={
   '12m':{label:'12 meses',count:12,prevLabel:'12 meses anteriores'}
 };
 
+// mês do calendário corrente em YYYY-MM — âncora do filtro "Mês atual"
+function currentMonthStr(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+const _MESES_BR=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function fmtMesBR(periodo){
+  const m=(periodo||'').match(/(\d{4})-(\d{2})/);
+  return m?`${_MESES_BR[+m[2]-1]}/${m[1]}`:(periodo||'—');
+}
+
 function calcPeriodStats(rows){
   if(!rows||!rows.length)return{gmv:0,gmv_bruto:0,refund:0,pedidos:0,videos:0,lives:0,comissao:0,aov:0,refund_pct:0,periods:0};
   const gmv=rows.reduce((s,r)=>s+(+r.gmv_liquido||0),0);
@@ -3097,6 +3108,19 @@ function deltaHTML(d){
 
 function getFilteredView(){
   const f=PERIOD_FILTERS[_currentFilter];
+  // "Mês atual" é ancorado no mês do CALENDÁRIO, não no último período com dados.
+  // Se a creator ainda não vendeu no mês corrente, devolve estado-zero — não maquia
+  // o mês anterior como se fosse o atual (era o bug do "Mês atual · 05/26").
+  if(_currentFilter==='month'){
+    const cm=currentMonthStr();
+    if((_perfHistory[0]?.periodo)!==cm){
+      const prev=_perfHistory.slice(0,1); // último mês com dados, só p/ contexto
+      return{cur:[],prev,curStats:calcPeriodStats([]),prevStats:calcPeriodStats(prev),emptyMonth:cm};
+    }
+    const cur=_perfHistory.slice(0,1);
+    const prev=_perfHistory.slice(1,2);
+    return{cur,prev,curStats:calcPeriodStats(cur),prevStats:calcPeriodStats(prev)};
+  }
   const cur=_perfHistory.slice(0,f.count);
   const prev=_perfHistory.slice(f.count,f.count*2);
   return{cur,prev,curStats:calcPeriodStats(cur),prevStats:calcPeriodStats(prev)};
@@ -3128,6 +3152,7 @@ function renderPainelBody(){
   const cur=view.curStats;
   const prev=view.prevStats;
   const filter=PERIOD_FILTERS[_currentFilter];
+  const emptyMonth=view.emptyMonth; // mês corrente sem vendas → estado-zero
 
   const R=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const Rk=v=>v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':'R$ '+v.toFixed(0);
@@ -3139,7 +3164,7 @@ function renderPainelBody(){
       <div class="period-filter">
         ${Object.entries(PERIOD_FILTERS).map(([k,v])=>`<button class="pf-btn ${k===_currentFilter?'on':''}" data-key="${k}" onclick="changePeriodFilter('${k}')">${v.label}</button>`).join('')}
       </div>
-      <span class="period-filter-meta">${cur.periods||0} período${cur.periods===1?'':'s'} · ${hist[0]?.periodo||'—'}${cur.periods>1?` → ${(hist[Math.min(cur.periods-1,hist.length-1)]?.periodo)||''}`:''}</span>
+      <span class="period-filter-meta">${emptyMonth?`${fmtMesBR(emptyMonth)} · sem vendas ainda`:`${cur.periods||0} período${cur.periods===1?'':'s'} · ${hist[0]?.periodo||'—'}${cur.periods>1?` → ${(hist[Math.min(cur.periods-1,hist.length-1)]?.periodo)||''}`:''}`}</span>
     </div>
   </div>`;
 
@@ -3156,29 +3181,36 @@ function renderPainelBody(){
 
   <div class="section" style="padding-top:32px">
     <div class="sec-head">
-      <div><div class="sec-title">${filter.label}.</div></div>
-      <div class="sec-meta">vs ${filter.prevLabel}</div>
+      <div><div class="sec-title">${_currentFilter==='month'?fmtMesBR(emptyMonth||hist[0]?.periodo):filter.label}.</div></div>
+      <div class="sec-meta">${emptyMonth?'aguardando 1ª venda do mês':'vs '+filter.prevLabel}</div>
     </div>
+    ${emptyMonth?`<div style="margin-top:16px;display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:linear-gradient(120deg,#faf5ea,#f5efe4);border:1px solid var(--line,#e6dcc8);border-radius:14px">
+      <span style="font-size:22px;line-height:1">🌱</span>
+      <div style="font-size:13px;line-height:1.5;color:var(--ink,#1d1916)">
+        <b>Você ainda não registrou vendas em ${fmtMesBR(emptyMonth)}.</b><br>
+        <span style="color:var(--ink-48,#8a7a5e)">Seus números aparecem aqui assim que o primeiro pedido do mês for processado (até ~2 dias). Seu histórico e comissões anteriores seguem abaixo, intactos.</span>
+      </div>
+    </div>`:''}
     <div class="kpi-grid">
       <div class="kpi-card kpi-card-full">
         <div class="kpi-label">GMV no período</div>
         <div class="kpi-val kpi-val-lg"><span class="accent">${R(cur.gmv)}</span></div>
-        ${deltaHTML(dGmv)}
+        ${emptyMonth?'':deltaHTML(dGmv)}
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Pedidos</div>
         <div class="kpi-val">${cur.pedidos.toLocaleString('pt-BR')}</div>
-        ${deltaHTML(dPed)}
+        ${emptyMonth?'':deltaHTML(dPed)}
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Comissão estimada</div>
         <div class="kpi-val">${R(cur.comissao)}</div>
-        ${deltaHTML(dCom)}
+        ${emptyMonth?'':deltaHTML(dCom)}
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Vídeos · Lives</div>
         <div class="kpi-val">${cur.videos} · ${cur.lives}</div>
-        ${deltaHTML(dContent)}
+        ${emptyMonth?'':deltaHTML(dContent)}
       </div>
     </div>
     <div style="margin-top:16px;padding:14px 18px;background:var(--canvas);border:1px solid rgba(0,0,0,0.05);border-radius:14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.04em">
