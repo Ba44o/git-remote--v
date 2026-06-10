@@ -447,6 +447,38 @@ cd rhode-vercel && vercel dev --listen 3010
 
 ---
 
+## 10. Hub: painel mostra "Mês atual · 05/26" (mês anterior rotulado como atual)
+
+### Sintoma
+No início de um mês novo, a creator abre o painel e vê o **mês anterior**
+rotulado como "Mês atual" (ex: dia 9 de junho mostrando "05/26"). Parece que
+"a API parou de atualizar".
+
+### Causa
+**Não é a API.** O `getFilteredView()` do filtro `month` pegava `_perfHistory[0]`
+(o último período **com dados**) e o rotulava "Mês atual". Quem ainda não vendeu
+no mês corrente não tem linha do mês → cai no mês anterior. No dia 9, ~960 de
+~1000 creators estão nessa situação (normal — nem todas venderam ainda).
+
+### Diagnóstico (descartar antes de "consertar a coleta")
+1. **Cron rodou?** API pública: `/repos/Ba44o/git-remote--v/actions/workflows/{id}/runs`
+   (workflow `daily-collect.yml`). Event `schedule` + success = ok. GitHub atrasa 2-3h.
+2. **Banco tem o mês?** `performance_periods?periodo=eq.AAAA-MM&order=gmv_bruto.desc`
+   — top creators presentes? Se sim, dado existe.
+3. **Proxy devolve?** `curl -X POST .../api/get-hub -d '{"token":"...","action":"perf"}'`
+   — o 1º período da lista é o mês corrente? Se sim, é **cache do navegador**
+   (Cmd+Shift+R) ou a creator simplesmente não vendeu no mês (estado-zero, correto).
+
+### Fix conhecido
+- Frontend já corrigido: `month` ancorado em `currentMonthStr()` (mês do
+  calendário). Sem linha do mês → estado-zero honesto ("ainda não registrou
+  vendas em Junho/2026"), deltas −100% suprimidos, histórico/comissões intactos.
+- **Lição:** "Mês atual" tem que significar o mês do **calendário**, não o último
+  período com dados. Validar estado-zero com `validate-empty-month.js` (intercepta
+  a resposta `perf` p/ simular creator sem venda no mês).
+
+---
+
 ## 🛠️ Comandos úteis (cheatsheet)
 
 ```bash
