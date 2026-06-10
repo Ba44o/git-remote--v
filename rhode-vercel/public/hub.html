@@ -3194,7 +3194,7 @@ function renderPainelBody(){
     <div class="kpi-grid">
       <div class="kpi-card kpi-card-full">
         <div class="kpi-label">GMV no período</div>
-        <div class="kpi-val kpi-val-lg"><span class="accent">${R(cur.gmv)}</span></div>
+        <div class="kpi-val kpi-val-lg">${emptyMonth?`<span style="color:var(--ink-48,#8a7a5e)">${R(cur.gmv)}</span>`:`<span class="accent">${R(cur.gmv)}</span>`}</div>
         ${emptyMonth?'':deltaHTML(dGmv)}
       </div>
       <div class="kpi-card">
