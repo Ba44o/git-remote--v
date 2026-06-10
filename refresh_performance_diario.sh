@@ -77,7 +77,13 @@ python3 -c "from dotenv import load_dotenv; load_dotenv(); import sys,runpy; sys
 # 14) Extrato de Comissões (Central de Comissões / Meu Extrato — creator-facing)
 #     Janela de 21d cobre o que ainda está liquidando. UPSERT direto no Supabase
 #     (extrato_resumo + extrato_pedidos). Aditivo: não toca performance_periods.
-echo "[14/14] Extrato de comissões (--dias 21)..."
+echo "[14/15] Extrato de comissões (--dias 21)..."
 python3 coletar_extrato.py --dias 21 || echo "  ⚠ extrato falhou (não-crítico — segue)"
+
+# 15) Pedidos por SKU (lado LOJA — conciliação/margem admin-only).
+#     Persiste line_items por (order_id, sku) em pedidos_sku. Aditivo: tabela
+#     nova, não lida por creator. UPSERT idempotente direto no Supabase.
+echo "[15/15] Pedidos por SKU (--dias 21)..."
+python3 coletar_pedidos_sku.py --dias 21 || echo "  ⚠ pedidos_sku falhou (não-crítico — segue)"
 
 echo "═════ Concluído — $(date '+%F %T') ═════"
