@@ -104,11 +104,17 @@ def agregar_por_sku(pedidos):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dias", type=int, default=21, help="janela retroativa em dias (default 21)")
+    ap.add_argument("--inicio", help="data inicial YYYY-MM-DD (sobrepõe --dias)")
+    ap.add_argument("--fim", help="data final YYYY-MM-DD (default hoje)")
     args = ap.parse_args()
 
-    fim = datetime.now()
-    ini = fim - timedelta(days=args.dias)
-    ini_s, fim_s = ini.strftime("%Y-%m-%d"), fim.strftime("%Y-%m-%d")
+    if args.inicio:
+        ini_s = args.inicio
+        fim_s = args.fim or datetime.now().strftime("%Y-%m-%d")
+    else:
+        fim = datetime.now()
+        ini = fim - timedelta(days=args.dias)
+        ini_s, fim_s = ini.strftime("%Y-%m-%d"), fim.strftime("%Y-%m-%d")
     print(f"═════ Coleta pedidos_sku — {ini_s} → {fim_s} ═════")
 
     pedidos = buscar_pedidos(ini_s, fim_s)

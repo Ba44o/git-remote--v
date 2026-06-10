@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhode · Conciliação — DRE da Loja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1d1d1f; --ink-64:#5a5a5e; --ink-48:#85858a; --ink-24:#bcbcc0;
+    --pearl:#fafafc; --parchment:#f5f5f7; --hairline:#e6e6ea; --card:#ffffff;
+    --rhode-red:#FE2C55; --green:#1a8f5a; --orange:#c05e00; --blue:#2563eb;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:var(--pearl);color:var(--ink);
+    -webkit-font-smoothing:antialiased;line-height:1.4}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+
+  /* ---- login ---- */
+  #login{position:fixed;inset:0;display:grid;place-items:center;background:var(--pearl);z-index:50}
+  .login-card{background:var(--card);border:1px solid var(--hairline);border-radius:18px;
+    padding:40px;width:340px;box-shadow:0 12px 40px rgba(0,0,0,.06)}
+  .login-card h1{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+  .login-card p{font-size:13px;color:var(--ink-48);margin-bottom:24px}
+  .login-card input{width:100%;padding:13px 15px;border:1px solid var(--hairline);border-radius:11px;
+    font-family:'JetBrains Mono',monospace;font-size:14px;margin-bottom:14px;outline:none}
+  .login-card input:focus{border-color:var(--ink)}
+  .login-card button{width:100%;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:11px;
+    font-weight:600;font-size:14px;cursor:pointer;transition:opacity .15s}
+  .login-card button:hover{opacity:.88}
+  .login-err{color:var(--rhode-red);font-size:12px;margin-top:12px;min-height:16px;text-align:center}
+
+  /* ---- app ---- */
+  #app{display:none;max-width:1140px;margin:0 auto;padding:36px 28px 80px}
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
+    padding-bottom:22px;border-bottom:1px solid var(--hairline);margin-bottom:28px;flex-wrap:wrap}
+  .title h1{font-family:'JetBrains Mono',monospace;font-size:25px;font-weight:800;letter-spacing:-.03em}
+  .title .sub{font-size:13px;color:var(--ink-48);margin-top:4px}
+  .top-right{display:flex;align-items:center;gap:12px}
+  select{font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 13px;border:1px solid var(--hairline);
+    border-radius:10px;background:var(--card);cursor:pointer;outline:none}
+  .lnk{font-size:12px;color:var(--ink-48);text-decoration:none;border:1px solid var(--hairline);
+    padding:8px 12px;border-radius:9px;background:var(--card)}
+  .lnk:hover{color:var(--ink);border-color:var(--ink-24)}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+  .kpi{background:var(--card);border:1px solid var(--hairline);border-radius:15px;padding:18px 20px}
+  .kpi .lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-48)}
+  .kpi .val{font-family:'JetBrains Mono',monospace;font-size:25px;font-weight:700;letter-spacing:-.02em;margin-top:8px}
+  .kpi .val.accent{color:var(--green)}
+  .kpi .foot{font-size:11.5px;color:var(--ink-48);margin-top:5px}
+
+  .sec{background:var(--card);border:1px solid var(--hairline);border-radius:16px;padding:24px 26px;margin-bottom:22px}
+  .sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+  .sec-h h2{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;letter-spacing:-.01em}
+  .sec-h .meta{font-size:12px;color:var(--ink-48)}
+
+  /* cascata DRE */
+  .casc-row{display:grid;grid-template-columns:200px 1fr 130px;align-items:center;gap:14px;padding:9px 0}
+  .casc-row + .casc-row{border-top:1px solid #f1f1f4}
+  .casc-lbl{font-size:13.5px;font-weight:500}
+  .casc-lbl small{display:block;font-size:10.5px;color:var(--ink-48);font-weight:400;margin-top:1px}
+  .casc-bar{height:9px;border-radius:5px;background:#eef0f3;overflow:hidden}
+  .casc-bar i{display:block;height:100%;border-radius:5px}
+  .casc-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+  .casc-row.total{border-top:2px solid var(--ink);margin-top:4px;padding-top:13px}
+  .casc-row.total .casc-lbl{font-weight:700}
+  .casc-row.total .casc-val{font-size:17px;color:var(--green)}
+  .neg{color:var(--rhode-red)}
+
+  /* trend table */
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:right;padding:10px 12px;font-size:13px;font-variant-numeric:tabular-nums}
+  th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-48);border-bottom:1px solid var(--hairline);font-weight:600}
+  td{font-family:'JetBrains Mono',monospace;border-bottom:1px solid #f1f1f4}
+  th:first-child,td:first-child{text-align:left}
+  tbody tr:hover{background:#fafafb}
+  td.mp{font-family:'Inter',sans-serif;font-weight:600}
+
+  .note{background:#fff8ee;border:1px solid #f0e2c8;border-radius:12px;padding:14px 16px;
+    font-size:12.5px;color:#7a5b1e;line-height:1.5;display:flex;gap:11px}
+  .note b{color:#5a4310}
+  .soon{opacity:.62;border-style:dashed}
+  .pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;
+    background:var(--parchment);color:var(--ink-48);padding:3px 9px;border-radius:99px;border:1px solid var(--hairline)}
+  .loading{text-align:center;color:var(--ink-48);font-size:13px;padding:50px}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-card">
+    <h1>rhode<span style="color:var(--rhode-red)">.</span> conciliação</h1>
+    <p>DRE da loja · acesso admin</p>
+    <input id="adm-pass" type="password" placeholder="senha admin" onkeydown="if(event.key==='Enter')admLogin()">
+    <button onclick="admLogin()">Entrar</button>
+    <div class="login-err" id="adm-err"></div>
+  </div>
+</div>
+
+<div id="app">
+  <header class="top">
+    <div class="title">
+      <h1>Conciliação · DRE da Loja</h1>
+      <div class="sub">Caminho do dinheiro — TikTok Shop · admin/CFO</div>
+    </div>
+    <div class="top-right">
+      <select id="period-sel" onchange="render()"></select>
+      <a class="lnk" href="admin.html">← Admin</a>
+      <a class="lnk" href="#" onclick="logout();return false">Sair</a>
+    </div>
+  </header>
+
+  <div id="body"><div class="loading">Carregando dados…</div></div>
+</div>
+
+<script>
+const ADM_TOKEN_KEY='rhode-admin-token';
+function admToken(){ try{return sessionStorage.getItem(ADM_TOKEN_KEY)||'';}catch(e){return'';} }
+async function admLogin(){
+  const pass=document.getElementById('adm-pass').value;
+  const err=document.getElementById('adm-err');
+  try{
+    const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'admin_login',pass})});
+    const d=await r.json().catch(()=>({}));
+    if(r.ok && d.token){ sessionStorage.setItem(ADM_TOKEN_KEY,d.token); enter(); }
+    else err.textContent=d.error||'Senha incorreta.';
+  }catch(e){ err.textContent='Erro de conexão.'; }
+}
+function logout(){ try{sessionStorage.removeItem(ADM_TOKEN_KEY);}catch(_){}; location.reload(); }
+async function admProxy(method, path, opts={}){
+  const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'admin_query', adminToken:admToken(), method, path, paged:opts.paged})});
+  if(r.status===401){ logout(); throw new Error('sessão expirada'); }
+  if(!r.ok){ let e={};try{e=await r.json();}catch(_){}; throw new Error(e.error||('HTTP '+r.status)); }
+  return r.json();
+}
+
+// ---- formatação ----
+const BRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+const BRL2=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2});
+const NUM=new Intl.NumberFormat('pt-BR');
+const fmt=v=>BRL.format(v||0), fmt2=v=>BRL2.format(v||0);
+const pct=(a,b)=>b?(a/b*100):0;
+const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
+
+// ---- estado ----
+let FIN={}, GMV={}, DEV={}, MESES=[];
+
+async function load(){
+  // finance_statements (caminho do dinheiro) + pedidos_sku (GMV) + devolucoes
+  const [fin, ped, dev] = await Promise.all([
+    admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
+    admProxy('GET','pedidos_sku?select=periodo,gmv,qty,status',{paged:true}),
+    admProxy('GET','devolucoes?select=*&limit=1',{paged:false}).catch(()=>({data:[]}))
+  ]);
+  // agrega finance por mês
+  FIN={};
+  (fin.data||[]).forEach(r=>{
+    const m=(r.data||'').slice(0,7); if(!m)return;
+    const a=FIN[m]||(FIN[m]={rev:0,fee:0,ship:0,adj:0,set:0,n:0});
+    a.rev+=+r.revenue_amount||0; a.fee+=+r.fee_amount||0; a.ship+=+r.shipping_cost||0;
+    a.adj+=+r.adjustment||0; a.set+=+r.settlement||0; a.n++;
+  });
+  // agrega GMV (vendas) por mês
+  GMV={};
+  (ped.data||[]).forEach(r=>{
+    const m=r.periodo; if(!m)return;
+    const a=GMV[m]||(GMV[m]={gmv:0,qty:0,itens:0});
+    a.gmv+=+r.gmv||0; a.qty+=+r.qty||0; a.itens++;
+  });
+  MESES=[...new Set([...Object.keys(FIN),...Object.keys(GMV)])].sort();
+  // popula seletor
+  const sel=document.getElementById('period-sel');
+  sel.innerHTML=`<option value="ALL">Todos os meses</option>`+MESES.slice().reverse().map(m=>`<option value="${m}">${fmtMes(m)}</option>`).join('');
+  render();
+}
+
+function render(){
+  const sel=document.getElementById('period-sel').value;
+  const meses = sel==='ALL' ? MESES : [sel];
+  // soma o período selecionado
+  const A={rev:0,fee:0,ship:0,adj:0,set:0,n:0}; let gmv=0, qty=0;
+  meses.forEach(m=>{const f=FIN[m]; if(f){A.rev+=f.rev;A.fee+=f.fee;A.ship+=f.ship;A.adj+=f.adj;A.set+=f.set;A.n+=f.n;} const g=GMV[m]; if(g){gmv+=g.gmv;qty+=g.qty;}});
+  const taxaPct=pct(Math.abs(A.fee),A.rev), efic=pct(A.set,A.rev);
+
+  // KPIs
+  const kpis=`<div class="kpis">
+    <div class="kpi"><div class="lbl">Vendas (GMV)</div><div class="val">${fmt(gmv)}</div><div class="foot">${NUM.format(qty)} peças · data da venda</div></div>
+    <div class="kpi"><div class="lbl">Receita (settled)</div><div class="val">${fmt(A.rev)}</div><div class="foot">${A.n} statements</div></div>
+    <div class="kpi"><div class="lbl">Settlement</div><div class="val accent">${fmt(A.set)}</div><div class="foot">o que cai na conta</div></div>
+    <div class="kpi"><div class="lbl">Taxa TikTok</div><div class="val">${taxaPct.toFixed(1)}%</div><div class="foot">eficiência ${efic.toFixed(1)}%</div></div>
+  </div>`;
+
+  // cascata (caminho do dinheiro)
+  const maxv=Math.max(A.rev,1);
+  const bar=(v,color)=>`<div class="casc-bar"><i style="width:${Math.min(100,Math.abs(v)/maxv*100)}%;background:${color}"></i></div>`;
+  const row=(lbl,sub,val,color,cls='')=>`<div class="casc-row ${cls}"><div class="casc-lbl">${lbl}${sub?`<small>${sub}</small>`:''}</div>${bar(val,color)}<div class="casc-val ${val<0?'neg':''}">${fmt2(val)}</div></div>`;
+  const cascata=`<div class="sec">
+    <div class="sec-h"><h2>Caminho do dinheiro</h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · base settlement</div></div>
+    ${row('Receita bruta','o que o TikTok reporta como receita',A.rev,'#cbd5e1')}
+    ${row('− Taxa TikTok',`comissão + serviço · ${taxaPct.toFixed(1)}%`,A.fee,'var(--rhode-red)')}
+    ${row('− Frete','custo de envio',A.ship,'var(--orange)')}
+    ${row('+ Ajustes','reembolsos/correções',A.adj,'var(--blue)')}
+    ${row('= Settlement','o que a loja recebe de fato',A.set,'var(--green)','total')}
+  </div>`;
+
+  // tendência mês a mês
+  const rows=MESES.map(m=>{const f=FIN[m]||{rev:0,fee:0,ship:0,set:0,n:0};const g=GMV[m]||{gmv:0};
+    return `<tr><td class="mp">${fmtMes(m)}</td><td>${g.gmv?fmt(g.gmv):'—'}</td><td>${fmt(f.rev)}</td>
+      <td class="neg">${fmt(f.fee)}</td><td class="neg">${fmt(f.ship)}</td><td>${fmt(f.set)}</td>
+      <td>${pct(Math.abs(f.fee),f.rev).toFixed(1)}%</td><td>${pct(f.set,f.rev).toFixed(1)}%</td></tr>`;}).join('');
+  const trend=`<div class="sec"><div class="sec-h"><h2>Tendência mensal</h2><div class="meta">clique no seletor pra focar um mês</div></div>
+    <table><thead><tr><th>Mês</th><th>GMV vendas</th><th>Receita</th><th>Taxa TT</th><th>Frete</th><th>Settlement</th><th>%taxa</th><th>Efic.</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+
+  // nota dos dois relógios
+  const nota=`<div class="note"><span style="font-size:16px">🕐</span><div><b>Dois relógios.</b> "GMV vendas" conta pela <b>data da venda</b> (pedidos_sku); "Receita/Settlement" pela <b>data que o dinheiro liquidou</b> (finance_statements, que atrasa ~semanas). Por isso o mês corrente mostra GMV alto e settlement ainda parcial — é o que a conciliação reconcilia ao longo do tempo, não uma soma direta.</div></div>`;
+
+  // placeholder Fase 2
+  const fase2=`<div class="sec soon"><div class="sec-h"><h2>Margem por SKU <span class="pill">em breve</span></h2><div class="meta">aguardando planilha de CPV</div></div>
+    <div style="font-size:13px;color:var(--ink-48);line-height:1.6">Quando o CPV por SKU entrar (matching exato via REF do Bling, já que o <span class="mono">seller_sku</span> carrega o REF), esta seção liga a <b>margem real por produto</b>: liquidado − CPV×qty efetiva − frete reverso, com DRE drilldown por SKU.</div></div>`;
+
+  document.getElementById('body').innerHTML = kpis + cascata + trend + nota + fase2;
+}
+
+function enter(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  load().catch(e=>{ document.getElementById('body').innerHTML=`<div class="loading">Erro: ${e.message}</div>`; });
+}
+if(admToken()) enter();
+</script>
+</body>
+</html>
