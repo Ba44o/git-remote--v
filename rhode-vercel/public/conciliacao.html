@@ -150,14 +150,13 @@ const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','De
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
 // ---- estado ----
-let FIN={}, GMV={}, DEV={}, MESES=[];
+let FIN={}, GMV={}, PROD={}, MESES=[];
 
 async function load(){
-  // finance_statements (caminho do dinheiro) + pedidos_sku (GMV) + devolucoes
-  const [fin, ped, dev] = await Promise.all([
+  // finance_statements (caminho do dinheiro) + pedidos_sku (GMV + produtos)
+  const [fin, ped] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
-    admProxy('GET','pedidos_sku?select=periodo,gmv,qty,status',{paged:true}),
-    admProxy('GET','devolucoes?select=*&limit=1',{paged:false}).catch(()=>({data:[]}))
+    admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku',{paged:true})
   ]);
   // agrega finance por mês
   FIN={};
@@ -167,12 +166,16 @@ async function load(){
     a.rev+=+r.revenue_amount||0; a.fee+=+r.fee_amount||0; a.ship+=+r.shipping_cost||0;
     a.adj+=+r.adjustment||0; a.set+=+r.settlement||0; a.n++;
   });
-  // agrega GMV (vendas) por mês
-  GMV={};
+  // agrega GMV por mês + ranking por produto/mês
+  GMV={}; PROD={};
   (ped.data||[]).forEach(r=>{
     const m=r.periodo; if(!m)return;
     const a=GMV[m]||(GMV[m]={gmv:0,qty:0,itens:0});
     a.gmv+=+r.gmv||0; a.qty+=+r.qty||0; a.itens++;
+    const nome=(r.produto||'—').trim();
+    const pm=PROD[m]||(PROD[m]={});
+    const p=pm[nome]||(pm[nome]={gmv:0,qty:0,ref:r.seller_sku||''});
+    p.gmv+=+r.gmv||0; p.qty+=+r.qty||0;
   });
   MESES=[...new Set([...Object.keys(FIN),...Object.keys(GMV)])].sort();
   // popula seletor
@@ -219,6 +222,20 @@ function render(){
     <table><thead><tr><th>Mês</th><th>GMV vendas</th><th>Receita</th><th>Taxa TT</th><th>Frete</th><th>Settlement</th><th>%taxa</th><th>Efic.</th></tr></thead>
     <tbody>${rows}</tbody></table></div>`;
 
+  // ranking de produtos campeões (top por GMV no período) — não precisa de CPV
+  const prodAgg={};
+  meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=prodAgg[nome]||(prodAgg[nome]={gmv:0,qty:0}); a.gmv+=v.gmv; a.qty+=v.qty;});});
+  const totProd=Object.values(prodAgg).reduce((s,v)=>s+v.gmv,0)||1;
+  const topProd=Object.entries(prodAgg).sort((a,b)=>b[1].gmv-a[1].gmv).slice(0,12);
+  const maxP=topProd.length?topProd[0][1].gmv:1;
+  const prodRows=topProd.map(([nome,v],i)=>`<tr>
+    <td class="mp" style="max-width:330px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${nome.replace(/"/g,'')}">${i+1}. ${nome}</td>
+    <td>${fmt(v.gmv)}</td><td>${NUM.format(v.qty)}</td><td>${fmt2(v.qty?v.gmv/v.qty:0)}</td>
+    <td>${(v.gmv/totProd*100).toFixed(1)}%</td>
+    <td style="width:120px"><div class="casc-bar"><i style="width:${(v.gmv/maxP*100).toFixed(0)}%;background:var(--green)"></i></div></td></tr>`).join('');
+  const prods=`<div class="sec"><div class="sec-h"><h2>Produtos campeões</h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · por GMV de venda</div></div>
+    <table><thead><tr><th>Produto</th><th>GMV</th><th>Qtd</th><th>Ticket</th><th>% total</th><th></th></tr></thead><tbody>${prodRows}</tbody></table></div>`;
+
   // nota dos dois relógios
   const nota=`<div class="note"><span style="font-size:16px">🕐</span><div><b>Dois relógios.</b> "GMV vendas" conta pela <b>data da venda</b> (pedidos_sku); "Receita/Settlement" pela <b>data que o dinheiro liquidou</b> (finance_statements, que atrasa ~semanas). Por isso o mês corrente mostra GMV alto e settlement ainda parcial — é o que a conciliação reconcilia ao longo do tempo, não uma soma direta.</div></div>`;
 
@@ -226,7 +243,7 @@ function render(){
   const fase2=`<div class="sec soon"><div class="sec-h"><h2>Margem por SKU <span class="pill">em breve</span></h2><div class="meta">aguardando planilha de CPV</div></div>
     <div style="font-size:13px;color:var(--ink-48);line-height:1.6">Quando o CPV por SKU entrar (matching exato via REF do Bling, já que o <span class="mono">seller_sku</span> carrega o REF), esta seção liga a <b>margem real por produto</b>: liquidado − CPV×qty efetiva − frete reverso, com DRE drilldown por SKU.</div></div>`;
 
-  document.getElementById('body').innerHTML = kpis + cascata + trend + nota + fase2;
+  document.getElementById('body').innerHTML = kpis + cascata + trend + prods + nota + fase2;
 }
 
 function enter(){
