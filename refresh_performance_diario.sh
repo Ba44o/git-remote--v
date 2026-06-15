@@ -83,7 +83,16 @@ python3 coletar_extrato.py --dias 21 || echo "  ⚠ extrato falhou (não-crític
 # 15) Pedidos por SKU (lado LOJA — conciliação/margem admin-only).
 #     Persiste line_items por (order_id, sku) em pedidos_sku. Aditivo: tabela
 #     nova, não lida por creator. UPSERT idempotente direto no Supabase.
-echo "[15/15] Pedidos por SKU (--dias 21)..."
+echo "[15/17] Pedidos por SKU (--dias 21)..."
 python3 coletar_pedidos_sku.py --dias 21 || echo "  ⚠ pedidos_sku falhou (não-crítico — segue)"
+
+# 16) ETL sample_applications (free sample REAL — peças por creator × SKU + data do convite)
+echo "[16/17] ETL sample_applications (free sample real)..."
+python3 agente_rhode/etl_sample_applications.py || echo "  ⚠ ETL sample_applications falhou (não-crítico — segue)"
+
+# 17) Sync → sample_applications
+echo "[17/17] Sync → sample_applications..."
+python3 -c "from dotenv import load_dotenv; load_dotenv(); import sys,runpy; sys.argv=['sync','--only','sample_applications']; runpy.run_path('agente_rhode/sync_supabase.py', run_name='__main__')" \
+    || echo "  ⚠ SYNC sample_applications falhou (não-crítico — segue)"
 
 echo "═════ Concluído — $(date '+%F %T') ═════"

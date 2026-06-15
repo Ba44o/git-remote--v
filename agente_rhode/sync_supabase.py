@@ -284,6 +284,34 @@ def sync_creator_product():
     upsert("affiliate_creator_product", rows, on_conflict="id")
 
 
+def sync_sample_applications():
+    """Sincroniza warehouse/raw_sample_applications.csv → sample_applications
+    (free sample REAL: 1 linha por creator × SKU pedido, com status + data do convite)."""
+    src = WAREHOUSE / "raw_sample_applications.csv"
+    if not src.exists():
+        print(f"  [AVISO] {src} não existe. Rode 'python agente_rhode/etl_sample_applications.py' antes.")
+        return
+    df = pd.read_csv(src, dtype=str).fillna("")
+    rows = []
+    for _, r in df.iterrows():
+        if not str(r.get("id", "")):
+            continue
+        rows.append({
+            "id":              str(r["id"]),
+            "creator":         str(r.get("creator", "")),
+            "nickname":        str(r.get("nickname", "")),
+            "product_id":      str(r.get("product_id", "")),
+            "sku_id":          str(r.get("sku_id", "")),
+            "sku_name":        str(r.get("sku_name", "")),
+            "title":           str(r.get("title", "")),
+            "status":          str(r.get("status", "")),
+            "order_id":        str(r.get("order_id", "")),
+            "commission_rate": float(r.get("commission_rate", 0) or 0),
+            "convite_data":    str(r.get("convite_data", "")) or None,
+        })
+    upsert("sample_applications", rows, on_conflict="id")
+
+
 JOBS = {
     "affiliates":           sync_affiliates,
     "performance_periods":  sync_performance_periods,
@@ -293,6 +321,7 @@ JOBS = {
     "affiliate_perf":       sync_affiliate_perf,
     "seeding":              sync_seeding,
     "creator_product":      sync_creator_product,
+    "sample_applications":  sync_sample_applications,
 }
 
 def main():

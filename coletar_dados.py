@@ -416,6 +416,72 @@ def buscar_target_collaborations(statuses=("VALID", "ONGOING", "EXPIRING", "COMP
     print(f"  → {len(enriched)} convites detalhados")
     return enriched
 
+# ── SAMPLE APPLICATIONS (free sample REAL — peças por creator) ─────
+def buscar_sample_applications(enrich_dates=True):
+    """Pedidos de free sample do TikTok Shop (fonte de verdade das PEÇAS de seeding).
+    POST /affiliate_seller/202409/sample_applications/search (body vazio = todos).
+    Grão: 1 linha por creator × SKU pedido. Peça enviada = status COMPLETED/SHIPPED/
+    CONTENT_PENDING. Enriquece com a DATA do convite = create_time do pedido de amostra
+    (GET /order/202309/orders), em lotes com fallback individual."""
+    PATH = "/affiliate_seller/202409/sample_applications/search"
+    apps, cursor, pagina = [], "", 0
+    while pagina < 200:
+        pagina += 1
+        params = {"page_size": 50}
+        if cursor:
+            params["page_token"] = cursor
+        resp = chamar("POST", PATH, params=params, body={})
+        if resp.get("code") != 0:
+            if pagina == 1:
+                print(f"  ⚠  SampleApplications: {resp.get('message','')[:60]}")
+            break
+        data = resp.get("data", {}) or {}
+        for a in data.get("sample_applications", []):
+            cr = a.get("creator") or {}
+            pr = a.get("product") or {}
+            apps.append({
+                "id":              str(a.get("id", "")),
+                "creator":         cr.get("username", ""),
+                "nickname":        cr.get("nickname", ""),
+                "follower":        cr.get("follower_count", 0),
+                "creator_gmv":     (cr.get("gmv") or {}).get("amount", ""),
+                "product_id":      str(pr.get("id", "")),
+                "sku_id":          str(pr.get("sku_id", "")),
+                "sku_name":        pr.get("sku_name", ""),
+                "title":           pr.get("title", ""),
+                "status":          a.get("status", ""),
+                "order_id":        str(a.get("order_id", "")),
+                "commission_rate": a.get("commission_rate", ""),
+                "convite_data":    "",
+            })
+        cursor = data.get("next_page_token", "")
+        if not cursor:
+            break
+    print(f"  → {len(apps)} pedidos de amostra")
+
+    if enrich_dates and apps:
+        oids = sorted({a["order_id"] for a in apps if a["order_id"]})
+        m = {}
+        def _fetch(batch):
+            r = chamar("GET", "/order/202309/orders", params={"ids": ",".join(batch)})
+            if r.get("code") != 0:
+                return False
+            for o in (r.get("data") or {}).get("orders", []):
+                ct = o.get("create_time")
+                if ct:
+                    m[str(o.get("id"))] = datetime.fromtimestamp(int(ct)).strftime("%Y-%m-%d")
+            return True
+        B = 20
+        for i in range(0, len(oids), B):
+            batch = oids[i:i + B]
+            if not _fetch(batch):          # lote falhou → tenta id a id (limite do parâmetro)
+                for oid in batch:
+                    _fetch([oid])
+        for a in apps:
+            a["convite_data"] = m.get(a["order_id"], "")
+        print(f"  → datas de convite recuperadas: {sum(1 for a in apps if a['convite_data'])}/{len(apps)}")
+    return apps
+
 # ── CATÁLOGO (product_id → título) ────────────────────────────────
 def buscar_produtos():
     """Catálogo: product_id → título, status, seller_sku principal. Pagina products/search."""

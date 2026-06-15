@@ -834,6 +834,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <button class="op-subtab" data-evosub="dev" onclick="evoSubtab('dev',this)">Devoluções</button>
         <button class="op-subtab" data-evosub="aff" onclick="evoSubtab('aff',this)">Afiliadas</button>
         <button class="op-subtab" data-evosub="seed" onclick="evoSubtab('seed',this)">Seeding</button>
+        <button class="op-subtab" data-evosub="roiseed" onclick="evoSubtab('roiseed',this)">ROI Seeding</button>
         <button class="op-subtab" data-evosub="cp" onclick="evoSubtab('cp',this)">Creator×Produto</button>
         <button class="op-subtab" data-evosub="fun" onclick="evoSubtab('fun',this)">Ativação</button>
       </div>
@@ -954,6 +955,41 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tw"><table>
             <thead><tr><th>Creator</th><th>Convites</th><th>Produtos</th><th>Amostra</th><th>Comissão</th><th>GMV nos produtos convidados</th><th>Pedidos</th><th>Status</th></tr></thead>
             <tbody id="seed-body"><tr><td colspan="8" class="spin">Carregando…</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div id="evo-sub-roiseed" style="display:none">
+        <div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="pbar-label" style="margin-right:4px">Janela GMV</span>
+          <span class="pill-filter gwin-pill" data-gwin="30" onclick="setGWin(30)">30d</span>
+          <span class="pill-filter gwin-pill" data-gwin="60" onclick="setGWin(60)">60d</span>
+          <span class="pill-filter gwin-pill on" data-gwin="90" onclick="setGWin(90)">90d</span>
+          <span style="display:inline-block;width:1px;height:18px;background:var(--hairline);margin:0 6px"></span>
+          <span class="pbar-label" style="margin-right:4px">Filtro</span>
+          <span class="pill-filter on" data-roif="all" onclick="filterRoiSeed(this,'all')">Todos</span>
+          <span class="pill-filter" data-roif="enviado" onclick="filterRoiSeed(this,'enviado')">Enviado</span>
+          <span class="pill-filter" data-roif="nada" onclick="filterRoiSeed(this,'nada')">Nada enviado</span>
+          <span style="display:inline-block;width:1px;height:18px;background:var(--hairline);margin:0 6px"></span>
+          <span class="pbar-label" style="margin-right:4px">Follow-up</span>
+          <span class="pill-filter" data-roif="naovendeu" onclick="filterRoiSeed(this,'naovendeu')">Recebeu, não vendeu</span>
+          <span class="pill-filter" data-roif="vendeubem" onclick="filterRoiSeed(this,'vendeubem')">Vendeu bem</span>
+          <span class="pill-filter" data-roif="cancelada" onclick="filterRoiSeed(this,'cancelada')">Amostra cancelada</span>
+        </div>
+        <div style="margin-bottom:16px;padding:10px 14px;background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;font-size:12px;color:var(--body-muted);line-height:1.55">Fonte: <b>free sample real da API</b> (sample_applications) — espelha a planilha "ROI Seeding 2025/2026". Peça <b>enviada</b> = COMPLETED/SHIPPED/CONTENT_PENDING. <b>GMV atribuído</b> = vendas só dos produtos amostrados, por essa creator (janela acima). Custo = R$40/peça + R$25 frete · margem 55% (premissas).</div>
+        <div id="roiseed-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">ROI Seeding por creator</div><div class="tbl-meta" id="roiseed-meta"></div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Creator</th><th>Status</th><th>Mês convite</th><th>Enviadas/Pedidas</th><th>Comissão</th><th>GMV atribuído</th><th>Custo</th><th>ROAS</th><th>Follow-up</th></tr></thead>
+            <tbody id="roiseed-body"><tr><td colspan="9" class="spin">Carregando…</td></tr></tbody>
+          </table></div>
+        </div>
+        <div class="tbl-card" style="margin-top:16px">
+          <div class="tbl-head"><div class="tbl-title">Resumo por mês</div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Mês</th><th>Creators</th><th>Peças enviadas</th><th>GMV atribuído</th><th>Custo</th><th>ROAS</th></tr></thead>
+            <tbody id="roiseed-mes-body"><tr><td colspan="6" class="empty">—</td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -2366,14 +2402,15 @@ let DIARIO_WIN=60;                                     // janela default em dias
 function evoSubtab(which,btn){
   document.querySelectorAll('.op-subtab[data-evosub]').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  ACTIVE_CREATOR=['aff','cp','seed','fun'].includes(which)?which:'';
-  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed'),j=el('evo-sub-cp'),k2=el('evo-sub-fun');
-  [m,d,f,g,h,s,j,k2].forEach(x=>x.style.display='none');
+  ACTIVE_CREATOR=['aff','cp','seed','roiseed','fun'].includes(which)?which:'';
+  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed'),rs=el('evo-sub-roiseed'),j=el('evo-sub-cp'),k2=el('evo-sub-fun');
+  [m,d,f,g,h,s,rs,j,k2].forEach(x=>x.style.display='none');
   if(which==='diario'){d.style.display='block';loadDiario()}
   else if(which==='fin'){f.style.display='block';loadFin()}
   else if(which==='dev'){g.style.display='block';loadDev()}
   else if(which==='aff'){h.style.display='block';loadAff()}
   else if(which==='seed'){s.style.display='block';loadSeed()}
+  else if(which==='roiseed'){rs.style.display='block';loadRoiSeed()}
   else if(which==='cp'){j.style.display='block';loadCP()}
   else if(which==='fun'){el('evo-sub-fun').style.display='block';loadFun()}
   else{m.style.display='block';renderEvolucao()}
@@ -2665,6 +2702,59 @@ function renderSeed(){
     const v=r.gmv>0; const st=v?'b-green':'b-red';
     const am=r.has_free_sample?'<span class="badge b-green">sim</span>':'<span style="color:var(--ink-48)">—</span>';
     return`<tr><td>${cLink(r.creator)}</td><td class="mono">${r.convites}</td><td class="mono">${r.n_produtos}</td><td>${am}</td><td class="mono">${(+r.commission_pct||0).toFixed(1)}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${r.ped.toLocaleString('pt-BR')}</td><td><span class="badge ${st}">${v?'vendeu':'sem venda'}</span></td></tr>`}).join(''));
+}
+
+// ── Sub-aba ROI Seeding (free sample REAL · sample_applications × vendas por produto amostrado)
+let SA_DATA=null, ROISEED_FILTER='all';
+const SA_SENT={COMPLETED:1,SHIPPED:1,CONTENT_PENDING:1};
+async function ensureSA(){ if(!SA_DATA) SA_DATA=await sbGetPaged('sample_applications?select=creator,nickname,product_id,status,commission_rate,convite_data&order=convite_data.asc'); return SA_DATA; }
+function filterRoiSeed(btn,f){document.querySelectorAll('[data-roif]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');ROISEED_FILTER=f;renderRoiSeed()}
+async function loadRoiSeed(){
+  htm('roiseed-body','<tr><td colspan="9" class="spin">Carregando…</td></tr>');
+  try{ await Promise.all([ensureSA(),ensureCP()]); renderRoiSeed(); }
+  catch(e){ htm('roiseed-body',`<tr><td colspan="9" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`) }
+}
+function renderRoiSeed(){
+  if(!SA_DATA||!SA_DATA.length){htm('roiseed-body','<tr><td colspan="9" class="empty">Sem pedidos de amostra. Rode o ETL sample_applications.</td></tr>');htm('roiseed-kpis','');set('roiseed-meta','');htm('roiseed-mes-body','<tr><td colspan="6" class="empty">—</td></tr>');return}
+  const CU=40,FR=25,MG=0.55,cut=gcut();
+  // GMV/comissão/pedidos por creator×produto na janela (fonte: creator_product)
+  const cpw={};
+  CP_DATA.filter(r=>r.data>=cut).forEach(r=>{const k=(r.creator||'').toLowerCase();const pid=String(r.product_id);(cpw[k]||(cpw[k]={}));(cpw[k][pid]||(cpw[k][pid]={gmv:0,ped:0,com:0}));const o=cpw[k][pid];o.gmv+=+r.gmv||0;o.ped+=+r.pedidos||0;o.com+=+r.comissao||0;});
+  // agrega sample_applications por creator
+  const byc={};
+  SA_DATA.forEach(a=>{const k=(a.creator||'').toLowerCase();if(!k)return;const o=byc[k]||(byc[k]={creator:a.creator,ped:0,env:0,canc:0,sent:new Set(),rates:[],ci:''});o.ped++;if(SA_SENT[a.status]){o.env++;if(a.product_id)o.sent.add(String(a.product_id))}else o.canc++;if(a.commission_rate!==''&&a.commission_rate!=null)o.rates.push(+a.commission_rate);const d=a.convite_data||'';if(d&&(!o.ci||d<o.ci))o.ci=d;});
+  let data=Object.values(byc).map(o=>{
+    const c=cpw[o.creator.toLowerCase()]||{}; let g=0,p=0,cm=0;
+    for(const pid in c) if(o.sent.has(pid)){g+=c[pid].gmv;p+=c[pid].ped;cm+=c[pid].com}
+    const custo=o.env*CU+(o.env>0?FR:0), lucro=g*MG-cm-custo;
+    const rr=o.rates.slice().sort((a,b)=>a-b), med=rr.length?rr[Math.floor(rr.length/2)]:0;
+    return {creator:o.creator,env:o.env,ped:o.ped,canc:o.canc,mes:(o.ci||'').slice(0,7)||'—',gmv:g,com:cm,custo,lucro,roas:custo>0?g/custo:0,faixa:med<0.115?0.08:0.12};
+  });
+  let rows=data.slice();
+  if(ROISEED_FILTER==='enviado')rows=rows.filter(r=>r.env>0);
+  else if(ROISEED_FILTER==='nada')rows=rows.filter(r=>r.env===0);
+  else if(ROISEED_FILTER==='naovendeu')rows=rows.filter(r=>r.env>0&&r.gmv===0);
+  else if(ROISEED_FILTER==='vendeubem')rows=rows.filter(r=>r.gmv>0&&r.roas>=2);
+  else if(ROISEED_FILTER==='cancelada')rows=rows.filter(r=>r.env===0&&r.canc>0);
+  rows.sort((a,b)=>(a.mes==='—')-(b.mes==='—')||a.mes.localeCompare(b.mes)||b.gmv-a.gmv);
+  const env=data.filter(r=>r.env>0), totPec=data.reduce((s,r)=>s+r.env,0), totGmv=data.reduce((s,r)=>s+r.gmv,0), totCusto=data.reduce((s,r)=>s+r.custo,0), naoVend=data.filter(r=>r.env>0&&r.gmv===0).length;
+  htm('roiseed-kpis',[
+    finCard('Creators c/ amostra',env.length.toLocaleString('pt-BR'),`${data.length} pediram`),
+    finCard('Peças enviadas',totPec.toLocaleString('pt-BR'),'enviadas de fato'),
+    finCard('GMV atribuído',fmtK(totGmv),`produtos amostrados · ${GWIN}d`,true),
+    finCard('ROAS',totCusto>0?(totGmv/totCusto).toFixed(1)+'x':'—',`custo R$ ${fmtK(totCusto)}`),
+    finCard('Não vendeu (follow-up)',naoVend.toLocaleString('pt-BR'),'receberam, R$0 — cutucar'),
+  ].join(''));
+  set('roiseed-meta',`${rows.length} creators · GMV ${GWIN}d`);
+  htm('roiseed-body',rows.map(r=>{
+    const st=r.env>0?'<span class="badge b-green">Enviado</span>':'<span class="badge b-red">Nada</span>';
+    const fu=(r.env>0&&r.gmv===0)?'<span class="badge" style="background:#fef3c7;color:#92400e">não vendeu</span>':(r.gmv>0&&r.roas>=2?'<span class="badge b-green">vendeu bem</span>':(r.env===0&&r.canc>0?'<span class="badge b-red">cancelada</span>':'<span style="color:var(--ink-48)">—</span>'));
+    return`<tr><td>${cLink(r.creator)}</td><td>${st}</td><td class="mono">${r.mes}</td><td class="mono">${r.env}/${r.ped}</td><td class="mono">${(r.faixa*100).toFixed(0)}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${fmtK(r.custo)}</td><td class="mono">${r.custo>0?r.roas.toFixed(1)+'x':'—'}</td><td>${fu}</td></tr>`;
+  }).join(''));
+  const bym={};
+  data.forEach(r=>{const o=bym[r.mes]||(bym[r.mes]={mes:r.mes,cre:0,env:0,gmv:0,custo:0});o.cre++;o.env+=r.env;o.gmv+=r.gmv;o.custo+=r.custo;});
+  const meses=Object.values(bym).sort((a,b)=>(a.mes==='—')-(b.mes==='—')||a.mes.localeCompare(b.mes));
+  htm('roiseed-mes-body',meses.map(o=>`<tr><td class="mono">${o.mes}</td><td class="mono">${o.cre}</td><td class="mono">${o.env}</td><td class="mono" style="color:var(--rhode-red);font-weight:600">${fmtK(o.gmv)}</td><td class="mono">${fmtK(o.custo)}</td><td class="mono">${o.custo>0?(o.gmv/o.custo).toFixed(1)+'x':'—'}</td></tr>`).join(''));
 }
 
 // ── Sub-aba Creator × Produto (matriz: quem vende o quê)
