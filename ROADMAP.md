@@ -201,16 +201,24 @@ _(nada no momento)_
 
 ---
 
-### 🔵 11. ROI de Seeding por SKU (v2b — atribuição cirúrgica) — **não iniciado** (jun/2026)
+### ✅ 11. ROI de Seeding por SKU (v2b — atribuição cirúrgica) — **Fase 1+2 NO AR** (jun/2026)
 
 **Hoje (v2a, no ar):** painel "Seeding ROI" (admin → Evolução) cruza `amostras_enviadas` × `affiliate_perf` por creator (match handle lowercased). **Limitação conhecida:** o GMV é o **total de afiliação da creator (todos os produtos, 30d)**, não só o item seedado → ROI é **estimativa superestimada**. Custo da peça é premissa ajustável (custo real não está em `custo_unitario_snapshot`, 0% preenchido).
 
-**v2b (atribuição real):**
-- Re-coletar affiliate orders guardando `product_id`/`sku_id` → agregar **GMV por creator × SKU**.
-- Mapear `sku_id` (numérico) → `seller_sku` (`REF...`) pra casar com `amostras_enviadas.sku` (via Product API ou tabela `produtos`).
-- Janela "desde a `data_envio`" (hoje é fixo 30d) → ROI do **produto seedado** especificamente.
+**🔓 DESBLOQUEIO (jun/2026) — fonte real das peças achada na API.** O free sample do TikTok Shop vem de `POST /affiliate_seller/202409/sample_applications/search` (1 linha por creator × SKU pedido; campos creator/product/`status`/`commission_rate`/`order_id`). Peça enviada = status `COMPLETED`/`SHIPPED`/`CONTENT_PENDING`; descartar `*_CANCELLED`/`AWAITING_SHIPMENT`. Substitui a tabela manual `amostras_enviadas` como fonte de verdade (ex: @natmarquesvi tinha `has_free_sample=False` mas recebeu 4 peças). Detalhes em memória `reference_sample_applications_api`. Já existe **probe + build manual funcionando**: `relatorios/2026-06/_build_roi_seeding_detalhado.py` lê `warehouse/raw_sample_applications.csv` (337 pedidos, 281 enviadas, 101 creators) × `raw_creator_product` → ROI por creator.
 
-**Bônus de dados:** `amostras_enviadas.video_postado_em` está 0/55 e `confirmada_em` 4/55 — se preenchidos, dá pra mostrar "postou conteúdo?" e funil amostra→conteúdo→venda. Custo real por peça destravaria ROI monetário exato.
+**✅ ENTREGUE (commit `54d03fe`, deploy jun/2026):**
+- [x] `agente_rhode/etl_sample_applications.py` — pagina `sample_applications/search` (`coletar_dados.buscar_sample_applications`) + enriquece data do convite (create_time do pedido). Grava `warehouse/raw_sample_applications.csv` (339 pedidos · 282 enviadas · 106 creators).
+- [x] `sync_supabase.py::sync_sample_applications()` + tabela `sample_applications` (Supabase, SQL em `rhode-vercel/sql/sample_applications.sql`).
+- [x] GMV por creator × SKU amostrado (cruza `affiliate_creator_product`) → atribuição cirúrgica (resolve a limitação do v2a).
+- [x] **Atualização DIÁRIA:** `refresh_performance_diario.sh` passos 16/17 (cron 11h BRT).
+- [x] Painel admin: sub-aba **Evolução → "ROI Seeding"** espelha a planilha "ROI Seeding 2025/2026" — por creator (status enviado/nada, mês do convite, GMV atribuído, custo, ROAS), Resumo por mês, coortes de follow-up (recebeu/não vendeu · vendeu bem · cancelada). **Admin-only** (custo/margem não vão pra creator). Follow-up é **só visão** (sem disparo Z-API) — decisão do usuário.
+
+**🔜 A fazer (próximas fases):**
+- [ ] Atualizar `docs/APIS_TIKTOK.md` §4.2: documentar `sample_applications` (hoje "a explorar") + correção do `target_collaborations/search` (98001004 = SHAPE: `search_param{keyword_type,keyword}` obrigatório, `page_size` na query; enums ONGOING/EXPIRING/VALID/CANCELING/COMPLETED).
+- [ ] Fase 3 — motor de follow-up com **disparo** (reusar `disparo.js` + templates + `disparos_log` + dedup `follow_ups_log`). Hoje as coortes só aparecem no painel.
+- [ ] Custo real por peça (premissa hoje 40/peça+25 frete) → ROI monetário exato.
+- [ ] Aposentar o painel v2a (`amostra_roi_por_sku`) quando o novo estiver validado.
 
 ---
 
