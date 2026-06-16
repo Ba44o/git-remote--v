@@ -833,9 +833,8 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <button class="op-subtab" data-evosub="fin" onclick="evoSubtab('fin',this)">Financeiro</button>
         <button class="op-subtab" data-evosub="dev" onclick="evoSubtab('dev',this)">Devoluções</button>
         <button class="op-subtab" data-evosub="aff" onclick="evoSubtab('aff',this)">Afiliadas</button>
-        <button class="op-subtab" data-evosub="seed" onclick="evoSubtab('seed',this)">Seeding</button>
+        <button class="op-subtab" data-evosub="seed" onclick="evoSubtab('seed',this)">Seeding &amp; Ativação</button>
         <button class="op-subtab" data-evosub="cp" onclick="evoSubtab('cp',this)">Creator×Produto</button>
-        <button class="op-subtab" data-evosub="fun" onclick="evoSubtab('fun',this)">Ativação</button>
       </div>
 
       <div id="evo-sub-mensal">
@@ -935,28 +934,56 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         </div>
       </div>
 
-      <div id="evo-sub-seed" style="display:none">
-        <div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <span class="pbar-label" style="margin-right:4px">Janela</span>
-          <span class="pill-filter gwin-pill" data-gwin="30" onclick="setGWin(30)">30d</span>
-          <span class="pill-filter gwin-pill" data-gwin="60" onclick="setGWin(60)">60d</span>
-          <span class="pill-filter gwin-pill on" data-gwin="90" onclick="setGWin(90)">90d</span>
-          <span style="display:inline-block;width:1px;height:18px;background:var(--hairline);margin:0 6px"></span>
-          <span class="pbar-label" style="margin-right:4px">Filtro</span>
-          <span class="pill-filter on" data-seedf="all" onclick="filterSeed(this,'all')">Todos os convites</span>
-          <span class="pill-filter" data-seedf="sample" onclick="filterSeed(this,'sample')">Só com amostra grátis</span>
-          <span class="pill-filter" data-seedf="novenda" onclick="filterSeed(this,'novenda')">Não venderam</span>
-        </div>
-        <div style="margin-bottom:16px;padding:10px 14px;background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;font-size:12px;color:var(--body-muted);line-height:1.55">Fonte: <b>Target Collaborations</b> (convites reais da API). <b>GMV nos produtos convidados</b> = vendas de afiliação só dos produtos do convite, por essa creator (deduplicado, 60d). Convidadas a ~todo o catálogo ≈ GMV total; o sinal forte de seeding é o filtro <b>com amostra grátis</b> + as que <b>não venderam</b>.</div>
-        <div id="seed-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
-        <div class="tbl-card">
-          <div class="tbl-head"><div class="tbl-title">Convites de Colaboração por Creator</div><div class="tbl-meta" id="seed-meta"></div></div>
-          <div class="tw"><table>
-            <thead><tr><th>Creator</th><th>Convites</th><th>Produtos</th><th>Amostra</th><th>Comissão</th><th>GMV nos produtos convidados</th><th>Pedidos</th><th>Status</th></tr></thead>
-            <tbody id="seed-body"><tr><td colspan="8" class="spin">Carregando…</td></tr></tbody>
-          </table></div>
-        </div>
-      </div>
+      <style>
+        #sd-root{font-size:13px;color:var(--ink)}
+        #sd-root .mono{font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace}
+        #sd-root .sd-kpis{display:flex;gap:12px;flex-wrap:wrap;margin:2px 0 16px}
+        #sd-root .sd-kc{background:#fff;border:1px solid var(--hairline);border-radius:12px;padding:14px 16px;min-width:150px;flex:1}
+        #sd-root .sd-kc .l{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-48)}
+        #sd-root .sd-kc .v{font-size:23px;font-weight:680;margin-top:5px;letter-spacing:-.02em}
+        #sd-root .sd-kc .s{font-size:11px;color:var(--body-muted);margin-top:3px}
+        #sd-root .sd-kc.alert{border-color:#f3d3a0;background:#fffaf2}#sd-root .sd-kc.alert .v{color:#b45309}
+        #sd-root .sd-kc.good .v{color:#0a8a4f}
+        #sd-root .sd-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--hairline);border-radius:11px;padding:10px 14px;margin-bottom:12px}
+        #sd-root .sd-grp{display:flex;gap:6px;align-items:center}
+        #sd-root .sd-grp .lab{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-48);margin-right:2px}
+        #sd-root .sd-pf{border:1px solid var(--hairline);background:#fff;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;user-select:none}
+        #sd-root .sd-pf:hover{border-color:#cfcfcf}#sd-root .sd-pf.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+        #sd-root select,#sd-root input[type=date]{border:1px solid var(--hairline);border-radius:8px;padding:6px 9px;font-size:12.5px;font-family:inherit;background:#fff;color:var(--ink);outline:none}
+        #sd-root .sd-sep{width:1px;height:22px;background:var(--hairline)}
+        #sd-root .sd-clr{font-size:12px;color:#2563eb;cursor:pointer;user-select:none}
+        #sd-root .sd-segbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+        #sd-root .sd-seg{border:1px solid var(--hairline);background:#fff;border-radius:999px;padding:6px 13px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
+        #sd-root .sd-seg:hover{border-color:#cfcfcf}#sd-root .sd-seg.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+        #sd-root .sd-seg .n{font-size:11px;opacity:.6;font-weight:600}#sd-root .sd-seg.on .n{opacity:.82}
+        #sd-root .sd-seg.ativar.on{background:#b45309;border-color:#b45309}#sd-root .sd-seg.reativar.on{background:#2563eb;border-color:#2563eb}
+        #sd-root .sd-seg.vendeubem.on{background:#0a8a4f;border-color:#0a8a4f}#sd-root .sd-seg.aguardando.on{background:#7c3aed;border-color:#7c3aed}
+        #sd-root .sd-seg.caminho.on{background:#0891b2;border-color:#0891b2}#sd-root .sd-seg.cancelada.on{background:var(--rhode-red);border-color:var(--rhode-red)}
+        #sd-root .sd-tool{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+        #sd-root .sd-q{flex:1;min-width:180px;max-width:300px;border:1px solid var(--hairline);border-radius:9px;padding:8px 12px;font-size:13px;outline:none;background:#fff}
+        #sd-root .sd-meta{color:var(--ink-48);font-size:12px;margin-left:auto}
+        #sd-root .sd-card{background:#fff;border:1px solid var(--hairline);border-radius:13px;margin-bottom:16px}
+        #sd-root .sd-card .hh{padding:12px 16px;border-bottom:1px solid var(--hairline);font-weight:620;font-size:13px}
+        #sd-root .sd-tw{overflow-x:auto}
+        #sd-root table{width:100%;border-collapse:collapse;font-size:12.5px}
+        #sd-root th{text-align:left;padding:9px 11px;font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-48);border-bottom:1px solid var(--hairline);cursor:pointer;white-space:nowrap;user-select:none}
+        #sd-root th.on{color:var(--ink)}#sd-root th.num,#sd-root td.num{text-align:right}
+        #sd-root td{padding:8px 11px;border-bottom:1px solid #f5f5f5;white-space:nowrap}
+        #sd-root tbody tr:hover{background:#fafafa}
+        #sd-root .bd{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600}
+        #sd-root .bd.rec{background:#e7f6ee;color:#0a8a4f}#sd-root .bd.cam{background:#e0f2f7;color:#0891b2}
+        #sd-root .bd.agu{background:#f1e9fd;color:#7c3aed}#sd-root .bd.can{background:#fdeaea;color:var(--rhode-red)}#sd-root .bd.nul{background:#f1f1f1;color:#888}
+        #sd-root .pl{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600}
+        #sd-root .pl.ativar{color:#b45309}#sd-root .pl.reativar{color:#2563eb}#sd-root .pl.vendeubem{color:#0a8a4f}
+        #sd-root .pl.aguardando{color:#7c3aed}#sd-root .pl.caminho{color:#0891b2}#sd-root .pl.cancelada{color:var(--rhode-red)}#sd-root .pl.ativa{color:#777}
+        #sd-root .cr{font-weight:560}#sd-root .hd{color:var(--ink-48);font-size:11px}
+        #sd-root .neg{color:var(--rhode-red)}#sd-root .pos{color:#0a8a4f}#sd-root .zz{color:#bbb}
+        #sd-root .sd-mesg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:var(--hairline);border-radius:0 0 13px 13px;overflow:hidden}
+        #sd-root .sd-mc{background:#fff;padding:10px 13px;cursor:pointer}#sd-root .sd-mc:hover{background:#fafafa}#sd-root .sd-mc.on{background:#fff7ed}
+        #sd-root .sd-mc .m{font-size:11px;color:var(--ink-48)}#sd-root .sd-mc .g{font-size:15px;font-weight:640;color:var(--rhode-red);margin-top:2px}#sd-root .sd-mc .s{font-size:11px;color:var(--body-muted);margin-top:2px}
+        #sd-root .sd-note{background:var(--canvas);border:1px solid var(--hairline);border-radius:9px;padding:10px 14px;font-size:12px;color:var(--body-muted);line-height:1.5;margin-bottom:14px}
+      </style>
+      <div id="evo-sub-seed" style="display:none"><div id="sd-root"><div style="padding:40px;text-align:center;color:var(--ink-48)">Carregando…</div></div></div>
 
       <div id="evo-sub-cp" style="display:none">
         <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
@@ -980,29 +1007,6 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         </div>
       </div>
 
-      <div id="evo-sub-fun" style="display:none">
-        <div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <span class="pbar-label" style="margin-right:4px">Janela</span>
-          <span class="pill-filter gwin-pill" data-gwin="30" onclick="setGWin(30)">30d</span>
-          <span class="pill-filter gwin-pill" data-gwin="60" onclick="setGWin(60)">60d</span>
-          <span class="pill-filter gwin-pill on" data-gwin="90" onclick="setGWin(90)">90d</span>
-          <span style="display:inline-block;width:1px;height:18px;background:var(--hairline);margin:0 6px"></span>
-          <span class="pbar-label" style="margin-right:4px">Segmento</span>
-          <span class="pill-filter on" data-funseg="ativar" onclick="funSeg(this,'ativar')">Nunca venderam (ativar)</span>
-          <span class="pill-filter" data-funseg="reativar" onclick="funSeg(this,'reativar')">Esfriaram (reativar)</span>
-          <span class="pill-filter" data-funseg="ativas" onclick="funSeg(this,'ativas')">Ativas</span>
-          <span class="pill-filter" data-funseg="todas" onclick="funSeg(this,'todas')">Todas</span>
-        </div>
-        <div style="margin-bottom:16px;padding:10px 14px;background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;font-size:12px;color:var(--body-muted);line-height:1.55">Funil das <b>convidadas</b> (target collaborations): venderam o produto convidado? estão <b>ativas</b> (venda de afiliação nos últimos 14d)? <b>Reativar</b> = venderam mas esfriaram. <b>Ativar</b> = convidadas que nunca venderam.</div>
-        <div id="fun-kpis" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
-        <div class="tbl-card">
-          <div class="tbl-head"><div class="tbl-title">Convidadas por estágio</div><div class="tbl-meta" id="fun-meta"></div></div>
-          <div class="tw"><table>
-            <thead><tr><th>Creator</th><th>Amostra</th><th>GMV no produto convidado</th><th>Pedidos</th><th>Estágio</th></tr></thead>
-            <tbody id="fun-body"><tr><td colspan="5" class="spin">Carregando…</td></tr></tbody>
-          </table></div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -1660,6 +1664,12 @@ tr:hover td{background:rgba(254,44,85,0.015)}
         <input class="finput" id="tr-busca" placeholder="Buscar por @ ou nome..." oninput="renderTriagem()" style="max-width:230px;margin-left:auto">
         <button class="btn-lote-secondary" onclick="loadTriagem(true)">↻ Atualizar</button>
       </div>
+      <div class="amostra-filtros" id="tr-filtros-amostra" style="margin-bottom:18px">
+        <span class="pill-filter on" data-tramostra="" onclick="trSetAmostra(this,'')">Amostra: todas</span>
+        <span class="pill-filter" data-tramostra="recebeu" onclick="trSetAmostra(this,'recebeu')">✓ Já recebeu (API) <b id="tr-c-recebeu" class="mono"></b></span>
+        <span class="pill-filter" data-tramostra="diverg" onclick="trSetAmostra(this,'diverg')">⚠ Divergência c/ manual <b id="tr-c-diverg" class="mono"></b></span>
+        <span class="pill-filter" data-tramostra="pediu_sem" onclick="trSetAmostra(this,'pediu_sem')">📦 Pediu e não recebeu <b id="tr-c-pediu_sem" class="mono"></b></span>
+      </div>
       <div class="kgrid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
         <div class="kcard"><div class="klabel">Submissões</div><div class="kval" id="tr-k-total">—</div><div class="ksub">no total</div></div>
         <div class="kcard"><div class="klabel">Últimos 7 dias</div><div class="kval" id="tr-k-7d" style="color:var(--rhode-red)">—</div><div class="ksub">novas inscrições</div></div>
@@ -1679,8 +1689,8 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <div class="tbl-meta" id="tr-meta">—</div>
         </div>
         <div class="tw"><table>
-          <thead><tr><th>Quando</th><th>Nome</th><th>@ TikTok</th><th>WhatsApp</th><th>Pedido</th><th>GMV declarado</th><th>Já é afiliada?</th><th>Status</th></tr></thead>
-          <tbody id="tr-body"><tr><td colspan="8" class="spin">Carregando...</td></tr></tbody>
+          <thead><tr><th>Quando</th><th>Nome</th><th>@ TikTok</th><th>WhatsApp</th><th>Pedido</th><th>GMV declarado</th><th>Já é afiliada?</th><th>Amostra (API)</th><th>Controle</th><th>Status</th></tr></thead>
+          <tbody id="tr-body"><tr><td colspan="10" class="spin">Carregando...</td></tr></tbody>
         </table></div>
       </div>
     </div>
@@ -2366,16 +2376,15 @@ let DIARIO_WIN=60;                                     // janela default em dias
 function evoSubtab(which,btn){
   document.querySelectorAll('.op-subtab[data-evosub]').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  ACTIVE_CREATOR=['aff','cp','seed','fun'].includes(which)?which:'';
-  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed'),j=el('evo-sub-cp'),k2=el('evo-sub-fun');
-  [m,d,f,g,h,s,j,k2].forEach(x=>x.style.display='none');
+  ACTIVE_CREATOR=['aff','cp','seed'].includes(which)?which:'';
+  const m=el('evo-sub-mensal'),d=el('evo-sub-diario'),f=el('evo-sub-fin'),g=el('evo-sub-dev'),h=el('evo-sub-aff'),s=el('evo-sub-seed'),j=el('evo-sub-cp');
+  [m,d,f,g,h,s,j].forEach(x=>x.style.display='none');
   if(which==='diario'){d.style.display='block';loadDiario()}
   else if(which==='fin'){f.style.display='block';loadFin()}
   else if(which==='dev'){g.style.display='block';loadDev()}
   else if(which==='aff'){h.style.display='block';loadAff()}
-  else if(which==='seed'){s.style.display='block';loadSeed()}
+  else if(which==='seed'){s.style.display='block';sdLoad()}
   else if(which==='cp'){j.style.display='block';loadCP()}
-  else if(which==='fun'){el('evo-sub-fun').style.display='block';loadFun()}
   else{m.style.display='block';renderEvolucao()}
 }
 
@@ -2665,6 +2674,105 @@ function renderSeed(){
     const v=r.gmv>0; const st=v?'b-green':'b-red';
     const am=r.has_free_sample?'<span class="badge b-green">sim</span>':'<span style="color:var(--ink-48)">—</span>';
     return`<tr><td>${cLink(r.creator)}</td><td class="mono">${r.convites}</td><td class="mono">${r.n_produtos}</td><td>${am}</td><td class="mono">${(+r.commission_pct||0).toFixed(1)}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${r.ped.toLocaleString('pt-BR')}</td><td><span class="badge ${st}">${v?'vendeu':'sem venda'}</span></td></tr>`}).join(''));
+}
+
+// ── Sub-aba Seeding & Ativação (consolidado · free sample real + atribuição por janela)
+// Lógica de cálculo verificada em node (tools/prototipo-seeding/sd_compute.js).
+function sdCompute(SA,CP,today){
+  const DELIV=new Set(['COMPLETED','CONTENT_PENDING']),TRANS=new Set(['SHIPPED']),PEND=new Set(['PENDING','AWAITING_SHIPMENT']),SENT=new Set(['COMPLETED','CONTENT_PENDING','SHIPPED']);
+  const CU=40,FR=25,MG=0.55;
+  const cutDays=d=>{const c=new Date(today);c.setDate(c.getDate()-d);return c.toISOString().slice(0,10);};
+  const WINS={'30':cutDays(30),'60':cutDays(60),'90':cutDays(90),'0':'0000-00-00'},CUT14=cutDays(14);
+  const cpByCk={};
+  CP.forEach(r=>{const k=(r.creator||'').toLowerCase();(cpByCk[k]||(cpByCk[k]=[])).push({pid:String(r.product_id),data:r.data||'',gmv:+r.gmv||0,com:+r.comissao||0,ped:+r.pedidos||0});});
+  const byc={};
+  SA.forEach(a=>{const k=(a.creator||'').toLowerCase();if(!k)return;(byc[k]||(byc[k]={creator:a.creator,nick:a.nickname||a.creator,apps:[]})).apps.push(a);});
+  const PRIO=['aguardando','ativar','reativar','cancelada','caminho','vendeubem','ativa'],rows=[];
+  for(const k in byc){const o=byc[k];let deliv=0,transit=0,pend=0,canc=0;const sampled=new Set(),rates=[],dates=[],allp=new Set();
+    o.apps.forEach(a=>{if(DELIV.has(a.status))deliv++;else if(TRANS.has(a.status))transit++;else if(PEND.has(a.status))pend++;else canc++;
+      if(a.product_id)allp.add(String(a.product_id));if(SENT.has(a.status)&&a.product_id)sampled.add(String(a.product_id));
+      if(a.commission_rate!==''&&a.commission_rate!=null)rates.push(+a.commission_rate);if(a.convite_data)dates.push(a.convite_data);});
+    const env=deliv+transit,custo=env*CU+(env>0?FR:0);rates.sort((x,y)=>x-y);const med=rates.length?rates[Math.floor(rates.length/2)]:0;
+    const sales=(cpByCk[k]||[]).filter(r=>sampled.has(r.pid));let gmvAll=0,last='';sales.forEach(r=>{gmvAll+=r.gmv;if(r.gmv>0&&r.data>last)last=r.data;});
+    const w={};for(const wk in WINS){const cut=WINS[wk];let g=0,cm=0,p=0;sales.forEach(r=>{if(r.data>=cut){g+=r.gmv;cm+=r.com;p+=r.ped;}});g=Math.round(g*100)/100;cm=Math.round(cm*100)/100;w[wk]={gmv:g,com:cm,pedidos:p,lucro:Math.round((g*MG-cm-custo)*100)/100,roas:custo?Math.round(g/custo*10)/10:0};}
+    const roasAll=custo?gmvAll/custo:0;dates.sort();const ci=dates[0]||'',cf=dates[dates.length-1]||'';
+    const estagio=deliv>0?'Recebida':transit>0?'A caminho':pend>0?'Aguardando':canc>0?'Cancelada':'—';const flags=[];
+    if(pend>0)flags.push('aguardando');if(transit>0)flags.push('caminho');if(canc>0&&deliv===0&&transit===0&&pend===0)flags.push('cancelada');
+    if(deliv>0)flags.push(gmvAll===0?'ativar':(last&&last<CUT14)?'reativar':roasAll>=2?'vendeubem':'ativa');
+    const seg=PRIO.find(s=>flags.includes(s))||'ativa';
+    const A={aguardando:'aprovar '+pend+' amostra(s) pendente(s)',ativar:'recebeu, nunca vendeu — ativar',reativar:'vendeu e esfriou — reativar',cancelada:'nada chegou — re-ofertar',caminho:transit+' a caminho — aguardar entrega',vendeubem:'top — próxima amostra / subir tier',ativa:'ativa, vende pouco — monitorar'};
+    rows.push({creator:o.creator,nick:o.nick,estagio,mes:ci?ci.slice(0,7):'—',ci:ci||'—',cf:cf||'—',env,transit,pend,canc,skus:allp.size,faixa:med<0.115?8:12,custo,last:last||'—',flags,seg,acao:A[seg],w});}
+  rows.sort((a,b)=>(b.w['90'].gmv-a.w['90'].gmv)||a.creator.localeCompare(b.creator));rows.forEach((r,i)=>r.n=i+1);return rows;
+}
+const SD={win:'90',seg:'acao',mes:'',sort:'gmv',dir:-1,rows:[],months:[],loaded:false};
+const SD_ACT=['ativar','reativar','aguardando','cancelada'],SD_WF=new Set(['gmv','com','pedidos','lucro','roas']);
+const sdV=(x,k)=>SD_WF.has(k)?x.w[SD.win][k]:x[k];
+const sdK=x=>{x=+x||0;const a=Math.abs(x);if(a>=1e6)return'R$ '+(x/1e6).toFixed(2)+'M';if(a>=1e3)return'R$ '+(x/1e3).toFixed(0)+'K';return'R$ '+x.toFixed(0);};
+const sdRS=x=>'R$ '+(+x||0).toLocaleString('pt-BR',{maximumFractionDigits:0});
+const SD_SEG=[['acao','⚡ Precisam de ação'],['ativar','🟡 Ativar'],['reativar','🔵 Reativar'],['vendeubem','⭐ Vendeu bem'],['caminho','📦 A caminho'],['aguardando','⏳ Aguardando'],['cancelada','✕ Cancelada'],['todas','Todas']];
+const SD_COLS=[['n','#','num'],['creator','Creator','t'],['estagio','Status','t'],['mes','Mês conv.','t'],['ci','1º convite','t'],['cf','Últ. convite','t'],['env','Peças','num'],['transit','A cam.','num'],['pend','Aguard.','num'],['canc','Canc.','num'],['skus','SKUs','num'],['faixa','Com.%','num'],['pedidos','Pedidos','num'],['gmv','GMV atrib.','num'],['com','Comissão paga','num'],['custo','Custo','num'],['lucro','Lucro líq.','num'],['roas','ROAS','num'],['last','Últ. venda','t'],['acao','Próxima ação','t']];
+async function sdLoad(){
+  if(SD.loaded){sdRender();return;}
+  try{
+    const SA=await sbGet('sample_applications?select=creator,nickname,product_id,status,commission_rate,convite_data');
+    await ensureCP();
+    SD.rows=sdCompute(SA||[],CP_DATA,new Date().toISOString().slice(0,10));
+    SD.months=[...new Set(SD.rows.map(r=>r.mes).filter(m=>m!=='—'))].sort();
+    SD.loaded=true; sdShell(); sdRender();
+  }catch(e){ document.getElementById('sd-root').innerHTML='<div style="padding:30px;color:var(--rhode-red)">Erro ao carregar: '+e.message+'</div>'; }
+}
+function sdShell(){
+  document.getElementById('sd-root').innerHTML=`
+   <div class="sd-kpis" id="sd-kpis"></div>
+   <div class="sd-bar">
+     <div class="sd-grp"><span class="lab">Janela</span>
+       <span class="sd-pf" data-w="30" onclick="sdWin('30')">30d</span><span class="sd-pf" data-w="60" onclick="sdWin('60')">60d</span>
+       <span class="sd-pf on" data-w="90" onclick="sdWin('90')">90d</span><span class="sd-pf" data-w="0" onclick="sdWin('0')">Tudo</span></div>
+     <div class="sd-sep"></div>
+     <div class="sd-grp"><span class="lab">Mês convite</span><select id="sd-mes" onchange="SD.mes=this.value;sdRender()"><option value="">Todos</option>${SD.months.map(m=>'<option value="'+m+'">'+m+'</option>').join('')}</select></div>
+     <div class="sd-sep"></div>
+     <div class="sd-grp"><span class="lab">Período convite</span><input type="date" id="sd-de" onchange="sdRender()"> <span style="color:var(--ink-48)">até</span> <input type="date" id="sd-ate" onchange="sdRender()"></div>
+     <span class="sd-clr" onclick="sdClear()">limpar filtros</span></div>
+   <div class="sd-note">💡 <b>Janela</b> escala GMV/ROAS/lucro · <b>Mês/Período</b> filtram por data do convite · <b>Lentes</b> = baldes de ação (sobrepostos). Fonte: free sample real (sample_applications) × vendas por produto amostrado. Custo R$40/peça + R$25 frete · margem 55% (premissas). Cabeçalhos ordenam (↓).</div>
+   <div class="sd-segbar" id="sd-segbar"></div>
+   <div class="sd-tool"><input class="sd-q" id="sd-q" placeholder="🔎 buscar creator…" oninput="sdRender()"><span class="sd-meta" id="sd-meta"></span></div>
+   <div class="sd-card"><div class="sd-tw"><table><thead><tr id="sd-hr"></tr></thead><tbody id="sd-tb"></tbody></table></div></div>
+   <div class="sd-card"><div class="hh">Resumo por mês do convite <span style="font-weight:400;color:var(--ink-48);font-size:12px">· clique pra filtrar</span></div><div class="sd-mesg" id="sd-mes2"></div></div>`;
+}
+function sdWin(w){SD.win=w;document.querySelectorAll('#sd-root [data-w]').forEach(b=>b.classList.toggle('on',b.dataset.w===w));sdRender();}
+function sdClear(){SD.mes='';SD.seg='acao';['sd-mes','sd-de','sd-ate','sd-q'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});sdRender();}
+function sdSort(k){if(SD.sort===k)SD.dir=-SD.dir;else{SD.sort=k;SD.dir=['creator','estagio','mes','ci','cf','last','acao'].includes(k)?1:-1;}sdRender();}
+function sdBase(){const de=(document.getElementById('sd-de')||{}).value||'',ate=(document.getElementById('sd-ate')||{}).value||'';
+  return SD.rows.filter(x=>(!SD.mes||x.mes===SD.mes)&&(!de||(x.ci!=='—'&&x.ci>=de))&&(!ate||(x.ci!=='—'&&x.ci<=ate)));}
+function sdRender(){
+  if(!SD.loaded)return;const base=sdBase();
+  const env=base.reduce((s,x)=>s+x.env,0),gmv=base.reduce((s,x)=>s+sdV(x,'gmv'),0),custo=base.reduce((s,x)=>s+x.custo,0),lucro=base.reduce((s,x)=>s+sdV(x,'lucro'),0),an=base.filter(x=>x.flags.some(f=>SD_ACT.includes(f))).length;
+  document.getElementById('sd-kpis').innerHTML=[['Peças enviadas',env.toLocaleString('pt-BR'),base.length+' creators',''],['GMV atribuído',sdK(gmv),'janela '+(SD.win==='0'?'tudo':SD.win+'d'),'good'],['ROAS',(custo?(gmv/custo).toFixed(1):'0')+'x','custo '+sdK(custo),''],['Lucro líquido',sdK(lucro),'margem 55% − com. − custo',''],['⚡ Precisam de ação',an,'ativar+reativar+aguard.+cancel.','alert']].map(a=>'<div class="sd-kc '+a[3]+'"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div><div class="s">'+a[2]+'</div></div>').join('');
+  const cnt=f=>f==='todas'?base.length:f==='acao'?base.filter(x=>x.flags.some(g=>SD_ACT.includes(g))).length:base.filter(x=>x.flags.includes(f)).length;
+  document.getElementById('sd-segbar').innerHTML=SD_SEG.map(s=>'<div class="sd-seg '+s[0]+' '+(SD.seg===s[0]?'on':'')+'" onclick="SD.seg=\''+s[0]+'\';sdRender()">'+s[1]+' <span class="n">'+cnt(s[0])+'</span></div>').join('');
+  document.getElementById('sd-hr').innerHTML=SD_COLS.map(c=>'<th class="'+(c[2]==='num'?'num ':'')+(SD.sort===c[0]?'on':'')+'" onclick="sdSort(\''+c[0]+'\')">'+c[1]+(SD.sort===c[0]?(SD.dir<0?' ↓':' ↑'):'')+'</th>').join('');
+  let r=base.slice();
+  if(SD.seg==='acao')r=r.filter(x=>x.flags.some(f=>SD_ACT.includes(f)));else if(SD.seg!=='todas')r=r.filter(x=>x.flags.includes(SD.seg));
+  const q=((document.getElementById('sd-q')||{}).value||'').trim().toLowerCase();
+  if(q)r=r.filter(x=>(x.creator+' '+x.nick).toLowerCase().includes(q));
+  r.sort((a,b)=>{let av=sdV(a,SD.sort),bv=sdV(b,SD.sort);if(typeof av==='string')return SD.dir*av.localeCompare(bv);return SD.dir*((av||0)-(bv||0));});
+  const sc=(SD_COLS.find(c=>c[0]===SD.sort)||[])[1];
+  document.getElementById('sd-meta').textContent=r.length+' creators · '+sc+' '+(SD.dir<0?'↓':'↑');
+  const STB={Recebida:'rec','A caminho':'cam',Aguardando:'agu',Cancelada:'can','—':'nul'},IC={ativar:'🟡',reativar:'🔵',vendeubem:'⭐',aguardando:'⏳',caminho:'📦',cancelada:'✕',ativa:'•'},Z=x=>x?x:'<span class="zz">0</span>';
+  document.getElementById('sd-tb').innerHTML=r.map(x=>'<tr><td class="num mono" style="color:var(--ink-48)">'+x.n+'</td>'+
+   '<td><span class="cr">'+x.nick+'</span><br><span class="hd">@'+x.creator+'</span></td>'+
+   '<td><span class="bd '+(STB[x.estagio]||'nul')+'">'+x.estagio+'</span></td>'+
+   '<td class="mono">'+x.mes+'</td><td class="mono">'+x.ci+'</td><td class="mono">'+x.cf+'</td>'+
+   '<td class="num mono">'+x.env+'</td><td class="num mono">'+Z(x.transit)+'</td><td class="num mono">'+Z(x.pend)+'</td><td class="num mono">'+Z(x.canc)+'</td>'+
+   '<td class="num mono">'+x.skus+'</td><td class="num mono">'+x.faixa+'%</td><td class="num mono">'+sdV(x,'pedidos').toLocaleString('pt-BR')+'</td>'+
+   '<td class="num mono" style="font-weight:600;color:var(--rhode-red)">'+sdRS(sdV(x,'gmv'))+'</td>'+
+   '<td class="num mono">'+sdRS(sdV(x,'com'))+'</td><td class="num mono">'+sdRS(x.custo)+'</td>'+
+   '<td class="num mono '+(sdV(x,'lucro')<0?'neg':'pos')+'">'+sdRS(sdV(x,'lucro'))+'</td>'+
+   '<td class="num mono">'+(x.custo>0?sdV(x,'roas')+'x':'—')+'</td><td class="mono">'+x.last+'</td>'+
+   '<td><span class="pl '+x.seg+'">'+(IC[x.seg]||'')+' '+x.acao+'</span></td></tr>').join('')||'<tr><td colspan="'+SD_COLS.length+'" style="text-align:center;color:var(--ink-48);padding:28px">Nada neste recorte 🎉</td></tr>';
+  const by={};base.forEach(x=>{const o=by[x.mes]||(by[x.mes]={cre:0,env:0,gmv:0});o.cre++;o.env+=x.env;o.gmv+=sdV(x,'gmv');});
+  const ms=Object.entries(by).sort((a,b)=>(a[0]==='—')-(b[0]==='—')||a[0].localeCompare(b[0]));
+  document.getElementById('sd-mes2').innerHTML=ms.map(e=>'<div class="sd-mc '+(SD.mes===e[0]?'on':'')+'" onclick="SD.mes=(SD.mes===\''+e[0]+'\'?\'\':\''+e[0]+'\');var s=document.getElementById(\'sd-mes\');if(s)s.value=SD.mes;sdRender()"><div class="m">'+e[0]+'</div><div class="g">'+sdK(e[1].gmv)+'</div><div class="s">'+e[1].cre+' creators · '+e[1].env+' peças</div></div>').join('');
 }
 
 // ── Sub-aba Creator × Produto (matriz: quem vende o quê)
@@ -3027,19 +3135,38 @@ function tab(id,elBtn){
 // ═════════════════════════════════════════════════════════════
 //   TRIAGEM  (submissões do bem-vinda.html → tabela `triagem`)
 // ═════════════════════════════════════════════════════════════
-let TR_DATA=[], TR_EVOS=[], TR_PEDIDO='';
+let TR_DATA=[], TR_EVOS=[], TR_PEDIDO='', TR_AMOSTRA='', TR_SAMPLES={}, TR_MANUAL={};
+const TR_ALIAS={NATMARQUESSS:'NATMARQUESVI'};        // mesma creator: handle antigo = handle novo (soma como uma só)
+const TR_SENT={COMPLETED:1,SHIPPED:1,CONTENT_PENDING:1};   // status = peça enviada (free sample real)
+function trCanon(h){const k=(''+(h||'')).replace(/^@+/,'').trim().toUpperCase();return TR_ALIAS[k]||k;}
+function trDM(d){const p=(''+(d||'')).split('-');return p.length>=3?p[2]+'/'+p[1]:'';}
+function trAmo(r){const k=trCanon(r.handle);const sa=k?TR_SAMPLES[k]:null,mn=k?TR_MANUAL[k]:null;const apiSent=sa?sa.sent:0,manSent=mn?mn.sent:0;return{k,sa,mn,apiSent,manSent,diverg:!!k&&((apiSent>0)!==(manSent>0)),recebeu:apiSent>0,pediuSem:(r.pedido==='amostra_gratis'&&apiSent===0)};}
 const TR_PEDIDO_LABEL={amostra_gratis:'📦 Amostra grátis',mais_modelos:'✨ Mais modelos',quero_ser_creator:'🆕 Quer ser creator',ver_lugar:'👖 Ver meu lugar'};
 const TR_GMV_LABEL={'0':'R$ 0','ate5k':'até R$ 5k','5a20k':'R$ 5–20k','20a80k':'R$ 20k+'};
 const TR_STATUS=['novo','em_analise','aprovada','recusada'];
 function trSetPedido(elBtn,p){document.querySelectorAll('#tr-filtros-pedido .pill-filter').forEach(x=>x.classList.remove('on'));elBtn.classList.add('on');TR_PEDIDO=p;renderTriagem();}
+function trSetAmostra(elBtn,v){document.querySelectorAll('#tr-filtros-amostra .pill-filter').forEach(x=>x.classList.remove('on'));elBtn.classList.add('on');TR_AMOSTRA=v;renderTriagem();}
 function trAge(ts){if(!ts)return'—';const d=new Date(ts),mn=(Date.now()-d.getTime())/60000;if(mn<1)return'agora';if(mn<60)return Math.floor(mn)+'min';if(mn<1440)return Math.floor(mn/60)+'h';const dd=Math.floor(mn/1440);return dd<8?dd+'d':d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}
 async function loadTriagem(force){
   if(TR_DATA.length&&!force){renderTriagem();return;}
-  el('tr-body').innerHTML='<tr><td colspan="8" class="spin">Carregando...</td></tr>';
+  el('tr-body').innerHTML='<tr><td colspan="10" class="spin">Carregando...</td></tr>';
   try{ TR_DATA=await sbGetPaged('triagem?select=id,nome,handle,whatsapp,relacao,gmv_faixa,pedido,tem_peca,diagnostico,origem,status,created_at&order=created_at.desc'); }
-  catch(e){ el('tr-body').innerHTML=`<tr><td colspan="8" class="empty" style="color:var(--rhode-red)">Não consegui ler a tabela <span class="mono">triagem</span> (${e.message}). Rode <span class="mono">rhode-vercel/sql/triagem.sql</span> no Supabase pra criar.</td></tr>`; ['tr-k-total','tr-k-7d','tr-k-amostra','tr-k-creator'].forEach(i=>set(i,'—')); return; }
+  catch(e){ el('tr-body').innerHTML=`<tr><td colspan="10" class="empty" style="color:var(--rhode-red)">Não consegui ler a tabela <span class="mono">triagem</span> (${e.message}). Rode <span class="mono">rhode-vercel/sql/triagem.sql</span> no Supabase pra criar.</td></tr>`; ['tr-k-total','tr-k-7d','tr-k-amostra','tr-k-creator'].forEach(i=>set(i,'—')); return; }
   const cutoff=new Date(Date.now()-30*864e5).toISOString();
   try{ TR_EVOS=await sbGetPaged(`triagem_eventos?select=session_id,step,created_at&created_at=gte.${cutoff}&order=created_at.asc`); }catch(e){ TR_EVOS=[]; }
+  // Amostra REAL (sample_applications = fonte de verdade da API) × controle manual (amostras_enviadas).
+  // Concilia com a triagem por @handle. Enviada = COMPLETED/SHIPPED/CONTENT_PENDING; cancelada = *_CANCELLED.
+  TR_SAMPLES={};
+  try{ (await sbGetPaged('sample_applications?select=creator,sku_name,status,convite_data')).forEach(s=>{
+    const k=trCanon(s.creator); if(!k)return; const o=TR_SAMPLES[k]||(TR_SAMPLES[k]={sent:0,cancel:0,pend:0,skus:[],last:''});
+    if(TR_SENT[s.status]){o.sent++; if(s.sku_name)o.skus.push(s.sku_name); if(s.convite_data&&s.convite_data>o.last)o.last=s.convite_data;}
+    else if(/_CANCELLED$/.test(s.status||''))o.cancel++; else o.pend++;
+  }); }catch(e){ TR_SAMPLES={}; }
+  TR_MANUAL={};
+  try{ (await sbGetPaged('amostras_enviadas?select=creator_id,data_envio,dispensada&aprovada=eq.true')).forEach(m=>{
+    if(m.dispensada)return; const k=trCanon(m.creator_id); if(!k)return; const o=TR_MANUAL[k]||(TR_MANUAL[k]={sent:0,last:''});
+    o.sent++; if(m.data_envio&&m.data_envio>o.last)o.last=m.data_envio;
+  }); }catch(e){ TR_MANUAL={}; }
   renderTriagem();
 }
 function renderTriagemFunil(){
@@ -3068,7 +3195,10 @@ function renderTriagem(){
   const q=((el('tr-busca')&&el('tr-busca').value)||'').trim().toLowerCase();
   const affMap={}; ALL_DATA.forEach(r=>{ if(r.affiliate_id) affMap[(''+r.affiliate_id).toUpperCase()]=+r.gmv_liquido||0; });
   let rows=TR_DATA.slice();
+  let cRec=0,cDiv=0,cPed=0; TR_DATA.forEach(r=>{const a=trAmo(r);if(a.recebeu)cRec++;if(a.diverg)cDiv++;if(a.pediuSem)cPed++;});
+  set('tr-c-recebeu',cRec?'· '+cRec:''); set('tr-c-diverg',cDiv?'· '+cDiv:''); set('tr-c-pediu_sem',cPed?'· '+cPed:'');
   if(TR_PEDIDO) rows=rows.filter(r=>(r.pedido||'')===TR_PEDIDO);
+  if(TR_AMOSTRA) rows=rows.filter(r=>{const a=trAmo(r);return TR_AMOSTRA==='recebeu'?a.recebeu:TR_AMOSTRA==='diverg'?a.diverg:TR_AMOSTRA==='pediu_sem'?a.pediuSem:true;});
   if(q) rows=rows.filter(r=>(((r.handle||'')+' '+(r.nome||'')).toLowerCase().indexOf(q)!==-1));
   const wk=Date.now()-7*864e5;
   set('tr-k-total',TR_DATA.length);
@@ -3076,7 +3206,7 @@ function renderTriagem(){
   set('tr-k-amostra',TR_DATA.filter(r=>r.pedido==='amostra_gratis').length);
   set('tr-k-creator',TR_DATA.filter(r=>r.pedido==='quero_ser_creator').length);
   set('tr-meta',`${rows.length} de ${TR_DATA.length}`);
-  if(!rows.length){ el('tr-body').innerHTML='<tr><td colspan="8" class="empty">Nenhuma submissão'+(TR_PEDIDO||q?' com esse filtro.':' ainda. Quando uma creator preencher o formulário do bem-vinda.html, aparece aqui.')+'</td></tr>'; return; }
+  if(!rows.length){ el('tr-body').innerHTML='<tr><td colspan="10" class="empty">Nenhuma submissão'+(TR_PEDIDO||TR_AMOSTRA||q?' com esse filtro.':' ainda. Quando uma creator preencher o formulário do bem-vinda.html, aparece aqui.')+'</td></tr>'; return; }
   el('tr-body').innerHTML=rows.map(r=>{
     const h=(''+(r.handle||'')).replace(/^@+/,'').trim();
     const hUp=h.toUpperCase();
@@ -3087,9 +3217,20 @@ function renderTriagem(){
     const wppLk=wppDigits?`<a class="lk" href="https://wa.me/55${wppDigits.replace(/^55/,'')}" target="_blank" rel="noopener">${r.whatsapp}</a>`:(r.whatsapp||'—');
     const ttLk=h?`<a class="lk" href="https://www.tiktok.com/@${encodeURIComponent(h)}" target="_blank" rel="noopener">@${h}</a> <a class="lk" onclick="openModal('${hUp.replace(/[^A-Z0-9._-]/g,'')}')" title="histórico Rhode" style="color:var(--ink-48);font-size:11px">·hist</a>`:'—';
     const affBadge=ehAff?`<span class="badge b-green" title="GMV líquido do mês atual">✓ ${fmtK(affMap[hUp])}/mês</span>`:'<span style="color:var(--ink-48)">—</span>';
+    const a=trAmo(r);
+    let apiCell;
+    if(a.apiSent>0){const tt=((a.sa.skus.slice(0,8).join(' · ')||'')+(a.sa.cancel?` · ${a.sa.cancel} cancelada(s)`:'')+(a.sa.pend?` · ${a.sa.pend} em aberto`:'')).split('"').join("'");apiCell=`<span class="badge b-green" title="${tt}">✓ ${a.apiSent} peça${a.apiSent>1?'s':''}</span>${a.sa.last?` <span class="mono" style="color:var(--ink-48);font-size:11px">${trDM(a.sa.last)}</span>`:''}`;}
+    else if(a.sa&&a.sa.pend>0){apiCell='<span class="badge b-orange" title="pedido de amostra em aberto na API (ainda não enviado)">em aberto</span>';}
+    else if(a.sa&&a.sa.cancel>0){apiCell=`<span style="color:var(--ink-48)" title="${a.sa.cancel} pedido(s) cancelado(s) na API">cancelada</span>`;}
+    else{apiCell='<span style="color:var(--ink-48)">—</span>';}
+    let ctrlCell;
+    if(a.apiSent>0&&a.manSent>0)ctrlCell='<span class="badge b-green" title="API e controle manual batem">✓ bate</span>';
+    else if(a.apiSent>0&&a.manSent===0)ctrlCell='<span class="badge b-orange" title="API mostra envio, mas o controle manual (amostras_enviadas) não registrou — faltou lançar">⚠ falta no manual</span>';
+    else if(a.apiSent===0&&a.manSent>0)ctrlCell='<span class="badge b-red" title="controle manual registrou envio, mas a API não confirma (envio fora do free sample do TikTok, ou erro de lançamento)">⚠ falta na API</span>';
+    else ctrlCell='<span style="color:var(--ink-48)">—</span>';
     const cur=(r.status||'novo');
     const statusSel=`<select onchange="trSetStatus(${r.id},this.value)" style="padding:3px 6px;font-size:11px;border:1px solid rgba(0,0,0,0.14);border-radius:6px;background:#fff">${TR_STATUS.map(s=>`<option value="${s}"${cur===s?' selected':''}>${s}</option>`).join('')}</select>`;
-    return `<tr><td class="mono" style="color:var(--ink-48)" title="${r.created_at||''}">${trAge(r.created_at)}</td><td>${(r.nome||'—')}</td><td>${ttLk}</td><td class="mono">${wppLk}</td><td>${ped}</td><td class="mono">${gmvD}</td><td>${affBadge}</td><td>${statusSel}</td></tr>`;
+    return `<tr><td class="mono" style="color:var(--ink-48)" title="${r.created_at||''}">${trAge(r.created_at)}</td><td>${(r.nome||'—')}</td><td>${ttLk}</td><td class="mono">${wppLk}</td><td>${ped}</td><td class="mono">${gmvD}</td><td>${affBadge}</td><td>${apiCell}</td><td>${ctrlCell}</td><td>${statusSel}</td></tr>`;
   }).join('');
 }
 async function trSetStatus(id,status){
