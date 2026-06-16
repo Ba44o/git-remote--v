@@ -2587,7 +2587,7 @@ function renderDev(){
 let GWIN=90, ACTIVE_CREATOR='';
 let AFF_DATA=[], CP_DATA=[], SEED_DATA=[];
 function gcut(){const c=new Date();c.setDate(c.getDate()-GWIN);return c.toISOString().slice(0,10)}
-function setGWin(w){GWIN=+w;document.querySelectorAll('.gwin-pill').forEach(b=>b.classList.toggle('on',+b.dataset.gwin===GWIN));const f={aff:renderAff,cp:renderCP,seed:renderSeed,fun:renderFun}[ACTIVE_CREATOR];if(f)f()}
+function setGWin(w){GWIN=+w;document.querySelectorAll('.gwin-pill').forEach(b=>b.classList.toggle('on',+b.dataset.gwin===GWIN));const f={aff:renderAff,cp:renderCP}[ACTIVE_CREATOR];if(f)f()}
 async function ensureAff(){if(!AFF_DATA.length)AFF_DATA=await sbGetPaged('affiliate_perf?select=creator,data,content_type,gmv,comissao,itens&order=data.desc')}
 async function ensureCP(){if(!CP_DATA.length)CP_DATA=await sbGetPaged('affiliate_creator_product?select=creator,product_id,data,produto,gmv,comissao,pedidos&order=data.desc')}
 async function ensureSeed(){if(!SEED_DATA.length)SEED_DATA=await sbGetPaged('seeding?select=creator,creator_nick,convites,n_produtos,has_free_sample,status,commission_pct,product_ids')}
@@ -2638,43 +2638,7 @@ function renderAff(){
   htm('aff-body',arr.slice(0,100).map((o,i)=>{const cls=o.cmain==='LIVE'?'b-red':o.cmain==='VIDEO'?'b-orange':'b-green';return`<tr><td><span class="mono" style="color:var(--ink-48)">${i+1}.</span> ${cLink(o.creator)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(o.gmv)}</td><td class="mono">${fmtK(o.com)}</td><td class="mono">${o.itens.toLocaleString('pt-BR')}</td><td><span class="badge ${cls}">${o.cmain}</span> <span style="color:var(--ink-48);font-size:11px">${o.cpct.toFixed(0)}%</span></td></tr>`}).join(''));
 }
 
-// ── Sub-aba Seeding (Target Collaborations × vendas por produto convidado, grão por creator)
-let SEED_FILTER='all';
-function filterSeed(btn,f){document.querySelectorAll('[data-seedf]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');SEED_FILTER=f;renderSeed()}
-async function loadSeed(){
-  htm('seed-body','<tr><td colspan="8" class="spin">Carregando…</td></tr>');
-  try{await Promise.all([ensureSeed(),ensureCP()]);renderSeed()}
-  catch(e){htm('seed-body',`<tr><td colspan="8" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
-}
-function renderSeed(){
-  if(!SEED_DATA.length){htm('seed-body','<tr><td colspan="8" class="empty">Sem convites.</td></tr>');htm('seed-kpis','');set('seed-meta','');return}
-  const agg=cpAgg();                                   // GMV por creator×produto na janela
-  const data=SEED_DATA.map(s=>{
-    const k=(s.creator||'').toLowerCase();
-    const ids=new Set((s.product_ids||'').split(',').filter(Boolean));
-    const c=agg[k]||{}; let g=0,p=0;
-    for(const pid in c) if(ids.has(pid)){g+=c[pid].gmv;p+=c[pid].ped}
-    return {...s, gmv:g, ped:p};
-  });
-  let rows=data;
-  if(SEED_FILTER==='sample') rows=rows.filter(r=>r.has_free_sample);
-  else if(SEED_FILTER==='novenda') rows=rows.filter(r=>r.gmv===0);
-  rows=rows.slice().sort((a,b)=>b.gmv-a.gmv);
-  const n=rows.length, conv=rows.filter(r=>r.gmv>0).length;
-  const comAmostra=rows.filter(r=>r.has_free_sample).length;
-  const totGmv=rows.reduce((s,r)=>s+r.gmv,0);
-  htm('seed-kpis',[
-    finCard('Creators convidadas',n.toLocaleString('pt-BR'),`${comAmostra} com amostra grátis`),
-    finCard('Venderam o produto',`${conv}/${n}`,`${n?(conv/n*100).toFixed(0):0}% converteram`,true),
-    finCard('GMV nos produtos convidados',fmtK(totGmv),`afiliação · ${GWIN}d`),
-    finCard('Sem venda',(n-conv).toLocaleString('pt-BR'),'convidadas, R$0 no produto'),
-  ].join(''));
-  set('seed-meta',`${n} creators · ${conv} venderam · ${fmtK(totGmv)} · ${GWIN}d`);
-  htm('seed-body',rows.map(r=>{
-    const v=r.gmv>0; const st=v?'b-green':'b-red';
-    const am=r.has_free_sample?'<span class="badge b-green">sim</span>':'<span style="color:var(--ink-48)">—</span>';
-    return`<tr><td>${cLink(r.creator)}</td><td class="mono">${r.convites}</td><td class="mono">${r.n_produtos}</td><td>${am}</td><td class="mono">${(+r.commission_pct||0).toFixed(1)}%</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${r.ped.toLocaleString('pt-BR')}</td><td><span class="badge ${st}">${v?'vendeu':'sem venda'}</span></td></tr>`}).join(''));
-}
+// painel "Seeding" v2a removido — consolidado em "Seeding & Ativação" (sdLoad).
 
 // ── Sub-aba Seeding & Ativação (consolidado · free sample real + atribuição por janela)
 // Lógica de cálculo verificada em node (tools/prototipo-seeding/sd_compute.js).
@@ -2820,39 +2784,7 @@ function renderCP(){
     htm('cp-body',rows.slice(0,100).map(r=>`<tr><td>${r.produto}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${r.ped.toLocaleString('pt-BR')}</td><td class="mono">${fmtK(r.com)}</td></tr>`).join(''));
   }
 }
-// ── Sub-aba Ativação (funil: convidada → vendeu o produto convidado → ativa / reativar)
-let FUN_SEG='ativar';
-function funSeg(btn,s){document.querySelectorAll('[data-funseg]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');FUN_SEG=s;renderFun()}
-async function loadFun(){
-  htm('fun-body','<tr><td colspan="5" class="spin">Carregando…</td></tr>');
-  try{await Promise.all([ensureSeed(),ensureCP(),ensureAff()]);renderFun()}
-  catch(e){htm('fun-body',`<tr><td colspan="5" class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</td></tr>`)}
-}
-function renderFun(){
-  if(!SEED_DATA.length){htm('fun-body','<tr><td colspan="5" class="empty">Sem convites.</td></tr>');htm('fun-kpis','');return}
-  const agg=cpAgg();                                   // GMV por creator×produto na janela
-  const c14=new Date();c14.setDate(c14.getDate()-14);const cs14=c14.toISOString().slice(0,10);
-  const recent=new Set(AFF_DATA.filter(r=>r.data>=cs14 && (+r.gmv||0)>0).map(r=>(r.creator||'').toLowerCase()));
-  const d=SEED_DATA.map(s=>{
-    const k=(s.creator||'').toLowerCase();
-    const ids=new Set((s.product_ids||'').split(',').filter(Boolean));
-    const c=agg[k]||{}; let g=0,p=0;
-    for(const pid in c) if(ids.has(pid)){g+=c[pid].gmv;p+=c[pid].ped}
-    return {creator:s.creator,has_free_sample:s.has_free_sample,gmv:g,ped:p,
-            seg:g<=0?'ativar':(recent.has(k)?'ativas':'reativar')};
-  });
-  const conv=d.length, vend=d.filter(x=>x.seg!=='ativar').length, ativ=d.filter(x=>x.seg==='ativas').length, react=d.filter(x=>x.seg==='reativar').length;
-  htm('fun-kpis',[
-    finCard('Convidadas',conv.toLocaleString('pt-BR'),'target collaborations'),
-    finCard('Venderam o produto',vend.toLocaleString('pt-BR'),`${conv?(vend/conv*100).toFixed(0):0}% · ${GWIN}d`,true),
-    finCard('Ativas (14d)',ativ.toLocaleString('pt-BR'),'venderam recente'),
-    finCard('Reativar',react.toLocaleString('pt-BR'),'venderam e esfriaram'),
-  ].join(''));
-  const rows=(FUN_SEG==='todas'?d:d.filter(x=>x.seg===FUN_SEG)).sort((a,b)=>b.gmv-a.gmv);
-  set('fun-meta',`${rows.length} creators · ${GWIN}d`);
-  const lbl={ativar:['sem venda','b-red'],reativar:['reativar','b-orange'],ativas:['ativa','b-green']};
-  htm('fun-body',rows.map(r=>{const L=lbl[r.seg]||['—',''];return`<tr><td>${cLink(r.creator)}</td><td>${r.has_free_sample?'<span class="badge b-green">sim</span>':'<span style="color:var(--ink-48)">—</span>'}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv)}</td><td class="mono">${r.ped.toLocaleString('pt-BR')}</td><td><span class="badge ${L[1]}">${L[0]}</span></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Nenhuma nesse segmento.</td></tr>');
-}
+// painel "Ativação" removido — consolidado em "Seeding & Ativação" (sdLoad).
 async function openModal(id){el('modal-title').textContent=id;htm('modal-body','<div class="spin">Carregando...</div>');el('modal').classList.add('on');try{const data=await sbGet(`performance_periods?select=periodo,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier&affiliate_id=eq.${encodeURIComponent(id)}&order=periodo.asc`);if(!data.length){htm('modal-body','<div class="empty">Sem histórico disponível.</div>');return}htm('modal-body',`<div class="tw"><table><thead><tr><th>Período</th><th>Tier</th><th>GMV Bruto</th><th>GMV Líq.</th><th>Refund%</th><th>Pedidos</th><th>AOV</th><th>Vídeos</th><th>Lives</th></tr></thead><tbody>${data.map(r=>{const t=tier(+r.gmv_liquido||0);return`<tr><td class="mono">${r.periodo}</td><td><span class="badge ${t.c}">${r.tier||t.l}</span></td><td class="mono">${fmtK(r.gmv_bruto)}</td><td class="mono" style="font-weight:600;color:var(--rhode-red)">${fmtK(r.gmv_liquido)}</td><td>${refBadge(r.refund_pct)}</td><td class="mono">${r.pedidos||0}</td><td class="mono">${fmtR(r.aov)}</td><td class="mono">${r.videos||0}</td><td class="mono">${r.lives||0}</td></tr>`}).join('')}</tbody></table></div>`)}catch(e){htm('modal-body',`<div class="empty" style="color:var(--rhode-red)">Erro: ${e.message}</div>`)}}
 function closeModal(){el('modal').classList.remove('on')}
 
