@@ -44,6 +44,11 @@
   .lnk{font-size:12px;color:var(--ink-48);text-decoration:none;border:1px solid var(--hairline);
     padding:8px 12px;border-radius:9px;background:var(--card)}
   .lnk:hover{color:var(--ink);border-color:var(--ink-24)}
+  /* switcher de módulos do console (Creators ⇄ Conciliação) — idêntico ao admin */
+  .modnav{display:flex;gap:3px;background:var(--parchment);border:1px solid var(--hairline);border-radius:99px;padding:3px}
+  .modnav a{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;text-decoration:none;color:var(--ink-48);padding:6px 15px;border-radius:99px;transition:all .15s ease;white-space:nowrap}
+  .modnav a:hover{color:var(--ink)}
+  .modnav a.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 
   /* KPIs */
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
@@ -109,8 +114,11 @@
       <div class="sub">Caminho do dinheiro — TikTok Shop · admin/CFO</div>
     </div>
     <div class="top-right">
+      <nav class="modnav">
+        <a href="admin.html">Creators</a>
+        <a href="conciliacao.html" class="on">Conciliação</a>
+      </nav>
       <select id="period-sel" onchange="render()"></select>
-      <a class="lnk" href="admin.html">← Admin</a>
       <a class="lnk" href="#" onclick="logout();return false">Sair</a>
     </div>
   </header>

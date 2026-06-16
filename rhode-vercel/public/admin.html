@@ -89,6 +89,11 @@ body{
 .tlogo{font-weight:700;font-size:18px;letter-spacing:-0.022em;color:var(--ink);flex-shrink:0}
 .tdot{color:var(--rhode-red)}
 .tlogo small{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-left:8px}
+/* switcher de módulos do console do operador (Creators ⇄ Conciliação) */
+.modnav{display:flex;gap:3px;background:var(--parchment);border:1px solid var(--hairline);border-radius:99px;padding:3px}
+.modnav a{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;text-decoration:none;color:var(--ink-48);padding:6px 15px;border-radius:99px;transition:all .15s ease;white-space:nowrap}
+.modnav a:hover{color:var(--ink)}
+.modnav a.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .tright{display:flex;align-items:center;gap:12px}
 .tstatus{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;color:var(--ink-48)}
 .tbtn{
@@ -693,7 +698,11 @@ tr:hover td{background:rgba(254,44,85,0.015)}
 
 <div id="adm-app">
   <div class="topbar">
-    <div class="tlogo">Rhode<span class="tdot">.</span><small>Admin</small></div>
+    <div class="tlogo">Rhode<span class="tdot">.</span><small>Console</small></div>
+    <nav class="modnav">
+      <a href="admin.html" class="on">Creators</a>
+      <a href="conciliacao.html">Conciliação</a>
+    </nav>
     <div class="tright">
       <span class="tstatus" id="st"></span>
       <button class="tbtn" id="btn-sync" onclick="syncAll()">↻ Sincronizar</button>
