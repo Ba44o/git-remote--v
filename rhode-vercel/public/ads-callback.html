@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhode · Autorização TikTok Ads</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafafc;color:#1d1d1f;display:grid;place-items:center;min-height:100vh;padding:24px}
+  .card{background:#fff;border:1px solid #e6e6ea;border-radius:18px;padding:40px;max-width:560px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.06)}
+  h1{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+  h1 span{color:#FE2C55}
+  .sub{font-size:13px;color:#85858a;margin-bottom:24px}
+  .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#85858a;margin-bottom:8px}
+  .code{font-family:'JetBrains Mono',monospace;font-size:14px;word-break:break-all;background:#f5f5f7;border:1px solid #e6e6ea;border-radius:12px;padding:16px;line-height:1.5}
+  .ok{color:#1a8f5a} .err{color:#FE2C55}
+  button{margin-top:16px;width:100%;padding:13px;background:#1d1d1f;color:#fff;border:none;border-radius:11px;font-weight:600;font-size:14px;cursor:pointer}
+  button:hover{opacity:.9}
+  .hint{margin-top:18px;font-size:12.5px;color:#85858a;line-height:1.5}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>rhode<span>.</span> ads</h1>
+    <div class="sub">Autorização TikTok Marketing API</div>
+    <div id="body"></div>
+  </div>
+<script>
+  const p = new URLSearchParams(location.search);
+  const code = p.get('auth_code') || p.get('code');
+  const err = p.get('error') || p.get('error_description');
+  const body = document.getElementById('body');
+  if (code) {
+    body.innerHTML = `
+      <div class="lbl ok">✓ Autorizado — copie este auth_code</div>
+      <div class="code" id="code">${code}</div>
+      <button onclick="navigator.clipboard.writeText('${code}').then(()=>{this.textContent='✓ Copiado!'})">Copiar auth_code</button>
+      <div class="hint">Cole esse código no chat pra finalizar a conexão. Ele é <b>de uso único</b> e expira em minutos — sozinho não dá acesso a nada (precisa do App Secret, que fica no servidor).</div>`;
+  } else if (err) {
+    body.innerHTML = `<div class="lbl err">✕ Erro na autorização</div><div class="code">${err}</div>`;
+  } else {
+    body.innerHTML = `<div class="hint">Esta página recebe o retorno da autorização do TikTok Ads. Abra o link de autorização que o Rhode te passou — você cai aqui com o código.</div>`;
+  }
+</script>
+</body>
+</html>
