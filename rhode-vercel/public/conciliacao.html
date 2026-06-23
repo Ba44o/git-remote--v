@@ -158,17 +158,27 @@ const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','De
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
 // ---- estado ----
-let FIN={}, GMV={}, PROD={}, CPVMAP={}, MESES=[];
+let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, MESES=[];
 
 async function load(){
-  // finance_statements (caminho do dinheiro) + pedidos_sku (GMV + produtos) + custos_sku (CPV)
-  const [fin, ped, cpv] = await Promise.all([
+  // finance (caminho do dinheiro) + pedidos_sku (GMV) + custos_sku (CPV) + ads_gmvmax (ads)
+  const [fin, ped, cpv, ads] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
     admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku',{paged:true}),
-    admProxy('GET','custos_sku?select=ref,cpv',{paged:true})
+    admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
+    admProxy('GET','ads_gmvmax?select=periodo,campanha,custo,receita_bruta,pedidos',{paged:true})
   ]);
   CPVMAP={};
   (cpv.data||[]).forEach(r=>{ if(r.ref) CPVMAP[String(r.ref).toUpperCase()]=+r.cpv||0; });
+  // ads GMV Max por mês + por campanha
+  ADS={};
+  (ads.data||[]).forEach(r=>{
+    const m=r.periodo; if(!m)return;
+    const a=ADS[m]||(ADS[m]={custo:0,receita:0,pedidos:0,camp:{}});
+    a.custo+=+r.custo||0; a.receita+=+r.receita_bruta||0; a.pedidos+=+r.pedidos||0;
+    const n=(r.campanha||'—'); const c=a.camp[n]||(a.camp[n]={custo:0,receita:0,pedidos:0});
+    c.custo+=+r.custo||0; c.receita+=+r.receita_bruta||0; c.pedidos+=+r.pedidos||0;
+  });
   // agrega finance por mês
   FIN={};
   (fin.data||[]).forEach(r=>{
@@ -191,7 +201,7 @@ async function load(){
     p.gmv+=g; p.qty+=q;
     if(cpvUn!=null){ p.custo+=cpvUn*q; p.gmvCpv+=g; }
   });
-  MESES=[...new Set([...Object.keys(FIN),...Object.keys(GMV)])].sort();
+  MESES=[...new Set([...Object.keys(FIN),...Object.keys(GMV),...Object.keys(ADS)])].sort();
   // popula seletor
   const sel=document.getElementById('period-sel');
   sel.innerHTML=`<option value="ALL">Todos os meses</option>`+MESES.slice().reverse().map(m=>`<option value="${m}">${fmtMes(m)}</option>`).join('');
@@ -281,7 +291,24 @@ function render(){
     <table><thead><tr><th>Produto</th><th>Qtd</th><th>GMV</th><th>Custo CPV</th><th>Contrib.</th><th>Líq. est.</th><th>Líq.%</th></tr></thead><tbody>${margRows}</tbody></table>
     <div class="note" style="margin-top:14px;background:#eef6f0;border-color:#cfe6d8;color:#2a6045"><span style="font-size:15px">📦</span><div><b>Contribuição</b> = GMV − CPV (exata). <b>Líquida estimada</b> = GMV × <b>${(eficFrac*100).toFixed(1)}%</b> (eficiência de settlement) − CPV — deduz a taxa da plataforma (~26%) rateada por GMV. É <b>estimativa otimista</b> (usa GMV bruto; descontos de vendedor/devoluções reduzem um pouco o líquido real). O valor exato por SKU exige o detalhe order-level do finance — próximo passo. Cobertura CPV: <b>${cobertura.toFixed(1)}%</b>.</div></div></div>`;
 
-  document.getElementById('body').innerHTML = kpis + cascata + trend + prods + nota + fase2;
+  // === GMV Max (ads) + fecho da cascata de lucro ===
+  const ad={custo:0,receita:0,pedidos:0,camp:{}};
+  meses.forEach(m=>{const a=ADS[m]; if(!a)return; ad.custo+=a.custo;ad.receita+=a.receita;ad.pedidos+=a.pedidos;
+    Object.entries(a.camp).forEach(([n,c])=>{const x=ad.camp[n]||(ad.camp[n]={custo:0,receita:0,pedidos:0});x.custo+=c.custo;x.receita+=c.receita;x.pedidos+=c.pedidos;});});
+  const adRoi=ad.custo?ad.receita/ad.custo:0, lucroFinal=mLiq-ad.custo;
+  const campRows=Object.entries(ad.camp).map(([n,c])=>({n,...c,roi:c.custo?c.receita/c.custo:0})).sort((a,b)=>b.custo-a.custo).slice(0,12)
+    .map((c,i)=>`<tr><td class="mp" style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.n.replace(/"/g,'')}">${i+1}. ${c.n}</td><td class="neg">${fmt(c.custo)}</td><td>${fmt(c.receita)}</td><td style="font-weight:700;color:var(--green)">${c.roi.toFixed(1)}x</td><td>${NUM.format(c.pedidos)}</td></tr>`).join('');
+  const adsBlock = ad.custo>0 ? `<div class="sec"><div class="sec-h"><h2>GMV Max <span class="pill">ads</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · Seller Center</div></div>
+    <div class="kpis" style="margin-bottom:18px">
+      <div class="kpi"><div class="lbl">Gasto GMV Max</div><div class="val" style="color:var(--rhode-red)">${fmt(ad.custo)}</div><div class="foot">${NUM.format(ad.pedidos)} pedidos</div></div>
+      <div class="kpi"><div class="lbl">Receita atribuída</div><div class="val">${fmt(ad.receita)}</div><div class="foot">GMV gerado por ads</div></div>
+      <div class="kpi"><div class="lbl">ROI (ROAS)</div><div class="val accent">${adRoi.toFixed(2)}x</div><div class="foot">receita / gasto</div></div>
+      <div class="kpi"><div class="lbl">Lucro após ads</div><div class="val" style="color:${lucroFinal>=0?'var(--green)':'var(--rhode-red)'}">${fmt(lucroFinal)}</div><div class="foot">margem líq − GMV Max</div></div>
+    </div>
+    <table><thead><tr><th>Campanha</th><th>Gasto</th><th>Receita</th><th>ROI</th><th>Pedidos</th></tr></thead><tbody>${campRows}</tbody></table>
+    <div class="note" style="margin-top:14px"><span style="font-size:15px">🎯</span><div><b>Fecho da cascata:</b> margem líquida estimada (${fmt(mLiq)}) − gasto GMV Max (${fmt(ad.custo)}) = <b>lucro após ads ${fmt(lucroFinal)}</b>. Falta só o degrau de impostos pro lucro final. GMV Max vem do Seller Center; brand ads (Ads Manager) entram à parte.</div></div></div>` : '';
+
+  document.getElementById('body').innerHTML = kpis + cascata + trend + prods + nota + fase2 + adsBlock;
 }
 
 function enter(){

@@ -32,12 +32,17 @@ const PED = [
     { ref:'REF51644', cpv:45 }, { ref:'REF55140', cpv:52 },
     { ref:'REF58238', cpv:45 }, { ref:'REF58742', cpv:38 },
   ];
+  const ADS = [
+    { periodo:'2026-06', campanha:'[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]', custo:23658, receita_bruta:163000, pedidos:1500 },
+    { periodo:'2026-06', campanha:'[GMV-MAX][MOM-BAGGY]-07.05.26', custo:2075, receita_bruta:11000, pedidos:120 },
+    { periodo:'2026-05', campanha:'[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]', custo:15159, receita_bruta:100000, pedidos:1000 },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : [];
+      const data = p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();
