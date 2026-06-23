@@ -27,12 +27,17 @@ const PED = [
   // injeta token de sessão antes de carregar (pula login)
   await page.addInitScript(() => { try { sessionStorage.setItem('rhode-admin-token','test-token'); } catch(e){} });
 
+  // CPV mock (casa com os seller_sku do PED) pra renderizar a margem
+  const CPV = [
+    { ref:'REF51644', cpv:45 }, { ref:'REF55140', cpv:52 },
+    { ref:'REF58238', cpv:45 }, { ref:'REF58742', cpv:38 },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : [];
+      const data = p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();
