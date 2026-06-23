@@ -253,27 +253,33 @@ function render(){
   // nota dos dois relógios
   const nota=`<div class="note"><span style="font-size:16px">🕐</span><div><b>Dois relógios.</b> "GMV vendas" conta pela <b>data da venda</b> (pedidos_sku); "Receita/Settlement" pela <b>data que o dinheiro liquidou</b> (finance_statements, que atrasa ~semanas). Por isso o mês corrente mostra GMV alto e settlement ainda parcial — é o que a conciliação reconcilia ao longo do tempo, não uma soma direta.</div></div>`;
 
-  // === Fase 2: Margem por produto (GMV − CPV×qty) ===
+  // === Fase 2: Margem por produto — contribuição (GMV−CPV) + líquida estimada (× eficiência de settlement) ===
+  let gRev=0,gSet=0; Object.values(FIN).forEach(f=>{gRev+=f.rev;gSet+=f.set;});
+  const eficFrac = A.rev ? A.set/A.rev : (gRev?gSet/gRev:0.74); // settlement/receita; fallback global se o período não tem finance
   const margAgg={};
-  meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=margAgg[nome]||(margAgg[nome]={gmv:0,qty:0,custo:0,gmvCpv:0}); a.gmv+=v.gmv;a.qty+=v.qty;a.custo+=v.custo;a.gmvCpv+=v.gmvCpv;});});
-  let mGmv=0,mCusto=0,mGmvCpv=0,mQty=0;
-  Object.values(margAgg).forEach(v=>{mGmv+=v.gmv;mCusto+=v.custo;mGmvCpv+=v.gmvCpv;mQty+=v.qty;});
-  const mMargem=mGmvCpv-mCusto, cobertura=mGmv?mGmvCpv/mGmv*100:0, margPct=mGmvCpv?mMargem/mGmvCpv*100:0;
-  const margList=Object.entries(margAgg).map(([nome,v])=>({nome,gmv:v.gmvCpv,qty:v.qty,custo:v.custo,margem:v.gmvCpv-v.custo,pct:v.gmvCpv?(v.gmvCpv-v.custo)/v.gmvCpv*100:0})).filter(x=>x.gmv>0).sort((a,b)=>b.margem-a.margem).slice(0,15);
+  meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=margAgg[nome]||(margAgg[nome]={qty:0,custo:0,gmvCpv:0}); a.qty+=v.qty;a.custo+=v.custo;a.gmvCpv+=v.gmvCpv;});});
+  let mGmvAll=0; meses.forEach(m=>{const g=GMV[m]; if(g)mGmvAll+=g.gmv;});
+  let mCusto=0,mGmvCpv=0,mQty=0;
+  Object.values(margAgg).forEach(v=>{mCusto+=v.custo;mGmvCpv+=v.gmvCpv;mQty+=v.qty;});
+  const cobertura=mGmvAll?mGmvCpv/mGmvAll*100:0;
+  const mContrib=mGmvCpv-mCusto, contribPct=mGmvCpv?mContrib/mGmvCpv*100:0;
+  const mLiq=mGmvCpv*eficFrac-mCusto, liqPct=mGmvCpv?mLiq/mGmvCpv*100:0;
+  const margList=Object.entries(margAgg).map(([nome,v])=>{const contrib=v.gmvCpv-v.custo, liq=v.gmvCpv*eficFrac-v.custo; return {nome,gmv:v.gmvCpv,qty:v.qty,custo:v.custo,contrib,liq,liqPct:v.gmvCpv?liq/v.gmvCpv*100:0};}).filter(x=>x.gmv>0).sort((a,b)=>b.liq-a.liq).slice(0,15);
   const margRows=margList.map((x,i)=>`<tr>
-    <td class="mp" style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${x.nome.replace(/"/g,'')}">${i+1}. ${x.nome}</td>
+    <td class="mp" style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${x.nome.replace(/"/g,'')}">${i+1}. ${x.nome}</td>
     <td>${NUM.format(x.qty)}</td><td>${fmt(x.gmv)}</td><td class="neg">${fmt(x.custo)}</td>
-    <td style="font-weight:700;color:var(--green)">${fmt(x.margem)}</td>
-    <td>${x.pct.toFixed(1)}%</td></tr>`).join('');
-  const fase2=`<div class="sec"><div class="sec-h"><h2>Margem por produto <span class="pill">CPV</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · contribuição (GMV − CPV)</div></div>
+    <td>${fmt(x.contrib)}</td>
+    <td style="font-weight:700;color:${x.liq>=0?'var(--green)':'var(--rhode-red)'}">${fmt(x.liq)}</td>
+    <td>${x.liqPct.toFixed(1)}%</td></tr>`).join('');
+  const fase2=`<div class="sec"><div class="sec-h"><h2>Margem por produto <span class="pill">CPV</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · contribuição & líquida estimada</div></div>
     <div class="kpis" style="margin-bottom:18px">
       <div class="kpi"><div class="lbl">GMV com CPV</div><div class="val">${fmt(mGmvCpv)}</div><div class="foot">cobertura ${cobertura.toFixed(1)}%</div></div>
-      <div class="kpi"><div class="lbl">Custo (CPV)</div><div class="val">${fmt(mCusto)}</div><div class="foot">${NUM.format(mQty)} un</div></div>
-      <div class="kpi"><div class="lbl">Margem contribuição</div><div class="val accent">${fmt(mMargem)}</div><div class="foot">antes das taxas</div></div>
-      <div class="kpi"><div class="lbl">Margem %</div><div class="val">${margPct.toFixed(1)}%</div><div class="foot">sobre GMV c/ CPV</div></div>
+      <div class="kpi"><div class="lbl">Margem contribuição</div><div class="val">${fmt(mContrib)}</div><div class="foot">${contribPct.toFixed(1)}% · GMV − CPV</div></div>
+      <div class="kpi"><div class="lbl">Margem líquida est.</div><div class="val accent">${fmt(mLiq)}</div><div class="foot">${liqPct.toFixed(1)}% · após taxas</div></div>
+      <div class="kpi"><div class="lbl">Eficiência aplicada</div><div class="val">${(eficFrac*100).toFixed(1)}%</div><div class="foot">settlement / receita</div></div>
     </div>
-    <table><thead><tr><th>Produto</th><th>Qtd</th><th>GMV</th><th>Custo</th><th>Margem</th><th>Margem %</th></tr></thead><tbody>${margRows}</tbody></table>
-    <div class="note" style="margin-top:14px;background:#eef6f0;border-color:#cfe6d8;color:#2a6045"><span style="font-size:15px">📦</span><div><b>Margem de contribuição = GMV − CPV.</b> Lucro do produto <b>antes</b> das taxas da plataforma (~26%, ver DRE acima) e impostos. Cobertura de CPV: <b>${cobertura.toFixed(1)}%</b> do GMV do período — KITs e poucos REFs sem custo cadastrado ficam de fora.</div></div></div>`;
+    <table><thead><tr><th>Produto</th><th>Qtd</th><th>GMV</th><th>Custo CPV</th><th>Contrib.</th><th>Líq. est.</th><th>Líq.%</th></tr></thead><tbody>${margRows}</tbody></table>
+    <div class="note" style="margin-top:14px;background:#eef6f0;border-color:#cfe6d8;color:#2a6045"><span style="font-size:15px">📦</span><div><b>Contribuição</b> = GMV − CPV (exata). <b>Líquida estimada</b> = GMV × <b>${(eficFrac*100).toFixed(1)}%</b> (eficiência de settlement) − CPV — deduz a taxa da plataforma (~26%) rateada por GMV. É <b>estimativa otimista</b> (usa GMV bruto; descontos de vendedor/devoluções reduzem um pouco o líquido real). O valor exato por SKU exige o detalhe order-level do finance — próximo passo. Cobertura CPV: <b>${cobertura.toFixed(1)}%</b>.</div></div></div>`;
 
   document.getElementById('body').innerHTML = kpis + cascata + trend + prods + nota + fase2;
 }
