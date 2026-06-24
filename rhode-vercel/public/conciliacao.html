@@ -158,7 +158,7 @@ const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','De
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
 // ---- estado ----
-let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, MESES=[];
+let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], MESES=[];
 // alíquotas de imposto (Lucro Real · editáveis · a confirmar c/ contador)
 let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||9.25; // PIS/COFINS+ICMS efetivo s/ venda
 let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||34;          // IRPJ+CSLL s/ lucro
@@ -166,18 +166,21 @@ function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{loc
 
 async function load(){
   // finance (caminho do dinheiro) + pedidos_sku (GMV) + custos_sku (CPV) + ads_gmvmax (ads)
-  const [fin, ped, cpv, ads, stx] = await Promise.all([
+  const [fin, ped, cpv, ads, stx, div] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
     admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku',{paged:true}),
     admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
     admProxy('GET','ads_gmvmax?select=periodo,campanha,custo,receita_bruta,pedidos',{paged:true}),
-    admProxy('GET','statement_tx_resumo?select=*',{paged:true})
+    admProxy('GET','statement_tx_resumo?select=*',{paged:true}),
+    admProxy('GET','repasse_divergencias?select=*',{paged:true}).catch(()=>({data:[]}))
   ]);
   CPVMAP={};
   (cpv.data||[]).forEach(r=>{ if(r.ref) CPVMAP[String(r.ref).toUpperCase()]=+r.cpv||0; });
   // conciliação de repasse (view agregada por período) — liquidado/a receber/devolvido + decomposição
   STX={};
   (stx.data||[]).forEach(r=>{ if(r.periodo) STX[r.periodo]=r; });
+  // divergências (B-2) — pedidos pagos sem settlement, classificados (faltante/pendente/cancelado)
+  DIV = (typeof div!=='undefined' && div && div.data) ? div.data : [];
   // ads GMV Max por mês + por campanha
   ADS={};
   (ads.data||[]).forEach(r=>{
@@ -359,7 +362,24 @@ function render(){
     ${[['Comissão plataforma',rp.plat,'#94a3b8'],['Comissão afiliada',rp.afi,'var(--rhode-red)'],['Comissão ads-afil',rp.ads,'var(--orange)'],['Frete',rp.frete,'var(--blue)'],['Serviço/SFP + mídia GMV Max',rpOutros,'#9a7030']].map(([lbl,v,cor])=>`<div class="casc-row"><div class="casc-lbl">${lbl}</div><div class="casc-bar"><i style="width:${Math.min(100,v/rp.pagoLiq*100*3).toFixed(0)}%;background:${cor}"></i></div><div class="casc-val neg">${fmt(v)} · ${pc(v)}</div></div>`).join('')}
     <div class="note" style="margin-top:14px"><span style="font-size:15px">🔎</span><div><b>Conciliação de repasse (estilo koncili)</b> — dado EXATO por pedido (não estimativa). <b>A receber</b> = ${fmt(rp.rec)} de pedidos pagos sem settlement (pendente + a investigar). <b>Devolvido</b> = ${fmt(rp.dev)} (dinheiro que voltou). A taxa real (só liquidados) alimenta a margem líquida acima. Próximo: motor de divergência (esperado vs recebido) pra apontar cobrança errada e abrir chamado.</div></div></div>` : '';
 
-  document.getElementById('body').innerHTML = kpis + cascata + repasseBlock + trend + prods + nota + fase2 + lucroBlock + adsBlock;
+  // === A recuperar (divergências koncili · B-2) ===
+  const dvSel = DIV.filter(d=> sel==='ALL' || d.periodo===sel);
+  const dvA={repasse_faltante:{n:0,v:0},pendente:{n:0,v:0},cancelado:{n:0,v:0}};
+  dvSel.forEach(d=>{const c=dvA[d.classe]; if(c){c.n++; c.v+=+d.pago||0;}});
+  const dvTotal = dvA.repasse_faltante.v + dvA.pendente.v + dvA.cancelado.v;
+  const faltTop = dvSel.filter(d=>d.classe==='repasse_faltante').sort((a,b)=>(+b.pago||0)-(+a.pago||0)).slice(0,12);
+  const faltRows = faltTop.map((d,i)=>`<tr><td>${i+1}</td><td class="mp">${d.data||'—'}</td><td class="mp" style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${(d.produto||'').replace(/"/g,'')}">${d.produto||'—'}</td><td>${d.status||'—'}</td><td style="font-weight:700">${fmt(+d.pago||0)}</td></tr>`).join('');
+  const divBlock = DIV.length ? `<div class="sec"><div class="sec-h"><h2>A recuperar <span class="pill">divergências</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · pago sem settlement</div></div>
+    <div class="kpis" style="margin-bottom:18px">
+      <div class="kpi"><div class="lbl">Repasse faltante</div><div class="val accent">${fmt(dvA.repasse_faltante.v)}</div><div class="foot">${dvA.repasse_faltante.n} ped · RECUPERÁVEL</div></div>
+      <div class="kpi"><div class="lbl">Pendente</div><div class="val">${fmt(dvA.pendente.v)}</div><div class="foot">${dvA.pendente.n} ped · settlement a cair</div></div>
+      <div class="kpi"><div class="lbl">Cancelado</div><div class="val" style="color:var(--ink-48)">${fmt(dvA.cancelado.v)}</div><div class="foot">${dvA.cancelado.n} ped · esperado</div></div>
+      <div class="kpi"><div class="lbl">Total a receber</div><div class="val">${fmt(dvTotal)}</div><div class="foot">pago sem settlement</div></div>
+    </div>
+    ${faltRows?`<div class="lbl" style="margin-bottom:8px">Pedidos a recuperar — abrir chamado</div><table><thead><tr><th>#</th><th>Data</th><th>Produto</th><th>Status</th><th>Pago</th></tr></thead><tbody>${faltRows}</tbody></table>`:'<div style="font-size:13px;color:var(--ink-48)">Nenhum repasse faltante no período. 👍</div>'}
+    <div class="note" style="margin-top:14px"><span style="font-size:15px">🧾</span><div><b>Auditoria de repasse:</b> a maior parte do "a receber" costuma ser <b>cancelamento</b> (esperado, o dinheiro volta). <b>Repasse faltante</b> = pago, antigo (>30d) e não cancelado → candidato a <b>abrir chamado</b>. Recuperar comissão cobrada a mais exige as alíquotas contratadas do seu acordo TikTok — próximo passo do motor.</div></div></div>` : '';
+
+  document.getElementById('body').innerHTML = kpis + cascata + repasseBlock + divBlock + trend + prods + nota + fase2 + lucroBlock + adsBlock;
 }
 
 function enter(){
