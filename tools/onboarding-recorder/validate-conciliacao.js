@@ -37,12 +37,16 @@ const PED = [
     { periodo:'2026-06', campanha:'[GMV-MAX][MOM-BAGGY]-07.05.26', custo:2075, receita_bruta:11000, pedidos:120 },
     { periodo:'2026-05', campanha:'[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]', custo:15159, receita_bruta:100000, pedidos:1000 },
   ];
+  const STX = [
+    { periodo:'2026-06', liquidados:3674, pendentes:261, devolvidos:500, pago_total:367220, settle_liq:262117, pago_liq:323614, a_receber:23778, devolucao:-8000, comissao_plataforma:20800, comissao_afiliada:12400, comissao_ads_afil:6200, frete:6500 },
+    { periodo:'2026-05', liquidados:4621, pendentes:297, devolvidos:600, pago_total:523535, settle_liq:336633, pago_liq:439109, a_receber:28526, devolucao:-9000, comissao_plataforma:27200, comissao_afiliada:29000, comissao_ads_afil:3500, frete:8800 },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
+      const data = p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();

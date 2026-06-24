@@ -158,7 +158,7 @@ const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','De
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
 // ---- estado ----
-let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, MESES=[];
+let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, MESES=[];
 // alíquotas de imposto (Lucro Real · editáveis · a confirmar c/ contador)
 let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||9.25; // PIS/COFINS+ICMS efetivo s/ venda
 let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||34;          // IRPJ+CSLL s/ lucro
@@ -166,14 +166,18 @@ function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{loc
 
 async function load(){
   // finance (caminho do dinheiro) + pedidos_sku (GMV) + custos_sku (CPV) + ads_gmvmax (ads)
-  const [fin, ped, cpv, ads] = await Promise.all([
+  const [fin, ped, cpv, ads, stx] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
     admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku',{paged:true}),
     admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
-    admProxy('GET','ads_gmvmax?select=periodo,campanha,custo,receita_bruta,pedidos',{paged:true})
+    admProxy('GET','ads_gmvmax?select=periodo,campanha,custo,receita_bruta,pedidos',{paged:true}),
+    admProxy('GET','statement_tx_resumo?select=*',{paged:true})
   ]);
   CPVMAP={};
   (cpv.data||[]).forEach(r=>{ if(r.ref) CPVMAP[String(r.ref).toUpperCase()]=+r.cpv||0; });
+  // conciliação de repasse (view agregada por período) — liquidado/a receber/devolvido + decomposição
+  STX={};
+  (stx.data||[]).forEach(r=>{ if(r.periodo) STX[r.periodo]=r; });
   // ads GMV Max por mês + por campanha
   ADS={};
   (ads.data||[]).forEach(r=>{
@@ -205,7 +209,7 @@ async function load(){
     p.gmv+=g; p.qty+=q;
     if(cpvUn!=null){ p.custo+=cpvUn*q; p.gmvCpv+=g; }
   });
-  MESES=[...new Set([...Object.keys(FIN),...Object.keys(GMV),...Object.keys(ADS)])].sort();
+  MESES=[...new Set([...Object.keys(FIN),...Object.keys(GMV),...Object.keys(ADS),...Object.keys(STX)])].sort();
   // popula seletor
   const sel=document.getElementById('period-sel');
   sel.innerHTML=`<option value="ALL">Todos os meses</option>`+MESES.slice().reverse().map(m=>`<option value="${m}">${fmtMes(m)}</option>`).join('');
@@ -268,8 +272,11 @@ function render(){
   const nota=`<div class="note"><span style="font-size:16px">🕐</span><div><b>Dois relógios.</b> "GMV vendas" conta pela <b>data da venda</b> (pedidos_sku); "Receita/Settlement" pela <b>data que o dinheiro liquidou</b> (finance_statements, que atrasa ~semanas). Por isso o mês corrente mostra GMV alto e settlement ainda parcial — é o que a conciliação reconcilia ao longo do tempo, não uma soma direta.</div></div>`;
 
   // === Fase 2: Margem por produto — contribuição (GMV−CPV) + líquida estimada (× eficiência de settlement) ===
+  // eficiência EXATA (settlement liquidado / pago, do statement_tx) quando disponível; senão finance
+  let exSettle=0, exPago=0; meses.forEach(m=>{const s=STX[m]; if(s){exSettle+=+s.settle_liq||0; exPago+=+s.pago_liq||0;}});
   let gRev=0,gSet=0; Object.values(FIN).forEach(f=>{gRev+=f.rev;gSet+=f.set;});
-  const eficFrac = A.rev ? A.set/A.rev : (gRev?gSet/gRev:0.74); // settlement/receita; fallback global se o período não tem finance
+  const eficFrac = exPago>0 ? exSettle/exPago : (A.rev ? A.set/A.rev : (gRev?gSet/gRev:0.74));
+  const eficExata = exPago>0;
   const margAgg={};
   meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=margAgg[nome]||(margAgg[nome]={qty:0,custo:0,gmvCpv:0}); a.qty+=v.qty;a.custo+=v.custo;a.gmvCpv+=v.gmvCpv;});});
   let mGmvAll=0; meses.forEach(m=>{const g=GMV[m]; if(g)mGmvAll+=g.gmv;});
@@ -290,7 +297,7 @@ function render(){
       <div class="kpi"><div class="lbl">GMV com CPV</div><div class="val">${fmt(mGmvCpv)}</div><div class="foot">cobertura ${cobertura.toFixed(1)}%</div></div>
       <div class="kpi"><div class="lbl">Margem contribuição</div><div class="val">${fmt(mContrib)}</div><div class="foot">${contribPct.toFixed(1)}% · GMV − CPV</div></div>
       <div class="kpi"><div class="lbl">Margem líquida est.</div><div class="val accent">${fmt(mLiq)}</div><div class="foot">${liqPct.toFixed(1)}% · líq. de fee+ads</div></div>
-      <div class="kpi"><div class="lbl">Eficiência aplicada</div><div class="val">${(eficFrac*100).toFixed(1)}%</div><div class="foot">settlement / receita</div></div>
+      <div class="kpi"><div class="lbl">Eficiência aplicada</div><div class="val">${(eficFrac*100).toFixed(1)}%</div><div class="foot">${eficExata?'REAL · liquidado/pago':'estimada · settlement/receita'}</div></div>
     </div>
     <table><thead><tr><th>Produto</th><th>Qtd</th><th>GMV</th><th>Custo CPV</th><th>Contrib.</th><th>Líq. est.</th><th>Líq.%</th></tr></thead><tbody>${margRows}</tbody></table>
     <div class="note" style="margin-top:14px;background:#eef6f0;border-color:#cfe6d8;color:#2a6045"><span style="font-size:15px">📦</span><div><b>Contribuição</b> = GMV − CPV (exata). <b>Líquida estimada</b> = GMV × <b>${(eficFrac*100).toFixed(1)}%</b> (eficiência de settlement) − CPV — deduz o fee da plataforma (~26%, que <b>já inclui comissão de afiliada E a mídia/GMV Max</b>) rateado por GMV. É <b>estimativa otimista</b> (usa GMV bruto; descontos de vendedor/devoluções reduzem um pouco o líquido real). O valor exato por SKU exige o detalhe order-level do finance — próximo passo. Cobertura CPV: <b>${cobertura.toFixed(1)}%</b>.</div></div></div>`;
@@ -332,7 +339,27 @@ function render(){
     </div>
     <div class="note" style="margin-top:14px"><span style="font-size:15px">🧾</span><div><b>Estimativa Lucro Real</b> — ajuste as alíquotas acima e confirme com a contabilidade. Imposto s/ venda incide na receita; IRPJ+CSLL (34%) só sobre lucro positivo. O CPV gera crédito de PIS/COFINS/ICMS que aqui está simplificado, então o líquido real tende a ser <b>um pouco melhor</b>. Tudo acima já é líquido de fee+afiliada+GMV Max.</div></div></div>`;
 
-  document.getElementById('body').innerHTML = kpis + cascata + trend + prods + nota + fase2 + lucroBlock + adsBlock;
+  // === Conciliação de repasse (koncili) — liquidado / a receber / devolvido + decomposição do fee ===
+  const rp={liq:0,pagoLiq:0,rec:0,recN:0,dev:0,devN:0,plat:0,afi:0,ads:0,frete:0,liqN:0};
+  meses.forEach(m=>{const s=STX[m]; if(!s)return;
+    rp.liq+=+s.settle_liq||0; rp.pagoLiq+=+s.pago_liq||0; rp.liqN+=+s.liquidados||0;
+    rp.rec+=+s.a_receber||0; rp.recN+=+s.pendentes||0; rp.dev+=+s.devolucao||0; rp.devN+=+s.devolvidos||0;
+    rp.plat+=+s.comissao_plataforma||0; rp.afi+=+s.comissao_afiliada||0; rp.ads+=+s.comissao_ads_afil||0; rp.frete+=+s.frete||0;});
+  const rpTaxa = rp.pagoLiq? (1-rp.liq/rp.pagoLiq)*100 : 0;
+  const rpOutros = Math.max(0, (rp.pagoLiq-rp.liq) - (rp.plat+rp.afi+rp.ads+rp.frete)); // serviço/SFP + mídia GMV Max
+  const pc = v => rp.pagoLiq? (v/rp.pagoLiq*100).toFixed(1)+'%' : '—';
+  const repasseBlock = rp.pagoLiq>0 ? `<div class="sec"><div class="sec-h"><h2>Conciliação de repasse <span class="pill">real</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · exato por pedido</div></div>
+    <div class="kpis" style="margin-bottom:18px">
+      <div class="kpi"><div class="lbl">Liquidado</div><div class="val accent">${fmt(rp.liq)}</div><div class="foot">${NUM.format(rp.liqN)} pedidos</div></div>
+      <div class="kpi"><div class="lbl">A receber</div><div class="val">${fmt(rp.rec)}</div><div class="foot">${NUM.format(rp.recN)} pendentes</div></div>
+      <div class="kpi"><div class="lbl">Devolvido</div><div class="val" style="color:var(--rhode-red)">${fmt(rp.dev)}</div><div class="foot">${NUM.format(rp.devN)} pedidos</div></div>
+      <div class="kpi"><div class="lbl">Taxa real</div><div class="val">${rpTaxa.toFixed(1)}%</div><div class="foot">só liquidados</div></div>
+    </div>
+    <div class="lbl" style="margin-bottom:8px">Pra onde vai a taxa (% do pago liquidado)</div>
+    ${[['Comissão plataforma',rp.plat,'#94a3b8'],['Comissão afiliada',rp.afi,'var(--rhode-red)'],['Comissão ads-afil',rp.ads,'var(--orange)'],['Frete',rp.frete,'var(--blue)'],['Serviço/SFP + mídia GMV Max',rpOutros,'#9a7030']].map(([lbl,v,cor])=>`<div class="casc-row"><div class="casc-lbl">${lbl}</div><div class="casc-bar"><i style="width:${Math.min(100,v/rp.pagoLiq*100*3).toFixed(0)}%;background:${cor}"></i></div><div class="casc-val neg">${fmt(v)} · ${pc(v)}</div></div>`).join('')}
+    <div class="note" style="margin-top:14px"><span style="font-size:15px">🔎</span><div><b>Conciliação de repasse (estilo koncili)</b> — dado EXATO por pedido (não estimativa). <b>A receber</b> = ${fmt(rp.rec)} de pedidos pagos sem settlement (pendente + a investigar). <b>Devolvido</b> = ${fmt(rp.dev)} (dinheiro que voltou). A taxa real (só liquidados) alimenta a margem líquida acima. Próximo: motor de divergência (esperado vs recebido) pra apontar cobrança errada e abrir chamado.</div></div></div>` : '';
+
+  document.getElementById('body').innerHTML = kpis + cascata + repasseBlock + trend + prods + nota + fase2 + lucroBlock + adsBlock;
 }
 
 function enter(){
