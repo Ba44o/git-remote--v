@@ -471,13 +471,22 @@ section{padding:128px 32px;position:relative}
   100%{opacity:0;transform:translate(calc(-50% + var(--drift,0px) * 1.6),-130px) scale(0.6) rotate(12deg)}
 }
 
-/* ═════════════════════════════════  TIKTOK FEATURED (Stone Used)  ═════════════════════════════════ */
-.tt-featured-section{background:#F8F6F1;position:relative}
+/* ═════════════════════════════════  TIKTOK FEATURED (Stone Used) · dark editorial  ═════════════════════════════════ */
+.tt-featured-section{background:var(--ink);color:#fff;position:relative;overflow:hidden}
 .tt-featured-section::before{
-  content:"";position:absolute;inset:0;
-  background:radial-gradient(ellipse at 80% 20%,rgba(255,122,0,0.08) 0%,transparent 50%);
-  pointer-events:none;
+  content:"";position:absolute;top:-30%;right:-25%;width:90%;height:140%;
+  background:radial-gradient(ellipse,rgba(254,44,85,0.14) 0%,transparent 55%);
+  pointer-events:none;z-index:0;
 }
+.tt-featured-section::after{
+  content:"";position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.4;pointer-events:none;mix-blend-mode:overlay;z-index:0;
+}
+.tt-featured-section .wrap{position:relative;z-index:1}
+.tt-featured-section .section-eyebrow{color:var(--rhode-red)}
+.tt-featured-section .section-title{color:#fff}
+.tt-featured-section .section-lede{color:rgba(255,255,255,0.7)}
 .tt-featured-row{
   display:grid;grid-template-columns:auto 1fr;gap:64px;align-items:center;margin-top:48px;
 }
@@ -489,13 +498,15 @@ section{padding:128px 32px;position:relative}
 .tt-feature-copy .tt-tags{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 32px}
 .tt-feature-copy .tt-tag-pill{
   font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;
-  padding:7px 14px;background:#fff;border:1px solid var(--hairline);border-radius:99px;
-  color:var(--ink-72);font-weight:500;
+  padding:7px 14px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);border-radius:99px;
+  color:rgba(255,255,255,0.85);font-weight:500;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
 .tt-feature-copy .tt-tag-pill.accent{background:var(--rhode-red);color:#fff;border-color:var(--rhode-red)}
 .tt-feature-copy .tt-poetry{
   font-family:'Inter',sans-serif;font-size:clamp(17px,1.8vw,21px);font-weight:300;line-height:1.5;
-  letter-spacing:-0.014em;color:var(--ink);font-style:italic;
+  letter-spacing:-0.014em;color:rgba(255,255,255,0.92);font-style:italic;
   border-left:2px solid var(--rhode-red);padding-left:24px;
 }
 
