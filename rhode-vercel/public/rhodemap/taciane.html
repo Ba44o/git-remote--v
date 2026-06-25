@@ -705,7 +705,7 @@ footer{padding:32px;text-align:center;background:var(--ink);color:rgba(255,255,2
     <div class="tt-featured-row">
       <div class="tt-phone tt-phone-featured reveal d-300" data-likes="187300" data-video="taci02.mp4" data-shop-name="Wide Leg Stone Used" data-shop-price="R$ 99,90" data-caption="essa é A calça do meu armário · wide leg stone used que vc precisa ter" data-handle="tacianetorress" data-music="Música original — Taciane">
         <div class="tt-screen">
-          <video class="tt-video" muted loop playsinline preload="metadata"></video>
+          <video class="tt-video" muted loop playsinline webkit-playsinline autoplay preload="auto" disablepictureinpicture x-webkit-airplay="deny"></video>
           <div class="tt-vignette"></div>
           <div class="tt-notch"></div>
           <div class="tt-statusbar">9:41</div>
@@ -769,7 +769,7 @@ footer{padding:32px;text-align:center;background:var(--ink);color:rgba(255,255,2
     <div class="tt-gallery-row">
       <div class="tt-phone tt-phone-gallery reveal d-300" data-likes="94200" data-video="taci01.mp4" data-shop-name="Wide Leg Marmorizada" data-shop-price="R$ 99,90" data-caption="essa wide leg marmorizada é tudo · vou usar muito" data-handle="tacianetorress" data-music="som original — taci">
         <div class="tt-screen">
-          <video class="tt-video" muted loop playsinline preload="metadata"></video>
+          <video class="tt-video" muted loop playsinline webkit-playsinline autoplay preload="auto" disablepictureinpicture x-webkit-airplay="deny"></video>
           <div class="tt-vignette"></div>
           <div class="tt-notch"></div>
           <div class="tt-statusbar">9:41</div>
@@ -793,7 +793,7 @@ footer{padding:32px;text-align:center;background:var(--ink);color:rgba(255,255,2
 
       <div class="tt-phone tt-phone-gallery reveal d-400" data-likes="62800" data-video="taci03.mp4" data-shop-name="Wide Leg Cintura Alta" data-shop-price="R$ 75,90" data-caption="link da calça nos stories · está saindo muito" data-handle="tacianetorress" data-music="trending — RhodeJeans">
         <div class="tt-screen">
-          <video class="tt-video" muted loop playsinline preload="metadata"></video>
+          <video class="tt-video" muted loop playsinline webkit-playsinline autoplay preload="auto" disablepictureinpicture x-webkit-airplay="deny"></video>
           <div class="tt-vignette"></div>
           <div class="tt-notch"></div>
           <div class="tt-statusbar">9:41</div>
@@ -817,7 +817,7 @@ footer{padding:32px;text-align:center;background:var(--ink);color:rgba(255,255,2
 
       <div class="tt-phone tt-phone-gallery reveal d-500" data-likes="128500" data-video="taci05.mp4" data-shop-name="Wide Leg Marmorizada" data-shop-price="R$ 99,90" data-caption="essa cor é minha favorita · super versátil" data-handle="tacianetorress" data-music="som da taci">
         <div class="tt-screen">
-          <video class="tt-video" muted loop playsinline preload="metadata"></video>
+          <video class="tt-video" muted loop playsinline webkit-playsinline autoplay preload="auto" disablepictureinpicture x-webkit-airplay="deny"></video>
           <div class="tt-vignette"></div>
           <div class="tt-notch"></div>
           <div class="tt-statusbar">9:41</div>
@@ -991,11 +991,43 @@ function formatLikes(n){
 function activatePhone(phoneEl){
   const video=phoneEl.querySelector('.tt-video');
   const videoFile=phoneEl.dataset.video;
+  // Set poster as CSS bg first (mostra algo enquanto o vídeo carrega)
+  if(videoFile && !video.dataset.bgset){
+    video.dataset.bgset='1';
+    const posterFile=videoFile.replace('.mp4','.jpg');
+    video.style.backgroundImage=`url(/rhodemap/posters/${posterFile})`;
+    video.style.backgroundSize='cover';
+    video.style.backgroundPosition='center';
+  }
   // Lazy load video src
   if(videoFile && !video.src){
+    // iOS Safari requires muted to be set BEFORE play attempt
+    video.muted=true;
+    video.defaultMuted=true;
+    video.setAttribute('muted','');
+    video.setAttribute('playsinline','');
     video.src=`/rhodemap/videos/${videoFile}`;
+    video.load();
+    // Wait for ready state before play (iOS doesn't autoplay until ready)
+    const tryPlay=()=>{
+      const p=video.play();
+      if(p && typeof p.then==='function'){
+        p.catch(()=>{
+          // Last-ditch: wait for canplaythrough
+          video.addEventListener('canplaythrough',()=>video.play().catch(()=>{}),{once:true});
+        });
+      }
+    };
+    if(video.readyState>=2){
+      tryPlay();
+    } else {
+      video.addEventListener('loadeddata',tryPlay,{once:true});
+      video.addEventListener('canplay',tryPlay,{once:true});
+    }
+  } else {
+    // Already loaded — just play
+    video.play().catch(()=>{});
   }
-  video.play().catch(()=>{});
 
   const heartEl=phoneEl.querySelector('.tt-heart');
   const countEl=heartEl?.querySelector('.tt-count');
