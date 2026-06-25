@@ -5,11 +5,18 @@
   "rewrites": [
     { "source": "/flash", "destination": "/wpp.html" },
     { "source": "/sac", "destination": "/sac.html" },
-    { "source": "/equipe", "destination": "/wpp.html" }
+    { "source": "/equipe", "destination": "/wpp.html" },
+    { "source": "/rhodemap/:creator", "destination": "/rhodemap/:creator.html" }
   ],
   "headers": [
     {
       "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/rhodemap/(.*)\\.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]

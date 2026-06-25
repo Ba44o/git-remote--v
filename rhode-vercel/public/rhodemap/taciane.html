@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Taciane · RhodeMap · Rhode Jeans</title>
+<meta name="description" content="A jornada da Taciane dentro da Rhode Jeans — 6 meses, R$ 451k, 6.406 pedidos, Diamond.">
+<meta property="og:title" content="Taciane · RhodeMap Rhode Jeans">
+<meta property="og:description" content="Em 6 meses, uma das vozes que fazem a Rhode existir.">
+<meta property="og:type" content="profile">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --canvas:#FAFAF8;
+  --parchment:#F1EFE8;
+  --ink:#0A0A0A;
+  --ink-72:rgba(10,10,10,.72);
+  --ink-48:rgba(10,10,10,.48);
+  --ink-24:rgba(10,10,10,.24);
+  --hairline:rgba(10,10,10,.08);
+  --rhode-red:#FE2C55;
+  --tier-bronze:#b45309;
+  --tier-silver:#6b7280;
+  --tier-gold:#9a7030;
+  --tier-diamond:#0ea5e9;
+  --tier-black:#111111;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-weight:400;
+  color:var(--ink);
+  background:var(--canvas);
+  line-height:1.5;
+  letter-spacing:-0.011em;
+  overflow-x:hidden;
+}
+.mono{font-family:'JetBrains Mono',monospace;letter-spacing:0.02em}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--ink-48);font-weight:500;
+}
+section{padding:128px 32px;position:relative}
+@media(max-width:720px){section{padding:88px 22px}}
+.wrap{max-width:1180px;margin:0 auto}
+.wrap-tight{max-width:880px;margin:0 auto}
+
+/* ─────────────────────────  HERO  ───────────────────────── */
+.hero{
+  min-height:100vh;
+  padding:48px 32px 80px;
+  background:var(--ink);color:#fff;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:"";position:absolute;top:-20%;right:-20%;width:80%;height:140%;
+  background:radial-gradient(circle,rgba(254,44,85,0.18) 0%,transparent 60%);
+  pointer-events:none;
+}
+.hero-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
+.rhode-mark{
+  font-family:'Inter',sans-serif;font-weight:700;letter-spacing:-0.025em;font-size:16px;
+}
+.rhode-mark::after{content:".";color:var(--rhode-red)}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+  color:rgba(255,255,255,0.6);font-weight:500;
+}
+.hero-content{position:relative;z-index:2;max-width:980px}
+.hero-tagline{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;letter-spacing:0.04em;
+  color:rgba(255,255,255,0.65);margin-bottom:32px;
+}
+.hero-name{
+  font-family:'Inter',sans-serif;
+  font-weight:800;letter-spacing:-0.04em;line-height:0.92;
+  font-size:clamp(72px,14vw,196px);
+  margin-bottom:24px;
+}
+.hero-name .dot{color:var(--rhode-red)}
+.hero-subtitle{
+  font-size:clamp(20px,2.4vw,28px);
+  font-weight:300;letter-spacing:-0.015em;line-height:1.35;
+  color:rgba(255,255,255,0.85);max-width:680px;margin-bottom:48px;
+}
+.hero-handle{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;letter-spacing:0.04em;
+  color:rgba(255,255,255,0.5);
+}
+.hero-handle .accent{color:var(--rhode-red)}
+.hero-scroll{
+  position:relative;z-index:2;display:flex;align-items:center;gap:12px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;
+  text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:64px;
+}
+.hero-scroll-line{
+  width:48px;height:1px;background:rgba(255,255,255,0.3);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:0.9}}
+
+/* ─────────────────────────  STATS GRID  ───────────────────────── */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--hairline);
+  border:1px solid var(--hairline);
+  margin-top:48px;
+}
+@media(max-width:880px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-cell{background:var(--canvas);padding:48px 32px}
+.stat-label{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-bottom:18px;
+}
+.stat-value{
+  font-family:'Inter',sans-serif;font-weight:600;letter-spacing:-0.03em;
+  font-size:clamp(36px,5vw,56px);line-height:1;
+}
+.stat-value.accent{color:var(--rhode-red)}
+.stat-value.tier-diamond{color:var(--tier-diamond)}
+.stat-sub{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;
+  color:var(--ink-48);margin-top:14px;line-height:1.5;
+}
+
+/* ─────────────────────────  SECTION HEADERS  ───────────────────────── */
+.section-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--rhode-red);font-weight:500;margin-bottom:18px;
+}
+.section-title{
+  font-family:'Inter',sans-serif;font-weight:600;letter-spacing:-0.035em;line-height:1.05;
+  font-size:clamp(36px,5vw,64px);margin-bottom:28px;max-width:880px;
+}
+.section-title .accent{color:var(--rhode-red)}
+.section-lede{
+  font-size:clamp(17px,1.8vw,21px);font-weight:300;letter-spacing:-0.011em;line-height:1.55;
+  color:var(--ink-72);max-width:680px;
+}
+
+/* ─────────────────────────  RHODEMAP TIMELINE  ───────────────────────── */
+.rhodemap{margin-top:72px}
+.chart-wrap{
+  background:#fff;border:1px solid var(--hairline);border-radius:18px;padding:42px 32px;
+  margin-bottom:32px;position:relative;
+}
+.chart-title-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.chart-title{font-weight:600;font-size:18px;letter-spacing:-0.022em}
+.chart-legend{display:flex;gap:18px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.04em;color:var(--ink-48)}
+.chart-legend-dot{width:8px;height:8px;border-radius:99px;display:inline-block;margin-right:6px;vertical-align:middle}
+.chart-svg{width:100%;height:340px;display:block}
+.month-grid{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:14px;
+}
+@media(max-width:980px){.month-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:620px){.month-grid{grid-template-columns:repeat(2,1fr)}}
+.month-card{
+  background:#fff;border:1px solid var(--hairline);border-radius:14px;padding:22px 20px;
+  position:relative;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.month-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.04);border-color:var(--ink-24)}
+.month-card.peak{border-color:var(--rhode-red);background:linear-gradient(180deg,rgba(254,44,85,0.04) 0%,#fff 60%)}
+.mc-period{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;color:var(--ink-48);font-weight:500}
+.mc-gmv{font-family:'Inter',sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.022em;margin:14px 0 6px;color:var(--ink)}
+.mc-pedidos{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-48);letter-spacing:0.04em}
+.mc-tier{display:inline-block;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:99px;font-weight:500}
+.mc-tier.tier-bronze{background:rgba(180,83,9,0.1);color:var(--tier-bronze)}
+.mc-tier.tier-silver{background:rgba(107,114,128,0.12);color:var(--tier-silver)}
+.mc-tier.tier-gold{background:rgba(154,112,48,0.12);color:var(--tier-gold)}
+.mc-tier.tier-diamond{background:rgba(14,165,233,0.12);color:var(--tier-diamond)}
+.mc-tier.tier-black{background:rgba(17,17,17,0.85);color:#fff}
+.mc-flag{position:absolute;top:-8px;right:-8px;background:var(--rhode-red);color:#fff;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;padding:5px 10px;border-radius:99px;font-weight:600;text-transform:uppercase}
+
+/* ─────────────────────────  MILESTONES  ───────────────────────── */
+.milestones{margin-top:96px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:880px){.milestones{grid-template-columns:1fr;gap:14px}}
+.milestone{
+  background:#fff;border:1px solid var(--hairline);border-radius:18px;padding:32px 28px;
+}
+.milestone-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--rhode-red);font-weight:500;margin-bottom:18px}
+.milestone-stat{font-family:'Inter',sans-serif;font-weight:600;font-size:42px;letter-spacing:-0.025em;line-height:1;margin-bottom:14px}
+.milestone-title{font-weight:500;font-size:16px;letter-spacing:-0.017em;margin-bottom:8px}
+.milestone-desc{font-size:13px;color:var(--ink-48);letter-spacing:-0.005em;line-height:1.6}
+
+/* ─────────────────────────  TOP PRODUCT  ───────────────────────── */
+.top-product-card{
+  background:linear-gradient(135deg,#fff 0%,#FBFAF6 100%);
+  border:1px solid var(--hairline);border-radius:24px;padding:56px 48px;margin-top:56px;
+  display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
+}
+@media(max-width:880px){.top-product-card{grid-template-columns:1fr;padding:40px 28px;gap:32px}}
+.tp-info .tp-tag{display:inline-block;background:var(--ink);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;padding:6px 12px;border-radius:99px;text-transform:uppercase;margin-bottom:24px}
+.tp-info h3{font-weight:600;font-size:28px;letter-spacing:-0.025em;line-height:1.2;margin-bottom:14px}
+.tp-info .sku{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-48);letter-spacing:0.06em;margin-bottom:32px}
+.tp-stats{display:flex;flex-wrap:wrap;gap:32px}
+.tp-stat-num{font-family:'Inter',sans-serif;font-weight:600;font-size:32px;letter-spacing:-0.025em;color:var(--rhode-red);line-height:1}
+.tp-stat-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);margin-top:8px}
+.tp-poetry{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;line-height:1.7;color:var(--ink-48);margin-top:32px;border-top:1px solid var(--hairline);padding-top:24px}
+.tp-poetry strong{color:var(--ink);font-weight:600}
+.tp-visual{
+  aspect-ratio:1;background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%);
+  border-radius:18px;position:relative;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.tp-visual::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 40%,rgba(254,44,85,0.3) 0%,transparent 60%);
+}
+.tp-visual-num{
+  font-family:'Inter',sans-serif;font-weight:800;letter-spacing:-0.04em;
+  font-size:clamp(48px,8vw,96px);color:#fff;line-height:1;position:relative;z-index:1;text-align:center;
+}
+.tp-visual-num .sub{display:block;font-size:14px;letter-spacing:0.04em;color:rgba(255,255,255,0.5);font-weight:500;font-family:'JetBrains Mono',monospace;margin-top:14px;text-transform:uppercase}
+
+/* ─────────────────────────  JUNE HIGHLIGHT  ───────────────────────── */
+.june-block{
+  background:var(--ink);color:#fff;border-radius:24px;padding:80px 48px;margin-top:56px;position:relative;overflow:hidden;
+}
+.june-block::before{
+  content:"";position:absolute;top:-50%;right:-30%;width:100%;height:200%;
+  background:radial-gradient(circle,rgba(254,44,85,0.18) 0%,transparent 55%);
+  pointer-events:none;
+}
+.june-content{position:relative;z-index:1;max-width:780px}
+.june-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--rhode-red);font-weight:500;margin-bottom:18px}
+.june-title{font-weight:600;font-size:clamp(36px,5vw,56px);letter-spacing:-0.035em;line-height:1.05;margin-bottom:32px}
+.june-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-bottom:32px}
+@media(max-width:680px){.june-stats{grid-template-columns:1fr;gap:18px}}
+.june-stat-num{font-family:'Inter',sans-serif;font-weight:600;font-size:clamp(28px,4vw,44px);letter-spacing:-0.025em;line-height:1}
+.june-stat-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-top:8px}
+.june-quote{font-size:clamp(17px,1.8vw,21px);font-weight:300;line-height:1.55;letter-spacing:-0.011em;color:rgba(255,255,255,0.8);font-style:italic;border-left:2px solid var(--rhode-red);padding-left:24px}
+
+/* ─────────────────────────  BLACK JOURNEY  ───────────────────────── */
+.black-section{padding-top:128px;padding-bottom:128px;background:var(--parchment)}
+.black-progress{
+  background:#fff;border:1px solid var(--hairline);border-radius:24px;padding:56px 48px;margin-top:56px;
+}
+@media(max-width:680px){.black-progress{padding:40px 28px}}
+.bp-marks{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;color:var(--ink-48);margin-bottom:16px}
+.bp-marks .current{color:var(--tier-diamond);font-weight:600}
+.bp-marks .target{color:var(--ink);font-weight:600}
+.bp-bar{
+  height:14px;background:rgba(0,0,0,0.06);border-radius:99px;position:relative;overflow:hidden;
+}
+.bp-fill{
+  height:100%;background:linear-gradient(90deg,var(--tier-diamond) 0%,var(--rhode-red) 100%);
+  border-radius:99px;width:0;transition:width 2s cubic-bezier(0.2,0.6,0.2,1);
+}
+.bp-meta{
+  display:flex;justify-content:space-between;align-items:center;margin-top:24px;flex-wrap:wrap;gap:14px;
+}
+.bp-now{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-48);letter-spacing:0.04em}
+.bp-now strong{color:var(--ink);font-weight:600}
+.bp-faltam{font-family:'Inter',sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.022em}
+.bp-faltam .accent{color:var(--rhode-red)}
+
+/* ─────────────────────────  CLOSING / TRIBUTE  ───────────────────────── */
+.tribute{
+  background:var(--ink);color:#fff;text-align:center;
+  padding:160px 32px;
+}
+.tribute-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--rhode-red);font-weight:500;margin-bottom:32px}
+.tribute-text{
+  font-weight:300;font-size:clamp(24px,3vw,40px);letter-spacing:-0.025em;line-height:1.35;max-width:880px;margin:0 auto;
+}
+.tribute-text .accent{color:var(--rhode-red);font-weight:500}
+.tribute-text strong{font-weight:500;color:#fff}
+.tribute-sig{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:64px}
+.tribute-sig .heart{color:var(--rhode-red)}
+
+/* ─────────────────────────  FOOTER  ───────────────────────── */
+footer{padding:48px 32px;text-align:center;background:var(--ink);color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.08)}
+
+/* ─────────────────────────  REVEAL ANIMATIONS  ───────────────────────── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(0.2,0.6,0.2,1),transform .8s cubic-bezier(0.2,0.6,0.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d-100{transition-delay:.1s}
+.reveal.d-200{transition-delay:.2s}
+.reveal.d-300{transition-delay:.3s}
+.reveal.d-400{transition-delay:.4s}
+.reveal.d-500{transition-delay:.5s}
+
+@keyframes draw{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+.chart-line{stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
+.chart-line.in{animation:draw 2.4s cubic-bezier(0.2,0.6,0.2,1) forwards}
+
+@keyframes countUp{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════  HERO  ═══════════════════════════════ -->
+<section class="hero">
+  <div class="hero-top">
+    <div class="rhode-mark">Rhode</div>
+    <div class="hero-eyebrow">Creator · RhodeMap</div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-tagline reveal">RhodeMap · jan 2026 → jun 2026</div>
+    <div class="hero-name reveal d-100">Taciane<span class="dot">.</span></div>
+    <div class="hero-subtitle reveal d-200">Em 6 meses, você virou uma das vozes que fazem a Rhode existir.</div>
+    <div class="hero-handle reveal d-300">@tacianetorress &nbsp;·&nbsp; <span class="accent">Diamond</span> &nbsp;·&nbsp; R$ 451k acumulado</div>
+  </div>
+
+  <div class="hero-scroll reveal d-400">
+    <div class="hero-scroll-line"></div>
+    <span>Sua jornada</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════  OPENING STATS  ═══════════════════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow reveal">O que você fez</div>
+    <h2 class="section-title reveal d-100">Os números que <span class="accent">contam sua história.</span></h2>
+    <p class="section-lede reveal d-200">Em 6 meses, você gerou meio milhão de reais em vendas pra marca. Não é número. É confiança das suas seguidoras.</p>
+
+    <div class="stats-grid reveal d-300">
+      <div class="stat-cell">
+        <div class="stat-label">GMV Líquido</div>
+        <div class="stat-value accent" data-count="450859" data-prefix="R$ ">R$ 0</div>
+        <div class="stat-sub">acumulado · jan → jun 2026</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Pedidos</div>
+        <div class="stat-value" data-count="6406">0</div>
+        <div class="stat-sub">vendas atendidas no período</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Tier Atual</div>
+        <div class="stat-value tier-diamond">Diamond</div>
+        <div class="stat-sub">faltam R$ 49k para Black</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Meses na Rhode</div>
+        <div class="stat-value" data-count="6">0</div>
+        <div class="stat-sub">desde 2026-01</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════  RHODEMAP TIMELINE  ═══════════════════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow reveal">RhodeMap</div>
+    <h2 class="section-title reveal d-100">Sua jornada, <span class="accent">mês a mês.</span></h2>
+    <p class="section-lede reveal d-200">Cada mês com seu próprio capítulo. Algumas quedas, muitas subidas — e um final que mostra que você só está começando.</p>
+
+    <div class="rhodemap">
+      <div class="chart-wrap reveal d-300">
+        <div class="chart-title-row">
+          <div class="chart-title">GMV líquido · evolução mensal</div>
+          <div class="chart-legend">
+            <span><span class="chart-legend-dot" style="background:var(--rhode-red)"></span>GMV líquido</span>
+            <span><span class="chart-legend-dot" style="background:var(--ink-24)"></span>Refund</span>
+          </div>
+        </div>
+        <svg class="chart-svg" id="chart" viewBox="0 0 1100 340" preserveAspectRatio="none"></svg>
+      </div>
+
+      <div class="month-grid">
+        <div class="month-card reveal" data-month="2026-01">
+          <div class="mc-period">2026-01</div>
+          <div class="mc-gmv">R$ 83k</div>
+          <div class="mc-pedidos">1.173 pedidos</div>
+          <span class="mc-tier tier-gold">Gold</span>
+          <div class="mc-flag">início</div>
+        </div>
+        <div class="month-card reveal d-100" data-month="2026-02">
+          <div class="mc-period">2026-02</div>
+          <div class="mc-gmv">R$ 46k</div>
+          <div class="mc-pedidos">740 pedidos</div>
+          <span class="mc-tier tier-bronze">Bronze</span>
+        </div>
+        <div class="month-card reveal d-200" data-month="2026-03">
+          <div class="mc-period">2026-03</div>
+          <div class="mc-gmv">R$ 71k</div>
+          <div class="mc-pedidos">1.030 pedidos</div>
+          <span class="mc-tier tier-silver">Silver</span>
+        </div>
+        <div class="month-card reveal d-300" data-month="2026-04">
+          <div class="mc-period">2026-04</div>
+          <div class="mc-gmv">R$ 77k</div>
+          <div class="mc-pedidos">1.117 pedidos</div>
+          <span class="mc-tier tier-silver">Silver</span>
+        </div>
+        <div class="month-card reveal d-400" data-month="2026-05">
+          <div class="mc-period">2026-05</div>
+          <div class="mc-gmv">R$ 48k</div>
+          <div class="mc-pedidos">649 pedidos</div>
+          <span class="mc-tier tier-bronze">Bronze</span>
+        </div>
+        <div class="month-card peak reveal d-500" data-month="2026-06">
+          <div class="mc-period">2026-06</div>
+          <div class="mc-gmv">R$ 125k</div>
+          <div class="mc-pedidos">1.697 pedidos</div>
+          <span class="mc-tier tier-gold">Gold</span>
+          <div class="mc-flag">recorde</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════  MILESTONES  ═══════════════════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow reveal">Marcos</div>
+    <h2 class="section-title reveal d-100">Três momentos <span class="accent">que importam.</span></h2>
+
+    <div class="milestones">
+      <div class="milestone reveal d-200">
+        <div class="milestone-eyebrow">Janeiro/2026</div>
+        <div class="milestone-stat">R$ 83k</div>
+        <div class="milestone-title">Você chegou direto em Gold.</div>
+        <div class="milestone-desc">Primeiro mês na Rhode. 1.173 pedidos. 4 vídeos e 16 lives. A maioria das creators leva 6 meses pra chegar onde você chegou na primeira semana.</div>
+      </div>
+      <div class="milestone reveal d-300">
+        <div class="milestone-eyebrow">Junho/2026</div>
+        <div class="milestone-stat" style="color:var(--rhode-red)">3,4%</div>
+        <div class="milestone-title">O menor refund da sua história.</div>
+        <div class="milestone-desc">Vs sua média de 14,5%. Significa que cada venda que você fez em junho ficou. Suas seguidoras compram, recebem, vestem — e mantêm.</div>
+      </div>
+      <div class="milestone reveal d-400">
+        <div class="milestone-eyebrow">Wide Leg Marmorizada</div>
+        <div class="milestone-stat">2.924</div>
+        <div class="milestone-title">Calças vendidas, só por você.</div>
+        <div class="milestone-desc">REF51636. Uma única SKU que somou R$ 244k do seu GMV atribuído. Você não é uma creator que vende várias coisas mal — é a creator que vende a Wide Leg como ninguém.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════  TOP PRODUCT  ═══════════════════════════════ -->
+<section style="background:#FBFAF6">
+  <div class="wrap">
+    <div class="section-eyebrow reveal">Seu Carro-Chefe</div>
+    <h2 class="section-title reveal d-100">A Wide Leg <span class="accent">é sua.</span></h2>
+    <p class="section-lede reveal d-200">Dos 18 SKUs Rhode que você vendeu, um sozinho responde por 82% do seu GMV atribuído. É o seu negócio dentro da marca.</p>
+
+    <div class="top-product-card reveal d-300">
+      <div class="tp-info">
+        <span class="tp-tag">Top Produto</span>
+        <h3>Calça Wide Leg Jeans Feminina Cintura Alta</h3>
+        <div class="sku">REF51636 · Marmorizada</div>
+        <div class="tp-stats">
+          <div>
+            <div class="tp-stat-num">R$ 244k</div>
+            <div class="tp-stat-lbl">GMV gerado</div>
+          </div>
+          <div>
+            <div class="tp-stat-num">2.924</div>
+            <div class="tp-stat-lbl">Pedidos</div>
+          </div>
+          <div>
+            <div class="tp-stat-num">R$ 15k</div>
+            <div class="tp-stat-lbl">Comissão</div>
+          </div>
+        </div>
+        <div class="tp-poetry">
+          <strong>Uma Wide Leg vendida a cada 50 minutos</strong>, ininterrupto, por 4 meses. É a coleção que define seu nome dentro da Rhode.
+        </div>
+      </div>
+      <div class="tp-visual">
+        <div class="tp-visual-num">82%<span class="sub">do seu GMV</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════  JUNE PEAK  ═══════════════════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow reveal">O Mês Recorde</div>
+    <h2 class="section-title reveal d-100">Junho/2026. <span class="accent">Seu melhor mês.</span></h2>
+    <p class="section-lede reveal d-200">Depois de uma queda em maio, você voltou — e voltou maior. +161% em GMV. Menor refund da história. Tier Gold de volta. A virada.</p>
+
+    <div class="june-block reveal d-300">
+      <div class="june-content">
+        <div class="june-eyebrow">2026-06 · em números</div>
+        <div class="june-title">R$ 125 mil em 30 dias.</div>
+        <div class="june-stats">
+          <div>
+            <div class="june-stat-num">+161%</div>
+            <div class="june-stat-lbl">vs maio</div>
+          </div>
+          <div>
+            <div class="june-stat-num">1.697</div>
+            <div class="june-stat-lbl">pedidos</div>
+          </div>
+          <div>
+            <div class="june-stat-num">3,4%</div>
+            <div class="june-stat-lbl">refund (-77% vs média)</div>
+          </div>
+        </div>
+        <div class="june-quote">
+          "Maio foi de tropeço. Junho foi de prova. Não é sorte — é consistência depois de queda. É isso que define creator de verdade."
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════  BLACK JOURNEY  ═══════════════════════════════ -->
+<section class="black-section">
+  <div class="wrap">
+    <div class="section-eyebrow reveal">Próximo Capítulo</div>
+    <h2 class="section-title reveal d-100">R$ 49 mil <span class="accent">pra Black.</span></h2>
+    <p class="section-lede reveal d-200">O Black é o tier máximo do programa. Embaixadora oficial Rhode. Jantar anual de elite. Vitrine curada na bio do TikTok Shop oficial — você escolhe os produtos. Você está mais perto que nunca.</p>
+
+    <div class="black-progress reveal d-300">
+      <div class="bp-marks">
+        <span class="current">Diamond · R$ 150k</span>
+        <span class="mono" style="color:var(--ink-72)">você está aqui</span>
+        <span class="target">Black · R$ 500k</span>
+      </div>
+      <div class="bp-bar"><div class="bp-fill" id="bpFill"></div></div>
+      <div class="bp-meta">
+        <div class="bp-now">GMV acumulado: <strong>R$ 451k</strong> · progresso Diamond → Black: <strong>86%</strong></div>
+        <div class="bp-faltam">Faltam <span class="accent">R$ 49k</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════  TRIBUTE  ═══════════════════════════════ -->
+<section class="tribute">
+  <div class="wrap-tight">
+    <div class="tribute-eyebrow reveal">Para Você, Taciane</div>
+    <p class="tribute-text reveal d-100">
+      Em janeiro você chegou desconhecida.<br>
+      Em junho, <strong>já é uma das vozes que definem o que a Rhode é.</strong><br><br>
+      Cada peça que você vende é alguém confiando em você antes de confiar na marca.<br>
+      Cada live, cada vídeo, cada Wide Leg que sai porta afora é uma extensão do que você construiu.<br><br>
+      <span class="accent">Obrigada por ser Rhode.</span>
+    </p>
+    <div class="tribute-sig reveal d-300">Rhode Jeans &nbsp;·&nbsp; <span class="heart">♥</span> &nbsp;·&nbsp; 2026</div>
+  </div>
+</section>
+
+<footer>RhodeMap · Taciane · gerado em jun/2026</footer>
+
+<script>
+// ───── Reveal on scroll
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// ───── Animated counters
+function animateCount(el){
+  const target=+el.dataset.count;
+  const prefix=el.dataset.prefix||'';
+  const start=performance.now();
+  const dur=1800;
+  const fmt=v=>prefix+Math.round(v).toLocaleString('pt-BR');
+  function step(t){
+    const p=Math.min((t-start)/dur,1);
+    const eased=1-Math.pow(1-p,3);
+    el.textContent=fmt(target*eased);
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+const cio=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ animateCount(e.target); cio.unobserve(e.target); } });
+},{threshold:0.4});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+// ───── Black progress bar fill
+const bpio=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){
+    document.getElementById('bpFill').style.width = ((451000-150000)/(500000-150000)*100).toFixed(1)+'%';
+    bpio.unobserve(e.target);
+  }});
+},{threshold:0.4});
+bpio.observe(document.getElementById('bpFill'));
+
+// ───── Chart (GMV evolution)
+(function(){
+  const data=[
+    {m:'jan',gmv:83239,bruto:85525,ped:1173,refund:2286},
+    {m:'fev',gmv:45705,bruto:61564,ped:740,refund:15860},
+    {m:'mar',gmv:71353,bruto:83046,ped:1030,refund:11693},
+    {m:'abr',gmv:77109,bruto:92587,ped:1117,refund:15478},
+    {m:'mai',gmv:48113,bruto:58060,ped:649,refund:9947},
+    {m:'jun',gmv:125340,bruto:129715,ped:1697,refund:4375},
+  ];
+  const W=1100, H=340;
+  const pad={t:30,r:40,b:60,l:60};
+  const innerW=W-pad.l-pad.r;
+  const innerH=H-pad.t-pad.b;
+  const maxV=Math.max(...data.map(d=>d.gmv))*1.1;
+  const x=(i)=>pad.l + (i/(data.length-1))*innerW;
+  const y=(v)=>pad.t + (1-v/maxV)*innerH;
+  const svg=document.getElementById('chart');
+  // grid lines
+  let html='';
+  for(let i=0;i<=4;i++){
+    const yv = pad.t + (innerH/4)*i;
+    const val = maxV - (maxV/4)*i;
+    html+=`<line x1="${pad.l}" y1="${yv}" x2="${W-pad.r}" y2="${yv}" stroke="rgba(0,0,0,0.06)"/>`;
+    html+=`<text x="${pad.l-12}" y="${yv+4}" text-anchor="end" font-family="JetBrains Mono" font-size="10" fill="rgba(0,0,0,0.4)">R$ ${Math.round(val/1000)}k</text>`;
+  }
+  // area fill under curve
+  let area=`M ${x(0)} ${y(data[0].gmv)} `;
+  data.forEach((d,i)=>{ area+=`L ${x(i)} ${y(d.gmv)} `; });
+  area+=`L ${x(data.length-1)} ${y(0)} L ${x(0)} ${y(0)} Z`;
+  html+=`<path d="${area}" fill="rgba(254,44,85,0.06)"/>`;
+  // line path
+  let pathD=`M ${x(0)} ${y(data[0].gmv)}`;
+  for(let i=1;i<data.length;i++){
+    const px=x(i-1), py=y(data[i-1].gmv), cx=x(i), cy=y(data[i].gmv);
+    const mx=(px+cx)/2;
+    pathD+=` C ${mx} ${py} ${mx} ${cy} ${cx} ${cy}`;
+  }
+  html+=`<path class="chart-line" d="${pathD}" fill="none" stroke="var(--rhode-red)" stroke-width="2.5" stroke-linecap="round"/>`;
+  // x axis labels & data points
+  data.forEach((d,i)=>{
+    const cx=x(i), cy=y(d.gmv);
+    // dot
+    html+=`<circle cx="${cx}" cy="${cy}" r="5" fill="#fff" stroke="var(--rhode-red)" stroke-width="2"/>`;
+    // value tooltip
+    html+=`<text x="${cx}" y="${cy-18}" text-anchor="middle" font-family="Inter" font-weight="600" font-size="12" fill="#0a0a0a">R$${Math.round(d.gmv/1000)}k</text>`;
+    // month label
+    html+=`<text x="${cx}" y="${H-pad.b+22}" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="rgba(0,0,0,0.5)" letter-spacing="0.06em">${d.m}/26</text>`;
+  });
+  // peak callout
+  const peakIdx=data.findIndex(d=>d.gmv===Math.max(...data.map(d=>d.gmv)));
+  const pxp=x(peakIdx), pyp=y(data[peakIdx].gmv);
+  html+=`<circle cx="${pxp}" cy="${pyp}" r="10" fill="none" stroke="var(--rhode-red)" stroke-width="1.5" opacity="0.4"/>`;
+  html+=`<circle cx="${pxp}" cy="${pyp}" r="16" fill="none" stroke="var(--rhode-red)" stroke-width="0.5" opacity="0.25"/>`;
+  svg.innerHTML=html;
+  // animate path stroke
+  const linePath=svg.querySelector('.chart-line');
+  const len=linePath.getTotalLength();
+  linePath.style.setProperty('--len',len);
+  const cwio=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ linePath.classList.add('in'); cwio.unobserve(e.target); } });
+  },{threshold:0.3});
+  cwio.observe(svg);
+})();
+</script>
+</body>
+</html>
