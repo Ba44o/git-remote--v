@@ -8,7 +8,7 @@
 <meta property="og:title" content="Taciane · RhodeMap Rhode Jeans">
 <meta property="og:description" content="Seis meses dentro de casa. 6.406 caixas com seu nome no caminho.">
 <meta property="og:type" content="profile">
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#FAFAF8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -66,68 +66,81 @@ section{padding:128px 32px;position:relative}
   color:var(--ink-72);max-width:680px;
 }
 
-/* ═════════════════════════════════  HERO  ═════════════════════════════════ */
+/* ═════════════════════════════════  HERO (collab editorial cream)  ═════════════════════════════════ */
 .hero{
   min-height:100vh;
   min-height:100svh;
   padding:32px 32px 64px;
-  background:var(--ink);color:#fff;
+  background:var(--canvas);color:var(--ink);
   display:flex;flex-direction:column;justify-content:space-between;
   position:relative;overflow:hidden;
 }
 @media(max-width:560px){.hero{padding:24px 22px 48px}}
 .hero::before{
-  content:"";position:absolute;top:-30%;right:-20%;width:100%;height:140%;
-  background:radial-gradient(ellipse,rgba(254,44,85,0.18) 0%,transparent 55%);
+  content:"";position:absolute;top:-30%;right:-25%;width:80%;height:120%;
+  background:radial-gradient(ellipse,rgba(254,44,85,0.07) 0%,transparent 55%);
   pointer-events:none;
 }
 .hero::after{
   content:"";position:absolute;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity:.4;pointer-events:none;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.55;pointer-events:none;mix-blend-mode:multiply;
 }
 .hero-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
 .rhode-mark{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:-0.025em;font-size:16px}
 .rhode-mark::after{content:".";color:var(--rhode-red)}
 .hero-eyebrow{
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;
-  text-transform:uppercase;color:rgba(255,255,255,0.55);font-weight:500;
+  text-transform:uppercase;color:var(--ink-48);font-weight:500;
 }
-.hero-content{position:relative;z-index:2;max-width:980px}
+.hero-content{position:relative;z-index:2;max-width:1180px}
 .hero-tagline{
   font-family:'JetBrains Mono',monospace;
   font-size:clamp(11px,1.4vw,13px);letter-spacing:0.06em;
-  color:rgba(255,255,255,0.65);margin-bottom:32px;
+  color:var(--ink-48);margin-bottom:28px;
 }
-.hero-name{
+/* ── Collab title (Taci × Rhode Jeans) ── */
+.hero-collab{
   font-family:'Inter',sans-serif;
-  font-weight:800;letter-spacing:-0.045em;line-height:0.88;
-  font-size:clamp(76px,16vw,196px);
-  margin-bottom:32px;
+  font-weight:700;letter-spacing:-0.045em;line-height:0.88;
+  font-size:clamp(52px,11.5vw,156px);
+  margin-bottom:36px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:clamp(4px,1vw,12px);
 }
-.hero-name .dot{color:var(--rhode-red)}
+.hero-collab .name{display:block;color:var(--ink)}
+.hero-collab .dot{color:var(--rhode-red)}
+.hero-collab .name.rhode{font-weight:600}
+.hero-collab .x{
+  display:block;
+  font-size:0.58em;line-height:1;font-weight:300;letter-spacing:0;
+  color:var(--rhode-red);
+  margin:clamp(2px,0.4vw,8px) 0 clamp(2px,0.4vw,8px) clamp(6px,1.2vw,14px);
+  transition:transform .6s cubic-bezier(0.2,0.6,0.2,1);
+  transform-origin:center;
+}
+.hero:hover .hero-collab .x{transform:rotate(90deg)}
 .hero-subtitle{
-  font-size:clamp(18px,2.2vw,28px);
-  font-weight:300;letter-spacing:-0.018em;line-height:1.3;
-  color:rgba(255,255,255,0.88);max-width:680px;margin-bottom:48px;
+  font-size:clamp(17px,2vw,26px);
+  font-weight:300;letter-spacing:-0.018em;line-height:1.35;
+  color:var(--ink-72);max-width:680px;margin-bottom:44px;
 }
-.hero-subtitle em{font-style:italic;color:#fff;font-weight:400}
+.hero-subtitle em{font-style:italic;color:var(--ink);font-weight:500}
 .hero-handle{
   font-family:'JetBrains Mono',monospace;
   font-size:clamp(11px,1.2vw,13px);letter-spacing:0.04em;
-  color:rgba(255,255,255,0.55);
+  color:var(--ink-48);
 }
 .hero-handle .accent{color:var(--rhode-red);font-weight:600}
 .hero-scroll{
   position:relative;z-index:2;display:flex;align-items:center;gap:12px;
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;
-  text-transform:uppercase;color:rgba(255,255,255,0.35);margin-top:48px;
+  text-transform:uppercase;color:var(--ink-48);margin-top:48px;
 }
 .hero-scroll-line{
-  width:42px;height:1px;background:rgba(255,255,255,0.3);
+  width:42px;height:1px;background:var(--ink-24);
   animation:pulse 2.4s ease-in-out infinite;
 }
-@keyframes pulse{0%,100%{opacity:0.25;transform:scaleX(1)}50%{opacity:0.95;transform:scaleX(1.15)}}
+@keyframes pulse{0%,100%{opacity:0.3;transform:scaleX(1)}50%{opacity:1;transform:scaleX(1.18)}}
 
 /* ═════════════════════════════════  STATS  ═════════════════════════════════ */
 .stats-grid{
@@ -568,7 +581,11 @@ footer{padding:32px;text-align:center;background:var(--ink);color:rgba(255,255,2
 
   <div class="hero-content">
     <div class="hero-tagline reveal">Sua jornada com a Rhode</div>
-    <h1 class="hero-name reveal d-100">Taciane<span class="dot">.</span></h1>
+    <h1 class="hero-collab reveal d-100">
+      <span class="name taci">Taci<span class="dot">.</span></span>
+      <span class="x" aria-hidden="true">×</span>
+      <span class="name rhode">Rhode Jeans<span class="dot">.</span></span>
+    </h1>
     <p class="hero-subtitle reveal d-200">Esse é o seu <em>RhodeMap</em>. Seis meses, uma calça que virou a sua cara, e uma marca que aprendeu o seu jeito de vender.</p>
     <div class="hero-handle reveal d-300">@tacianetorress &nbsp;·&nbsp; <span class="accent">Diamond</span></div>
   </div>
