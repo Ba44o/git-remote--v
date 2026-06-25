@@ -131,16 +131,50 @@ section{padding:128px 32px;position:relative}
   color:var(--ink-48);
 }
 .hero-handle .accent{color:var(--rhode-red);font-weight:600}
+
+/* ── Mini journey preview (6 dots) ── */
+.hero-journey{
+  display:flex;align-items:center;margin-top:40px;
+  max-width:540px;position:relative;padding:14px 0 4px;
+}
+.hero-journey::before{
+  content:'';position:absolute;top:21px;left:8px;right:8px;height:1px;
+  background:linear-gradient(90deg,var(--tier-gold) 0%,var(--tier-bronze) 20%,var(--tier-silver) 40%,var(--tier-silver) 60%,var(--tier-bronze) 80%,var(--tier-gold) 100%);
+  opacity:0.35;
+}
+.hero-journey-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;gap:10px}
+.hero-journey-dot{
+  width:14px;height:14px;border-radius:99px;
+  background:var(--ink-24);box-shadow:0 0 0 3px var(--canvas),0 0 0 4px var(--hairline);
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.hero-journey-step:hover .hero-journey-dot{transform:scale(1.2);box-shadow:0 0 0 3px var(--canvas),0 0 0 5px var(--rhode-red)}
+.hero-journey-dot.tier-bronze{background:var(--tier-bronze)}
+.hero-journey-dot.tier-silver{background:var(--tier-silver)}
+.hero-journey-dot.tier-gold{background:var(--tier-gold)}
+.hero-journey-label{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--ink-48);font-weight:500;
+}
+
 .hero-scroll{
   position:relative;z-index:2;display:flex;align-items:center;gap:12px;
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;
-  text-transform:uppercase;color:var(--ink-48);margin-top:48px;
+  text-transform:uppercase;color:var(--ink-48);margin-top:36px;
 }
 .hero-scroll-line{
   width:42px;height:1px;background:var(--ink-24);
   animation:pulse 2.4s ease-in-out infinite;
 }
 @keyframes pulse{0%,100%{opacity:0.3;transform:scaleX(1)}50%{opacity:1;transform:scaleX(1.18)}}
+
+/* Mobile: tighten o hero pra não criar vazio absurdo */
+@media(max-width:680px){
+  .hero{justify-content:flex-start;min-height:auto;gap:0;padding-bottom:48px}
+  .hero-top{margin-bottom:48px}
+  .hero-scroll{margin-top:32px}
+  .hero-journey{margin-top:32px;max-width:100%}
+}
 
 /* ═════════════════════════════════  STATS  ═════════════════════════════════ */
 .stats-grid{
@@ -588,9 +622,18 @@ footer{padding:32px;text-align:center;background:var(--ink);color:rgba(255,255,2
     </h1>
     <p class="hero-subtitle reveal d-200">Esse é o seu <em>RhodeMap</em>. Seis meses, uma calça que virou a sua cara, e uma marca que aprendeu o seu jeito de vender.</p>
     <div class="hero-handle reveal d-300">@tacianetorress &nbsp;·&nbsp; <span class="accent">Diamond</span></div>
+
+    <div class="hero-journey reveal d-400" aria-label="Sua jornada por tier mês a mês">
+      <div class="hero-journey-step" title="Janeiro · Gold"><div class="hero-journey-dot tier-gold"></div><div class="hero-journey-label">jan</div></div>
+      <div class="hero-journey-step" title="Fevereiro · Bronze"><div class="hero-journey-dot tier-bronze"></div><div class="hero-journey-label">fev</div></div>
+      <div class="hero-journey-step" title="Março · Silver"><div class="hero-journey-dot tier-silver"></div><div class="hero-journey-label">mar</div></div>
+      <div class="hero-journey-step" title="Abril · Silver"><div class="hero-journey-dot tier-silver"></div><div class="hero-journey-label">abr</div></div>
+      <div class="hero-journey-step" title="Maio · Bronze"><div class="hero-journey-dot tier-bronze"></div><div class="hero-journey-label">mai</div></div>
+      <div class="hero-journey-step" title="Junho · Gold"><div class="hero-journey-dot tier-gold"></div><div class="hero-journey-label">jun</div></div>
+    </div>
   </div>
 
-  <div class="hero-scroll reveal d-400">
+  <div class="hero-scroll reveal d-500">
     <div class="hero-scroll-line"></div>
     <span>Role pra ver</span>
   </div>
