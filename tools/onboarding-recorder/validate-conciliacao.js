@@ -48,21 +48,32 @@ const PED = [
     { order_id:'X1', periodo:'2026-03', data:'2026-03-15', pago:5000, status:'CANCELLED', produto:'Calça Wide Leg', classe:'cancelado' },
     { order_id:'X2', periodo:'2026-05', data:'2026-05-10', pago:3000, status:'CANCELLED', produto:'Calça Baggy', classe:'cancelado' },
   ];
+  const PEDC = [
+    { order_id:'584408285046146437', periodo:'2026-06', data:'2026-06-07', produto:'Calça Jeans Wide Leg Marmorizada', status:'COMPLETED', pago:99.90, settlement:73.50, taxa_pct:26.4, situacao:'liquidado' },
+    { order_id:'584301122087654321', periodo:'2026-06', data:'2026-06-05', produto:'Calça Mom Jeans Cintura Alta', status:'COMPLETED', pago:89.90, settlement:66.10, taxa_pct:26.5, situacao:'liquidado' },
+    { order_id:'584154067080283289', periodo:'2026-06', data:'2026-06-20', produto:'Shorts Mom Jeans', status:'IN_TRANSIT', pago:52.00, settlement:0, taxa_pct:null, situacao:'a_receber' },
+    { order_id:'581731099044840454', periodo:'2026-06', data:'2026-06-12', produto:'Calça Baggy Marmorizada', status:'CANCELLED', pago:84.00, settlement:-20.00, taxa_pct:null, situacao:'devolvido' },
+    { order_id:'584299881122334455', periodo:'2026-06', data:'2026-06-03', produto:'Body Básico Feminino Regata', status:'COMPLETED', pago:45.00, settlement:30.20, taxa_pct:32.9, situacao:'liquidado' },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
+      const data = p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();
   });
 
   await page.goto(`${url}/conciliacao.html`, { waitUntil:'networkidle' });
-  await page.waitForTimeout(1500);
-  const out = path.resolve(__dirname, 'out', 'conciliacao.png');
-  await page.screenshot({ path: out, fullPage: true });
-  console.log('screenshot:', out);
+  await page.waitForTimeout(1800);
+  const tabs = ['visao','repasse','receber','produtos','lucro','ads','pedidos'];
+  for (const t of tabs) {
+    if (t !== 'visao') { await page.click(`#tabnav button[data-t="${t}"]`).catch(()=>{}); await page.waitForTimeout(700); }
+    const out = path.resolve(__dirname, 'out', `conc-${t}.png`);
+    await page.screenshot({ path: out, fullPage: true });
+    console.log('screenshot:', out);
+  }
   await browser.close();
 })();

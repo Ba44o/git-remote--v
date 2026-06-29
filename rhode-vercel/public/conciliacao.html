@@ -3,68 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rhode · Conciliação — DRE da Loja</title>
+<title>Rhode · Conciliação</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root{
     --ink:#1d1d1f; --ink-64:#5a5a5e; --ink-48:#85858a; --ink-24:#bcbcc0;
     --pearl:#fafafc; --parchment:#f5f5f7; --hairline:#e6e6ea; --card:#ffffff;
-    --rhode-red:#FE2C55; --green:#1a8f5a; --orange:#c05e00; --blue:#2563eb;
+    --rhode-red:#FE2C55; --green:#1a8f5a; --orange:#c05e00; --blue:#2563eb; --amber:#b45309;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Inter',sans-serif;background:var(--pearl);color:var(--ink);
-    -webkit-font-smoothing:antialiased;line-height:1.4}
+  body{font-family:'Inter',sans-serif;background:var(--pearl);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.45}
   .mono{font-family:'JetBrains Mono',monospace}
-  .num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+  .num{font-variant-numeric:tabular-nums}
 
-  /* ---- login ---- */
+  /* login */
   #login{position:fixed;inset:0;display:grid;place-items:center;background:var(--pearl);z-index:50}
-  .login-card{background:var(--card);border:1px solid var(--hairline);border-radius:18px;
-    padding:40px;width:340px;box-shadow:0 12px 40px rgba(0,0,0,.06)}
+  .login-card{background:var(--card);border:1px solid var(--hairline);border-radius:18px;padding:40px;width:340px;box-shadow:0 12px 40px rgba(0,0,0,.06)}
   .login-card h1{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
   .login-card p{font-size:13px;color:var(--ink-48);margin-bottom:24px}
-  .login-card input{width:100%;padding:13px 15px;border:1px solid var(--hairline);border-radius:11px;
-    font-family:'JetBrains Mono',monospace;font-size:14px;margin-bottom:14px;outline:none}
+  .login-card input{width:100%;padding:13px 15px;border:1px solid var(--hairline);border-radius:11px;font-family:'JetBrains Mono',monospace;font-size:14px;margin-bottom:14px;outline:none}
   .login-card input:focus{border-color:var(--ink)}
-  .login-card button{width:100%;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:11px;
-    font-weight:600;font-size:14px;cursor:pointer;transition:opacity .15s}
-  .login-card button:hover{opacity:.88}
+  .login-card button{width:100%;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:11px;font-weight:600;font-size:14px;cursor:pointer}
   .login-err{color:var(--rhode-red);font-size:12px;margin-top:12px;min-height:16px;text-align:center}
 
-  /* ---- app ---- */
-  #app{display:none;max-width:1140px;margin:0 auto;padding:36px 28px 80px}
-  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
-    padding-bottom:22px;border-bottom:1px solid var(--hairline);margin-bottom:28px;flex-wrap:wrap}
-  .title h1{font-family:'JetBrains Mono',monospace;font-size:25px;font-weight:800;letter-spacing:-.03em}
-  .title .sub{font-size:13px;color:var(--ink-48);margin-top:4px}
-  .top-right{display:flex;align-items:center;gap:12px}
-  select{font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 13px;border:1px solid var(--hairline);
-    border-radius:10px;background:var(--card);cursor:pointer;outline:none}
-  .lnk{font-size:12px;color:var(--ink-48);text-decoration:none;border:1px solid var(--hairline);
-    padding:8px 12px;border-radius:9px;background:var(--card)}
-  .lnk:hover{color:var(--ink);border-color:var(--ink-24)}
-  /* switcher de módulos do console (Creators ⇄ Conciliação) — idêntico ao admin */
+  /* topbar */
+  .topbar{background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid rgba(0,0,0,.06);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:30;gap:16px}
+  .tlogo{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:18px;letter-spacing:-.02em}
+  .tlogo b{color:var(--rhode-red)}
+  .tlogo small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-left:8px}
+  .tright{display:flex;align-items:center;gap:10px}
   .modnav{display:flex;gap:3px;background:var(--parchment);border:1px solid var(--hairline);border-radius:99px;padding:3px}
-  .modnav a{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;text-decoration:none;color:var(--ink-48);padding:6px 15px;border-radius:99px;transition:all .15s ease;white-space:nowrap}
+  .modnav a{font-size:13px;font-weight:500;text-decoration:none;color:var(--ink-48);padding:6px 15px;border-radius:99px;transition:all .15s;white-space:nowrap}
   .modnav a:hover{color:var(--ink)}
   .modnav a.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .lnk{font-size:12px;color:var(--ink-48);text-decoration:none;border:1px solid var(--hairline);padding:8px 12px;border-radius:9px;background:var(--card);cursor:pointer}
+  .lnk:hover{color:var(--ink);border-color:var(--ink-24)}
 
-  /* KPIs */
-  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
-  .kpi{background:var(--card);border:1px solid var(--hairline);border-radius:15px;padding:18px 20px}
-  .kpi .lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-48)}
-  .kpi .val{font-family:'JetBrains Mono',monospace;font-size:25px;font-weight:700;letter-spacing:-.02em;margin-top:8px}
+  #app{display:none;max-width:1180px;margin:0 auto;padding:24px 28px 90px}
+
+  /* filtro */
+  .filterbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0 18px;margin-bottom:6px}
+  .seg{display:flex;gap:2px;background:var(--parchment);border:1px solid var(--hairline);border-radius:10px;padding:2px}
+  .seg button{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;border:none;background:none;color:var(--ink-48);padding:7px 13px;border-radius:8px;cursor:pointer;transition:all .12s}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .fld{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-48)}
+  select,input[type=date],input[type=month]{font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:7px 11px;border:1px solid var(--hairline);border-radius:9px;background:var(--card);cursor:pointer;outline:none;color:var(--ink)}
+  .fmeta{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-48)}
+
+  /* tabs */
+  .tabnav{display:flex;gap:2px;border-bottom:1px solid var(--hairline);margin-bottom:26px;overflow-x:auto}
+  .tabnav button{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;border:none;background:none;color:var(--ink-48);padding:12px 16px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .12s}
+  .tabnav button:hover{color:var(--ink)}
+  .tabnav button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--rhode-red)}
+
+  /* KPI */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+  .kpis.k6{grid-template-columns:repeat(6,1fr)}
+  .kpi{background:var(--card);border:1px solid var(--hairline);border-radius:14px;padding:16px 18px}
+  .kpi .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-48)}
+  .kpi .val{font-family:'JetBrains Mono',monospace;font-size:23px;font-weight:700;letter-spacing:-.02em;margin-top:7px;font-variant-numeric:tabular-nums}
+  .kpi.k6 .val{font-size:19px}
   .kpi .val.accent{color:var(--green)}
-  .kpi .foot{font-size:11.5px;color:var(--ink-48);margin-top:5px}
+  .kpi .val.danger{color:var(--rhode-red)}
+  .kpi .foot{font-size:11px;color:var(--ink-48);margin-top:4px}
 
-  .sec{background:var(--card);border:1px solid var(--hairline);border-radius:16px;padding:24px 26px;margin-bottom:22px}
-  .sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+  .sec{background:var(--card);border:1px solid var(--hairline);border-radius:16px;padding:22px 24px;margin-bottom:20px}
+  .sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
   .sec-h h2{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;letter-spacing:-.01em}
   .sec-h .meta{font-size:12px;color:var(--ink-48)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:880px){.grid2{grid-template-columns:1fr}.kpis,.kpis.k6{grid-template-columns:repeat(2,1fr)}}
 
-  /* cascata DRE */
-  .casc-row{display:grid;grid-template-columns:200px 1fr 130px;align-items:center;gap:14px;padding:9px 0}
+  /* cascata */
+  .casc-row{display:grid;grid-template-columns:200px 1fr 150px;align-items:center;gap:14px;padding:9px 0}
   .casc-row + .casc-row{border-top:1px solid #f1f1f4}
   .casc-lbl{font-size:13.5px;font-weight:500}
   .casc-lbl small{display:block;font-size:10.5px;color:var(--ink-48);font-weight:400;margin-top:1px}
@@ -76,23 +90,33 @@
   .casc-row.total .casc-val{font-size:17px;color:var(--green)}
   .neg{color:var(--rhode-red)}
 
-  /* trend table */
   table{width:100%;border-collapse:collapse}
-  th,td{text-align:right;padding:10px 12px;font-size:13px;font-variant-numeric:tabular-nums}
-  th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--ink-48);border-bottom:1px solid var(--hairline);font-weight:600}
+  th,td{text-align:right;padding:9px 12px;font-size:13px;font-variant-numeric:tabular-nums}
+  th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-48);border-bottom:1px solid var(--hairline);font-weight:600;cursor:default}
   td{font-family:'JetBrains Mono',monospace;border-bottom:1px solid #f1f1f4}
   th:first-child,td:first-child{text-align:left}
   tbody tr:hover{background:#fafafb}
   td.mp{font-family:'Inter',sans-serif;font-weight:600}
+  .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600}
+  .tag.ok{background:#e8f6ee;color:var(--green)} .tag.warn{background:#fdeaea;color:var(--rhode-red)} .tag.mut{background:var(--parchment);color:var(--ink-48)}
 
-  .note{background:#fff8ee;border:1px solid #f0e2c8;border-radius:12px;padding:14px 16px;
-    font-size:12.5px;color:#7a5b1e;line-height:1.5;display:flex;gap:11px}
+  .note{background:#fff8ee;border:1px solid #f0e2c8;border-radius:12px;padding:13px 15px;font-size:12.5px;color:#7a5b1e;line-height:1.5;display:flex;gap:10px}
   .note b{color:#5a4310}
-  .soon{opacity:.62;border-style:dashed}
-  .pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;
-    background:var(--parchment);color:var(--ink-48);padding:3px 9px;border-radius:99px;border:1px solid var(--hairline)}
-  .loading{text-align:center;color:var(--ink-48);font-size:13px;padding:50px}
+  .note.green{background:#eef6f0;border-color:#cfe6d8;color:#2a6045} .note.green b{color:#1a5b3a}
+  .pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;background:var(--parchment);color:var(--ink-48);padding:3px 9px;border-radius:99px;border:1px solid var(--hairline)}
+  .loading{text-align:center;color:var(--ink-48);font-size:13px;padding:60px}
+
+  /* alerta destaque (tarifa) */
+  .alert{display:flex;gap:16px;align-items:center;background:linear-gradient(120deg,#fff5f7,#fff);border:1px solid #f6cdd6;border-radius:16px;padding:18px 22px;margin-bottom:20px}
+  .alert .ic{font-size:26px}
+  .alert .big{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;color:var(--rhode-red);letter-spacing:-.02em}
+  .alert .tx{font-size:13px;color:var(--ink-64);line-height:1.5}
+  .alert .tx b{color:var(--ink)}
+
+  /* search */
+  .search{font-family:'JetBrains Mono',monospace;font-size:13px;padding:8px 13px;border:1px solid var(--hairline);border-radius:10px;background:var(--card);outline:none;width:230px}
+  .chartwrap{position:relative;height:280px}
+  .empty{text-align:center;color:var(--ink-48);font-size:13px;padding:40px}
 </style>
 </head>
 <body>
@@ -100,7 +124,7 @@
 <div id="login">
   <div class="login-card">
     <h1>rhode<span style="color:var(--rhode-red)">.</span> conciliação</h1>
-    <p>DRE da loja · acesso admin</p>
+    <p>Console financeiro · acesso admin</p>
     <input id="adm-pass" type="password" placeholder="senha admin" onkeydown="if(event.key==='Enter')admLogin()">
     <button onclick="admLogin()">Entrar</button>
     <div class="login-err" id="adm-err"></div>
@@ -108,47 +132,54 @@
 </div>
 
 <div id="app">
-  <header class="top">
-    <div class="title">
-      <h1>Conciliação · DRE da Loja</h1>
-      <div class="sub">Caminho do dinheiro — TikTok Shop · admin/CFO</div>
+  <div class="topbar">
+    <div class="tlogo">Rhode<b>.</b><small>Console</small></div>
+    <div class="tright">
+      <nav class="modnav"><a href="admin.html">Creators</a><a href="conciliacao.html" class="on">Conciliação</a></nav>
+      <a class="lnk" onclick="logout()">Sair</a>
     </div>
-    <div class="top-right">
-      <nav class="modnav">
-        <a href="admin.html">Creators</a>
-        <a href="conciliacao.html" class="on">Conciliação</a>
-      </nav>
-      <select id="period-sel" onchange="render()"></select>
-      <a class="lnk" href="#" onclick="logout();return false">Sair</a>
-    </div>
-  </header>
+  </div>
 
-  <div id="body"><div class="loading">Carregando dados…</div></div>
+  <div style="max-width:1180px;margin:0 auto;padding:0 28px">
+    <div class="filterbar">
+      <div class="seg" id="seg-janela">
+        <button data-j="tudo" class="on" onclick="setJanela('tudo')">Tudo</button>
+        <button data-j="3m" onclick="setJanela('3m')">3M</button>
+        <button data-j="6m" onclick="setJanela('6m')">6M</button>
+        <button data-j="ano" onclick="setJanela('ano')">Ano</button>
+      </div>
+      <div class="fld">Mês <select id="f-mes" onchange="setMes(this.value)"></select></div>
+      <div class="fld">Data <input type="date" id="f-de" onchange="setRange()"> → <input type="date" id="f-ate" onchange="setRange()"></div>
+      <div class="fmeta" id="f-meta"></div>
+    </div>
+  </div>
+
+  <div style="max-width:1180px;margin:0 auto;padding:0 28px">
+    <div class="tabnav" id="tabnav"></div>
+    <div id="content"><div class="loading">Carregando dados…</div></div>
+  </div>
 </div>
 
 <script>
 const ADM_TOKEN_KEY='rhode-admin-token';
 function admToken(){ try{return sessionStorage.getItem(ADM_TOKEN_KEY)||'';}catch(e){return'';} }
 async function admLogin(){
-  const pass=document.getElementById('adm-pass').value;
-  const err=document.getElementById('adm-err');
+  const pass=document.getElementById('adm-pass').value, err=document.getElementById('adm-err');
   try{
     const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'admin_login',pass})});
     const d=await r.json().catch(()=>({}));
-    if(r.ok && d.token){ sessionStorage.setItem(ADM_TOKEN_KEY,d.token); enter(); }
-    else err.textContent=d.error||'Senha incorreta.';
+    if(r.ok && d.token){ sessionStorage.setItem(ADM_TOKEN_KEY,d.token); enter(); } else err.textContent=d.error||'Senha incorreta.';
   }catch(e){ err.textContent='Erro de conexão.'; }
 }
 function logout(){ try{sessionStorage.removeItem(ADM_TOKEN_KEY);}catch(_){}; location.reload(); }
 async function admProxy(method, path, opts={}){
-  const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'admin_query', adminToken:admToken(), method, path, paged:opts.paged})});
+  const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'admin_query', adminToken:admToken(), method, path, paged:opts.paged})});
   if(r.status===401){ logout(); throw new Error('sessão expirada'); }
   if(!r.ok){ let e={};try{e=await r.json();}catch(_){}; throw new Error(e.error||('HTTP '+r.status)); }
   return r.json();
 }
 
-// ---- formatação ----
+// formatação
 const BRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
 const BRL2=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2});
 const NUM=new Intl.NumberFormat('pt-BR');
@@ -157,235 +188,294 @@ const pct=(a,b)=>b?(a/b*100):0;
 const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
-// ---- estado ----
-let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], MESES=[];
-// alíquotas de imposto (Lucro Real · editáveis · a confirmar c/ contador)
-let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||9.25; // PIS/COFINS+ICMS efetivo s/ venda
-let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||34;          // IRPJ+CSLL s/ lucro
+// estado
+let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, MESES=[];
+let TAB='visao';
+let FILTER={modo:'tudo', mes:'', de:'', ate:''};
+let CHART=null;
+let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||9.25;
+let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||34;
 function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{localStorage.setItem('rhode_tx_venda',n)}catch(e){}}else{TX_IR=n;try{localStorage.setItem('rhode_tx_ir',n)}catch(e){}} render();}
 
+const TABS=[['visao','Visão Geral'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['lucro','Lucro'],['ads','Ads'],['pedidos','Pedidos']];
+
 async function load(){
-  // finance (caminho do dinheiro) + pedidos_sku (GMV) + custos_sku (CPV) + ads_gmvmax (ads)
   const [fin, ped, cpv, ads, stx, div] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
     admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku',{paged:true}),
     admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
     admProxy('GET','ads_gmvmax?select=periodo,campanha,custo,receita_bruta,pedidos',{paged:true}),
-    admProxy('GET','statement_tx_resumo?select=*',{paged:true}),
+    admProxy('GET','statement_tx_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
     admProxy('GET','repasse_divergencias?select=*',{paged:true}).catch(()=>({data:[]}))
   ]);
-  CPVMAP={};
-  (cpv.data||[]).forEach(r=>{ if(r.ref) CPVMAP[String(r.ref).toUpperCase()]=+r.cpv||0; });
-  // conciliação de repasse (view agregada por período) — liquidado/a receber/devolvido + decomposição
-  STX={};
-  (stx.data||[]).forEach(r=>{ if(r.periodo) STX[r.periodo]=r; });
-  // divergências (B-2) — pedidos pagos sem settlement, classificados (faltante/pendente/cancelado)
-  DIV = (typeof div!=='undefined' && div && div.data) ? div.data : [];
-  // ads GMV Max por mês + por campanha
-  ADS={};
-  (ads.data||[]).forEach(r=>{
-    const m=r.periodo; if(!m)return;
-    const a=ADS[m]||(ADS[m]={custo:0,receita:0,pedidos:0,camp:{}});
-    a.custo+=+r.custo||0; a.receita+=+r.receita_bruta||0; a.pedidos+=+r.pedidos||0;
-    const n=(r.campanha||'—'); const c=a.camp[n]||(a.camp[n]={custo:0,receita:0,pedidos:0});
-    c.custo+=+r.custo||0; c.receita+=+r.receita_bruta||0; c.pedidos+=+r.pedidos||0;
-  });
-  // agrega finance por mês
-  FIN={};
-  (fin.data||[]).forEach(r=>{
-    const m=(r.data||'').slice(0,7); if(!m)return;
-    const a=FIN[m]||(FIN[m]={rev:0,fee:0,ship:0,adj:0,set:0,n:0});
-    a.rev+=+r.revenue_amount||0; a.fee+=+r.fee_amount||0; a.ship+=+r.shipping_cost||0;
-    a.adj+=+r.adjustment||0; a.set+=+r.settlement||0; a.n++;
-  });
-  // agrega GMV por mês + ranking/margem por produto/mês (custo = CPV×qty quando há REF cadastrado)
-  GMV={}; PROD={};
+  CPVMAP={}; (cpv.data||[]).forEach(r=>{ if(r.ref) CPVMAP[String(r.ref).toUpperCase()]=+r.cpv||0; });
+  STX={}; (stx.data||[]).forEach(r=>{ if(r.periodo) STX[r.periodo]=r; });
+  DIV = (div&&div.data)?div.data:[];
+  ADS={}; (ads.data||[]).forEach(r=>{const m=r.periodo; if(!m)return; const a=ADS[m]||(ADS[m]={custo:0,receita:0,pedidos:0,camp:{}}); a.custo+=+r.custo||0;a.receita+=+r.receita_bruta||0;a.pedidos+=+r.pedidos||0; const n=(r.campanha||'—'); const c=a.camp[n]||(a.camp[n]={custo:0,receita:0,pedidos:0}); c.custo+=+r.custo||0;c.receita+=+r.receita_bruta||0;c.pedidos+=+r.pedidos||0;});
+  FIN={}; (fin.data||[]).forEach(r=>{const m=(r.data||'').slice(0,7); if(!m)return; const a=FIN[m]||(FIN[m]={rev:0,fee:0,ship:0,adj:0,set:0,n:0}); a.rev+=+r.revenue_amount||0;a.fee+=+r.fee_amount||0;a.ship+=+r.shipping_cost||0;a.adj+=+r.adjustment||0;a.set+=+r.settlement||0;a.n++;});
+  GMV={}; PROD={}; SPLIT={};
   (ped.data||[]).forEach(r=>{
     const m=r.periodo; if(!m)return;
-    const g=+r.gmv||0, q=+r.qty||0;
-    const cpvUn=CPVMAP[(r.seller_sku||'').toUpperCase()];
-    const a=GMV[m]||(GMV[m]={gmv:0,qty:0,itens:0});
-    a.gmv+=g; a.qty+=q; a.itens++;
+    const g=+r.gmv||0, q=+r.qty||0, cpvUn=CPVMAP[(r.seller_sku||'').toUpperCase()];
+    const a=GMV[m]||(GMV[m]={gmv:0,qty:0,itens:0}); a.gmv+=g; a.qty+=q; a.itens++;
     const nome=(r.produto||'—').trim();
-    const pm=PROD[m]||(PROD[m]={});
-    const p=pm[nome]||(pm[nome]={gmv:0,qty:0,custo:0,gmvCpv:0});
-    p.gmv+=g; p.qty+=q;
-    if(cpvUn!=null){ p.custo+=cpvUn*q; p.gmvCpv+=g; }
+    const pm=PROD[m]||(PROD[m]={}); const p=pm[nome]||(pm[nome]={gmv:0,qty:0,custo:0,gmvCpv:0});
+    p.gmv+=g; p.qty+=q; if(cpvUn!=null){ p.custo+=cpvUn*q; p.gmvCpv+=g; }
+    const sp=SPLIT[m]||(SPLIT[m]={gmvLt:0,qtyGe:0}); const un=q>0?g/q:0;
+    if(un>0 && un<50) sp.gmvLt+=g; else if(un>=50) sp.qtyGe+=q;
   });
-  MESES=[...new Set([...Object.keys(FIN),...Object.keys(GMV),...Object.keys(ADS),...Object.keys(STX)])].sort();
-  // popula seletor
-  const sel=document.getElementById('period-sel');
-  sel.innerHTML=`<option value="ALL">Todos os meses</option>`+MESES.slice().reverse().map(m=>`<option value="${m}">${fmtMes(m)}</option>`).join('');
+  MESES=[...new Set([...Object.keys(FIN),...Object.keys(GMV),...Object.keys(ADS),...Object.keys(STX)])].filter(Boolean).sort();
+  // filtros
+  document.getElementById('f-mes').innerHTML='<option value="">—</option>'+MESES.slice().reverse().map(m=>`<option value="${m}">${fmtMes(m)}</option>`).join('');
+  document.getElementById('tabnav').innerHTML=TABS.map(([k,l])=>`<button data-t="${k}" class="${k===TAB?'on':''}" onclick="setTab('${k}')">${l}</button>`).join('');
   render();
 }
 
-function render(){
-  const sel=document.getElementById('period-sel').value;
-  const meses = sel==='ALL' ? MESES : [sel];
-  // soma o período selecionado
-  const A={rev:0,fee:0,ship:0,adj:0,set:0,n:0}; let gmv=0, qty=0;
-  meses.forEach(m=>{const f=FIN[m]; if(f){A.rev+=f.rev;A.fee+=f.fee;A.ship+=f.ship;A.adj+=f.adj;A.set+=f.set;A.n+=f.n;} const g=GMV[m]; if(g){gmv+=g.gmv;qty+=g.qty;}});
-  const taxaPct=pct(Math.abs(A.fee),A.rev), efic=pct(A.set,A.rev);
+// ---- filtros → meses ----
+function getMeses(){
+  if(!MESES.length) return [];
+  if(FILTER.modo==='mes' && FILTER.mes) return [FILTER.mes];
+  if(FILTER.modo==='range' && FILTER.de && FILTER.ate){ const a=FILTER.de.slice(0,7), b=FILTER.ate.slice(0,7); return MESES.filter(m=>m>=a&&m<=b); }
+  if(FILTER.modo==='3m') return MESES.slice(-3);
+  if(FILTER.modo==='6m') return MESES.slice(-6);
+  if(FILTER.modo==='ano'){ const y=MESES[MESES.length-1].slice(0,4); return MESES.filter(m=>m.startsWith(y)); }
+  return MESES;
+}
+function periodoLabel(){ const ms=getMeses(); if(!ms.length) return '—'; if(ms.length===1) return fmtMes(ms[0]); return `${fmtMes(ms[0])} – ${fmtMes(ms[ms.length-1])}`; }
+function setJanela(j){ FILTER={modo:j,mes:'',de:'',ate:''}; document.getElementById('f-mes').value=''; document.getElementById('f-de').value=''; document.getElementById('f-ate').value=''; syncSeg(j); render(); }
+function setMes(v){ if(!v){return;} FILTER={modo:'mes',mes:v,de:'',ate:''}; document.getElementById('f-de').value=''; document.getElementById('f-ate').value=''; syncSeg(null); render(); }
+function setRange(){ const de=document.getElementById('f-de').value, ate=document.getElementById('f-ate').value; if(de&&ate){ FILTER={modo:'range',mes:'',de,ate}; document.getElementById('f-mes').value=''; syncSeg(null); render(); } }
+function syncSeg(j){ document.querySelectorAll('#seg-janela button').forEach(b=>b.classList.toggle('on', b.dataset.j===j)); }
 
-  // KPIs
-  const kpis=`<div class="kpis">
-    <div class="kpi"><div class="lbl">Vendas (GMV)</div><div class="val">${fmt(gmv)}</div><div class="foot">${NUM.format(qty)} peças · data da venda</div></div>
-    <div class="kpi"><div class="lbl">Receita (settled)</div><div class="val">${fmt(A.rev)}</div><div class="foot">${A.n} statements</div></div>
-    <div class="kpi"><div class="lbl">Settlement</div><div class="val accent">${fmt(A.set)}</div><div class="foot">o que cai na conta</div></div>
-    <div class="kpi"><div class="lbl">Taxa TikTok</div><div class="val">${taxaPct.toFixed(1)}%</div><div class="foot">eficiência ${efic.toFixed(1)}%</div></div>
-  </div>`;
+function setTab(t){ TAB=t; document.querySelectorAll('#tabnav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t)); render(); }
 
-  // cascata (caminho do dinheiro)
-  const maxv=Math.max(A.rev,1);
-  const bar=(v,color)=>`<div class="casc-bar"><i style="width:${Math.min(100,Math.abs(v)/maxv*100)}%;background:${color}"></i></div>`;
-  const row=(lbl,sub,val,color,cls='')=>`<div class="casc-row ${cls}"><div class="casc-lbl">${lbl}${sub?`<small>${sub}</small>`:''}</div>${bar(val,color)}<div class="casc-val ${val<0?'neg':''}">${fmt2(val)}</div></div>`;
-  const cascata=`<div class="sec">
-    <div class="sec-h"><h2>Caminho do dinheiro</h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · base settlement</div></div>
-    ${row('Receita bruta','o que o TikTok reporta como receita',A.rev,'#cbd5e1')}
-    ${row('− Taxa TikTok',`comissão + serviço · ${taxaPct.toFixed(1)}%`,A.fee,'var(--rhode-red)')}
-    ${row('− Frete','custo de envio',A.ship,'var(--orange)')}
-    ${row('+ Ajustes','reembolsos/correções',A.adj,'var(--blue)')}
-    ${row('= Settlement','o que a loja recebe de fato',A.set,'var(--green)','total')}
-  </div>`;
-
-  // tendência mês a mês
-  const rows=MESES.map(m=>{const f=FIN[m]||{rev:0,fee:0,ship:0,set:0,n:0};const g=GMV[m]||{gmv:0};
-    return `<tr><td class="mp">${fmtMes(m)}</td><td>${g.gmv?fmt(g.gmv):'—'}</td><td>${fmt(f.rev)}</td>
-      <td class="neg">${fmt(f.fee)}</td><td class="neg">${fmt(f.ship)}</td><td>${fmt(f.set)}</td>
-      <td>${pct(Math.abs(f.fee),f.rev).toFixed(1)}%</td><td>${pct(f.set,f.rev).toFixed(1)}%</td></tr>`;}).join('');
-  const trend=`<div class="sec"><div class="sec-h"><h2>Tendência mensal</h2><div class="meta">clique no seletor pra focar um mês</div></div>
-    <table><thead><tr><th>Mês</th><th>GMV vendas</th><th>Receita</th><th>Taxa TT</th><th>Frete</th><th>Settlement</th><th>%taxa</th><th>Efic.</th></tr></thead>
-    <tbody>${rows}</tbody></table></div>`;
-
-  // ranking de produtos campeões (top por GMV no período) — não precisa de CPV
-  const prodAgg={};
-  meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=prodAgg[nome]||(prodAgg[nome]={gmv:0,qty:0}); a.gmv+=v.gmv; a.qty+=v.qty;});});
-  const totProd=Object.values(prodAgg).reduce((s,v)=>s+v.gmv,0)||1;
-  const topProd=Object.entries(prodAgg).sort((a,b)=>b[1].gmv-a[1].gmv).slice(0,12);
-  const maxP=topProd.length?topProd[0][1].gmv:1;
-  const prodRows=topProd.map(([nome,v],i)=>`<tr>
-    <td class="mp" style="max-width:330px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${nome.replace(/"/g,'')}">${i+1}. ${nome}</td>
-    <td>${fmt(v.gmv)}</td><td>${NUM.format(v.qty)}</td><td>${fmt2(v.qty?v.gmv/v.qty:0)}</td>
-    <td>${(v.gmv/totProd*100).toFixed(1)}%</td>
-    <td style="width:120px"><div class="casc-bar"><i style="width:${(v.gmv/maxP*100).toFixed(0)}%;background:var(--green)"></i></div></td></tr>`).join('');
-  const prods=`<div class="sec"><div class="sec-h"><h2>Produtos campeões</h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · por GMV de venda</div></div>
-    <table><thead><tr><th>Produto</th><th>GMV</th><th>Qtd</th><th>Ticket</th><th>% total</th><th></th></tr></thead><tbody>${prodRows}</tbody></table></div>`;
-
-  // nota dos dois relógios
-  const nota=`<div class="note"><span style="font-size:16px">🕐</span><div><b>Dois relógios.</b> "GMV vendas" conta pela <b>data da venda</b> (pedidos_sku); "Receita/Settlement" pela <b>data que o dinheiro liquidou</b> (finance_statements, que atrasa ~semanas). Por isso o mês corrente mostra GMV alto e settlement ainda parcial — é o que a conciliação reconcilia ao longo do tempo, não uma soma direta.</div></div>`;
-
-  // === Fase 2: Margem por produto — contribuição (GMV−CPV) + líquida estimada (× eficiência de settlement) ===
-  // eficiência EXATA (settlement liquidado / pago, do statement_tx) quando disponível; senão finance
-  let exSettle=0, exPago=0; meses.forEach(m=>{const s=STX[m]; if(s){exSettle+=+s.settle_liq||0; exPago+=+s.pago_liq||0;}});
-  let gRev=0,gSet=0; Object.values(FIN).forEach(f=>{gRev+=f.rev;gSet+=f.set;});
-  const eficFrac = exPago>0 ? exSettle/exPago : (A.rev ? A.set/A.rev : (gRev?gSet/gRev:0.74));
-  const eficExata = exPago>0;
+// ---- núcleo de cálculo (para os meses do filtro) ----
+function agg(meses){
+  const A={rev:0,fee:0,ship:0,adj:0,set:0,n:0}; let gmv=0,qty=0,gmvAll=0, exSettle=0,exPago=0;
+  meses.forEach(m=>{const f=FIN[m]; if(f){A.rev+=f.rev;A.fee+=f.fee;A.ship+=f.ship;A.adj+=f.adj;A.set+=f.set;A.n+=f.n;} const g=GMV[m]; if(g){gmv+=g.gmv;qty+=g.qty;gmvAll+=g.gmv;} const s=STX[m]; if(s){exSettle+=+s.settle_liq||0;exPago+=+s.pago_liq||0;}});
   const margAgg={};
-  meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=margAgg[nome]||(margAgg[nome]={qty:0,custo:0,gmvCpv:0}); a.qty+=v.qty;a.custo+=v.custo;a.gmvCpv+=v.gmvCpv;});});
-  let mGmvAll=0; meses.forEach(m=>{const g=GMV[m]; if(g)mGmvAll+=g.gmv;});
-  let mCusto=0,mGmvCpv=0,mQty=0;
-  Object.values(margAgg).forEach(v=>{mCusto+=v.custo;mGmvCpv+=v.gmvCpv;mQty+=v.qty;});
-  const cobertura=mGmvAll?mGmvCpv/mGmvAll*100:0;
-  const mContrib=mGmvCpv-mCusto, contribPct=mGmvCpv?mContrib/mGmvCpv*100:0;
-  const mLiq=mGmvCpv*eficFrac-mCusto, liqPct=mGmvCpv?mLiq/mGmvCpv*100:0;
-  const margList=Object.entries(margAgg).map(([nome,v])=>{const contrib=v.gmvCpv-v.custo, liq=v.gmvCpv*eficFrac-v.custo; return {nome,gmv:v.gmvCpv,qty:v.qty,custo:v.custo,contrib,liq,liqPct:v.gmvCpv?liq/v.gmvCpv*100:0};}).filter(x=>x.gmv>0).sort((a,b)=>b.liq-a.liq).slice(0,15);
-  const margRows=margList.map((x,i)=>`<tr>
-    <td class="mp" style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${x.nome.replace(/"/g,'')}">${i+1}. ${x.nome}</td>
-    <td>${NUM.format(x.qty)}</td><td>${fmt(x.gmv)}</td><td class="neg">${fmt(x.custo)}</td>
-    <td>${fmt(x.contrib)}</td>
-    <td style="font-weight:700;color:${x.liq>=0?'var(--green)':'var(--rhode-red)'}">${fmt(x.liq)}</td>
-    <td>${x.liqPct.toFixed(1)}%</td></tr>`).join('');
-  const fase2=`<div class="sec"><div class="sec-h"><h2>Margem por produto <span class="pill">CPV</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · contribuição & líquida estimada</div></div>
-    <div class="kpis" style="margin-bottom:18px">
-      <div class="kpi"><div class="lbl">GMV com CPV</div><div class="val">${fmt(mGmvCpv)}</div><div class="foot">cobertura ${cobertura.toFixed(1)}%</div></div>
-      <div class="kpi"><div class="lbl">Margem contribuição</div><div class="val">${fmt(mContrib)}</div><div class="foot">${contribPct.toFixed(1)}% · GMV − CPV</div></div>
-      <div class="kpi"><div class="lbl">Margem líquida est.</div><div class="val accent">${fmt(mLiq)}</div><div class="foot">${liqPct.toFixed(1)}% · líq. de fee+ads</div></div>
-      <div class="kpi"><div class="lbl">Eficiência aplicada</div><div class="val">${(eficFrac*100).toFixed(1)}%</div><div class="foot">${eficExata?'REAL · liquidado/pago':'estimada · settlement/receita'}</div></div>
-    </div>
-    <table><thead><tr><th>Produto</th><th>Qtd</th><th>GMV</th><th>Custo CPV</th><th>Contrib.</th><th>Líq. est.</th><th>Líq.%</th></tr></thead><tbody>${margRows}</tbody></table>
-    <div class="note" style="margin-top:14px;background:#eef6f0;border-color:#cfe6d8;color:#2a6045"><span style="font-size:15px">📦</span><div><b>Contribuição</b> = GMV − CPV (exata). <b>Líquida estimada</b> = GMV × <b>${(eficFrac*100).toFixed(1)}%</b> (eficiência de settlement) − CPV — deduz o fee da plataforma (~26%, que <b>já inclui comissão de afiliada E a mídia/GMV Max</b>) rateado por GMV. É <b>estimativa otimista</b> (usa GMV bruto; descontos de vendedor/devoluções reduzem um pouco o líquido real). O valor exato por SKU exige o detalhe order-level do finance — próximo passo. Cobertura CPV: <b>${cobertura.toFixed(1)}%</b>.</div></div></div>`;
-
-  // === GMV Max (ads) + fecho da cascata de lucro ===
+  meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=margAgg[nome]||(margAgg[nome]={qty:0,custo:0,gmvCpv:0,gmv:0}); a.qty+=v.qty;a.custo+=v.custo;a.gmvCpv+=v.gmvCpv;a.gmv+=v.gmv;});});
+  let mCusto=0,mGmvCpv=0,mQty=0; Object.values(margAgg).forEach(v=>{mCusto+=v.custo;mGmvCpv+=v.gmvCpv;mQty+=v.qty;});
+  let gRev=0,gSet=0; Object.values(FIN).forEach(f=>{gRev+=f.rev;gSet+=f.set;});
+  const eficFrac = exPago>0 ? exSettle/exPago : (A.rev?A.set/A.rev:(gRev?gSet/gRev:0.74));
+  const eficExata = exPago>0;
+  const cobertura = gmvAll?mGmvCpv/gmvAll*100:0;
+  const mContrib=mGmvCpv-mCusto, mLiq=mGmvCpv*eficFrac-mCusto;
+  const impVenda=mGmvCpv*TX_VENDA/100, lucroAntesIR=mLiq-impVenda, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucroFinal=lucroAntesIR-impIR;
+  const rp={liq:0,pagoLiq:0,rec:0,recN:0,dev:0,devN:0,plat:0,afi:0,ads:0,frete:0,liqN:0};
+  meses.forEach(m=>{const s=STX[m]; if(!s)return; rp.liq+=+s.settle_liq||0;rp.pagoLiq+=+s.pago_liq||0;rp.liqN+=+s.liquidados||0;rp.rec+=+s.a_receber||0;rp.recN+=+s.pendentes||0;rp.dev+=+s.devolucao||0;rp.devN+=+s.devolvidos||0;rp.plat+=+s.comissao_plataforma||0;rp.afi+=+s.comissao_afiliada||0;rp.ads+=+s.comissao_ads_afil||0;rp.frete+=+s.frete||0;});
+  const rpTaxa=rp.pagoLiq?(1-rp.liq/rp.pagoLiq)*100:0;
   const ad={custo:0,receita:0,pedidos:0,camp:{}};
-  meses.forEach(m=>{const a=ADS[m]; if(!a)return; ad.custo+=a.custo;ad.receita+=a.receita;ad.pedidos+=a.pedidos;
-    Object.entries(a.camp).forEach(([n,c])=>{const x=ad.camp[n]||(ad.camp[n]={custo:0,receita:0,pedidos:0});x.custo+=c.custo;x.receita+=c.receita;x.pedidos+=c.pedidos;});});
-  const adRoi=ad.custo?ad.receita/ad.custo:0;
-  const adGmvPct=mGmvAll?ad.custo/mGmvAll*100:0;  // intensidade de mídia (gasto / GMV) — informativo, NÃO dedução
-  const campRows=Object.entries(ad.camp).map(([n,c])=>({n,...c,roi:c.custo?c.receita/c.custo:0})).sort((a,b)=>b.custo-a.custo).slice(0,12)
-    .map((c,i)=>`<tr><td class="mp" style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.n.replace(/"/g,'')}">${i+1}. ${c.n}</td><td class="neg">${fmt(c.custo)}</td><td>${fmt(c.receita)}</td><td style="font-weight:700;color:var(--green)">${c.roi.toFixed(1)}x</td><td>${NUM.format(c.pedidos)}</td></tr>`).join('');
-  const adsBlock = ad.custo>0 ? `<div class="sec"><div class="sec-h"><h2>GMV Max <span class="pill">ads</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · Seller Center</div></div>
-    <div class="kpis" style="margin-bottom:18px">
-      <div class="kpi"><div class="lbl">Gasto GMV Max</div><div class="val" style="color:var(--rhode-red)">${fmt(ad.custo)}</div><div class="foot">${NUM.format(ad.pedidos)} pedidos</div></div>
-      <div class="kpi"><div class="lbl">Receita atribuída</div><div class="val">${fmt(ad.receita)}</div><div class="foot">GMV gerado por ads</div></div>
-      <div class="kpi"><div class="lbl">ROI (ROAS)</div><div class="val accent">${adRoi.toFixed(2)}x</div><div class="foot">receita / gasto</div></div>
-      <div class="kpi"><div class="lbl">Ads / GMV</div><div class="val">${adGmvPct.toFixed(1)}%</div><div class="foot">intensidade de mídia</div></div>
-    </div>
-    <table><thead><tr><th>Campanha</th><th>Gasto</th><th>Receita</th><th>ROI</th><th>Pedidos</th></tr></thead><tbody>${campRows}</tbody></table>
-    <div class="note" style="margin-top:14px;background:#fff8ee;border-color:#f0e2c8;color:#7a5b1e"><span style="font-size:15px">⚠️</span><div><b>O gasto de GMV Max JÁ está embutido no fee da plataforma</b> — descontado direto do settlement (confirmado na decomposição order-level: o resíduo não-comissão do fee bate ~98% com o gasto de mídia). Logo, a <b>margem líquida acima já é líquida de ads</b> — não subtrair de novo (seria double-count). Esta seção é a <b>lente do ROI da mídia</b>, não uma dedução extra. Falta só o degrau de impostos pro lucro final.</div></div></div>` : '';
+  meses.forEach(m=>{const a=ADS[m]; if(!a)return; ad.custo+=a.custo;ad.receita+=a.receita;ad.pedidos+=a.pedidos; Object.entries(a.camp).forEach(([n,c])=>{const x=ad.camp[n]||(ad.camp[n]={custo:0,receita:0,pedidos:0});x.custo+=c.custo;x.receita+=c.receita;x.pedidos+=c.pedidos;});});
+  let gmvLt=0,qtyGe=0; meses.forEach(m=>{const s=SPLIT[m]; if(s){gmvLt+=s.gmvLt;qtyGe+=s.qtyGe;}});
+  const tarifaExtra=0.04*gmvLt+2.0*qtyGe;
+  return {A,gmv,qty,gmvAll,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra};
+}
 
-  // === Lucro final (após imposto) — fecha a cascata ===
-  const impVenda = mGmvCpv * TX_VENDA/100;          // imposto s/ venda (PIS/COFINS+ICMS) sobre a receita
-  const lucroAntesIR = mLiq - impVenda;
-  const impIR = lucroAntesIR>0 ? lucroAntesIR * TX_IR/100 : 0;  // IRPJ+CSLL só sobre lucro positivo
-  const lucroFinal = lucroAntesIR - impIR, lucroPct = mGmvCpv ? lucroFinal/mGmvCpv*100 : 0;
+// helpers UI
+const kpi=(lbl,val,foot,cls='')=>`<div class="kpi ${cls.includes('k6')?'k6':''}"><div class="lbl">${lbl}</div><div class="val ${cls.replace('k6','').trim()}">${val}</div><div class="foot">${foot||''}</div></div>`;
+const cascRow=(lbl,sub,val,color,maxv,cls='')=>`<div class="casc-row ${cls}"><div class="casc-lbl">${lbl}${sub?`<small>${sub}</small>`:''}</div><div class="casc-bar"><i style="width:${Math.min(100,Math.abs(val)/maxv*100)}%;background:${color}"></i></div><div class="casc-val ${val<0?'neg':''}">${fmt2(val)}</div></div>`;
+
+function render(){
+  document.getElementById('f-meta').textContent = periodoLabel()+' · '+getMeses().length+(getMeses().length===1?' mês':' meses');
+  const ms=getMeses(), D=agg(ms);
+  const el=document.getElementById('content');
+  if(!ms.length){ el.innerHTML='<div class="empty">Sem dados no período.</div>'; return; }
+  if(TAB==='visao')    el.innerHTML=renderVisao(D,ms);
+  else if(TAB==='repasse') el.innerHTML=renderRepasse(D,ms);
+  else if(TAB==='receber') el.innerHTML=renderReceber(D);
+  else if(TAB==='produtos')el.innerHTML=renderProdutos(D);
+  else if(TAB==='lucro')   el.innerHTML=renderLucro(D);
+  else if(TAB==='ads')     el.innerHTML=renderAds(D);
+  else if(TAB==='pedidos') { el.innerHTML=renderPedidosShell(); loadPedidos(); }
+  if(TAB==='visao') drawChart();
+}
+
+// ===== VISÃO GERAL =====
+function renderVisao(D,ms){
+  const margPct=D.mGmvCpv?D.mLiq/D.mGmvCpv*100:0, lucroPct=D.mGmvCpv?D.lucroFinal/D.mGmvCpv*100:0;
+  const prodAgg=Object.entries(D.margAgg).map(([n,v])=>({n,gmv:v.gmv})).sort((a,b)=>b.gmv-a.gmv);
+  const top=prodAgg[0]||{n:'—',gmv:0};
+  const falt=DIV.filter(d=>(FILTER.modo==='tudo'||ms.includes(d.periodo))&&d.classe==='repasse_faltante').reduce((s,d)=>s+(+d.pago||0),0);
+  const k=`<div class="kpis k6">
+    ${kpi('Faturamento',fmt(D.gmv),NUM.format(D.qty)+' peças','k6')}
+    ${kpi('Liquidado',fmt(D.rp.liq||D.A.set),'recebido de fato','k6 accent')}
+    ${kpi('Lucro líquido',fmt(D.lucroFinal),lucroPct.toFixed(1)+'% do GMV','k6 accent')}
+    ${kpi('Margem líq.',margPct.toFixed(1)+'%','após fee+ads','k6')}
+    ${kpi('A receber',fmt(D.rp.rec),NUM.format(D.rp.recN)+' pendentes','k6')}
+    ${kpi('Taxa real',D.rpTaxa.toFixed(1)+'%','só liquidados','k6')}
+  </div>`;
+  const alert=D.tarifaExtra>0?`<div class="alert">
+    <div class="ic">⚠️</div>
+    <div><div class="big">+${fmt(D.tarifaExtra/Math.max(1,ms.length))}/mês</div>
+    <div class="tx">A partir de <b>15/07/2026</b> a taxa por item do TikTok sobe <b>R$4 → R$6</b> (e comissão de itens &lt;R$50 vai a 10%). No seu volume isso é <b>~${fmt(D.tarifaExtra/Math.max(1,ms.length))}/mês</b> de custo novo — <b>reprecificar antes</b>. <span style="color:var(--ink-48)">Itens ≥R$50 = ${pct(D.qtyGe*1,D.qty).toFixed(0)}% das peças.</span></div></div>
+  </div>`:'';
+  const chart=`<div class="sec"><div class="sec-h"><h2>Evolução</h2><div class="meta">faturamento vs liquidado · mês a mês</div></div><div class="chartwrap"><canvas id="evo-chart"></canvas></div></div>`;
+  const high=`<div class="grid2">
+    <div class="sec"><div class="sec-h"><h2>Produto-herói</h2></div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700">${fmt(top.gmv)}</div><div style="font-size:13px;color:var(--ink-64);margin-top:4px">${top.n}</div><div style="font-size:12px;color:var(--ink-48);margin-top:8px">o produto que mais fatura no período</div></div>
+    <div class="sec"><div class="sec-h"><h2>A recuperar</h2></div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:${falt>0?'var(--amber)':'var(--green)'}">${fmt(falt)}</div><div style="font-size:13px;color:var(--ink-64);margin-top:4px">repasse faltante (recuperável)</div><div style="font-size:12px;color:var(--ink-48);margin-top:8px">${falt>0?'pedidos pagos sem settlement — ver aba A Receber':'TikTok está pagando certo 👍'}</div></div>
+  </div>`;
+  return k+alert+chart+high;
+}
+function drawChart(){
+  const c=document.getElementById('evo-chart'); if(!c||!window.Chart) return;
+  if(CHART){ CHART.destroy(); CHART=null; }
+  const labels=MESES.map(fmtMes);
+  const fat=MESES.map(m=>GMV[m]?GMV[m].gmv:0);
+  const liq=MESES.map(m=>STX[m]?+STX[m].settle_liq||0:(FIN[m]?FIN[m].set:0));
+  CHART=new Chart(c,{type:'bar',data:{labels,datasets:[
+    {label:'Faturamento',data:fat,backgroundColor:'#e6e6ea',borderRadius:5,order:2},
+    {label:'Liquidado',data:liq,type:'line',borderColor:'#1a8f5a',backgroundColor:'#1a8f5a',tension:.3,pointRadius:3,order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter'},usePointStyle:true,boxWidth:8}}},scales:{y:{ticks:{callback:v=>'R$ '+(v/1000)+'k',font:{family:'JetBrains Mono',size:10}},grid:{color:'#f1f1f4'}},x:{ticks:{font:{family:'JetBrains Mono',size:10}},grid:{display:false}}}}});
+}
+
+// ===== REPASSE =====
+function renderRepasse(D,ms){
+  const A=D.A, maxv=Math.max(A.rev,1), taxaPct=pct(Math.abs(A.fee),A.rev);
+  const cascata=`<div class="sec"><div class="sec-h"><h2>Caminho do dinheiro</h2><div class="meta">${periodoLabel()} · base settlement</div></div>
+    ${cascRow('Receita bruta','o que o TikTok reporta',A.rev,'#cbd5e1',maxv)}
+    ${cascRow('− Taxa TikTok','comissão + serviço · '+taxaPct.toFixed(1)+'%',A.fee,'var(--rhode-red)',maxv)}
+    ${cascRow('− Frete','custo de envio',A.ship,'var(--orange)',maxv)}
+    ${cascRow('+ Ajustes','reembolsos/correções',A.adj,'var(--blue)',maxv)}
+    ${cascRow('= Settlement','o que a loja recebe',A.set,'var(--green)',maxv,'total')}</div>`;
+  let decomp='';
+  if(D.rp.pagoLiq>0){
+    const rp=D.rp, outros=Math.max(0,(rp.pagoLiq-rp.liq)-(rp.plat+rp.afi+rp.ads+rp.frete)), pc=v=>(v/rp.pagoLiq*100).toFixed(1)+'%';
+    decomp=`<div class="sec"><div class="sec-h"><h2>Decomposição da taxa <span class="pill">real</span></h2><div class="meta">só pedidos liquidados · taxa ${D.rpTaxa.toFixed(1)}%</div></div>
+    <div class="kpis"><div class="kpi"><div class="lbl">Liquidado</div><div class="val accent">${fmt(rp.liq)}</div><div class="foot">${NUM.format(rp.liqN)} pedidos</div></div>
+      <div class="kpi"><div class="lbl">A receber</div><div class="val">${fmt(rp.rec)}</div><div class="foot">${NUM.format(rp.recN)} pendentes</div></div>
+      <div class="kpi"><div class="lbl">Devolvido</div><div class="val danger">${fmt(rp.dev)}</div><div class="foot">${NUM.format(rp.devN)} pedidos</div></div>
+      <div class="kpi"><div class="lbl">Taxa real</div><div class="val">${D.rpTaxa.toFixed(1)}%</div><div class="foot">pago→cash</div></div></div>
+    <div class="lbl" style="margin:6px 0 8px">Pra onde vai a taxa (% do pago liquidado)</div>
+    ${[['Comissão plataforma',rp.plat,'#94a3b8'],['Comissão afiliada',rp.afi,'var(--rhode-red)'],['Comissão ads-afil',rp.ads,'var(--orange)'],['Frete',rp.frete,'var(--blue)'],['Serviço/SFP + mídia GMV Max',outros,'#9a7030']].map(([l,v,c])=>`<div class="casc-row"><div class="casc-lbl">${l}</div><div class="casc-bar"><i style="width:${Math.min(100,v/rp.pagoLiq*100*3).toFixed(0)}%;background:${c}"></i></div><div class="casc-val neg">${fmt(v)} · ${pc(v)}</div></div>`).join('')}</div>`;
+  } else decomp=`<div class="sec"><div class="empty">Rode <span class="mono">statement_tx_resumo.sql</span> pra ver a decomposição exata.</div></div>`;
+  const rows=MESES.map(m=>{const f=FIN[m]||{rev:0,fee:0,ship:0,set:0};const g=GMV[m]||{gmv:0};const s=STX[m];const tx=s&&s.pago_liq?(1-s.settle_liq/s.pago_liq)*100:pct(Math.abs(f.fee),f.rev);
+    return `<tr><td class="mp">${fmtMes(m)}</td><td>${g.gmv?fmt(g.gmv):'—'}</td><td>${s?fmt(s.settle_liq):fmt(f.set)}</td><td class="neg">${fmt(f.fee)}</td><td>${tx.toFixed(1)}%</td></tr>`;}).join('');
+  const trend=`<div class="sec"><div class="sec-h"><h2>Tendência mensal</h2></div><table><thead><tr><th>Mês</th><th>Faturamento</th><th>Liquidado</th><th>Taxa TT</th><th>Taxa real</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const nota=`<div class="note"><span>🕐</span><div><b>Dois relógios:</b> faturamento conta pela <b>data da venda</b>; liquidado pela <b>data que o dinheiro caiu</b> (atrasa ~semanas). A conciliação casa os dois ao longo do tempo.</div></div>`;
+  return cascata+decomp+trend+nota;
+}
+
+// ===== A RECEBER =====
+function renderReceber(D){
+  const ms=getMeses();
+  const dvSel=DIV.filter(d=>FILTER.modo==='tudo'||ms.includes(d.periodo));
+  const a={repasse_faltante:{n:0,v:0},pendente:{n:0,v:0},cancelado:{n:0,v:0}};
+  dvSel.forEach(d=>{const c=a[d.classe]; if(c){c.n++;c.v+=+d.pago||0;}});
+  if(!DIV.length) return `<div class="sec"><div class="empty">Rode <span class="mono">repasse_divergencias.sql</span> pra ativar a auditoria de divergências.</div></div>`;
+  const falt=dvSel.filter(d=>d.classe==='repasse_faltante').sort((x,y)=>(+y.pago||0)-(+x.pago||0)).slice(0,30);
+  const rows=falt.map((d,i)=>`<tr><td>${i+1}</td><td class="mp">${d.data||'—'}</td><td class="mp" style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${(d.produto||'').replace(/"/g,'')}">${d.produto||'—'}</td><td><span class="tag mut">${d.status||'?'}</span></td><td style="font-weight:700">${fmt(+d.pago||0)}</td></tr>`).join('');
+  return `<div class="kpis">
+    ${kpi('Repasse faltante',fmt(a.repasse_faltante.v),a.repasse_faltante.n+' ped · RECUPERÁVEL','accent')}
+    ${kpi('Pendente',fmt(a.pendente.v),a.pendente.n+' ped · a cair')}
+    ${kpi('Cancelado',fmt(a.cancelado.v),a.cancelado.n+' ped · esperado')}
+    ${kpi('Total a receber',fmt(a.repasse_faltante.v+a.pendente.v+a.cancelado.v),'pago sem settlement')}
+  </div>
+  <div class="sec"><div class="sec-h"><h2>Pedidos a recuperar <span class="pill">abrir chamado</span></h2><div class="meta">pago, antigo (>30d), não cancelado</div></div>
+  ${rows?`<table><thead><tr><th>#</th><th>Data</th><th>Produto</th><th>Status</th><th>Pago</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty">Nenhum repasse faltante no período. 👍 O TikTok está pagando certo.</div>'}</div>
+  <div class="note green"><span>✅</span><div><b>Auditoria de comissão:</b> comissão de plataforma cobrada = <b>~6,2%</b>, batendo os <b>6% contratados</b>. Sem cobrança a mais. A maior parte do "a receber" é cancelamento (dinheiro volta), não dinheiro sumido.</div></div>`;
+}
+
+// ===== PRODUTOS =====
+function renderProdutos(D){
+  const margList=Object.entries(D.margAgg).map(([n,v])=>{const contrib=v.gmvCpv-v.custo, liq=v.gmvCpv*D.eficFrac-v.custo; return {n,gmv:v.gmv,gmvCpv:v.gmvCpv,qty:v.qty,custo:v.custo,contrib,liq,liqPct:v.gmvCpv?liq/v.gmvCpv*100:0};}).filter(x=>x.gmv>0).sort((a,b)=>b.liq-a.liq);
+  const margPct=D.mGmvCpv?D.mLiq/D.mGmvCpv*100:0, contribPct=D.mGmvCpv?D.mContrib/D.mGmvCpv*100:0;
+  const k=`<div class="kpis">
+    ${kpi('GMV c/ CPV',fmt(D.mGmvCpv),'cobertura '+D.cobertura.toFixed(1)+'%')}
+    ${kpi('Margem contribuição',fmt(D.mContrib),contribPct.toFixed(1)+'% · GMV−CPV')}
+    ${kpi('Margem líquida',fmt(D.mLiq),margPct.toFixed(1)+'% · líq. de fee+ads','accent')}
+    ${kpi('Eficiência',(D.eficFrac*100).toFixed(1)+'%',D.eficExata?'REAL · liquidado/pago':'estimada')}
+  </div>
+  <div class="sec"><div class="sec-h"><h2>Margem por produto</h2><div class="meta">${periodoLabel()} · ${margList.length} produtos</div></div>
+  <table><thead><tr><th>Produto</th><th>Qtd</th><th>GMV</th><th>Custo CPV</th><th>Contrib.</th><th>Líq.</th><th>Líq.%</th></tr></thead>
+  <tbody>${margList.slice(0,30).map((x,i)=>`<tr><td class="mp" style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${x.n.replace(/"/g,'')}">${i+1}. ${x.n}</td><td>${NUM.format(x.qty)}</td><td>${fmt(x.gmvCpv)}</td><td class="neg">${fmt(x.custo)}</td><td>${fmt(x.contrib)}</td><td style="font-weight:700;color:${x.liq>=0?'var(--green)':'var(--rhode-red)'}">${fmt(x.liq)}</td><td>${x.liqPct.toFixed(1)}%</td></tr>`).join('')}</tbody></table></div>
+  <div class="note green"><span>📦</span><div><b>Contribuição</b> = GMV − CPV (exata). <b>Líquida</b> = GMV × eficiência real (${(D.eficFrac*100).toFixed(1)}%) − CPV — já líquida de fee, afiliada e GMV Max. Cobertura de CPV: ${D.cobertura.toFixed(1)}% do GMV.</div></div>`;
+  return k;
+}
+
+// ===== LUCRO =====
+function renderLucro(D){
+  const lucroPct=D.mGmvCpv?D.lucroFinal/D.mGmvCpv*100:0;
   const inp='font-family:JetBrains Mono,monospace;width:62px;padding:5px 8px;border:1px solid var(--hairline);border-radius:8px;font-size:13px;text-align:right;outline:none';
-  const lucroBlock = `<div class="sec"><div class="sec-h"><h2>Lucro final <span class="pill">após imposto</span></h2><div class="meta">Lucro Real · a confirmar c/ contador</div></div>
-    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px;font-size:13px;color:var(--ink-64)">
+  const maxv=Math.max(D.mGmvCpv,1);
+  return `<div class="sec"><div class="sec-h"><h2>Cascata de lucro</h2><div class="meta">${periodoLabel()}</div></div>
+    ${cascRow('GMV (c/ CPV)','base de produtos com custo',D.mGmvCpv,'#cbd5e1',maxv)}
+    ${cascRow('− Custo (CPV)','custo de produto vendido',-D.mCusto,'#9a7030',maxv)}
+    ${cascRow('= Contribuição','GMV − CPV',D.mContrib,'#7fc9a3',maxv)}
+    ${cascRow('− Fee plataforma','fee + afiliada + GMV Max (eficiência)',-(D.mGmvCpv-D.mGmvCpv*D.eficFrac),'var(--rhode-red)',maxv)}
+    ${cascRow('= Margem líquida','antes de imposto',D.mLiq,'#7fc9a3',maxv)}
+    ${cascRow('− Imposto s/ venda',TX_VENDA+'% · PIS/COFINS+ICMS',-D.impVenda,'var(--orange)',maxv)}
+    ${cascRow('− IRPJ + CSLL',TX_IR+'% s/ lucro',-D.impIR,'var(--orange)',maxv)}
+    ${cascRow('= LUCRO FINAL',lucroPct.toFixed(1)+'% do GMV',D.lucroFinal,'var(--green)',maxv,'total')}</div>
+  <div class="sec"><div class="sec-h"><h2>Imposto <span class="pill">Lucro Real · editável</span></h2><div class="meta">a confirmar c/ contador</div></div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-64)">
       <label>Imposto s/ venda <input type="number" step="0.25" value="${TX_VENDA}" onchange="setTx('venda',this.value)" style="${inp}"> %</label>
       <label>IRPJ + CSLL <input type="number" step="1" value="${TX_IR}" onchange="setTx('ir',this.value)" style="${inp}"> %</label>
-    </div>
-    <div class="kpis">
-      <div class="kpi"><div class="lbl">Margem líquida</div><div class="val">${fmt(mLiq)}</div><div class="foot">antes de imposto</div></div>
-      <div class="kpi"><div class="lbl">− Imposto s/ venda</div><div class="val" style="color:var(--rhode-red)">${fmt(impVenda)}</div><div class="foot">${TX_VENDA}% · PIS/COFINS+ICMS</div></div>
-      <div class="kpi"><div class="lbl">− IRPJ + CSLL</div><div class="val" style="color:var(--rhode-red)">${fmt(impIR)}</div><div class="foot">${TX_IR}% s/ lucro</div></div>
-      <div class="kpi"><div class="lbl">= LUCRO FINAL</div><div class="val accent">${fmt(lucroFinal)}</div><div class="foot">${lucroPct.toFixed(1)}% do GMV c/ CPV</div></div>
-    </div>
-    <div class="note" style="margin-top:14px"><span style="font-size:15px">🧾</span><div><b>Estimativa Lucro Real</b> — ajuste as alíquotas acima e confirme com a contabilidade. Imposto s/ venda incide na receita; IRPJ+CSLL (34%) só sobre lucro positivo. O CPV gera crédito de PIS/COFINS/ICMS que aqui está simplificado, então o líquido real tende a ser <b>um pouco melhor</b>. Tudo acima já é líquido de fee+afiliada+GMV Max.</div></div></div>`;
-
-  // === Conciliação de repasse (koncili) — liquidado / a receber / devolvido + decomposição do fee ===
-  const rp={liq:0,pagoLiq:0,rec:0,recN:0,dev:0,devN:0,plat:0,afi:0,ads:0,frete:0,liqN:0};
-  meses.forEach(m=>{const s=STX[m]; if(!s)return;
-    rp.liq+=+s.settle_liq||0; rp.pagoLiq+=+s.pago_liq||0; rp.liqN+=+s.liquidados||0;
-    rp.rec+=+s.a_receber||0; rp.recN+=+s.pendentes||0; rp.dev+=+s.devolucao||0; rp.devN+=+s.devolvidos||0;
-    rp.plat+=+s.comissao_plataforma||0; rp.afi+=+s.comissao_afiliada||0; rp.ads+=+s.comissao_ads_afil||0; rp.frete+=+s.frete||0;});
-  const rpTaxa = rp.pagoLiq? (1-rp.liq/rp.pagoLiq)*100 : 0;
-  const rpOutros = Math.max(0, (rp.pagoLiq-rp.liq) - (rp.plat+rp.afi+rp.ads+rp.frete)); // serviço/SFP + mídia GMV Max
-  const pc = v => rp.pagoLiq? (v/rp.pagoLiq*100).toFixed(1)+'%' : '—';
-  const repasseBlock = rp.pagoLiq>0 ? `<div class="sec"><div class="sec-h"><h2>Conciliação de repasse <span class="pill">real</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · exato por pedido</div></div>
-    <div class="kpis" style="margin-bottom:18px">
-      <div class="kpi"><div class="lbl">Liquidado</div><div class="val accent">${fmt(rp.liq)}</div><div class="foot">${NUM.format(rp.liqN)} pedidos</div></div>
-      <div class="kpi"><div class="lbl">A receber</div><div class="val">${fmt(rp.rec)}</div><div class="foot">${NUM.format(rp.recN)} pendentes</div></div>
-      <div class="kpi"><div class="lbl">Devolvido</div><div class="val" style="color:var(--rhode-red)">${fmt(rp.dev)}</div><div class="foot">${NUM.format(rp.devN)} pedidos</div></div>
-      <div class="kpi"><div class="lbl">Taxa real</div><div class="val">${rpTaxa.toFixed(1)}%</div><div class="foot">só liquidados</div></div>
-    </div>
-    <div class="lbl" style="margin-bottom:8px">Pra onde vai a taxa (% do pago liquidado)</div>
-    ${[['Comissão plataforma',rp.plat,'#94a3b8'],['Comissão afiliada',rp.afi,'var(--rhode-red)'],['Comissão ads-afil',rp.ads,'var(--orange)'],['Frete',rp.frete,'var(--blue)'],['Serviço/SFP + mídia GMV Max',rpOutros,'#9a7030']].map(([lbl,v,cor])=>`<div class="casc-row"><div class="casc-lbl">${lbl}</div><div class="casc-bar"><i style="width:${Math.min(100,v/rp.pagoLiq*100*3).toFixed(0)}%;background:${cor}"></i></div><div class="casc-val neg">${fmt(v)} · ${pc(v)}</div></div>`).join('')}
-    <div class="note" style="margin-top:14px"><span style="font-size:15px">🔎</span><div><b>Conciliação de repasse (estilo koncili)</b> — dado EXATO por pedido (não estimativa). <b>A receber</b> = ${fmt(rp.rec)} de pedidos pagos sem settlement (pendente + a investigar). <b>Devolvido</b> = ${fmt(rp.dev)} (dinheiro que voltou). A taxa real (só liquidados) alimenta a margem líquida acima. Próximo: motor de divergência (esperado vs recebido) pra apontar cobrança errada e abrir chamado.</div></div></div>` : '';
-
-  // === A recuperar (divergências koncili · B-2) ===
-  const dvSel = DIV.filter(d=> sel==='ALL' || d.periodo===sel);
-  const dvA={repasse_faltante:{n:0,v:0},pendente:{n:0,v:0},cancelado:{n:0,v:0}};
-  dvSel.forEach(d=>{const c=dvA[d.classe]; if(c){c.n++; c.v+=+d.pago||0;}});
-  const dvTotal = dvA.repasse_faltante.v + dvA.pendente.v + dvA.cancelado.v;
-  const faltTop = dvSel.filter(d=>d.classe==='repasse_faltante').sort((a,b)=>(+b.pago||0)-(+a.pago||0)).slice(0,12);
-  const faltRows = faltTop.map((d,i)=>`<tr><td>${i+1}</td><td class="mp">${d.data||'—'}</td><td class="mp" style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${(d.produto||'').replace(/"/g,'')}">${d.produto||'—'}</td><td>${d.status||'—'}</td><td style="font-weight:700">${fmt(+d.pago||0)}</td></tr>`).join('');
-  const divBlock = DIV.length ? `<div class="sec"><div class="sec-h"><h2>A recuperar <span class="pill">divergências</span></h2><div class="meta">${sel==='ALL'?'todos os meses':fmtMes(sel)} · pago sem settlement</div></div>
-    <div class="kpis" style="margin-bottom:18px">
-      <div class="kpi"><div class="lbl">Repasse faltante</div><div class="val accent">${fmt(dvA.repasse_faltante.v)}</div><div class="foot">${dvA.repasse_faltante.n} ped · RECUPERÁVEL</div></div>
-      <div class="kpi"><div class="lbl">Pendente</div><div class="val">${fmt(dvA.pendente.v)}</div><div class="foot">${dvA.pendente.n} ped · settlement a cair</div></div>
-      <div class="kpi"><div class="lbl">Cancelado</div><div class="val" style="color:var(--ink-48)">${fmt(dvA.cancelado.v)}</div><div class="foot">${dvA.cancelado.n} ped · esperado</div></div>
-      <div class="kpi"><div class="lbl">Total a receber</div><div class="val">${fmt(dvTotal)}</div><div class="foot">pago sem settlement</div></div>
-    </div>
-    ${faltRows?`<div class="lbl" style="margin-bottom:8px">Pedidos a recuperar — abrir chamado</div><table><thead><tr><th>#</th><th>Data</th><th>Produto</th><th>Status</th><th>Pago</th></tr></thead><tbody>${faltRows}</tbody></table>`:'<div style="font-size:13px;color:var(--ink-48)">Nenhum repasse faltante no período. 👍</div>'}
-    <div class="note" style="margin-top:14px"><span style="font-size:15px">🧾</span><div><b>Auditoria de repasse:</b> a maior parte do "a receber" costuma ser <b>cancelamento</b> (esperado, o dinheiro volta). <b>Repasse faltante</b> = pago, antigo (>30d) e não cancelado → candidato a <b>abrir chamado</b>. Recuperar comissão cobrada a mais exige as alíquotas contratadas do seu acordo TikTok — próximo passo do motor.</div></div></div>` : '';
-
-  document.getElementById('body').innerHTML = kpis + cascata + repasseBlock + divBlock + trend + prods + nota + fase2 + lucroBlock + adsBlock;
+      <span style="color:var(--ink-48)">Lucro final: <b style="color:var(--green);font-family:'JetBrains Mono',monospace">${fmt(D.lucroFinal)}</b></span>
+    </div></div>
+  <div class="note"><span>🧾</span><div><b>Estimativa Lucro Real.</b> Ajuste as alíquotas e confirme com a contabilidade. O CPV gera crédito de PIS/COFINS/ICMS aqui simplificado, então o real tende a ser <b>um pouco melhor</b>. Tudo já é líquido de fee + afiliada + GMV Max (sem double-count).</div></div>`;
 }
+
+// ===== ADS =====
+function renderAds(D){
+  const ad=D.ad;
+  if(!(ad.custo>0)) return `<div class="sec"><div class="empty">Sem dados de GMV Max no período. Importe via <span class="mono">importar_gmvmax.py</span>.</div></div>`;
+  const adRoi=ad.custo?ad.receita/ad.custo:0, adGmvPct=D.gmvAll?ad.custo/D.gmvAll*100:0;
+  const camp=Object.entries(ad.camp).map(([n,c])=>({n,...c,roi:c.custo?c.receita/c.custo:0})).sort((a,b)=>b.custo-a.custo).slice(0,20);
+  return `<div class="kpis">
+    ${kpi('Gasto GMV Max',fmt(ad.custo),NUM.format(ad.pedidos)+' pedidos','danger')}
+    ${kpi('Receita atribuída',fmt(ad.receita),'GMV gerado por ads')}
+    ${kpi('ROI (ROAS)',adRoi.toFixed(2)+'x','receita / gasto','accent')}
+    ${kpi('Ads / GMV',adGmvPct.toFixed(1)+'%','intensidade de mídia')}
+  </div>
+  <div class="sec"><div class="sec-h"><h2>Campanhas</h2><div class="meta">${periodoLabel()} · Seller Center</div></div>
+  <table><thead><tr><th>Campanha</th><th>Gasto</th><th>Receita</th><th>ROI</th><th>Pedidos</th></tr></thead>
+  <tbody>${camp.map((c,i)=>`<tr><td class="mp" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.n.replace(/"/g,'')}">${i+1}. ${c.n}</td><td class="neg">${fmt(c.custo)}</td><td>${fmt(c.receita)}</td><td style="font-weight:700;color:var(--green)">${c.roi.toFixed(1)}x</td><td>${NUM.format(c.pedidos)}</td></tr>`).join('')}</tbody></table></div>
+  <div class="note"><span>⚠️</span><div>O gasto de GMV Max <b>já está embutido no fee</b> (descontado do settlement) — a margem líquida já é líquida de ads. Esta aba é a <b>lente do ROI</b>, não uma dedução extra.</div></div>`;
+}
+
+// ===== PEDIDOS (drill-down) =====
+function renderPedidosShell(){
+  return `<div class="sec"><div class="sec-h"><h2>Pedidos · conciliação linha a linha</h2>
+    <input class="search" id="ped-search" placeholder="buscar order_id…" oninput="filterPedidos()"></div>
+    <div id="ped-body"><div class="loading">Carregando pedidos…</div></div></div>`;
+}
+let PEDIDOS=[];
+async function loadPedidos(){
+  const ms=getMeses();
+  let path='pedido_conciliado?select=order_id,data,produto,status,pago,settlement,taxa_pct,situacao&order=pago.desc&limit=400';
+  if(ms.length===1) path+=`&periodo=eq.${ms[0]}`;
+  else if(FILTER.modo==='range'&&FILTER.de&&FILTER.ate) path+=`&data=gte.${FILTER.de}&data=lte.${FILTER.ate}`;
+  else if(ms.length) path+=`&periodo=in.(${ms.join(',')})`;
+  try{
+    const r=await admProxy('GET',path);
+    PEDIDOS=r.data||[];
+    renderPedidosTable();
+  }catch(e){
+    document.getElementById('ped-body').innerHTML=`<div class="empty">Rode <span class="mono">pedido_conciliado.sql</span> pra ativar o drill-down por pedido.<br><small>${e.message}</small></div>`;
+  }
+}
+function renderPedidosTable(){
+  const q=(document.getElementById('ped-search')?.value||'').trim().toLowerCase();
+  const rows=PEDIDOS.filter(p=>!q||String(p.order_id).toLowerCase().includes(q));
+  const body=document.getElementById('ped-body'); if(!body) return;
+  if(!rows.length){ body.innerHTML='<div class="empty">Nenhum pedido.</div>'; return; }
+  const sit=s=>s==='liquidado'?'<span class="tag ok">liquidado</span>':s==='devolvido'?'<span class="tag warn">devolvido</span>':'<span class="tag mut">a receber</span>';
+  body.innerHTML=`<div style="font-size:11.5px;color:var(--ink-48);margin-bottom:10px">${rows.length} pedidos (top 400 por valor) · ${periodoLabel()}</div>
+  <table><thead><tr><th>Pedido</th><th>Data</th><th>Produto</th><th>Pago</th><th>Settlement</th><th>Taxa</th><th>Situação</th></tr></thead>
+  <tbody>${rows.slice(0,200).map(p=>`<tr>
+    <td class="mono" style="font-size:11px">${p.order_id}</td>
+    <td class="mp">${p.data||'—'}</td>
+    <td class="mp" style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${(p.produto||'').replace(/"/g,'')}">${p.produto||'—'}</td>
+    <td>${fmt2(+p.pago||0)}</td><td>${fmt2(+p.settlement||0)}</td>
+    <td>${p.taxa_pct!=null?p.taxa_pct+'%':'—'}</td><td>${sit(p.situacao)}</td></tr>`).join('')}</tbody></table>`;
+}
+function filterPedidos(){ renderPedidosTable(); }
 
 function enter(){
   document.getElementById('login').style.display='none';
   document.getElementById('app').style.display='block';
-  load().catch(e=>{ document.getElementById('body').innerHTML=`<div class="loading">Erro: ${e.message}</div>`; });
+  load().catch(e=>{ document.getElementById('content').innerHTML=`<div class="loading">Erro: ${e.message}</div>`; });
 }
 if(admToken()) enter();
 </script>
