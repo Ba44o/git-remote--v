@@ -57,12 +57,18 @@ const PED = [
     { order_id:'581731099044840454', periodo:'2026-06', data:'2026-06-12', produto:'Calça Baggy Marmorizada', status:'CANCELLED', pago:84.00, settlement:-20.00, taxa_pct:null, situacao:'devolvido' },
     { order_id:'584299881122334455', periodo:'2026-06', data:'2026-06-03', produto:'Body Básico Feminino Regata', status:'COMPLETED', pago:45.00, settlement:30.20, taxa_pct:32.9, situacao:'liquidado' },
   ];
+  const OFI = [
+    { periodo:'2026-06', pedidos_pagos:7151, gmv_oficial:628454, produto:611033, frete:9743, pago_cancelado:31148, produto_cancelado:30361, produto_valido:580672 },
+    { periodo:'2026-05', pedidos_pagos:5574, gmv_oficial:523828, produto:505345, frete:13192, pago_cancelado:28696, produto_cancelado:27581, produto_valido:477726 },
+    { periodo:'2026-04', pedidos_pagos:11061, gmv_oficial:917399, produto:877540, frete:32425, pago_cancelado:51312, produto_cancelado:49208, produto_valido:828332 },
+    { periodo:'2026-03', pedidos_pagos:11141, gmv_oficial:932322, produto:893521, frete:32185, pago_cancelado:68876, produto_cancelado:66258, produto_valido:827263 },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
+      const data = p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();
