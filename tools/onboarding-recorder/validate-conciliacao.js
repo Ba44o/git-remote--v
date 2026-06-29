@@ -10,13 +10,15 @@ const FIN = [
 ];
 // mock por produto (a página agrega por produto/mês pro ranking)
 const PED = [
-  { periodo:'2026-06', gmv:160000, qty:1950, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644' },
-  { periodo:'2026-06', gmv: 62000, qty: 760, produto:'Calça Mom Jeans Feminina Cintura Alta', seller_sku:'REF55140' },
-  { periodo:'2026-06', gmv: 38000, qty: 470, produto:'Calça Baggy Jeans Feminina Cintura Média', seller_sku:'REF58238' },
-  { periodo:'2026-06', gmv: 26530, qty: 443, produto:'Shorts Mom Feminino Jeans Cintura Alta', seller_sku:'REF58742' },
-  { periodo:'2026-05', gmv:340000, qty:4277, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644' },
-  { periodo:'2026-04', gmv:760000, qty:9100, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644' },
-  { periodo:'2026-03', gmv:741000, qty:8900, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644' },
+  { periodo:'2026-06', gmv:160000, qty:1950, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644', status:'DELIVERED' },
+  { periodo:'2026-06', gmv: 62000, qty: 760, produto:'Calça Mom Jeans Feminina Cintura Alta', seller_sku:'REF55140', status:'COMPLETED' },
+  { periodo:'2026-06', gmv: 38000, qty: 470, produto:'Calça Baggy Jeans Feminina Cintura Média', seller_sku:'REF58238', status:'DELIVERED' },
+  { periodo:'2026-06', gmv: 26530, qty: 443, produto:'Shorts Mom Feminino Jeans Cintura Alta', seller_sku:'REF58742', status:'COMPLETED' },
+  { periodo:'2026-06', gmv: 41000, qty: 510, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644', status:'CANCELLED' },
+  { periodo:'2026-05', gmv:340000, qty:4277, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644', status:'DELIVERED' },
+  { periodo:'2026-05', gmv: 95000, qty:1200, produto:'Calça Mom Jeans Feminina Cintura Alta', seller_sku:'REF55140', status:'CANCELLED' },
+  { periodo:'2026-04', gmv:760000, qty:9100, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644', status:'DELIVERED' },
+  { periodo:'2026-03', gmv:741000, qty:8900, produto:'Calça Jeans Feminina Wide Leg Cintura Alta', seller_sku:'REF51644', status:'DELIVERED' },
 ];
 
 (async () => {
