@@ -382,6 +382,24 @@ só há brand ads / Spark Ads (~R$15k em 3 meses). O dado de GMV Max vem **exclu
 do export do Seller Center** ("creative data for product campaigns"), importado por
 `importar_gmvmax.py`. Não tente puxar GMV Max pela Marketing API.
 
+### 6.4 GMV oficial — bate 1:1 com o Seller Center (Orders API, sem atraso)
+O headline "GMV" do console é o **GMV oficial**, definido como **`Σ payment.total_amount` dos pedidos com `paid_time > 0`** (Orders API). Valida contra o Seller Center quase exato: **Mai R$523,8k vs SC R$522,1k (+0,3%)**, **Jun R$628,5k vs SC R$626,3k (+0,3%)**.
+
+Por que não usar `statement_tx`/settlement como headline: o settlement **atrasa ~2-4 semanas**, então no **mês corrente** o "pago liquidado" fica muito abaixo do real (ex.: Jun pago-settlement R$367k vs GMV oficial R$628k). A Orders API traz o `total_amount` **na hora do pedido**, sem lag → completo no mês corrente.
+
+**Ponte de receita** (decomposição mostrada no console):
+```
+GMV oficial (= Seller Center)        Σ total_amount (paid_time>0)
+  − Frete pago pelo cliente           Σ shipping_fee
+  = Produto (pago)                     Σ sub_total
+  − Produto pago-e-cancelado           sub_total de status CANCEL pagos
+  = GMV produto válido                 base de margem/lucro
+```
+
+**Dados:** tabela `pedido_pagamento` (1 linha/pedido) + view `gmv_oficial_resumo` (ponte por período). Coletor: `coletar_pedidos_sku.py → agregar_pagamento()` (mesma chamada da Orders API; roda no daily-collect `--dias 21` → mantém o mês corrente fresco). DDL: `rhode-vercel/sql/pedido_pagamento.sql`.
+
+> **Gotcha de deploy:** o Vercel Hobby limita **12 Serverless Functions**/deploy. Ao estourar, `vercel --prod` falha silenciosamente e a live trava na versão antiga. Os 3 crons foram consolidados num dispatcher `api/cron/[job].js` (+ handlers em `api/_crons/`, pasta `_` ignorada). Conferir o que está live: `curl -s ".../conciliacao.html?cb=$(date +%s%N)" | grep MARCADOR`.
+
 ---
 
 ## 7. Como manter / operar
