@@ -251,8 +251,9 @@ function setTab(t){ TAB=t; document.querySelectorAll('#tabnav button').forEach(b
 
 // ---- núcleo de cálculo (para os meses do filtro) ----
 function agg(meses){
-  const A={rev:0,fee:0,ship:0,adj:0,set:0,n:0}; let gmv=0,qty=0,gmvAll=0, exSettle=0,exPago=0;
-  meses.forEach(m=>{const f=FIN[m]; if(f){A.rev+=f.rev;A.fee+=f.fee;A.ship+=f.ship;A.adj+=f.adj;A.set+=f.set;A.n+=f.n;} const g=GMV[m]; if(g){gmv+=g.gmv;qty+=g.qty;gmvAll+=g.gmv;} const s=STX[m]; if(s){exSettle+=+s.settle_liq||0;exPago+=+s.pago_liq||0;}});
+  const A={rev:0,fee:0,ship:0,adj:0,set:0,n:0}; let gmv=0,qty=0,gmvAll=0, exSettle=0,exPago=0, pago=0;
+  meses.forEach(m=>{const f=FIN[m]; if(f){A.rev+=f.rev;A.fee+=f.fee;A.ship+=f.ship;A.adj+=f.adj;A.set+=f.set;A.n+=f.n;} const g=GMV[m]; if(g){gmv+=g.gmv;qty+=g.qty;gmvAll+=g.gmv;} const s=STX[m]; if(s){exSettle+=+s.settle_liq||0;exPago+=+s.pago_liq||0;pago+=+s.pago_total||0;}});
+  const faturamento = pago>0 ? pago : gmv;  // PAGO real (≈ Seller Center); fallback GMV bruto se não há statement_tx
   const margAgg={};
   meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=margAgg[nome]||(margAgg[nome]={qty:0,custo:0,gmvCpv:0,gmv:0}); a.qty+=v.qty;a.custo+=v.custo;a.gmvCpv+=v.gmvCpv;a.gmv+=v.gmv;});});
   let mCusto=0,mGmvCpv=0,mQty=0; Object.values(margAgg).forEach(v=>{mCusto+=v.custo;mGmvCpv+=v.gmvCpv;mQty+=v.qty;});
@@ -269,7 +270,7 @@ function agg(meses){
   meses.forEach(m=>{const a=ADS[m]; if(!a)return; ad.custo+=a.custo;ad.receita+=a.receita;ad.pedidos+=a.pedidos; Object.entries(a.camp).forEach(([n,c])=>{const x=ad.camp[n]||(ad.camp[n]={custo:0,receita:0,pedidos:0});x.custo+=c.custo;x.receita+=c.receita;x.pedidos+=c.pedidos;});});
   let gmvLt=0,qtyGe=0; meses.forEach(m=>{const s=SPLIT[m]; if(s){gmvLt+=s.gmvLt;qtyGe+=s.qtyGe;}});
   const tarifaExtra=0.04*gmvLt+2.0*qtyGe;
-  return {A,gmv,qty,gmvAll,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra};
+  return {A,gmv,qty,gmvAll,pago,faturamento,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra};
 }
 
 // helpers UI
@@ -298,7 +299,7 @@ function renderVisao(D,ms){
   const top=prodAgg[0]||{n:'—',gmv:0};
   const falt=DIV.filter(d=>(FILTER.modo==='tudo'||ms.includes(d.periodo))&&d.classe==='repasse_faltante').reduce((s,d)=>s+(+d.pago||0),0);
   const k=`<div class="kpis k6">
-    ${kpi('Faturamento',fmt(D.gmv),NUM.format(D.qty)+' peças','k6')}
+    ${kpi('Faturamento',fmt(D.faturamento),'pago · ≈ Seller Center','k6')}
     ${kpi('Liquidado',fmt(D.rp.liq||D.A.set),'recebido de fato','k6 accent')}
     ${kpi('Lucro líquido',fmt(D.lucroFinal),lucroPct.toFixed(1)+'% do GMV','k6 accent')}
     ${kpi('Margem líq.',margPct.toFixed(1)+'%','após fee+ads','k6')}
@@ -315,16 +316,17 @@ function renderVisao(D,ms){
     <div class="sec"><div class="sec-h"><h2>Produto-herói</h2></div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700">${fmt(top.gmv)}</div><div style="font-size:13px;color:var(--ink-64);margin-top:4px">${top.n}</div><div style="font-size:12px;color:var(--ink-48);margin-top:8px">o produto que mais fatura no período</div></div>
     <div class="sec"><div class="sec-h"><h2>A recuperar</h2></div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:${falt>0?'var(--amber)':'var(--green)'}">${fmt(falt)}</div><div style="font-size:13px;color:var(--ink-64);margin-top:4px">repasse faltante (recuperável)</div><div style="font-size:12px;color:var(--ink-48);margin-top:8px">${falt>0?'pedidos pagos sem settlement — ver aba A Receber':'TikTok está pagando certo 👍'}</div></div>
   </div>`;
-  return k+alert+chart+high;
+  const funil=`<div class="note"><span>🔎</span><div><b>3 níveis de receita</b> (evita confusão com o Seller Center): <b>GMV bruto</b> ${fmt(D.gmv)} (todos os pedidos, incl. cancelados, preço de tabela) → <b>Faturamento pago</b> ${fmt(D.faturamento)} (o que o cliente pagou de fato · <b>≈ Seller Center</b>) → <b>Liquidado</b> ${fmt(D.rp.liq||D.A.set)} (o que caiu na conta). GMV→pago = cancelamentos; pago→liquidado = as taxas.</div></div>`;
+  return k+funil+alert+chart+high;
 }
 function drawChart(){
   const c=document.getElementById('evo-chart'); if(!c||!window.Chart) return;
   if(CHART){ CHART.destroy(); CHART=null; }
   const labels=MESES.map(fmtMes);
-  const fat=MESES.map(m=>GMV[m]?GMV[m].gmv:0);
+  const fat=MESES.map(m=>STX[m]?+STX[m].pago_total||0:(GMV[m]?GMV[m].gmv:0));
   const liq=MESES.map(m=>STX[m]?+STX[m].settle_liq||0:(FIN[m]?FIN[m].set:0));
   CHART=new Chart(c,{type:'bar',data:{labels,datasets:[
-    {label:'Faturamento',data:fat,backgroundColor:'#e6e6ea',borderRadius:5,order:2},
+    {label:'Faturamento (pago)',data:fat,backgroundColor:'#e6e6ea',borderRadius:5,order:2},
     {label:'Liquidado',data:liq,type:'line',borderColor:'#1a8f5a',backgroundColor:'#1a8f5a',tension:.3,pointRadius:3,order:1}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter'},usePointStyle:true,boxWidth:8}}},scales:{y:{ticks:{callback:v=>'R$ '+(v/1000)+'k',font:{family:'JetBrains Mono',size:10}},grid:{color:'#f1f1f4'}},x:{ticks:{font:{family:'JetBrains Mono',size:10}},grid:{display:false}}}}});
 }
@@ -350,8 +352,8 @@ function renderRepasse(D,ms){
     ${[['Comissão plataforma',rp.plat,'#94a3b8'],['Comissão afiliada',rp.afi,'var(--rhode-red)'],['Comissão ads-afil',rp.ads,'var(--orange)'],['Frete',rp.frete,'var(--blue)'],['Serviço/SFP + mídia GMV Max',outros,'#9a7030']].map(([l,v,c])=>`<div class="casc-row"><div class="casc-lbl">${l}</div><div class="casc-bar"><i style="width:${Math.min(100,v/rp.pagoLiq*100*3).toFixed(0)}%;background:${c}"></i></div><div class="casc-val neg">${fmt(v)} · ${pc(v)}</div></div>`).join('')}</div>`;
   } else decomp=`<div class="sec"><div class="empty">Rode <span class="mono">statement_tx_resumo.sql</span> pra ver a decomposição exata.</div></div>`;
   const rows=MESES.map(m=>{const f=FIN[m]||{rev:0,fee:0,ship:0,set:0};const g=GMV[m]||{gmv:0};const s=STX[m];const tx=s&&s.pago_liq?(1-s.settle_liq/s.pago_liq)*100:pct(Math.abs(f.fee),f.rev);
-    return `<tr><td class="mp">${fmtMes(m)}</td><td>${g.gmv?fmt(g.gmv):'—'}</td><td>${s?fmt(s.settle_liq):fmt(f.set)}</td><td class="neg">${fmt(f.fee)}</td><td>${tx.toFixed(1)}%</td></tr>`;}).join('');
-  const trend=`<div class="sec"><div class="sec-h"><h2>Tendência mensal</h2></div><table><thead><tr><th>Mês</th><th>Faturamento</th><th>Liquidado</th><th>Taxa TT</th><th>Taxa real</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    return `<tr><td class="mp">${fmtMes(m)}</td><td>${s?fmt(s.pago_total):(g.gmv?fmt(g.gmv):'—')}</td><td>${s?fmt(s.settle_liq):fmt(f.set)}</td><td class="neg">${fmt(f.fee)}</td><td>${tx.toFixed(1)}%</td></tr>`;}).join('');
+  const trend=`<div class="sec"><div class="sec-h"><h2>Tendência mensal</h2></div><table><thead><tr><th>Mês</th><th>Faturamento (pago)</th><th>Liquidado</th><th>Taxa TT</th><th>Taxa real</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   const nota=`<div class="note"><span>🕐</span><div><b>Dois relógios:</b> faturamento conta pela <b>data da venda</b>; liquidado pela <b>data que o dinheiro caiu</b> (atrasa ~semanas). A conciliação casa os dois ao longo do tempo.</div></div>`;
   return cascata+decomp+trend+nota;
 }
