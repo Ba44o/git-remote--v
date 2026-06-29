@@ -101,6 +101,36 @@ def agregar_por_sku(pedidos):
     return list(acc.values())
 
 
+def agregar_pagamento(pedidos):
+    """pedidos (orders da API) → 1 linha order-level com o pagamento do cliente.
+    total_amount (= produto + frete) onde paid_time>0 = GMV oficial (bate Seller Center).
+    Vem da Orders API, sem atraso de settlement → resolve o mês corrente."""
+    rows = []
+    for o in pedidos:
+        order_id = str(o.get("id") or "")
+        if not order_id:
+            continue
+        ct = int(o.get("create_time", 0) or 0)
+        pt = int(o.get("paid_time", 0) or 0)
+        pay = o.get("payment", {}) or {}
+        rows.append({
+            "id": order_id,
+            "order_id": order_id,
+            "status": o.get("status", "") or "",
+            "paid": pt > 0,
+            "paid_time": pt,
+            "order_time": ct,
+            "data": datetime.fromtimestamp(ct, tz=timezone.utc).strftime("%Y-%m-%d") if ct else None,
+            "periodo": datetime.fromtimestamp(ct, tz=timezone.utc).strftime("%Y-%m") if ct else None,
+            "total_amount": fnum(pay.get("total_amount")),
+            "sub_total": fnum(pay.get("sub_total")),
+            "shipping_fee": fnum(pay.get("shipping_fee")),
+            "seller_discount": fnum(pay.get("seller_discount")),
+            "platform_discount": fnum(pay.get("platform_discount")),
+        })
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dias", type=int, default=21, help="janela retroativa em dias (default 21)")
@@ -128,6 +158,13 @@ def main():
         gmv_total = sum(r["gmv"] for r in rows)
         print(f"  → GMV bruto agregado: R$ {gmv_total:,.2f}")
     upsert("pedidos_sku", rows, on_conflict="id")
+
+    # order-level: GMV oficial (paid total_amount) — bate Seller Center, sem lag
+    pag = agregar_pagamento(pedidos)
+    pagos = [p for p in pag if p["paid"]]
+    gmv_oficial = sum(p["total_amount"] for p in pagos)
+    print(f"  → {len(pag)} pedidos ({len(pagos)} pagos) · GMV oficial: R$ {gmv_oficial:,.2f}")
+    upsert("pedido_pagamento", pag, on_conflict="id")
     print("  ✓ concluído.")
 
 

@@ -189,7 +189,7 @@ const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','De
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
 // estado
-let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, MESES=[];
+let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}, MESES=[];
 let TAB='visao';
 let FILTER={modo:'tudo', mes:'', de:'', ate:''};
 let CHART=null;
@@ -200,14 +200,16 @@ function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{loc
 const TABS=[['visao','Visão Geral'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['lucro','Lucro'],['ads','Ads'],['pedidos','Pedidos']];
 
 async function load(){
-  const [fin, ped, cpv, ads, stx, div] = await Promise.all([
+  const [fin, ped, cpv, ads, stx, div, ofi] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
     admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku,status',{paged:true}),
     admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
     admProxy('GET','ads_gmvmax?select=periodo,campanha,custo,receita_bruta,pedidos',{paged:true}),
     admProxy('GET','statement_tx_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
-    admProxy('GET','repasse_divergencias?select=*',{paged:true}).catch(()=>({data:[]}))
+    admProxy('GET','repasse_divergencias?select=*',{paged:true}).catch(()=>({data:[]})),
+    admProxy('GET','gmv_oficial_resumo?select=*',{paged:true}).catch(()=>({data:[]}))
   ]);
+  OFI={}; (ofi&&ofi.data?ofi.data:[]).forEach(r=>{ if(r.periodo) OFI[r.periodo]=r; });
   CPVMAP={}; (cpv.data||[]).forEach(r=>{ if(r.ref) CPVMAP[String(r.ref).toUpperCase()]=+r.cpv||0; });
   STX={}; (stx.data||[]).forEach(r=>{ if(r.periodo) STX[r.periodo]=r; });
   DIV = (div&&div.data)?div.data:[];
@@ -255,8 +257,11 @@ function setTab(t){ TAB=t; document.querySelectorAll('#tabnav button').forEach(b
 function agg(meses){
   const A={rev:0,fee:0,ship:0,adj:0,set:0,n:0}; let gmv=0,qty=0,gmvVal=0,qtyVal=0,cancV=0, exSettle=0,exPago=0, pago=0;
   meses.forEach(m=>{const f=FIN[m]; if(f){A.rev+=f.rev;A.fee+=f.fee;A.ship+=f.ship;A.adj+=f.adj;A.set+=f.set;A.n+=f.n;} const g=GMV[m]; if(g){gmv+=g.gmv;qty+=g.qty;gmvVal+=(g.gmv-(g.canc||0));qtyVal+=(g.qty-(g.cancq||0));cancV+=(g.canc||0);} const s=STX[m]; if(s){exSettle+=+s.settle_liq||0;exPago+=+s.pago_liq||0;pago+=+s.pago_total||0;}});
-  const gmvAll=gmvVal;            // base de cobertura/ads = GMV válido (sem cancelados)
-  const faturamento = gmvVal;     // GMV válido por DATA do pedido — completo p/ mês corrente, alinha c/ Seller Center
+  // GMV OFICIAL (Orders API, = Seller Center, sem lag) — ponte: oficial → frete → produto → válido
+  let ofiHas=false, gmvOficial=0, ofiFrete=0, ofiProduto=0, ofiPagoCanc=0, ofiProdValido=0, ofiN=0;
+  meses.forEach(m=>{const o=OFI[m]; if(o){ofiHas=true; gmvOficial+=+o.gmv_oficial||0; ofiFrete+=+o.frete||0; ofiProduto+=+o.produto||0; ofiPagoCanc+=+o.pago_cancelado||0; ofiProdValido+=+o.produto_valido||0; ofiN+=+o.pedidos_pagos||0;}});
+  const gmvAll=gmvVal;                              // base de cobertura/ads = GMV válido produto
+  const faturamento = ofiHas ? gmvOficial : gmvVal; // headline: GMV oficial (= SC) quando disponível; senão GMV válido
   const margAgg={};
   meses.forEach(m=>{const pm=PROD[m]||{}; Object.entries(pm).forEach(([nome,v])=>{const a=margAgg[nome]||(margAgg[nome]={qty:0,custo:0,gmvCpv:0,gmv:0}); a.qty+=v.qty;a.custo+=v.custo;a.gmvCpv+=v.gmvCpv;a.gmv+=v.gmv;});});
   let mCusto=0,mGmvCpv=0,mQty=0; Object.values(margAgg).forEach(v=>{mCusto+=v.custo;mGmvCpv+=v.gmvCpv;mQty+=v.qty;});
@@ -273,7 +278,7 @@ function agg(meses){
   meses.forEach(m=>{const a=ADS[m]; if(!a)return; ad.custo+=a.custo;ad.receita+=a.receita;ad.pedidos+=a.pedidos; Object.entries(a.camp).forEach(([n,c])=>{const x=ad.camp[n]||(ad.camp[n]={custo:0,receita:0,pedidos:0});x.custo+=c.custo;x.receita+=c.receita;x.pedidos+=c.pedidos;});});
   let gmvLt=0,qtyGe=0; meses.forEach(m=>{const s=SPLIT[m]; if(s){gmvLt+=s.gmvLt;qtyGe+=s.qtyGe;}});
   const tarifaExtra=0.04*gmvLt+2.0*qtyGe;
-  return {A,gmv,qty,gmvAll,gmvVal,qtyVal,cancV,pago,faturamento,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra};
+  return {A,gmv,qty,gmvAll,gmvVal,qtyVal,cancV,pago,faturamento,ofiHas,gmvOficial,ofiFrete,ofiProduto,ofiPagoCanc,ofiProdValido,ofiN,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra};
 }
 
 // helpers UI
@@ -302,7 +307,7 @@ function renderVisao(D,ms){
   const top=prodAgg[0]||{n:'—',gmv:0};
   const falt=DIV.filter(d=>(FILTER.modo==='tudo'||ms.includes(d.periodo))&&d.classe==='repasse_faltante').reduce((s,d)=>s+(+d.pago||0),0);
   const k=`<div class="kpis k6">
-    ${kpi('GMV (válido)',fmt(D.faturamento),NUM.format(D.qtyVal)+' itens · por data','k6')}
+    ${kpi(D.ofiHas?'GMV (oficial)':'GMV (válido)',fmt(D.faturamento),D.ofiHas?'= Seller Center · '+NUM.format(D.ofiN)+' ped pagos':NUM.format(D.qtyVal)+' itens · por data','k6')}
     ${kpi('Liquidado',fmt(D.rp.liq||D.A.set),'recebido de fato','k6 accent')}
     ${kpi('Lucro líquido',fmt(D.lucroFinal),lucroPct.toFixed(1)+'% do GMV','k6 accent')}
     ${kpi('Margem líq.',margPct.toFixed(1)+'%','após fee+ads','k6')}
@@ -319,17 +324,29 @@ function renderVisao(D,ms){
     <div class="sec"><div class="sec-h"><h2>Produto-herói</h2></div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700">${fmt(top.gmv)}</div><div style="font-size:13px;color:var(--ink-64);margin-top:4px">${top.n}</div><div style="font-size:12px;color:var(--ink-48);margin-top:8px">o produto que mais fatura no período</div></div>
     <div class="sec"><div class="sec-h"><h2>A recuperar</h2></div><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:${falt>0?'var(--amber)':'var(--green)'}">${fmt(falt)}</div><div style="font-size:13px;color:var(--ink-64);margin-top:4px">repasse faltante (recuperável)</div><div style="font-size:12px;color:var(--ink-48);margin-top:8px">${falt>0?'pedidos pagos sem settlement — ver aba A Receber':'TikTok está pagando certo 👍'}</div></div>
   </div>`;
-  const funil=`<div class="note"><span>🔎</span><div><b>3 níveis de receita:</b> <b>GMV bruto</b> ${fmt(D.gmv)} (todos pedidos, incl. cancelados) → <b>GMV válido</b> ${fmt(D.gmvVal)} (vendas reais, exclui ${fmt(D.cancV)} de cancelados · <b>por data do pedido</b>, completo) → <b>Liquidado</b> ${fmt(D.rp.liq||D.A.set)} (o que já caiu na conta — <b>atrasa ~semanas</b>, por isso o mês corrente fica baixo). O <b>Seller Center</b> mostra ~9% acima do GMV válido por diferença de definição: o GMV oficial do TikTok inclui <b>frete pago pelo cliente</b> e conta <b>pedidos pagos-e-depois-cancelados</b> (que a gente já tira).</div></div>`;
+  let funil;
+  if(D.ofiHas){
+    const mx=Math.max(D.gmvOficial,1), prodCanc=D.ofiProduto-D.ofiProdValido;
+    funil=`<div class="sec"><div class="sec-h"><h2>Ponte de receita <span class="pill">bate c/ Seller Center</span></h2><div class="meta">do GMV oficial ao que importa pro lucro</div></div>
+      ${cascRow('GMV oficial','= Seller Center · '+NUM.format(D.ofiN)+' pedidos pagos · por data',D.gmvOficial,'#2563eb',mx)}
+      ${cascRow('− Frete pago pelo cliente','está no GMV oficial do TikTok, não é sua receita',-D.ofiFrete,'var(--orange)',mx)}
+      ${cascRow('− Produto pago-e-cancelado','pago, depois cancelado — sai da base',-prodCanc,'var(--rhode-red)',mx)}
+      ${cascRow('= GMV produto válido','base real de margem e lucro',D.ofiProdValido,'var(--green)',mx,'total')}
+      <div class="note green" style="margin-top:14px"><span>✅</span><div>O <b>GMV oficial</b> vem da Orders API (o que o cliente pagou, <b>sem atraso de settlement</b>) e bate com o Seller Center (~0,1%). O <b>Liquidado</b> ${fmt(D.rp.liq||D.A.set)} é o que já caiu na conta — atrasa ~semanas, por isso o mês corrente fica abaixo do GMV.</div></div></div>`;
+  } else {
+    funil=`<div class="note"><span>🔎</span><div><b>3 níveis de receita:</b> <b>GMV bruto</b> ${fmt(D.gmv)} (todos pedidos, incl. cancelados) → <b>GMV válido</b> ${fmt(D.gmvVal)} (vendas reais, exclui ${fmt(D.cancV)} de cancelados · por data) → <b>Liquidado</b> ${fmt(D.rp.liq||D.A.set)} (o que já caiu — atrasa ~semanas). <i>Rode <span class="mono">pedido_pagamento.sql</span> + backfill pra ligar o GMV oficial (bate 1:1 c/ Seller Center).</i></div></div>`;
+  }
   return k+funil+alert+chart+high;
 }
 function drawChart(){
   const c=document.getElementById('evo-chart'); if(!c||!window.Chart) return;
   if(CHART){ CHART.destroy(); CHART=null; }
   const labels=MESES.map(fmtMes);
-  const fat=MESES.map(m=>GMV[m]?(GMV[m].gmv-(GMV[m].canc||0)):0);
+  const anyOfi=Object.keys(OFI).length>0;
+  const fat=MESES.map(m=>OFI[m]?+OFI[m].gmv_oficial||0:(GMV[m]?(GMV[m].gmv-(GMV[m].canc||0)):0));
   const liq=MESES.map(m=>STX[m]?+STX[m].settle_liq||0:(FIN[m]?FIN[m].set:0));
   CHART=new Chart(c,{type:'bar',data:{labels,datasets:[
-    {label:'GMV válido',data:fat,backgroundColor:'#e6e6ea',borderRadius:5,order:2},
+    {label:anyOfi?'GMV oficial':'GMV válido',data:fat,backgroundColor:'#e6e6ea',borderRadius:5,order:2},
     {label:'Liquidado',data:liq,type:'line',borderColor:'#1a8f5a',backgroundColor:'#1a8f5a',tension:.3,pointRadius:3,order:1}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter'},usePointStyle:true,boxWidth:8}}},scales:{y:{ticks:{callback:v=>'R$ '+(v/1000)+'k',font:{family:'JetBrains Mono',size:10}},grid:{color:'#f1f1f4'}},x:{ticks:{font:{family:'JetBrains Mono',size:10}},grid:{display:false}}}}});
 }
