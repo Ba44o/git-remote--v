@@ -6,11 +6,14 @@
     { "source": "/flash", "destination": "/wpp.html" },
     { "source": "/sac", "destination": "/sac.html" },
     { "source": "/equipe", "destination": "/wpp.html" },
-    { "source": "/rhodemap/:creator", "destination": "/rhodemap/:creator.html" }
+    { "source": "/rhodemap/:creator", "destination": "/rhodemap/:creator.html" },
+    { "source": "/live", "destination": "/live.html" },
+    { "source": "/live/:creator([a-z0-9_.-]+)", "destination": "/live.html" },
+    { "source": "/privacidade-vitrine", "destination": "/privacidade-vitrine.html" }
   ],
   "headers": [
     {
-      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live)\\.html",
+      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live|live|privacidade-vitrine)\\.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]

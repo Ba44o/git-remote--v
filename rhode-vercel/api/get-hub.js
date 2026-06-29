@@ -372,6 +372,145 @@ async function handleData(body, res) {
 }
 
 // ════════════ LOGIN MODE ════════════════════════════════════════════════════
+// ════════════ VITRINE OPT-IN (WhatsApp opt-in do estado BETWEEN do /live) ═══
+const ZAPI_URL = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3';
+const ZAPI_CLIENT = 'F92b6dc75c19f490188eea81fcc29b6aaS';
+const VITRINE_PHONE_RE = /^55(1[1-9]|2[12478]|3[1-578]|4[1-9]|5[13-5]|6[1-9]|7[13-9]|8[1-9]|9[1-9])(9\d{8}|[2-5]\d{7})$/;
+function vitrineNormalizePhone(raw) {
+  const d = String(raw || '').replace(/\D/g, '');
+  if (!d) return null;
+  const withCountry = d.startsWith('55') ? d : '55' + d;
+  return VITRINE_PHONE_RE.test(withCountry) ? withCountry : null;
+}
+const _vitrineOptinIpHits = new Map();
+function vitrineOptinRateLimit(ip) {
+  const now = Date.now();
+  const arr = (_vitrineOptinIpHits.get(ip) || []).filter(t => now - t < 10 * 60 * 1000);
+  if (arr.length >= 3) return false;
+  arr.push(now); _vitrineOptinIpHits.set(ip, arr); return true;
+}
+async function vitrineHasRecentScan(sessionId, creator) {
+  if (!sessionId || !creator) return false;
+  try {
+    const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    const url = `${SB_URL}/rest/v1/hub_eventos?session_id=eq.${enc(sessionId)}&affiliate_id=eq.${enc(creator)}&evento=eq.qr_scanned&created_at=gte.${enc(since)}&select=id&limit=1`;
+    const r = await fetch(url, { headers: SBSH });
+    if (!r.ok) return false;
+    const rows = await r.json();
+    return Array.isArray(rows) && rows.length > 0;
+  } catch (e) { return false; }
+}
+async function vitrineZapiSend(phone, message) {
+  try {
+    const r = await fetch(`${ZAPI_URL}/send-text`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT },
+      body: JSON.stringify({ phone, message }),
+    });
+    return r.ok;
+  } catch (e) { return false; }
+}
+async function handleVitrineOptin(body, req, res) {
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+          || req.socket?.remoteAddress || 'unknown';
+  if (!vitrineOptinRateLimit(ip)) return res.status(429).json({ error: 'rate_limited_ip' });
+  const phone = vitrineNormalizePhone(body.phone);
+  const creator = String(body.creator || '').toUpperCase().replace(/^[@.]+/, '').replace(/[^A-Z0-9_.-]/g, '').slice(0, 40);
+  const sessionId = String(body.session_id || '').slice(0, 60);
+  if (!phone || !creator) return res.status(400).json({ error: 'invalid' });
+  // prova-de-scan
+  const proven = await vitrineHasRecentScan(sessionId, creator);
+  if (!proven) return res.status(403).json({ error: 'no_recent_scan' });
+  // rate-limit por (phone+creator) — anti-flood
+  try {
+    const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const url = `${SB_URL}/rest/v1/vitrine_optins?phone=eq.${enc(phone)}&creator_handle=eq.${enc(creator)}&last_confirmation_at=gte.${enc(since)}&select=id&limit=1`;
+    const r = await fetch(url, { headers: SBSH });
+    if (r.ok) { const rows = await r.json(); if (Array.isArray(rows) && rows.length) return res.status(200).json({ ok: true, skipped: 'rate_limited' }); }
+  } catch (e) {}
+  // rate-limit cross-creator (mesma pessoa, vários creators em 1h)
+  try {
+    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const url = `${SB_URL}/rest/v1/vitrine_optins?phone=eq.${enc(phone)}&last_confirmation_at=gte.${enc(since)}&select=id&limit=1`;
+    const r = await fetch(url, { headers: SBSH });
+    if (r.ok) { const rows = await r.json(); if (Array.isArray(rows) && rows.length) return res.status(200).json({ ok: true, skipped: 'cross_creator_rate_limited' }); }
+  } catch (e) {}
+  // lookup próxima live
+  let next = null;
+  try {
+    const url = `${SB_URL}/rest/v1/live_schedule?creator_handle=eq.${enc(creator)}&status=eq.scheduled&scheduled_start=gte.${enc(new Date().toISOString())}&order=scheduled_start.asc&limit=1`;
+    const r = await fetch(url, { headers: SBSH });
+    if (r.ok) { const rows = await r.json(); next = rows && rows[0] || null; }
+  } catch (e) {}
+  const handleLower = creator.toLowerCase();
+  let whenStr = null;
+  if (next) {
+    try {
+      const fmt = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      whenStr = fmt.format(new Date(next.scheduled_start)).replace(',', ' às');
+    } catch (e) {}
+  }
+  const msg = [
+    'Oi! Salvamos seu contato 💛',
+    '',
+    whenStr ? `Te avisamos quando a @${handleLower} entrar ao vivo — próxima prevista: ${whenStr}.`
+            : `Te avisamos assim que a @${handleLower} entrar ao vivo.`,
+    '',
+    'Cupom da vitrine: *VITRINE10* (10% off no TikTok Shop Rhode).',
+    '',
+    'Pra parar de receber, responda PARAR.',
+  ].join('\n');
+  const sent = await vitrineZapiSend(phone, msg);
+  try {
+    await fetch(`${SB_URL}/rest/v1/vitrine_optins?phone=eq.${enc(phone)}&creator_handle=eq.${enc(creator)}`, {
+      method: 'PATCH',
+      headers: { ...SBSH, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ last_confirmation_at: new Date().toISOString() }),
+    });
+  } catch (e) {}
+  return res.status(200).json({ ok: true, sent });
+}
+
+// ════════════ VITRINE TRACK (proxy thin pra sendBeacon do /live) ═══════════
+// Aceita eventos qr_scanned / tiktok_redirected / optin_shown / optin_submitted / action
+// somente com aba='vitrine'. Hash do IP pra rate-limit sem armazenar PII.
+const VITRINE_EVENTOS_OK = new Set(['qr_scanned','tiktok_redirected','optin_shown','optin_submitted','action']);
+const _vitrineHits = new Map();
+function vitrineRateLimit(ip) {
+  const now = Date.now();
+  const arr = (_vitrineHits.get(ip) || []).filter(t => now - t < 60000);
+  if (arr.length >= 60) return false;
+  arr.push(now); _vitrineHits.set(ip, arr); return true;
+}
+async function handleVitrineTrack(body, req, res) {
+  try {
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+            || req.socket?.remoteAddress || 'unknown';
+    if (!vitrineRateLimit(ip)) return res.status(204).end();
+    const evento = String(body.evento || '').slice(0, 40);
+    if (!VITRINE_EVENTOS_OK.has(evento)) return res.status(400).end();
+    if (String(body.aba || '') !== 'vitrine') return res.status(400).end();
+    const ua = String(req.headers['user-agent'] || '').slice(0, 300);
+    const meta = (body.meta && typeof body.meta === 'object') ? body.meta : {};
+    if (/bot|crawl|spider|preview|facebookexternalhit|whatsapp|telegram|slack|linkedin/i.test(ua)) meta.is_likely_bot = true;
+    const crypto = await import('crypto');
+    const ip_hash = crypto.createHash('sha256').update(ip + ':rhode-vitrine-salt').digest('hex').slice(0, 16);
+    await fetch(`${SB_URL}/rest/v1/hub_eventos`, {
+      method: 'POST',
+      headers: { ...SBSH, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        affiliate_id: String(body.affiliate_id || '').slice(0, 40) || null,
+        session_id: String(body.session_id || '').slice(0, 60) || null,
+        evento, aba: 'vitrine', meta,
+        referrer: String(body.referrer || '').slice(0, 500) || null,
+        user_agent: ua,
+        ip_hash,
+      }),
+    });
+  } catch (e) {}
+  return res.status(204).end();
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -383,6 +522,10 @@ export default async function handler(req, res) {
   if (body.action === 'cadastro') return handleCadastro(body, res);
   // Dash de lives público (dash-live.html) — dado agregado da loja, sem PII
   if (body.action === 'dashlive') return handleDashlive(body, res);
+  // Tracking público da página /live (vitrine QR) — proxy thin pra sendBeacon → hub_eventos
+  if (body.action === 'track') return handleVitrineTrack(body, req, res);
+  // Opt-in WhatsApp do estado BETWEEN do /live (com Z-API + rate limits)
+  if (body.action === 'live_optin') return handleVitrineOptin(body, req, res);
   // Modo DATA: demais `action` resolvem por access_token (hub.html / bem-vinda.html)
   if (body.action) return handleData(body, res);
 
