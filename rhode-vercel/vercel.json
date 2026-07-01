@@ -9,11 +9,12 @@
     { "source": "/rhodemap/:creator", "destination": "/rhodemap/:creator.html" },
     { "source": "/live", "destination": "/live.html" },
     { "source": "/live/:creator([a-z0-9_.-]+)", "destination": "/live.html" },
+    { "source": "/tamanho", "destination": "/tamanho.html" },
     { "source": "/privacidade-vitrine", "destination": "/privacidade-vitrine.html" }
   ],
   "headers": [
     {
-      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live|live|privacidade-vitrine)\\.html",
+      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live|live|tamanho|privacidade-vitrine)\\.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
@@ -32,7 +33,8 @@
     "api/cron/[job].js": { "maxDuration": 60 },
     "api/sync-catalogo.js": { "maxDuration": 60 },
     "api/sync-flash-sales.js": { "maxDuration": 30 },
-    "api/disparo.js": { "maxDuration": 60 }
+    "api/disparo.js": { "maxDuration": 60 },
+    "api/size.js": { "maxDuration": 10 }
   },
   "crons": [
     { "path": "/api/cron/tier-milestones", "schedule": "0 12 * * *" }

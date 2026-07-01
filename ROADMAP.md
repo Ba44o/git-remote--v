@@ -2,7 +2,7 @@
 
 > **Como usar este arquivo:** fonte de verdade do projeto. Antes de iniciar trabalho novo, leia daqui em diante. Atualizar conforme features são concluídas ou repriorizadas.
 >
-> **Última atualização:** 2026-06-01
+> **Última atualização:** 2026-07-01
 
 ---
 
@@ -72,7 +72,17 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 - `/api/relay.js` — Typebot bridge para Z-API
 - `/api/cron-tier-milestones.js` — cron de milestones de tier
 - `/api/disparo.js` — disparo segmentado via Z-API com filtros (tier, GMV, refund) e templates pré-aprovados
+- `/api/size.js` — Size Finder stateless (recomendador de tamanho, ver abaixo)
 - Z-API integrado para envio de WhatsApp
+
+### Size Finder — recomendador de tamanho (jul/2026)
+- **Função pura / stateless**, sem UI acoplada: entra cintura (± quadril) ou peso+altura, sai tamanho + metadados de caimento. Serve o webview do link da bio **e** o modo operador da live.
+- Motor UMD [`rhode-vercel/public/size-finder.js`](rhode-vercel/public/size-finder.js) — fonte de verdade única (browser `window.RhodeSizeFinder` + Node/endpoint `module.exports`). Modo A (por medidas) + Modo B (rápido, faixa por IMC) + `recommendAll` (multi-modelagem).
+- Endpoint fino [`api/size.js`](rhode-vercel/api/size.js) (`GET/POST /api/size`, CORS liberado, 422 em erro de input). Página operador/demo [`/tamanho`](rhode-vercel/public/tamanho.html) usa o motor client-side (resposta instantânea, offline-friendly).
+- Grade MVP **Wide Leg** (6 tamanhos 36–46, comprimento fixo 110 cm). Arquitetura pronta pra Mom/Baggy/Chocolate (constantes de caimento por corte em `CHARTS[modelo].fit`).
+- Suite [`test/size-finder.test.js`](rhode-vercel/test/size-finder.test.js) (20 testes, zero-dep) — cobre os 2 exemplos do contrato, flags, confiança, Modo B e validação. Doc: [docs/SIZE_FINDER.md](docs/SIZE_FINDER.md).
+- **Contagem de funções Vercel:** 10 → **11** (limite Hobby 12) — conferido, sob o teto (ver risco conhecido).
+- **Pendências (fora do dev):** (1) confirmar `waist` do 38 (74→72, provável typo — mantido oficial até OK, troca de 1 linha); (2) grades Mom/Baggy/Chocolate; (3) decidir logar `recomendação→compra→devolução`. Quirk: flag `hipTight` é inalcançável pela lógica de seleção (vira `hipOver→consultar`) — documentado.
 
 ---
 
