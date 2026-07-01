@@ -2,263 +2,532 @@
 <html lang=pt-BR>
 <head>
   <meta charset=utf-8>
-  <meta name=viewport content='width=device-width,initial-scale=1,viewport-fit=cover'>
+  <meta name=viewport content='width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1'>
   <meta name=color-scheme content='light'>
   <meta name=theme-color content='#ffffff'>
   <meta name=robots content='noindex,nofollow'>
   <meta http-equiv=Content-Security-Policy content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co; font-src 'self' data: https://fonts.gstatic.com">
-  <title>Rhode · Encontre seu tamanho</title>
+  <title>Rhode · Qual é o seu tamanho?</title>
   <link rel=preconnect href='https://fonts.googleapis.com'>
   <link rel=preconnect href='https://fonts.gstatic.com' crossorigin>
-  <link rel=stylesheet href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap'>
+  <link rel=stylesheet href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap'>
   <style>
     :root{
-      --rhode-red:#FE2C55;--ink:#1d1d1f;--sub:#6e6e73;--parchment:#f5f5f7;
-      --hairline:rgba(0,0,0,.10);--card:#fff;
+      --red:#FE2C55;--red-soft:#fff0f3;--ink:#1d1d1f;--sub:#6e6e73;--faint:#a1a1a6;
+      --parchment:#f5f5f7;--card:#fff;--hairline:rgba(0,0,0,.10);--line2:rgba(0,0,0,.06);
       --green:#1a7f4b;--amber:#b26a00;--slate:#5b6472;
     }
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
     html{-webkit-text-size-adjust:100%}
     body{
-      font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--parchment);
-      line-height:1.45;padding:24px 16px 64px;display:flex;justify-content:center;
+      font-family:'Inter',system-ui,sans-serif;color:var(--ink);
+      background:var(--parchment);overflow:hidden;
     }
-    .wrap{width:100%;max-width:460px}
-    /* ── cabeçalho ── */
-    header{display:flex;align-items:center;gap:10px;margin:4px 2px 20px}
-    .dot{width:9px;height:9px;border-radius:50%;background:var(--rhode-red)}
-    header h1{font-size:15px;font-weight:600;letter-spacing:-.01em}
-    header .sub{font-size:12px;color:var(--sub);margin-left:auto}
-    /* ── segmented ── */
-    .seg{display:flex;background:#ececee;border-radius:11px;padding:3px;gap:3px;margin-bottom:14px}
-    .seg button{
-      flex:1;border:0;background:transparent;font:inherit;font-size:13px;font-weight:500;
-      color:var(--sub);padding:8px 6px;border-radius:8px;cursor:pointer;transition:.15s
+    .app{
+      max-width:460px;margin:0 auto;height:100%;height:100dvh;position:relative;
+      background:var(--parchment);display:flex;flex-direction:column;
     }
-    .seg button[aria-selected=true]{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-    /* ── card / inputs ── */
-    .card{background:var(--card);border:1px solid var(--hairline);border-radius:16px;padding:18px}
-    .field{margin-bottom:14px}
-    .field:last-child{margin-bottom:0}
-    label{display:block;font-size:12px;font-weight:600;color:var(--sub);margin-bottom:6px}
-    label .opt{font-weight:400;color:#a1a1a6}
-    .inp{position:relative}
-    .inp input{
-      width:100%;font:inherit;font-size:17px;font-weight:500;color:var(--ink);
-      padding:12px 44px 12px 14px;border:1px solid var(--hairline);border-radius:11px;background:#fff;
-      outline:none;transition:.15s
+    /* ── top bar ── */
+    .top{
+      display:flex;align-items:center;gap:12px;padding:16px 20px 8px;
+      padding-top:calc(16px + env(safe-area-inset-top));min-height:56px
     }
-    .inp input:focus{border-color:var(--rhode-red);box-shadow:0 0 0 3px rgba(254,44,85,.10)}
-    .inp .u{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#a1a1a6;font-weight:500}
-    .prefrow{display:flex;gap:8px;margin-top:2px}
-    .prefrow .seg{flex:1;margin-bottom:0}
-    /* ── resultado ── */
-    .result{margin-top:16px}
-    .big{
-      background:var(--card);border:1px solid var(--hairline);border-radius:16px;
-      padding:22px 20px;display:flex;align-items:center;gap:18px
+    .top.hide{visibility:hidden}
+    .back{
+      border:0;background:transparent;font-size:22px;line-height:1;color:var(--ink);
+      cursor:pointer;padding:4px 4px 4px 0;width:28px;text-align:left
     }
-    .big .num{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:600;line-height:.9;letter-spacing:-.02em}
-    .big .meta{flex:1;min-width:0}
-    .big .lead{font-size:12px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.04em}
-    .big .summary{font-size:14px;margin-top:3px}
-    .chip{
-      display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;
-      padding:4px 9px;border-radius:999px;margin-top:8px;border:1px solid transparent
+    .bar{flex:1;height:5px;background:var(--line2);border-radius:99px;overflow:hidden}
+    .bar>span{display:block;height:100%;width:0;background:var(--red);border-radius:99px;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+    .count{font-size:12px;font-weight:600;color:var(--faint);font-variant-numeric:tabular-nums;min-width:30px;text-align:right}
+    /* ── screens ── */
+    .stage{flex:1;position:relative;overflow:hidden}
+    .screen{
+      position:absolute;inset:0;display:none;flex-direction:column;
+      padding:8px 24px 0;overflow-y:auto;-webkit-overflow-scrolling:touch
     }
-    .chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
-    .conf-alta{color:var(--green);background:rgba(26,127,75,.08);border-color:rgba(26,127,75,.18)}
-    .conf-media{color:var(--amber);background:rgba(178,106,0,.08);border-color:rgba(178,106,0,.18)}
-    .conf-consultar{color:var(--rhode-red);background:rgba(254,44,85,.08);border-color:rgba(254,44,85,.18)}
-    .conf-estimativa{color:var(--slate);background:rgba(91,100,114,.08);border-color:rgba(91,100,114,.18)}
-    /* specs + eases */
-    .specs{display:flex;gap:8px;margin-top:12px}
-    .specs .box{flex:1;background:var(--card);border:1px solid var(--hairline);border-radius:12px;padding:10px 12px;text-align:center}
-    .specs .box .k{font-size:10px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.03em}
-    .specs .box .v{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;margin-top:2px}
-    .specs .box .v small{font-size:10px;color:#a1a1a6;font-weight:500}
-    /* messages */
-    .msgs{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-    .msg{font-size:13px;padding:10px 12px;border-radius:11px;border:1px solid var(--hairline);background:#fff;display:flex;gap:9px}
-    .msg .bar{width:3px;border-radius:3px;flex:none}
-    .msg.info .bar{background:var(--slate)}
-    .msg.warn .bar{background:var(--amber)}
-    .msg.hard .bar{background:var(--rhode-red)}
-    .msg.info{background:#fbfbfd}
-    /* multi-modelagem */
-    .models{margin-top:12px;font-size:12px;color:var(--sub);text-align:center}
-    .models b{color:var(--ink);font-weight:600}
-    .foot{margin-top:20px;text-align:center;font-size:11px;color:#a1a1a6}
-    .foot code{font-family:'JetBrains Mono',monospace}
+    .screen.active{display:flex;animation:enter .4s cubic-bezier(.2,.8,.2,1)}
+    @keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    .grow{flex:1}
+    .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+    h1{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.12;margin-bottom:12px}
+    h2{font-size:25px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:10px}
+    .lead{font-size:16px;color:var(--sub);line-height:1.5}
+    /* ── educational callout ── */
+    .edu{
+      display:flex;gap:11px;background:var(--card);border:1px solid var(--hairline);
+      border-radius:14px;padding:13px 15px;font-size:13.5px;line-height:1.5;color:#3a3a3c;margin-top:16px
+    }
+    .edu .ic{font-size:16px;flex:none;line-height:1.4}
+    .edu b{font-weight:600;color:var(--ink)}
+    /* ── option cards ── */
+    .opts{display:flex;flex-direction:column;gap:12px;margin-top:22px}
+    .opt{
+      display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
+      background:var(--card);border:1.5px solid var(--hairline);border-radius:16px;padding:17px 16px;
+      font:inherit;color:var(--ink);transition:.16s;position:relative
+    }
+    .opt:active{transform:scale(.985)}
+    .opt:hover{border-color:rgba(0,0,0,.2)}
+    .opt .emo{font-size:26px;flex:none;width:30px;text-align:center}
+    .opt .txt{flex:1;min-width:0}
+    .opt .t{font-size:16px;font-weight:600;letter-spacing:-.01em}
+    .opt .d{font-size:13px;color:var(--sub);margin-top:2px;line-height:1.35}
+    .opt .arw{color:var(--faint);font-size:18px;flex:none}
+    .opt.sel{border-color:var(--red);background:var(--red-soft)}
+    /* ── number input ── */
+    .measure{display:flex;flex-direction:column;align-items:center;margin-top:8px}
+    .figure{width:118px;height:132px;margin:6px 0 4px}
+    .figure .body{fill:none;stroke:var(--hairline);stroke-width:3}
+    .figure .mline{stroke:var(--line2);stroke-width:2.5;stroke-dasharray:3 4}
+    .figure .mline.on{stroke:var(--red);stroke-width:3;stroke-dasharray:none}
+    .figure .dot{fill:var(--red)}
+    .numwrap{position:relative;display:inline-flex;align-items:baseline;margin:14px 0 2px}
+    .numwrap input{
+      font-family:'JetBrains Mono',monospace;font-size:64px;font-weight:700;color:var(--ink);
+      border:0;background:transparent;outline:none;width:3.2ch;text-align:center;letter-spacing:-.02em;
+      caret-color:var(--red)
+    }
+    .numwrap input::placeholder{color:#dcdce0}
+    .numwrap .un{font-size:20px;font-weight:600;color:var(--faint);margin-left:2px}
+    .hint{font-size:13px;color:var(--sub);min-height:18px;text-align:center;transition:.15s}
+    .hint.err{color:var(--red);font-weight:500}
+    .skip{display:inline-block;margin:14px auto 0;background:transparent;border:0;font:inherit;
+      font-size:14px;font-weight:600;color:var(--faint);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+    /* ── bottom CTA ── */
+    .foot{padding:14px 24px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+    .cta{
+      width:100%;border:0;border-radius:15px;background:var(--red);color:#fff;
+      font:inherit;font-size:17px;font-weight:700;padding:16px;cursor:pointer;transition:.16s;letter-spacing:-.01em
+    }
+    .cta:active{transform:scale(.985)}
+    .cta:disabled{background:#e7e7ea;color:var(--faint);cursor:default;transform:none}
+    .cta.ghost{background:transparent;color:var(--sub);font-weight:600;font-size:15px;padding:12px}
+    .microcta{text-align:center;font-size:12.5px;color:var(--faint);margin-top:10px}
+    /* ── result ── */
+    #s-result{padding-top:4px}
+    .reveal{text-align:center;margin-top:6px}
+    .rl-tag{
+      display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.03em;
+      text-transform:uppercase;padding:6px 12px;border-radius:99px;margin-bottom:14px
+    }
+    .rl-tag::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
+    .c-alta{color:var(--green);background:rgba(26,127,75,.09)}
+    .c-media{color:var(--amber);background:rgba(178,106,0,.09)}
+    .c-consultar{color:var(--red);background:var(--red-soft)}
+    .c-estimativa{color:var(--slate);background:rgba(91,100,114,.09)}
+    .rl-say{font-size:14px;color:var(--sub);margin-bottom:2px}
+    .rl-num{
+      font-family:'JetBrains Mono',monospace;font-weight:700;font-size:96px;line-height:1;
+      letter-spacing:-.03em;color:var(--ink);animation:pop .5s cubic-bezier(.2,1.3,.4,1) both
+    }
+    .rl-num.range{font-size:62px}
+    @keyframes pop{0%{opacity:0;transform:scale(.6)}60%{opacity:1}100%{transform:scale(1)}}
+    .rl-line{font-size:15.5px;color:#3a3a3c;line-height:1.5;margin:10px 6px 0;max-width:340px;margin-left:auto;margin-right:auto}
+    .why{margin-top:22px}
+    .why-h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+    .msg{display:flex;gap:10px;background:var(--card);border:1px solid var(--hairline);border-radius:13px;padding:12px 14px;font-size:13.5px;line-height:1.5;margin-bottom:9px}
+    .msg .b{width:3px;border-radius:3px;flex:none}
+    .msg.info .b{background:var(--slate)} .msg.warn .b{background:var(--amber)} .msg.hard .b{background:var(--red)}
+    .specs{display:flex;gap:9px;margin-top:6px}
+    .spec{flex:1;background:var(--card);border:1px solid var(--hairline);border-radius:13px;padding:12px 8px;text-align:center}
+    .spec .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--faint)}
+    .spec .v{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;margin-top:3px}
+    .spec .v small{font-size:11px;color:var(--faint);font-weight:600}
+    .spec .n{font-size:10.5px;color:var(--faint);margin-top:2px}
+    .chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:16px}
+    .chip{font-size:11.5px;font-weight:600;color:var(--sub);background:var(--card);border:1px solid var(--hairline);border-radius:99px;padding:5px 11px}
+    .chip b{color:var(--ink)}
+    .specnote{text-align:center;font-size:11.5px;color:var(--faint);margin-top:9px}
+    /* operator */
+    .op{display:none;padding:18px 20px;padding-top:calc(18px + env(safe-area-inset-top))}
+    body.opmode .app{display:none}
+    body.opmode .op{display:block;max-width:460px;margin:0 auto}
+    .op h3{font-size:14px;font-weight:700;margin-bottom:2px}
+    .op .su{font-size:12px;color:var(--sub);margin-bottom:14px}
+    .op .row{display:flex;gap:9px;margin-bottom:10px}
+    .op .fld{flex:1}
+    .op label{display:block;font-size:11px;font-weight:600;color:var(--sub);margin-bottom:5px}
+    .op input{width:100%;font:inherit;font-size:17px;font-weight:600;padding:11px 12px;border:1px solid var(--hairline);border-radius:11px;outline:none}
+    .op input:focus{border-color:var(--red)}
+    .op .seg{display:flex;background:#ececee;border-radius:10px;padding:3px;gap:3px}
+    .op .seg button{flex:1;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--sub);padding:8px;border-radius:8px;cursor:pointer}
+    .op .seg button[aria-selected=true]{background:#fff;color:var(--ink)}
+    .op .out{margin-top:14px}
     .hidden{display:none!important}
   </style>
 </head>
 <body>
-  <div class=wrap>
-    <header>
-      <span class=dot></span>
-      <h1>Encontre seu tamanho</h1>
-      <span class=sub>Wide Leg</span>
-    </header>
-
-    <!-- modo -->
-    <div class=seg role=tablist id=modeSeg>
-      <button role=tab aria-selected=true data-mode=medidas>Por medida</button>
-      <button role=tab aria-selected=false data-mode=rapido>Peso + altura</button>
+  <div class="app">
+    <!-- top bar -->
+    <div class="top hide" id=top>
+      <button class="back" id=back aria-label="Voltar">←</button>
+      <div class="bar"><span id=barfill></span></div>
+      <div class="count" id=count></div>
     </div>
 
-    <div class=card>
-      <!-- MODO A: medidas -->
-      <div id=paneMedidas>
-        <div class=field>
-          <label for=waist>Cintura <span class=opt>(cm · obrigatório)</span></label>
-          <div class=inp><input id=waist inputmode=decimal placeholder='ex: 70' autocomplete=off><span class=u>cm</span></div>
-        </div>
-        <div class=field>
-          <label for=hip>Quadril <span class=opt>(cm · opcional, melhora a precisão)</span></label>
-          <div class=inp><input id=hip inputmode=decimal placeholder='ex: 98' autocomplete=off><span class=u>cm</span></div>
-        </div>
-      </div>
-
-      <!-- MODO B: rápido -->
-      <div id=paneRapido class=hidden>
-        <div class=field>
-          <label for=weight>Peso <span class=opt>(kg)</span></label>
-          <div class=inp><input id=weight inputmode=decimal placeholder='ex: 62' autocomplete=off><span class=u>kg</span></div>
-        </div>
-        <div class=field>
-          <label for=height>Altura <span class=opt>(cm)</span></label>
-          <div class=inp><input id=height inputmode=decimal placeholder='ex: 165' autocomplete=off><span class=u>cm</span></div>
-        </div>
-      </div>
-
-      <!-- preferência (comum) -->
-      <div class=field style=margin-top:16px>
-        <label>Como você prefere o caimento?</label>
-        <div class=prefrow>
-          <div class=seg id=prefSeg style=margin-bottom:0>
-            <button aria-selected=true data-pref=corpo>No corpo</button>
-            <button aria-selected=false data-pref=solta>Mais solta</button>
+    <div class="stage">
+      <!-- INTRO -->
+      <section class="screen active" data-screen="intro" id="s-intro">
+        <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
+          <div class="eyebrow">Rhode · Wide Leg</div>
+          <h1>Vamos achar o<br>seu tamanho 🤍</h1>
+          <p class="lead">Responde 3 perguntinhas rápidas. A gente cuida do resto — sem achismo, sem devolução.</p>
+          <div class="edu">
+            <span class="ic">💡</span>
+            <span>Nossa Wide Leg é <b>100% algodão, sem elastano</b>. Ela não “estica pra ajustar” depois — por isso o tamanho certo faz toda a diferença no caimento.</span>
           </div>
         </div>
-      </div>
+      </section>
+
+      <!-- PATH -->
+      <section class="screen" data-screen="path" id="s-path">
+        <h2>Como você prefere descobrir?</h2>
+        <p class="lead">Escolhe o jeito mais fácil pra você agora.</p>
+        <div class="opts">
+          <button class="opt" data-path="measures">
+            <span class="emo">🎯</span>
+            <span class="txt"><span class="t">Tenho as medidas</span><span class="d">Com fita métrica — resultado no ponto</span></span>
+            <span class="arw">›</span>
+          </button>
+          <button class="opt" data-path="quick">
+            <span class="emo">⚡</span>
+            <span class="txt"><span class="t">Peso e altura</span><span class="d">Na correria? A gente estima pra você</span></span>
+            <span class="arw">›</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- WAIST -->
+      <section class="screen" data-screen="waist" id="s-waist">
+        <h2>Qual é a sua cintura?</h2>
+        <div class="measure">
+          <svg class="figure" viewBox="0 0 120 134" aria-hidden="true">
+            <path class="body" d="M42 12 C42 30 34 40 33 58 C32 82 28 104 27 124 L93 124 C92 104 88 82 87 58 C86 40 78 30 78 12"/>
+            <line class="mline on" id="fig-waist" x1="30" y1="44" x2="90" y2="44"/>
+            <line class="mline" id="fig-hip" x1="24" y1="96" x2="96" y2="96"/>
+          </svg>
+          <div class="numwrap">
+            <input id="in-waist" inputmode="decimal" placeholder="00" maxlength="5" autocomplete="off" aria-label="Cintura em cm">
+            <span class="un">cm</span>
+          </div>
+          <div class="hint" id="hint-waist">Parte mais fininha do tronco, acima do umbigo 🤍</div>
+        </div>
+        <div class="edu" style="margin-top:20px">
+          <span class="ic">📏</span>
+          <span>Passe a fita <b>reta e rente</b>, sem apertar nem folgar. É a medida que mais importa pra fechar a calça.</span>
+        </div>
+      </section>
+
+      <!-- HIP -->
+      <section class="screen" data-screen="hip" id="s-hip">
+        <h2>E o seu quadril? <span style="font-size:14px;font-weight:600;color:var(--faint)">· opcional</span></h2>
+        <div class="measure">
+          <svg class="figure" viewBox="0 0 120 134" aria-hidden="true">
+            <path class="body" d="M42 12 C42 30 34 40 33 58 C32 82 28 104 27 124 L93 124 C92 104 88 82 87 58 C86 40 78 30 78 12"/>
+            <line class="mline" x1="30" y1="44" x2="90" y2="44"/>
+            <line class="mline on" x1="24" y1="96" x2="96" y2="96"/>
+          </svg>
+          <div class="numwrap">
+            <input id="in-hip" inputmode="decimal" placeholder="00" maxlength="5" autocomplete="off" aria-label="Quadril em cm">
+            <span class="un">cm</span>
+          </div>
+          <div class="hint" id="hint-hip">Parte mais larga do quadril/bumbum</div>
+          <button class="skip" id="skip-hip">Não sei · pular essa</button>
+        </div>
+        <div class="edu" style="margin-top:18px">
+          <span class="ic">🤍</span>
+          <span>Com o quadril a gente confirma o caimento — mas se não tiver como medir agora, <b>pode pular</b> tranquila.</span>
+        </div>
+      </section>
+
+      <!-- WEIGHT -->
+      <section class="screen" data-screen="weight" id="s-weight">
+        <h2>Quanto você pesa?</h2>
+        <div class="measure">
+          <div class="numwrap" style="margin-top:34px">
+            <input id="in-weight" inputmode="decimal" placeholder="00" maxlength="5" autocomplete="off" aria-label="Peso em kg">
+            <span class="un">kg</span>
+          </div>
+          <div class="hint" id="hint-weight">É só pra estimar — ninguém vê além de você 🤍</div>
+        </div>
+        <div class="edu" style="margin-top:22px">
+          <span class="ic">⚡</span>
+          <span>Peso e altura dão uma <b>faixa estimada</b>. Pra cravar o número, medir a cintura é o caminho — mas bora do jeito rápido.</span>
+        </div>
+      </section>
+
+      <!-- HEIGHT -->
+      <section class="screen" data-screen="height" id="s-height">
+        <h2>E a sua altura?</h2>
+        <div class="measure">
+          <div class="numwrap" style="margin-top:34px">
+            <input id="in-height" inputmode="decimal" placeholder="000" maxlength="5" autocomplete="off" aria-label="Altura em cm">
+            <span class="un">cm</span>
+          </div>
+          <div class="hint" id="hint-height">Sua altura sem sapato</div>
+        </div>
+      </section>
+
+      <!-- PREFERENCE -->
+      <section class="screen" data-screen="pref" id="s-pref">
+        <h2>Como você ama usar?</h2>
+        <p class="lead">Seu jeito favorito de sentir a calça no corpo.</p>
+        <div class="opts">
+          <button class="opt" data-pref="corpo">
+            <span class="emo">🤍</span>
+            <span class="txt"><span class="t">No corpo</span><span class="d">Marca a cintura, caimento certinho</span></span>
+            <span class="arw">›</span>
+          </button>
+          <button class="opt" data-pref="solta">
+            <span class="emo">🌬️</span>
+            <span class="txt"><span class="t">Mais solta</span><span class="d">Folgada, aquele conforto de largona</span></span>
+            <span class="arw">›</span>
+          </button>
+        </div>
+        <div class="edu">
+          <span class="ic">✨</span>
+          <span>Na Wide Leg as duas ficam <b>lindas</b> — é só o seu love language de caimento.</span>
+        </div>
+      </section>
+
+      <!-- RESULT -->
+      <section class="screen" data-screen="result" id="s-result">
+        <div id="result-body"></div>
+      </section>
     </div>
 
-    <div class=result id=result></div>
+    <!-- bottom CTA (contextual) -->
+    <div class="foot" id="foot"></div>
+  </div>
 
-    <div class=foot>
-      Recomendador stateless · <code>/size-finder.js</code> · comprimento fixo 110&nbsp;cm
+  <!-- OPERATOR MODE (?op=1) — atalho rápido pra live -->
+  <div class="op" id="op">
+    <h3>Modo operador · tamanho na hora</h3>
+    <div class="su">Wide Leg · digita e já sai</div>
+    <div class="row">
+      <div class="fld"><label>Cintura (cm)</label><input id="op-waist" inputmode="decimal" placeholder="ex 70"></div>
+      <div class="fld"><label>Quadril (opcional)</label><input id="op-hip" inputmode="decimal" placeholder="ex 98"></div>
     </div>
+    <div class="seg" id="op-seg">
+      <button aria-selected="true" data-pref="corpo">No corpo</button>
+      <button aria-selected="false" data-pref="solta">Mais solta</button>
+    </div>
+    <div class="out" id="op-out"></div>
   </div>
 
   <script src="/size-finder.js"></script>
   <script>
   (function(){
     var SF = window.RhodeSizeFinder;
-    var mode = 'medidas', pref = 'corpo';
-    var $ = function(id){ return document.getElementById(id); };
-    var el = { waist:$('waist'), hip:$('hip'), weight:$('weight'), height:$('height'), result:$('result') };
+    var STORE = 'https://rhodejeans.com.br';
+    var $ = function(s,r){ return (r||document).querySelector(s); };
 
-    var CONF_LABEL = { alta:'Confiança alta', media:'Confirme com o quadril', consultar:'Fale com a gente', estimativa:'Estimativa' };
-
-    function esc(s){ return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
-
-    function renderError(e){
-      el.result.innerHTML =
-        '<div class="big"><div class="meta"><div class="lead" style="color:var(--rhode-red)">Confira o valor</div>'+
-        '<div class="summary">'+esc(e.message)+'</div></div></div>';
-    }
-
-    function renderA(r){
-      var confCls = 'conf-'+r.confidence;
-      var size = r.recommendedSize == null ? '—' : r.recommendedSize;
-      var html = '<div class="big">'+
-        '<div class="num">'+size+'</div>'+
-        '<div class="meta">'+
-          '<div class="lead">Tamanho recomendado</div>'+
-          '<div class="summary">'+esc(r.summary)+'</div>'+
-          '<span class="chip '+confCls+'">'+CONF_LABEL[r.confidence]+'</span>'+
-        '</div></div>';
-
-      if (r.garment){
-        var we = r.fit.waistEaseCm, he = r.fit.hipEaseCm;
-        html += '<div class="specs">'+
-          box('Cintura peça', r.garment.waist+'<small> cm</small>', we!=null?('folga '+fmt(we)+' cm'):'') +
-          box('Quadril peça', r.garment.hip+'<small> cm</small>', he!=null?('folga '+fmt(he)+' cm'):'sem quadril') +
-          box('Comprimento', r.garment.length+'<small> cm</small>', 'fixo') +
-        '</div>';
-      }
-      if (r.messages && r.messages.length){
-        html += '<div class="msgs">'+ r.messages.map(function(m){
-          return '<div class="msg '+m.level+'"><span class="bar"></span><span>'+esc(m.text)+'</span></div>';
-        }).join('') +'</div>';
-      }
-      // multi-modelagem: mostra as outras grades quando existirem
-      var all = SF.recommendAll(r.input.waistCm, r.input.hipCm, r.fit.preference).filter(function(x){return !x.error;});
-      if (all.length > 1){
-        html += '<div class="models">'+ all.map(function(x){
-          var lbl = SF.CHARTS[x.model].label;
-          return '<b>'+esc(lbl)+' '+(x.recommendedSize==null?'—':x.recommendedSize)+'</b>';
-        }).join(' · ') +'</div>';
-      }
-      el.result.innerHTML = html;
-    }
-
-    function renderB(r){
-      var rng = r.recommendedRange;
-      var label = (rng[0]==null) ? '—' : (rng[0]===rng[1] ? String(rng[0]) : rng[0]+'–'+rng[1]);
-      el.result.innerHTML = '<div class="big">'+
-        '<div class="num" style="font-size:40px">'+label+'</div>'+
-        '<div class="meta">'+
-          '<div class="lead">Faixa estimada</div>'+
-          '<div class="summary">'+esc(r.note)+'</div>'+
-          '<span class="chip conf-estimativa">'+CONF_LABEL.estimativa+'</span>'+
-        '</div></div>'+
-        '<div class="specs">'+
-          box('Cintura estim.', r.estimated.waistCm+'<small> cm</small>','') +
-          box('Quadril estim.', r.estimated.hipCm+'<small> cm</small>','') +
-          box('IMC', fmt(r.estimated.bmi),'referência') +
-        '</div>';
-    }
-
-    function box(k,v,note){
-      return '<div class="box"><div class="k">'+k+'</div><div class="v">'+v+'</div>'+
-             (note?'<div class="k" style="margin-top:3px;text-transform:none;font-weight:500;color:#a1a1a6">'+note+'</div>':'')+'</div>';
-    }
+    // Copy de confiança (tom acolhedor/educativo) — definido no topo porque o
+    // modo operador usa e faz early-return antes do corpo do quiz.
+    var CONF = {
+      alta:      {cls:'c-alta',      tag:'Perfeito',    say:'Esse é o seu 🤍',     line:'Pode pedir tranquila — a cintura fecha certinho e o quadril fica confortável.'},
+      media:     {cls:'c-media',     tag:'Recomendado', say:'Seu tamanho é',       line:'Vai bem! Dá uma olhada no “por quê” aqui embaixo pra confirmar antes de pedir.'},
+      consultar: {cls:'c-consultar', tag:'Vamos juntas',say:'Quase lá',            line:'Seu corpo pede um olhinho mais de perto pra acertar em cheio. A gente te ajuda com carinho.'},
+      estimativa:{cls:'c-estimativa',tag:'Estimativa',  say:'Sua faixa provável',  line:'Essa é uma prévia pela sua silhueta. Quer cravar o número? Medir a cintura leva 10 segundos.'}
+    };
     function fmt(n){ return String(n).replace('.',','); }
 
-    function run(){
-      var out;
-      if (mode === 'medidas'){
-        var wv = el.waist.value.trim();
-        if (!wv){ el.result.innerHTML=''; return; }          // ainda digitando: sem ruído
-        out = SF.recommend(el.waist.value, el.hip.value, pref);
-      } else {
-        if (!el.weight.value.trim() || !el.height.value.trim()){ el.result.innerHTML=''; return; }
-        out = SF.quickEstimate(el.weight.value, el.height.value, pref);
-      }
-      if (out.error) return renderError(out.error);
-      if (out.mode === 'rapido') return renderB(out);
-      renderA(out);
+    // ── operator mode ──────────────────────────────────────────────
+    if (/[?&]op=1\b/.test(location.search)) return bootOperator();
+
+    // ── quiz state ─────────────────────────────────────────────────
+    var st = { path:null, waist:'', hip:'', weight:'', height:'', pref:null };
+    var FLOW = { measures:['path','waist','hip','pref','result'], quick:['path','weight','height','pref','result'] };
+    var current='intro', stack=[];
+
+    var top=$('#top'), barfill=$('#barfill'), count=$('#count'), foot=$('#foot');
+
+    function qFlow(){ return FLOW[st.path||'measures']; }
+    function stepInfo(scr){
+      var qs = qFlow().filter(function(s){return s!=='result';});
+      var i = qs.indexOf(scr);
+      return i>=0 ? {step:i+1,total:qs.length} : null;
     }
 
-    // ── wiring ──
-    ['waist','hip','weight','height'].forEach(function(id){ el[id].addEventListener('input', run); });
+    function show(scr, push){
+      if (push && scr!==current) stack.push(current);
+      document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+      var el = document.querySelector('[data-screen="'+scr+'"]'); el.classList.add('active');
+      el.scrollTop = 0;
+      current = scr;
 
-    $('modeSeg').addEventListener('click', function(e){
-      var b = e.target.closest('button'); if(!b) return;
-      mode = b.dataset.mode;
-      [].forEach.call(this.children, function(c){ c.setAttribute('aria-selected', c===b); });
-      $('paneMedidas').classList.toggle('hidden', mode!=='medidas');
-      $('paneRapido').classList.toggle('hidden', mode!=='rapido');
-      run();
+      var si = stepInfo(scr);
+      if (scr==='intro' || scr==='result'){ top.classList.add('hide'); }
+      else { top.classList.remove('hide'); barfill.style.width = (si.step/si.total*100)+'%'; count.textContent = si.step+'/'+si.total; }
+
+      renderFoot(scr);
+      // autofocus nos inputs de medida
+      var inp = el.querySelector('input');
+      if (inp && scr!=='result'){ setTimeout(function(){ inp.focus({preventScroll:true}); }, 260); }
+      if (scr==='result') renderResult();
+    }
+    function goNext(){
+      var flow=qFlow(), i=flow.indexOf(current);
+      if (i>=0 && i<flow.length-1) show(flow[i+1], true);
+    }
+    function back(){ if (stack.length) show(stack.pop(), false); }
+
+    // ── contextual bottom button ───────────────────────────────────
+    function renderFoot(scr){
+      if (scr==='intro'){
+        foot.innerHTML = '<button class="cta" id="cta">Bora começar</button><div class="microcta">Leva uns 30 segundos ⏱️</div>';
+        $('#cta').onclick = function(){ show('path', true); };
+      } else if (scr==='waist' || scr==='hip' || scr==='weight' || scr==='height'){
+        foot.innerHTML = '<button class="cta" id="cta">Continuar</button>';
+        $('#cta').onclick = function(){ submitField(scr); };
+        syncCta(scr);
+      } else if (scr==='path' || scr==='pref' || scr==='result'){
+        foot.innerHTML = '';
+      }
+    }
+    function fieldFor(scr){ return { waist:'waist', hip:'hip', weight:'weight', height:'height' }[scr]; }
+    function inputEl(scr){ return $('#in-'+fieldFor(scr)); }
+    function rangeKey(scr){ return { waist:'waistCm', hip:'hipCm', weight:'weightKg', height:'heightCm' }[scr]; }
+
+    function validScr(scr){
+      var v = SF.parseNum(inputEl(scr).value);
+      if (v===null) return scr==='hip' ? 'empty' : false;   // hip pode vazio
+      var r = SF.RANGES[rangeKey(scr)];
+      return (v>=r[0] && v<=r[1]) ? true : false;
+    }
+    function syncCta(scr){
+      var cta=$('#cta'); if(!cta) return;
+      var ok = validScr(scr);
+      cta.disabled = !(ok===true || (scr==='hip' && ok==='empty'));
+    }
+    function submitField(scr){
+      var ok = validScr(scr);
+      if (ok===true){ st[fieldFor(scr)] = inputEl(scr).value; goNext(); }
+      else if (scr==='hip' && ok==='empty'){ st.hip=''; goNext(); }
+      else {
+        var r=SF.RANGES[rangeKey(scr)], h=$('#hint-'+fieldFor(scr));
+        h.classList.add('err'); h.textContent='Confere esse número — esperamos algo entre '+r[0]+' e '+r[1]+' '+(scr==='weight'?'kg':'cm')+'.';
+      }
+    }
+
+    // ── result ─────────────────────────────────────────────────────
+    function renderResult(){
+      var r = (st.path==='quick')
+        ? SF.quickEstimate(st.weight, st.height, st.pref)
+        : SF.recommend(st.waist, st.hip, st.pref);
+
+      if (r.error){ // não deveria acontecer (validado antes), mas protege
+        $('#result-body').innerHTML = '<div class="reveal"><div class="rl-say">Ops</div><div class="rl-line">'+r.error.message+'</div></div>';
+        foot.innerHTML=''; return;
+      }
+
+      var conf = CONF[r.confidence] || CONF.media;
+      var isRange = r.mode==='rapido';
+      var big = isRange
+        ? (r.recommendedRange[0]==null ? '—' : (r.recommendedRange[0]===r.recommendedRange[1] ? r.recommendedRange[0] : r.recommendedRange[0]+'–'+r.recommendedRange[1]))
+        : (r.recommendedSize==null ? '—' : r.recommendedSize);
+
+      var html = '<div class="reveal">'+
+        '<span class="rl-tag '+conf.cls+'">'+conf.tag+'</span>'+
+        '<div class="rl-say">'+conf.say+'</div>'+
+        '<div class="rl-num'+(isRange?' range':'')+'">'+big+'</div>'+
+        '<div class="rl-line">'+conf.line+'</div>'+
+      '</div>';
+
+      // specs da peça (modo medidas com tamanho)
+      if (r.garment){
+        html += '<div class="specs" style="margin-top:22px">'+
+          spec('Cintura', r.garment.waist, r.fit.waistEaseCm) +
+          spec('Quadril', r.garment.hip, r.fit.hipEaseCm) +
+          '<div class="spec"><div class="k">Comprim.</div><div class="v">'+r.garment.length+'<small> cm</small></div><div class="n">fixo</div></div>'+
+        '</div>'+
+        '<div class="specnote">medidas da <b>peça</b> (não do corpo) — a folga é o conforto</div>';
+      } else if (isRange){
+        html += '<div class="specs" style="margin-top:22px">'+
+          '<div class="spec"><div class="k">Cintura estim.</div><div class="v">'+r.estimated.waistCm+'<small> cm</small></div></div>'+
+          '<div class="spec"><div class="k">Quadril estim.</div><div class="v">'+r.estimated.hipCm+'<small> cm</small></div></div>'+
+          '<div class="spec"><div class="k">IMC ref.</div><div class="v">'+fmt(r.estimated.bmi)+'</div></div>'+
+        '</div>';
+      }
+
+      // "por que esse tamanho" (as messages do motor, tom educativo)
+      if (r.messages && r.messages.length){
+        html += '<div class="why"><div class="why-h">Por que esse tamanho</div>'+
+          r.messages.map(function(m){ return '<div class="msg '+m.level+'"><span class="b"></span><span>'+esc(m.text)+'</span></div>'; }).join('')+
+        '</div>';
+      }
+
+      // selo educativo fixo do produto
+      html += '<div class="chips"><span class="chip"><b>100%</b> algodão</span><span class="chip">sem elastano</span><span class="chip">comprimento <b>110cm</b></span></div>';
+
+      $('#result-body').innerHTML = html;
+
+      // bottom CTAs
+      var f = '<a class="cta" style="display:block;text-align:center;text-decoration:none" href="'+STORE+'" target="_blank" rel="noopener">Quero minha Wide Leg 🛍️</a>';
+      if (isRange) f = '<button class="cta" id="tomeasure">Medir a cintura e cravar 🎯</button>' +
+                       '<a class="cta ghost" style="display:block;text-align:center;text-decoration:none" href="'+STORE+'" target="_blank" rel="noopener">Ver as calças</a>';
+      f += '<button class="cta ghost" id="restart">Refazer o quiz</button>';
+      foot.innerHTML = f;
+      if ($('#restart')) $('#restart').onclick = restart;
+      if ($('#tomeasure')) $('#tomeasure').onclick = function(){ st.path='measures'; st.waist=''; st.hip=''; stack=['intro','path']; show('waist', false); };
+    }
+    function spec(k,val,ease){
+      return '<div class="spec"><div class="k">'+k+'</div><div class="v">'+val+'<small> cm</small></div>'+
+             (ease!=null?'<div class="n">folga '+fmt(ease)+'</div>':'<div class="n">—</div>')+'</div>';
+    }
+    function esc(s){ return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+
+    function restart(){
+      st={ path:null, waist:'', hip:'', weight:'', height:'', pref:null };
+      ['waist','hip','weight','height'].forEach(function(k){ var i=$('#in-'+k); if(i)i.value=''; });
+      stack=[]; show('intro', false);
+    }
+
+    // ── wiring ─────────────────────────────────────────────────────
+    $('#back').onclick = back;
+    document.querySelectorAll('[data-path]').forEach(function(b){
+      b.onclick = function(){ st.path=b.dataset.path; show(qFlow()[1], true); };
     });
-    $('prefSeg').addEventListener('click', function(e){
-      var b = e.target.closest('button'); if(!b) return;
-      pref = b.dataset.pref;
-      [].forEach.call(this.children, function(c){ c.setAttribute('aria-selected', c===b); });
-      run();
+    document.querySelectorAll('[data-pref]').forEach(function(b){
+      if (b.closest('#op-seg')) return;
+      b.onclick = function(){ st.pref=b.dataset.pref; b.classList.add('sel'); setTimeout(function(){ show('result', true); b.classList.remove('sel'); }, 180); };
     });
+    ['waist','hip','weight','height'].forEach(function(k){
+      var i=$('#in-'+k);
+      i.addEventListener('input', function(){
+        var h=$('#hint-'+k); if(h) h.classList.remove('err');
+        syncCta(k);
+      });
+      i.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); submitField(k); } });
+    });
+    $('#skip-hip').onclick = function(){ st.hip=''; goNext(); };
+
+    show('intro', false);
+
+    // ── operator (fast form) ───────────────────────────────────────
+    function bootOperator(){
+      document.body.classList.add('opmode');
+      var pref='corpo';
+      var w=$('#op-waist'), h=$('#op-hip'), out=$('#op-out');
+      function run(){
+        if(!w.value.trim()){ out.innerHTML=''; return; }
+        var r = SF.recommend(w.value, h.value, pref);
+        if(r.error){ out.innerHTML='<div class="rl-line" style="text-align:left;margin:0;color:var(--red)">'+r.error.message+'</div>'; return; }
+        var conf=CONF[r.confidence]||CONF.media;
+        var size=r.recommendedSize==null?'—':r.recommendedSize;
+        out.innerHTML='<div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--hairline);border-radius:14px;padding:14px 16px">'+
+          '<div style="font-family:\'JetBrains Mono\',monospace;font-size:44px;font-weight:700;line-height:1">'+size+'</div>'+
+          '<div><span class="rl-tag '+conf.cls+'" style="margin:0 0 4px">'+conf.tag+'</span>'+
+          '<div style="font-size:13px;color:var(--sub)">'+esc(r.summary)+'</div></div></div>'+
+          (r.messages&&r.messages.length?'<div style="font-size:12.5px;color:var(--sub);margin-top:10px;line-height:1.5">'+esc(r.messages[0].text)+'</div>':'');
+      }
+      w.addEventListener('input',run); h.addEventListener('input',run);
+      $('#op-seg').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return;
+        pref=b.dataset.pref; [].forEach.call(this.children,function(c){c.setAttribute('aria-selected',c===b);}); run(); });
+      w.focus();
+    }
   })();
   </script>
 </body>
