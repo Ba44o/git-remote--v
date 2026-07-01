@@ -9,6 +9,7 @@
     { "source": "/rhodemap/:creator", "destination": "/rhodemap/:creator.html" },
     { "source": "/live", "destination": "/live.html" },
     { "source": "/live/:creator([a-z0-9_.-]+)", "destination": "/live.html" },
+    { "source": "/encontre-seu-tamanho", "destination": "/tamanho.html" },
     { "source": "/tamanho", "destination": "/tamanho.html" },
     { "source": "/privacidade-vitrine", "destination": "/privacidade-vitrine.html" }
   ],
