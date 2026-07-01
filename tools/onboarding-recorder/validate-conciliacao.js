@@ -63,12 +63,22 @@ const PED = [
     { periodo:'2026-04', pedidos_pagos:11061, gmv_oficial:917399, produto:877540, frete:32425, pago_cancelado:51312, produto_cancelado:49208, produto_valido:828332 },
     { periodo:'2026-03', pedidos_pagos:11141, gmv_oficial:932322, produto:893521, frete:32185, pago_cancelado:68876, produto_cancelado:66258, produto_valido:827263 },
   ];
+  const CONCR = [
+    { periodo:'2026-06', pedidos_total:7000, n_ok:6200, n_servico:300, n_comissao:20, n_devolucao:80, n_faltante:350, n_cancelado:50, receita:580000, repasse:430000, comissao_real:34800, comissao_esp:34800, servico_real:66000, servico_esp:62000, afiliada:38000, ads:5000, frete:6000, preco_tabela:1160000, desconto_vendedor:580000, div_servico_revisar:4000, custo_devolucao:2500, valor_faltante:12000, impacto_1507:12500 },
+    { periodo:'2026-05', pedidos_total:5570, n_ok:4270, n_servico:209, n_comissao:15, n_devolucao:66, n_faltante:949, n_cancelado:61, receita:445000, repasse:336000, comissao_real:26700, comissao_esp:26700, servico_real:50300, servico_esp:47200, afiliada:28900, ads:3600, frete:4900, preco_tabela:890000, desconto_vendedor:445000, div_servico_revisar:3170, custo_devolucao:1800, valor_faltante:8000, impacto_1507:10500 },
+  ];
+  const CONCP = [
+    { order_id:'584408285046146437', data:'2026-06-07', produto:'Calça Jeans Wide Leg Marmorizada', qty:1, preco_tabela:179.90, desconto_pct:44, receita_liq:99.90, comissao_real:5.99, comissao_esperada:5.99, servico_frete_real:9.99, servico_frete_esperado:10.59, afiliada_real:0, ads_real:7.99, settlement:74.73, taxa_efetiva_pct:24, conciliacao:'ok' },
+    { order_id:'584232899716875843', data:'2026-06-05', produto:'Calça Baggy Jeans Feminina', qty:1, preco_tabela:179.90, desconto_pct:61, receita_liq:109.90, comissao_real:6.59, comissao_esperada:6.59, servico_frete_real:76.84, servico_frete_esperado:10.59, afiliada_real:0, ads_real:5.50, settlement:20.97, taxa_efetiva_pct:81, conciliacao:'servico_revisar' },
+    { order_id:'584299881122334455', data:'2026-06-03', produto:'Body Básico Feminino Regata', qty:2, preco_tabela:90.00, desconto_pct:50, receita_liq:45.00, comissao_real:2.70, comissao_esperada:2.70, servico_frete_real:8.70, servico_frete_esperado:10.70, afiliada_real:4.50, ads_real:0, settlement:29.10, taxa_efetiva_pct:35, conciliacao:'com_devolucao' },
+    { order_id:'584154067080283289', data:'2026-06-20', produto:'Shorts Mom Jeans', qty:1, preco_tabela:80.00, desconto_pct:35, receita_liq:52.00, comissao_real:3.12, comissao_esperada:3.12, servico_frete_real:7.12, servico_frete_esperado:7.12, afiliada_real:0, ads_real:0, settlement:0, taxa_efetiva_pct:0, conciliacao:'repasse_faltante' },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
+      const data = p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();
@@ -76,7 +86,7 @@ const PED = [
 
   await page.goto(`${url}/conciliacao.html`, { waitUntil:'networkidle' });
   await page.waitForTimeout(1800);
-  const tabs = ['visao','repasse','receber','produtos','lucro','ads','pedidos'];
+  const tabs = ['visao','conciliacao','repasse','receber','produtos','lucro','ads','pedidos'];
   for (const t of tabs) {
     if (t !== 'visao') { await page.click(`#tabnav button[data-t="${t}"]`).catch(()=>{}); await page.waitForTimeout(700); }
     const out = path.resolve(__dirname, 'out', `conc-${t}.png`);

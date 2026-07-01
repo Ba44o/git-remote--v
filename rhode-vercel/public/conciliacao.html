@@ -189,7 +189,7 @@ const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','De
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
 // estado
-let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}, MESES=[];
+let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}, CONC={}, MESES=[];
 let TAB='visao';
 let FILTER={modo:'tudo', mes:'', de:'', ate:''};
 let CHART=null;
@@ -197,19 +197,21 @@ let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||9.25;
 let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||34;
 function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{localStorage.setItem('rhode_tx_venda',n)}catch(e){}}else{TX_IR=n;try{localStorage.setItem('rhode_tx_ir',n)}catch(e){}} render();}
 
-const TABS=[['visao','Visão Geral'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['lucro','Lucro'],['ads','Ads'],['pedidos','Pedidos']];
+const TABS=[['visao','Visão Geral'],['conciliacao','Conciliação'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['lucro','Lucro'],['ads','Ads'],['pedidos','Pedidos']];
 
 async function load(){
-  const [fin, ped, cpv, ads, stx, div, ofi] = await Promise.all([
+  const [fin, ped, cpv, ads, stx, div, ofi, conc] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
     admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku,status',{paged:true}),
     admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
     admProxy('GET','ads_gmvmax?select=periodo,campanha,custo,receita_bruta,pedidos',{paged:true}),
     admProxy('GET','statement_tx_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
     admProxy('GET','repasse_divergencias?select=*',{paged:true}).catch(()=>({data:[]})),
-    admProxy('GET','gmv_oficial_resumo?select=*',{paged:true}).catch(()=>({data:[]}))
+    admProxy('GET','gmv_oficial_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
+    admProxy('GET','conciliacao_resumo?select=*',{paged:true}).catch(()=>({data:[]}))
   ]);
   OFI={}; (ofi&&ofi.data?ofi.data:[]).forEach(r=>{ if(r.periodo) OFI[r.periodo]=r; });
+  CONC={}; (conc&&conc.data?conc.data:[]).forEach(r=>{ if(r.periodo) CONC[r.periodo]=r; });
   CPVMAP={}; (cpv.data||[]).forEach(r=>{ if(r.ref) CPVMAP[String(r.ref).toUpperCase()]=+r.cpv||0; });
   STX={}; (stx.data||[]).forEach(r=>{ if(r.periodo) STX[r.periodo]=r; });
   DIV = (div&&div.data)?div.data:[];
@@ -278,7 +280,16 @@ function agg(meses){
   meses.forEach(m=>{const a=ADS[m]; if(!a)return; ad.custo+=a.custo;ad.receita+=a.receita;ad.pedidos+=a.pedidos; Object.entries(a.camp).forEach(([n,c])=>{const x=ad.camp[n]||(ad.camp[n]={custo:0,receita:0,pedidos:0});x.custo+=c.custo;x.receita+=c.receita;x.pedidos+=c.pedidos;});});
   let gmvLt=0,qtyGe=0; meses.forEach(m=>{const s=SPLIT[m]; if(s){gmvLt+=s.gmvLt;qtyGe+=s.qtyGe;}});
   const tarifaExtra=0.04*gmvLt+2.0*qtyGe;
-  return {A,gmv,qty,gmvAll,gmvVal,qtyVal,cancV,pago,faturamento,ofiHas,gmvOficial,ofiFrete,ofiProduto,ofiPagoCanc,ofiProdValido,ofiN,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra};
+  // CONCILIAÇÃO (esperado × real)
+  const C={has:false,receita:0,repasse:0,com_real:0,com_esp:0,serv_real:0,serv_esp:0,afi:0,ads:0,fre:0,tabela:0,desc:0,div_serv:0,custo_dev:0,faltante:0,imp:0,n_ok:0,n_serv:0,n_com:0,n_dev:0,n_falt:0,n_canc:0,n_total:0};
+  meses.forEach(m=>{const c=CONC[m]; if(!c)return; C.has=true;
+    C.receita+=+c.receita||0; C.repasse+=+c.repasse||0; C.com_real+=+c.comissao_real||0; C.com_esp+=+c.comissao_esp||0;
+    C.serv_real+=+c.servico_real||0; C.serv_esp+=+c.servico_esp||0; C.afi+=+c.afiliada||0; C.ads+=+c.ads||0; C.fre+=+c.frete||0;
+    C.tabela+=+c.preco_tabela||0; C.desc+=+c.desconto_vendedor||0; C.div_serv+=+c.div_servico_revisar||0; C.custo_dev+=+c.custo_devolucao||0;
+    C.faltante+=+c.valor_faltante||0; C.imp+=+c.impacto_1507||0;
+    C.n_ok+=+c.n_ok||0; C.n_serv+=+c.n_servico||0; C.n_com+=+c.n_comissao||0; C.n_dev+=+c.n_devolucao||0; C.n_falt+=+c.n_faltante||0; C.n_canc+=+c.n_cancelado||0; C.n_total+=+c.pedidos_total||0;
+  });
+  return {A,gmv,qty,gmvAll,gmvVal,qtyVal,cancV,pago,faturamento,ofiHas,gmvOficial,ofiFrete,ofiProduto,ofiPagoCanc,ofiProdValido,ofiN,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra,conc:C};
 }
 
 // helpers UI
@@ -291,6 +302,7 @@ function render(){
   const el=document.getElementById('content');
   if(!ms.length){ el.innerHTML='<div class="empty">Sem dados no período.</div>'; return; }
   if(TAB==='visao')    el.innerHTML=renderVisao(D,ms);
+  else if(TAB==='conciliacao'){ el.innerHTML=renderConciliacao(D,ms); loadConcDrill(); }
   else if(TAB==='repasse') el.innerHTML=renderRepasse(D,ms);
   else if(TAB==='receber') el.innerHTML=renderReceber(D);
   else if(TAB==='produtos')el.innerHTML=renderProdutos(D);
@@ -352,6 +364,91 @@ function drawChart(){
 }
 
 // ===== REPASSE =====
+// ===== CONCILIAÇÃO (esperado × real) =====
+function renderConciliacao(D,ms){
+  const C=D.conc;
+  if(!C.has) return `<div class="sec"><div class="empty">Rode <span class="mono">conciliacao_pedido.sql</span> (view v2) pra ligar a conciliação esperado×real.<br><small>Precisa do statement_tx itemizado (backfill).</small></div></div>`;
+  const feeTot=C.com_real+C.serv_real+C.afi+C.ads, taxaEf=C.receita?feeTot/C.receita*100:0;
+  const divCom=C.com_real-C.com_esp, descPct=C.tabela?C.desc/C.tabela*100:0;
+  const k=`<div class="kpis k6">
+    ${kpi('Receita líquida',fmt(C.receita),NUM.format(C.n_total)+' pedidos','k6')}
+    ${kpi('Taxa efetiva',taxaEf.toFixed(1)+'%','fee / receita','k6')}
+    ${kpi('Repasse',fmt(C.repasse),'líquido recebido','k6 accent')}
+    ${kpi('Comissão',fmt(C.com_real),'esp '+fmt(C.com_esp)+' · '+(divCom>=0?'+':'')+fmt(divCom),'k6')}
+    ${kpi('A recuperar',fmt(C.faltante),NUM.format(C.n_falt)+' faltantes','k6')}
+    ${kpi('Impacto 15/07',fmt(C.imp),feeTot?'+'+(C.imp/feeTot*100).toFixed(1)+'% no fee':'','k6 danger')}
+  </div>`;
+  const feeRow=(lbl,real,esp,note)=>{const dv=esp!=null?real-esp:null;
+    const st=dv==null?'—':(Math.abs(dv)<=Math.max(2,esp*0.02)?'<span class="tag ok">ok</span>':(dv>0?'<span class="tag warn">+'+fmt(dv)+'</span>':'<span class="tag mut">'+fmt(dv)+'</span>'));
+    return `<tr><td class="mp">${lbl}${note?'<br><small style="color:var(--ink-48);font-weight:400">'+note+'</small>':''}</td><td>${fmt(real)}</td><td>${esp!=null?fmt(esp):'—'}</td><td style="text-align:right">${st}</td></tr>`;};
+  const casc=`<div class="sec"><div class="sec-h"><h2>Taxas: esperado × real <span class="pill">contratado TikTok BR</span></h2><div class="meta">${periodoLabel()}</div></div>
+    <table><thead><tr><th>Componente</th><th>Real</th><th>Esperado</th><th style="text-align:right">Status</th></tr></thead><tbody>
+    ${feeRow('Comissão plataforma',C.com_real,C.com_esp,'6% da receita líquida')}
+    ${feeRow('Serviço + Frete grátis',C.serv_real,C.serv_esp,'6% + R$4/item')}
+    ${feeRow('Comissão afiliada',C.afi,null,'taxa da creator (varia por produto)')}
+    ${feeRow('Mídia GMV Max',C.ads,null,'custo de campanha')}
+    ${feeRow('Frete líquido',C.fre,null,'')}
+    </tbody></table>
+    <div class="note green"><span>✅</span><div>A <b>comissão bate 6% ao centavo</b> (validado em 480+ pedidos). O "serviço+frete acima" é majoritariamente <b>frete não-subsidiado</b> que você absorve — custo real, a revisar caso a caso, não overcharge garantido.</div></div></div>`;
+  const causa=(lbl,n,cor,val)=>`<div class="casc-row"><div class="casc-lbl">${lbl}${val!=null?'<small>'+fmt(val)+'</small>':''}</div><div class="casc-bar"><i style="width:${Math.min(100,n/Math.max(1,C.n_total)*100)}%;background:${cor}"></i></div><div class="casc-val">${NUM.format(n)}</div></div>`;
+  const causas=`<div class="sec"><div class="sec-h"><h2>Conciliação por status</h2><div class="meta">${NUM.format(C.n_total)} pedidos</div></div>
+    ${causa('✅ Conciliado (ok)',C.n_ok,'var(--green)')}
+    ${causa('⚠️ Serviço/frete a revisar',C.n_serv,'var(--orange)',C.div_serv)}
+    ${causa('↩️ Com devolução',C.n_dev,'#9a7030',C.custo_dev)}
+    ${causa('🔺 Comissão acima',C.n_com,'var(--rhode-red)')}
+    ${causa('🕐 Repasse faltante',C.n_falt,'var(--blue)',C.faltante)}
+    ${causa('✖️ Cancelado',C.n_canc,'var(--ink-24)')}</div>`;
+  const mx=Math.max(C.tabela,1);
+  const promo=`<div class="grid2">
+    <div class="sec"><div class="sec-h"><h2>Promoção — o que você banca</h2></div>
+      ${cascRow('Preço de tabela','soma dos preços "de"',C.tabela,'#cbd5e1',mx)}
+      ${cascRow('− Desconto do vendedor',descPct.toFixed(0)+'% · promo que você absorve',-C.desc,'var(--rhode-red)',mx)}
+      ${cascRow('= Receita líquida','preço real de venda',C.receita,'var(--green)',mx,'total')}
+      <div class="note" style="margin-top:12px"><span>🏷️</span><div>Você desconta <b>${descPct.toFixed(0)}%</b> do preço de tabela em promoção — define a base de <b>todas</b> as taxas, e o gatilho 15/07 usa o preço <b>pós-desconto</b>.</div></div></div>
+    <div class="sec"><div class="sec-h"><h2>Simulação tarifa 15/07</h2></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:800;color:var(--rhode-red)">+${fmt(C.imp)}<span style="font-size:14px;color:var(--ink-48);font-weight:500">/mês</span></div>
+      <div style="font-size:13px;color:var(--ink-64);margin-top:10px;line-height:1.5">Custo novo a partir de <b>15/07/2026</b>: comissão de itens &lt;R$50 sobe 6%→10%; taxa por item ≥R$50 sobe R$4→R$6. ${feeTot?'<b>+'+(C.imp/feeTot*100).toFixed(1)+'%</b> sobre o fee atual.':''}</div></div>
+  </div>`;
+  return k+casc+causas+promo+renderConcDrillShell();
+}
+function renderConcDrillShell(){
+  return `<div class="sec"><div class="sec-h"><h2>Pedidos · conciliação linha a linha</h2>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <select id="conc-filtro" onchange="loadConcDrill()">
+        <option value="">todos os status</option><option value="servico_revisar">serviço a revisar</option>
+        <option value="comissao_acima">comissão acima</option><option value="com_devolucao">com devolução</option>
+        <option value="repasse_faltante">repasse faltante</option><option value="ok">ok</option></select>
+      <input class="search" id="conc-search" placeholder="order_id…" oninput="renderConcTable()"></div></div>
+    <div id="conc-body"><div class="loading">Carregando pedidos…</div></div></div>`;
+}
+let CONCROWS=[];
+async function loadConcDrill(){
+  const ms=getMeses(), f=document.getElementById('conc-filtro')?document.getElementById('conc-filtro').value:'';
+  let path='conciliacao_pedido?select=order_id,data,produto,qty,preco_tabela,desconto_pct,receita_liq,comissao_real,comissao_esperada,servico_frete_real,servico_frete_esperado,afiliada_real,ads_real,settlement,taxa_efetiva_pct,conciliacao&order=receita_liq.desc&limit=300';
+  if(ms.length===1) path+=`&periodo=eq.${ms[0]}`; else if(ms.length) path+=`&periodo=in.(${ms.join(',')})`;
+  if(f) path+=`&conciliacao=eq.${f}`;
+  try{ const r=await admProxy('GET',path); CONCROWS=r.data||[]; renderConcTable(); }
+  catch(e){ const b=document.getElementById('conc-body'); if(b) b.innerHTML=`<div class="empty">Rode <span class="mono">conciliacao_pedido.sql</span> pra ativar o drill.<br><small>${e.message}</small></div>`; }
+}
+function renderConcTable(){
+  const b=document.getElementById('conc-body'); if(!b) return;
+  const query=(document.getElementById('conc-search')?document.getElementById('conc-search').value:'').trim().toLowerCase();
+  const rows=CONCROWS.filter(r=>!query||String(r.order_id).toLowerCase().includes(query));
+  if(!rows.length){ b.innerHTML='<div class="empty">Nenhum pedido.</div>'; return; }
+  const tag=c=>({ok:'<span class="tag ok">ok</span>',servico_revisar:'<span class="tag warn">serviço</span>',comissao_acima:'<span class="tag warn">comissão</span>',com_devolucao:'<span class="tag mut">devolução</span>',repasse_faltante:'<span class="tag mut">faltante</span>',cancelado:'<span class="tag mut">cancelado</span>'}[c]||c);
+  b.innerHTML=`<div style="font-size:11.5px;color:var(--ink-48);margin-bottom:8px">${rows.length} pedidos · top 300 por receita · ${periodoLabel()}</div>
+  <table><thead><tr><th>Pedido</th><th>Produto</th><th>Tabela</th><th>Desc%</th><th>Receita</th><th>Comissão</th><th>Serv/Frete</th><th>Repasse</th><th>Taxa</th><th>Status</th></tr></thead><tbody>
+  ${rows.slice(0,200).map(r=>`<tr>
+    <td class="mono" style="font-size:11px">${r.order_id}</td>
+    <td class="mp" style="max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${(r.produto||'').replace(/"/g,'')}">${r.produto||'—'}</td>
+    <td>${fmt(+r.preco_tabela||0)}</td><td>${r.desconto_pct!=null?(+r.desconto_pct).toFixed(0)+'%':'—'}</td>
+    <td>${fmt(+r.receita_liq||0)}</td>
+    <td title="esperado ${fmt(+r.comissao_esperada||0)}">${fmt(+r.comissao_real||0)}</td>
+    <td title="esperado ${fmt(+r.servico_frete_esperado||0)}">${fmt(+r.servico_frete_real||0)}</td>
+    <td>${fmt(+r.settlement||0)}</td><td>${r.taxa_efetiva_pct!=null?(+r.taxa_efetiva_pct).toFixed(0)+'%':'—'}</td>
+    <td>${tag(r.conciliacao)}</td></tr>`).join('')}</tbody></table>`;
+}
+
 function renderRepasse(D,ms){
   const A=D.A, maxv=Math.max(A.rev,1), taxaPct=pct(Math.abs(A.fee),A.rev);
   const cascata=`<div class="sec"><div class="sec-h"><h2>Caminho do dinheiro</h2><div class="meta">${periodoLabel()} · base settlement</div></div>
