@@ -32,6 +32,32 @@ def F(x):
     except (TypeError, ValueError): return 0.0
 
 
+# coluna_no_supabase -> campo_na_API. Itemiza o settlement pra separar
+# taxa normal (comissão/frete/serviço) de custo de DEVOLUÇÃO e da promoção.
+FIELDS = {
+    "customer_payment":         "customer_payment_amount",
+    "settlement":               "settlement_amount",
+    "fee_total":                "fee_amount",
+    "platform_commission":      "platform_commission_amount",
+    "affiliate_commission":     "affiliate_commission_amount",
+    "affiliate_ads_commission": "affiliate_ads_commission_amount",
+    "affiliate_partner":        "affiliate_partner_commission_amount",
+    "referral_fee":             "referral_fee_amount",
+    "transaction_fee":          "transaction_fee_amount",
+    "shipping":                 "shipping_cost_amount",
+    "adjustment":               "adjustment_amount",
+    # receita / promoção
+    "gross_sales":              "gross_sales_amount",
+    "seller_discount":          "seller_discount_amount",
+    "platform_discount":        "platform_discount_amount",
+    "revenue":                  "revenue_amount",
+    # custos de DEVOLUÇÃO (separar da taxa normal!)
+    "customer_refund":          "customer_refund_amount",
+    "return_shipping":          "return_shipping_fee_amount",
+    "refund_admin_fee":         "refund_administration_fee_amount",
+}
+
+
 def retry(method, path, params=None):
     """Retry no rate-limit (code 36009002) com backoff — igual ao analise_liquidacao_66."""
     r = None
@@ -93,18 +119,9 @@ def main():
                     per  = datetime.fromtimestamp(ct, tz=timezone.utc).strftime("%Y-%m") if ct else None
                     row = acc[key] = {"id": f"{sid}:{oid}", "statement_id": str(sid), "order_id": oid,
                         "order_create_time": ct, "data": data, "periodo": per,
-                        "customer_payment": 0.0, "settlement": 0.0, "fee_total": 0.0,
-                        "platform_commission": 0.0, "affiliate_commission": 0.0,
-                        "affiliate_ads_commission": 0.0, "shipping": 0.0, "adjustment": 0.0,
-                        "moeda": t.get("currency") or "BRL"}
-                row["customer_payment"]        = round(row["customer_payment"] + F(t.get("customer_payment_amount")), 2)
-                row["settlement"]              = round(row["settlement"] + F(t.get("settlement_amount")), 2)
-                row["fee_total"]               = round(row["fee_total"] + F(t.get("fee_amount")), 2)
-                row["platform_commission"]     = round(row["platform_commission"] + F(t.get("platform_commission_amount")), 2)
-                row["affiliate_commission"]    = round(row["affiliate_commission"] + F(t.get("affiliate_commission_amount")), 2)
-                row["affiliate_ads_commission"]= round(row["affiliate_ads_commission"] + F(t.get("affiliate_ads_commission_amount")), 2)
-                row["shipping"]                = round(row["shipping"] + F(t.get("shipping_cost_amount")), 2)
-                row["adjustment"]              = round(row["adjustment"] + F(t.get("adjustment_amount")), 2)
+                        "moeda": t.get("currency") or "BRL", **{c: 0.0 for c in FIELDS}}
+                for col, src in FIELDS.items():
+                    row[col] = round(row[col] + F(t.get(src)), 2)
                 ntx += 1
             cur = d.get("next_page_token", "")
             if not cur or not txs: break
