@@ -190,6 +190,82 @@ input,button,select,textarea{font-family:inherit;color:inherit;background:none;b
 
 .empty{text-align:center;padding:60px 20px;color:var(--ink-48);font-size:13px}
 .spin{text-align:center;padding:40px;color:var(--ink-48);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+/* ── APARÊNCIA (config global) ── */
+.panel{
+  background:var(--panel);border:1px solid var(--hairline);border-radius:14px;
+  margin-bottom:14px;overflow:hidden;
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.panel-head:hover{background:var(--panel-2)}
+.panel-head-left{display:flex;align-items:center;gap:10px}
+.panel-head-title{font-weight:600;font-size:14px}
+.panel-head-title small{font-family:'DM Sans',sans-serif;font-weight:500;font-size:11px;letter-spacing:.06em;color:var(--ink-48);margin-left:8px}
+.panel-head-ico{width:28px;height:28px;border-radius:8px;background:var(--amarelo);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px}
+.panel-chev{color:var(--ink-48);transition:transform .2s;font-size:14px}
+.panel.open .panel-chev{transform:rotate(180deg)}
+.panel-body{display:none;padding:2px 16px 18px;border-top:1px solid var(--hairline)}
+.panel.open .panel-body{display:block}
+
+.cfg-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+@media(min-width:640px){.cfg-grid{grid-template-columns:1fr 1fr}}
+.cfg-grid .cfg-field.full{grid-column:1/-1}
+.cfg-field{display:flex;flex-direction:column;gap:6px}
+.cfg-field label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500}
+
+/* color picker */
+.cp{display:flex;align-items:center;gap:8px}
+.cp-swatch{
+  width:38px;height:38px;border-radius:9px;
+  border:1px solid var(--hairline-2);cursor:pointer;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.cp-swatch input[type=color]{
+  position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);
+  border:none;padding:0;cursor:pointer;background:none;
+}
+.cp-hex{
+  flex:1;min-width:0;height:38px;padding:0 12px;
+  background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;
+  font-family:'DM Sans',ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.03em;
+  text-transform:uppercase;
+}
+.cp-hex:focus{border-color:var(--amarelo)}
+
+/* segmented control */
+.seg{display:flex;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:3px;gap:2px}
+.seg button{
+  flex:1;height:32px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-64);border-radius:6px;cursor:pointer;font-weight:500;
+  transition:background .12s,color .12s;
+}
+.seg button.on{background:var(--amarelo);color:var(--bg);font-weight:700}
+
+.slider-row{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--ink-64);height:38px}
+.slider-row input[type=range]{flex:1;accent-color:var(--amarelo);height:4px}
+.slider-row output{min-width:44px;text-align:right;color:var(--fg);font-weight:600}
+
+.panel-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:16px}
+.panel-hint{flex:1;font-size:11px;color:var(--ink-48)}
+
+/* presets amostra */
+.presets-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.preset-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 12px;border-radius:99px;border:1px solid var(--hairline);
+  font-size:11px;letter-spacing:.04em;cursor:pointer;color:var(--fg);
+  transition:border-color .12s,background .12s;font-family:inherit;
+}
+.preset-chip:hover{border-color:var(--hairline-2);background:var(--panel-2)}
+.preset-chip .swatch{display:inline-block;width:14px;height:14px;border-radius:99px;border:1px solid rgba(255,255,255,.15)}
+
+/* form-section (dentro do form de bloco) */
+.form-section{grid-column:1/-1;margin-top:10px;padding-top:14px;border-top:1px dashed var(--hairline)}
+.form-section-title{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -216,6 +292,81 @@ input,button,select,textarea{font-family:inherit;color:inherit;background:none;b
   </div>
 
   <div class="app">
+    <!-- Painel Aparência -->
+    <div class="panel" id="panelAparencia">
+      <div class="panel-head" id="phAparencia">
+        <div class="panel-head-left">
+          <div class="panel-head-ico">🎨</div>
+          <div class="panel-head-title">Aparência<small id="apHint">carregando…</small></div>
+        </div>
+        <div class="panel-chev">▾</div>
+      </div>
+      <div class="panel-body" id="pbAparencia">
+        <div class="cfg-grid">
+          <!-- Fundo -->
+          <div class="cfg-field full">
+            <label>Tipo de fundo</label>
+            <div class="seg" id="segBgType">
+              <button type="button" data-v="solid">Cor sólida</button>
+              <button type="button" data-v="gradient">Gradient</button>
+            </div>
+          </div>
+          <div class="cfg-field">
+            <label>Cor 1 (fundo)</label>
+            <div class="cp">
+              <div class="cp-swatch" style="background:#0A0A0A" id="swBg"><input type="color" id="cpBg" value="#0A0A0A"></div>
+              <input class="cp-hex" id="hxBg" value="#0A0A0A" maxlength="7">
+            </div>
+          </div>
+          <div class="cfg-field" id="wrapBg2">
+            <label>Cor 2 (gradient)</label>
+            <div class="cp">
+              <div class="cp-swatch" style="background:#1a1a1a" id="swBg2"><input type="color" id="cpBg2" value="#1a1a1a"></div>
+              <input class="cp-hex" id="hxBg2" value="#1a1a1a" maxlength="7">
+            </div>
+          </div>
+          <div class="cfg-field full" id="wrapAngle">
+            <label>Ângulo do gradient</label>
+            <div class="slider-row">
+              <input type="range" id="cpAngle" min="0" max="360" step="15" value="180">
+              <output id="outAngle">180°</output>
+            </div>
+          </div>
+
+          <!-- Presets -->
+          <div class="cfg-field full">
+            <label>Presets rápidos</label>
+            <div class="presets-row" id="presets"></div>
+          </div>
+
+          <!-- Cores -->
+          <div class="cfg-field">
+            <label>Cor de destaque</label>
+            <div class="cp">
+              <div class="cp-swatch" style="background:#F2D413" id="swAcc"><input type="color" id="cpAcc" value="#F2D413"></div>
+              <input class="cp-hex" id="hxAcc" value="#F2D413" maxlength="7">
+            </div>
+          </div>
+          <div class="cfg-field">
+            <label>Cor do texto</label>
+            <div class="cp">
+              <div class="cp-swatch" style="background:#FFFFFF" id="swFg"><input type="color" id="cpFg" value="#FFFFFF"></div>
+              <input class="cp-hex" id="hxFg" value="#FFFFFF" maxlength="7">
+            </div>
+          </div>
+          <div class="cfg-field full">
+            <label>Tagline</label>
+            <input class="cp-hex" id="cfgTagline" value="" style="text-transform:none;font-family:inherit;font-size:13px;letter-spacing:0" maxlength="140">
+          </div>
+        </div>
+        <div class="panel-actions">
+          <div class="panel-hint">Alterações refletem no bio ao vivo após salvar.</div>
+          <button class="btn-cancel" id="btnResetCfg" type="button">Padrão</button>
+          <button class="btn-primary" id="btnSaveCfg" type="button">Salvar aparência</button>
+        </div>
+      </div>
+    </div>
+
     <div class="actions-bar">
       <div class="title">Blocos<small id="counter">—</small></div>
       <button class="btn-primary" id="btnNew">+ Novo bloco</button>
@@ -269,7 +420,7 @@ async function api(method,path,body){
 }
 
 function showLogin(){ el.login.style.display='flex'; el.app.style.display='none'; el.pwd.value=''; setTimeout(()=>el.pwd.focus(),50); }
-function showApp(){ el.login.style.display='none'; el.app.style.display='block'; loadList(); }
+function showApp(){ el.login.style.display='none'; el.app.style.display='block'; loadList(); if(typeof loadCfg==='function') loadCfg(); }
 
 el.loginForm.addEventListener('submit',async(e)=>{
   e.preventDefault();
@@ -364,8 +515,13 @@ async function del(id){
 }
 
 function openEdit(rowEl,id){
-  const r=rows.find(x=>x.id===id) || {ordem:(rows.at(-1)?.ordem||0)+10,ativo:true,destaque:false,icone:'→'};
+  const r=rows.find(x=>x.id===id) || {ordem:(rows.at(-1)?.ordem||0)+10,ativo:true,destaque:false,icone:'→',meta:null};
   const isNew=!id;
+  const styles=(r.meta&&r.meta.styles)||{};
+  const preset=styles.preset || (r.destaque?'destaque':'default');
+  const stBg=styles.bg||'#8b5cf6';
+  const stColor=styles.color||'#FFFFFF';
+
   document.querySelectorAll('.row.editing').forEach(e=>{e.classList.remove('editing');e.querySelector('.row-edit').innerHTML=''});
   rowEl.classList.add('editing');
   const editEl=rowEl.querySelector('.row-edit');
@@ -377,16 +533,69 @@ function openEdit(rowEl,id){
       <div class="field"><label>Ícone (emoji)</label><input id="f-icone" value="${fmt(r.icone||'')}" placeholder="🛍" maxlength="4"></div>
       <div class="field"><label>Ordem</label><input id="f-ordem" value="${r.ordem||10}" type="number" step="10"></div>
       <div class="field full check-row">
-        <label class="check"><input type="checkbox" id="f-ativo" ${r.ativo?'checked':''}> Ativo (aparece no bio)</label>
-        <label class="check"><input type="checkbox" id="f-destaque" ${r.destaque?'checked':''}> Destaque (fundo amarelo)</label>
+        <label class="check"><input type="checkbox" id="f-ativo" ${r.ativo?'checked':''}> Ativo</label>
+        <label class="check"><input type="checkbox" id="f-destaque" ${r.destaque?'checked':''}> Destaque (topo)</label>
       </div>
+
+      <div class="form-section">
+        <div class="form-section-title">🎨 Estilo visual</div>
+        <div class="cfg-grid">
+          <div class="cfg-field full">
+            <label>Modelo</label>
+            <div class="seg" id="segPreset">
+              <button type="button" data-v="default">Padrão</button>
+              <button type="button" data-v="destaque">Amarelo</button>
+              <button type="button" data-v="solid">Cor sólida</button>
+              <button type="button" data-v="ghost">Contorno</button>
+            </div>
+          </div>
+          <div class="cfg-field" data-cf="bg">
+            <label>Cor de fundo</label>
+            <div class="cp">
+              <div class="cp-swatch" style="background:${fmt(stBg)}"><input type="color" id="bl-bg" value="${fmt(stBg)}"></div>
+              <input class="cp-hex" id="bl-bg-hex" value="${fmt(stBg)}" maxlength="7">
+            </div>
+          </div>
+          <div class="cfg-field" data-cf="color">
+            <label>Cor do texto</label>
+            <div class="cp">
+              <div class="cp-swatch" style="background:${fmt(stColor)}"><input type="color" id="bl-color" value="${fmt(stColor)}"></div>
+              <input class="cp-hex" id="bl-color-hex" value="${fmt(stColor)}" maxlength="7">
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="form-actions full">
         <button class="btn-cancel" data-a="cancel">Cancelar</button>
         <button class="btn-save" data-a="save">${isNew?'Criar':'Salvar'}</button>
       </div>
     </div>`;
+
+  // ── segmented preset
+  const seg=editEl.querySelector('#segPreset');
+  let selPreset=preset;
+  function refreshPreset(){
+    seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===selPreset));
+    // exibe/oculta campos de cor conforme preset
+    const showBg=(selPreset!=='default');
+    const showColor=(selPreset==='solid'||selPreset==='ghost'||selPreset==='destaque');
+    editEl.querySelector('[data-cf="bg"]').style.display   = showBg?'flex':'none';
+    editEl.querySelector('[data-cf="color"]').style.display= showColor?'flex':'none';
+  }
+  seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{selPreset=b.dataset.v;refreshPreset()}));
+  refreshPreset();
+
+  // ── color pickers wire (color ↔ hex input)
+  wireColor(editEl.querySelector('#bl-bg'),editEl.querySelector('#bl-bg-hex'));
+  wireColor(editEl.querySelector('#bl-color'),editEl.querySelector('#bl-color-hex'));
+
   editEl.querySelector('[data-a="cancel"]').addEventListener('click',()=>{ rowEl.classList.remove('editing'); editEl.innerHTML=''; if(isNew) loadList(); });
   editEl.querySelector('[data-a="save"]').addEventListener('click',async()=>{
+    const styles={preset:selPreset};
+    if(selPreset!=='default') styles.bg=editEl.querySelector('#bl-bg-hex').value.trim();
+    if(selPreset==='solid'||selPreset==='ghost'||selPreset==='destaque') styles.color=editEl.querySelector('#bl-color-hex').value.trim();
+    const meta=Object.assign({},r.meta||{},{styles});
     const body={
       titulo: editEl.querySelector('#f-titulo').value.trim(),
       subtitulo: editEl.querySelector('#f-sub').value.trim()||null,
@@ -395,6 +604,7 @@ function openEdit(rowEl,id){
       ordem: parseInt(editEl.querySelector('#f-ordem').value,10)||100,
       ativo: editEl.querySelector('#f-ativo').checked,
       destaque: editEl.querySelector('#f-destaque').checked,
+      meta,
     };
     if(!body.titulo||!body.url){ toast('titulo e url são obrigatórios','err'); return; }
     if(!/^https?:\/\//.test(body.url)){ toast('url deve começar com http(s)://','err'); return; }
@@ -408,6 +618,17 @@ function openEdit(rowEl,id){
   });
 }
 
+// ── util: sincroniza <input type=color> com <input type=text hex>
+function wireColor(cpEl,hexEl){
+  const swatch=cpEl.parentElement;
+  const paint=(v)=>{ if(swatch) swatch.style.background=v; };
+  cpEl.addEventListener('input',()=>{ hexEl.value=cpEl.value.toUpperCase(); paint(cpEl.value); });
+  hexEl.addEventListener('input',()=>{
+    let v=hexEl.value.trim(); if(v&&!v.startsWith('#')) v='#'+v;
+    if(/^#[0-9a-fA-F]{6}$/.test(v)){ cpEl.value=v; paint(v); }
+  });
+}
+
 // Add novo bloco — cria uma "row" placeholder e abre editor
 el.btnNew.addEventListener('click',()=>{
   const placeholder=document.createElement('div');
@@ -417,6 +638,127 @@ el.btnNew.addEventListener('click',()=>{
   placeholder.innerHTML='<div class="row-summary" style="opacity:.6"><div class="row-icon">＋</div><div class="row-info"><div class="row-titulo">Novo bloco</div><div class="row-sub">preencha abaixo</div></div></div><div class="row-edit"></div>';
   el.list.insertBefore(placeholder,el.list.firstChild);
   openEdit(placeholder,0);
+});
+
+// ═══════════════════════════════════════════════════════════
+// APARÊNCIA (config global)
+// ═══════════════════════════════════════════════════════════
+const cfgEls={
+  panel:document.getElementById('panelAparencia'),
+  head:document.getElementById('phAparencia'),
+  hint:document.getElementById('apHint'),
+  segBg:document.getElementById('segBgType'),
+  cpBg:document.getElementById('cpBg'),hxBg:document.getElementById('hxBg'),
+  cpBg2:document.getElementById('cpBg2'),hxBg2:document.getElementById('hxBg2'),
+  wrapBg2:document.getElementById('wrapBg2'),
+  cpAngle:document.getElementById('cpAngle'),outAngle:document.getElementById('outAngle'),wrapAngle:document.getElementById('wrapAngle'),
+  cpAcc:document.getElementById('cpAcc'),hxAcc:document.getElementById('hxAcc'),
+  cpFg:document.getElementById('cpFg'),hxFg:document.getElementById('hxFg'),
+  tagline:document.getElementById('cfgTagline'),
+  btnSave:document.getElementById('btnSaveCfg'),
+  btnReset:document.getElementById('btnResetCfg'),
+  presets:document.getElementById('presets'),
+};
+
+let currentCfg={};
+let bgType='solid';
+
+// abre/fecha o painel
+cfgEls.head.addEventListener('click',()=>cfgEls.panel.classList.toggle('open'));
+
+// segmented bg type
+cfgEls.segBg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+  bgType=b.dataset.v; refreshBgType();
+}));
+function refreshBgType(){
+  cfgEls.segBg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===bgType));
+  cfgEls.wrapBg2.style.display   = bgType==='gradient'?'flex':'none';
+  cfgEls.wrapAngle.style.display = bgType==='gradient'?'flex':'none';
+}
+
+// wire color pickers
+wireColor(cfgEls.cpBg,cfgEls.hxBg);
+wireColor(cfgEls.cpBg2,cfgEls.hxBg2);
+wireColor(cfgEls.cpAcc,cfgEls.hxAcc);
+wireColor(cfgEls.cpFg,cfgEls.hxFg);
+
+// slider angle
+cfgEls.cpAngle.addEventListener('input',()=>{ cfgEls.outAngle.value=cfgEls.cpAngle.value+'°'; });
+
+// presets rápidos
+const PRESETS=[
+  {name:'Rhode padrão',bg:'#0A0A0A',accent:'#F2D413',fg:'#FFFFFF',type:'solid'},
+  {name:'Índigo denim',bg:'#101828',bg2:'#1a2540',accent:'#F2D413',fg:'#FFFFFF',type:'gradient',angle:200},
+  {name:'Grafite fosco',bg:'#1a1a1a',bg2:'#2a2a2a',accent:'#F2D413',fg:'#FFFFFF',type:'gradient',angle:180},
+  {name:'Amanhecer',bg:'#F5E6D3',bg2:'#E8D5B7',accent:'#7C2D12',fg:'#1a1a1a',type:'gradient',angle:160},
+  {name:'Preto&Branco',bg:'#FFFFFF',accent:'#000000',fg:'#000000',type:'solid'},
+  {name:'Verde denim',bg:'#0f2419',bg2:'#1a3a2a',accent:'#F2D413',fg:'#FFFFFF',type:'gradient',angle:180},
+];
+function renderPresets(){
+  cfgEls.presets.innerHTML=PRESETS.map((p,i)=>{
+    const bg=p.type==='gradient'?`linear-gradient(${p.angle||180}deg, ${p.bg}, ${p.bg2})`:p.bg;
+    return `<button class="preset-chip" data-i="${i}" type="button"><span class="swatch" style="background:${bg}"></span>${p.name}</button>`;
+  }).join('');
+  cfgEls.presets.querySelectorAll('.preset-chip').forEach(b=>b.addEventListener('click',()=>applyPreset(PRESETS[+b.dataset.i])));
+}
+function applyPreset(p){
+  bgType=p.type;
+  cfgEls.hxBg.value=p.bg; cfgEls.cpBg.value=p.bg; cfgEls.cpBg.parentElement.style.background=p.bg;
+  if(p.bg2){ cfgEls.hxBg2.value=p.bg2; cfgEls.cpBg2.value=p.bg2; cfgEls.cpBg2.parentElement.style.background=p.bg2; }
+  if(p.angle){ cfgEls.cpAngle.value=p.angle; cfgEls.outAngle.value=p.angle+'°'; }
+  cfgEls.hxAcc.value=p.accent; cfgEls.cpAcc.value=p.accent; cfgEls.cpAcc.parentElement.style.background=p.accent;
+  cfgEls.hxFg.value=p.fg; cfgEls.cpFg.value=p.fg; cfgEls.cpFg.parentElement.style.background=p.fg;
+  refreshBgType();
+  toast('preset aplicado — clica em salvar','ok');
+}
+renderPresets();
+
+// carrega config
+async function loadCfg(){
+  try{
+    const arr=await api('GET','rhode_bio_config?select=*&id=eq.1&limit=1');
+    const c=(arr&&arr[0])||{};
+    currentCfg=c;
+    bgType=c.page_bg_type||'solid';
+    setColorField(cfgEls.cpBg,cfgEls.hxBg,c.page_bg||'#0A0A0A');
+    setColorField(cfgEls.cpBg2,cfgEls.hxBg2,c.page_bg_2||'#1a1a1a');
+    cfgEls.cpAngle.value=c.page_bg_angle||180; cfgEls.outAngle.value=(c.page_bg_angle||180)+'°';
+    setColorField(cfgEls.cpAcc,cfgEls.hxAcc,c.accent_color||'#F2D413');
+    setColorField(cfgEls.cpFg,cfgEls.hxFg,c.text_color||'#FFFFFF');
+    cfgEls.tagline.value=c.tagline||'';
+    cfgEls.hint.textContent = bgType==='gradient'?'· gradient':'· sólido';
+    refreshBgType();
+  }catch(err){ cfgEls.hint.textContent='erro: '+err.message; }
+}
+function setColorField(cp,hex,v){ cp.value=v; hex.value=v.toUpperCase(); if(cp.parentElement) cp.parentElement.style.background=v; }
+
+// save
+cfgEls.btnSave.addEventListener('click',async()=>{
+  const body={
+    page_bg:      cfgEls.hxBg.value.trim(),
+    page_bg_type: bgType,
+    page_bg_2:    bgType==='gradient'?cfgEls.hxBg2.value.trim():null,
+    page_bg_angle:parseInt(cfgEls.cpAngle.value,10)||180,
+    accent_color: cfgEls.hxAcc.value.trim(),
+    text_color:   cfgEls.hxFg.value.trim(),
+    tagline:      cfgEls.tagline.value.trim()||null,
+  };
+  cfgEls.btnSave.disabled=true;cfgEls.btnSave.textContent='Salvando…';
+  try{
+    await api('PATCH','rhode_bio_config?id=eq.1',body);
+    toast('aparência salva','ok');
+    cfgEls.hint.textContent = bgType==='gradient'?'· gradient':'· sólido';
+    // limpa cache do bio.html no cliente pra ele re-fetchar mais rápido em teste
+    try{localStorage.removeItem('bio_v3')}catch(e){}
+  }catch(err){ toast(err.message,'err'); }
+  finally{ cfgEls.btnSave.disabled=false;cfgEls.btnSave.textContent='Salvar aparência'; }
+});
+
+// reset padrão
+cfgEls.btnReset.addEventListener('click',()=>{
+  if(!confirm('Voltar pro padrão Rhode?')) return;
+  applyPreset(PRESETS[0]);
+  cfgEls.tagline.value='Denim brasileiro · Fábrica própria';
 });
 
 // ── boot

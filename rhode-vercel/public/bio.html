@@ -80,7 +80,10 @@ body{
 @media(hover:hover){.block:hover{background:var(--card-hover);border-color:rgba(255,255,255,.2)}}
 .block:active{transform:scale(.985)}
 .block.destaque{background:var(--amarelo);border-color:var(--amarelo);color:var(--bg)}
-@media(hover:hover){.block.destaque:hover{background:#e0c410;border-color:#e0c410}}
+@media(hover:hover){.block.destaque:hover{filter:brightness(.94)}}
+.block.ghost{background:transparent;border-color:rgba(255,255,255,.35)}
+.block.solid{border-color:transparent}
+@media(hover:hover){.block.solid:hover,.block.ghost:hover{filter:brightness(1.08)}}
 .block-icon{
   width:36px;height:36px;border-radius:10px;
   background:rgba(255,255,255,.06);border:1px solid var(--hairline);
@@ -95,13 +98,15 @@ body{
   font-weight:700;font-size:14.5px;letter-spacing:-.005em;line-height:1.25;
 }
 @media(min-width:481px){.block-titulo{font-size:15px}}
-.block.destaque .block-titulo{color:var(--bg)}
+.block.destaque .block-titulo,.block.solid .block-titulo{color:inherit}
 .block-sub{
   font-size:11.5px;color:var(--ink-64);margin-top:2px;line-height:1.4;
 }
 .block.destaque .block-sub{color:rgba(10,10,10,.7)}
+.block.solid .block-sub{color:currentColor;opacity:.72}
+.block.ghost .block-sub{color:rgba(255,255,255,.6)}
 .block-arrow{color:var(--ink-48);font-size:16px;flex-shrink:0;line-height:1}
-.block.destaque .block-arrow{color:var(--bg)}
+.block.destaque .block-arrow,.block.solid .block-arrow{color:inherit;opacity:.85}
 footer{
   margin-top:32px;text-align:center;
   font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;
@@ -127,23 +132,60 @@ footer .sep{color:var(--amarelo);margin:0 8px}
 (()=>{
 const SB='https://ivzpykuluxcxefhyzfsf.supabase.co';
 const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
-const CACHE_KEY='bio_v2';
-const CACHE_TTL=6*60*60*1000; // 6h — se mudou algo há mais de 6h, ainda mostra cached mas re-fetcha
+const CACHE_KEY='bio_v3'; // bump — schema mudou (config + meta)
 const el=document.getElementById('blocks');
 const ESC={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>ESC[c]);
 const safe=u=>{try{const x=new URL(u);return['http:','https:','mailto:','tel:'].includes(x.protocol)?u:'#'}catch(e){return'#'}};
+// só permite valores CSS conservadores em cores (evita XSS via style)
+const cssColor=v=>{if(!v||typeof v!=='string')return null;const s=v.trim();return /^(#[0-9a-f]{3,8}|rgb|hsl|[a-z]+)/i.test(s)&&s.length<40&&!/[;"'<>]/.test(s)?s:null};
+const cssInt=(v,min,max,dflt)=>{const n=parseInt(v,10);return Number.isFinite(n)&&n>=min&&n<=max?n:dflt};
 
 let sid;
 try{sid=sessionStorage.getItem('bio_sid');if(!sid){sid=(crypto.randomUUID?crypto.randomUUID():'x'+Math.random().toString(36).slice(2)+Date.now().toString(36));sessionStorage.setItem('bio_sid',sid)}}
 catch(e){sid='x'+Math.random().toString(36).slice(2)}
 
+function applyConfig(c){
+  if(!c) return;
+  const root=document.documentElement, body=document.body;
+  const pageBg=cssColor(c.page_bg), pageBg2=cssColor(c.page_bg_2);
+  if(c.page_bg_type==='gradient'&&pageBg&&pageBg2){
+    const ang=cssInt(c.page_bg_angle,0,360,180);
+    body.style.background=`linear-gradient(${ang}deg, ${pageBg}, ${pageBg2})`;
+    body.style.backgroundAttachment='fixed';
+  }else if(pageBg){ body.style.background=pageBg; }
+  const acc=cssColor(c.accent_color); if(acc) root.style.setProperty('--amarelo',acc);
+  const fg=cssColor(c.text_color); if(fg) root.style.setProperty('--fg',fg);
+  const cb=cssColor(c.card_bg); if(cb) root.style.setProperty('--card',cb);
+  if(c.tagline!=null){ const t=document.querySelector('.tagline'); if(t) t.textContent=c.tagline; }
+}
+
+function styleForBlock(r){
+  const m=(r.meta&&r.meta.styles)||{};
+  const preset=m.preset||(r.destaque?'destaque':'default');
+  const bg=cssColor(m.bg), color=cssColor(m.color);
+  let cls='block '+preset, styleStr='';
+  if(preset==='solid'){
+    if(bg) styleStr+='background:'+bg+';border-color:'+bg+';';
+    if(color) styleStr+='color:'+color+';';
+  }else if(preset==='ghost'){
+    if(bg) styleStr+='border-color:'+bg+';';
+    if(color) styleStr+='color:'+color+';';
+  }else if(preset==='destaque'&&bg){
+    // permite override do amarelo padrão
+    styleStr+='background:'+bg+';border-color:'+bg+';';
+    if(color) styleStr+='color:'+color+';';
+  }
+  return {cls,styleStr};
+}
+
 function render(rows){
   if(!rows||!rows.length){el.innerHTML='';return}
   el.innerHTML=rows.map(r=>{
-    const cls='block'+(r.destaque?' destaque':'');
+    const {cls,styleStr}=styleForBlock(r);
     const sub=r.subtitulo?'<div class="block-sub">'+esc(r.subtitulo)+'</div>':'';
-    return '<a class="'+cls+'" href="'+esc(safe(r.url))+'" target="_blank" rel="noopener" data-lid="'+r.id+'" data-tit="'+esc(r.titulo)+'">'
+    const st=styleStr?' style="'+styleStr+'"':'';
+    return '<a class="'+cls+'"'+st+' href="'+esc(safe(r.url))+'" target="_blank" rel="noopener" data-lid="'+r.id+'" data-tit="'+esc(r.titulo)+'">'
       +'<div class="block-icon">'+esc(r.icone||'→')+'</div>'
       +'<div class="block-info"><div class="block-titulo">'+esc(r.titulo)+'</div>'+sub+'</div>'
       +'<div class="block-arrow">→</div></a>';
@@ -162,24 +204,26 @@ function track(evento,meta){
   }catch(e){}
 }
 
-// 1. Render cache imediatamente (0ms se existe)
+// 1. Render cache imediatamente
 let cached=null;
-try{
-  const raw=localStorage.getItem(CACHE_KEY);
-  if(raw){cached=JSON.parse(raw);if(cached&&cached.rows)render(cached.rows)}
-}catch(e){}
+try{const raw=localStorage.getItem(CACHE_KEY);if(raw){cached=JSON.parse(raw);if(cached){applyConfig(cached.cfg);if(cached.rows) render(cached.rows)}}}catch(e){}
 
-// 2. Fetcha fresh em background — atualiza DOM só se conteúdo mudou
-fetch(SB+'/rest/v1/rhode_links_efetivos?select=id,titulo,subtitulo,url,icone,destaque',{headers:{apikey:AK,Authorization:'Bearer '+AK}})
-  .then(r=>r.ok?r.json():null)
-  .then(rows=>{
-    if(!rows)return;
-    const same=cached&&JSON.stringify(cached.rows)===JSON.stringify(rows);
-    if(!same){render(rows);try{localStorage.setItem(CACHE_KEY,JSON.stringify({rows,at:Date.now()}))}catch(e){}}
-  })
-  .catch(()=>{});
+// 2. Fresh fetch paralelo — config + links
+const H={apikey:AK,Authorization:'Bearer '+AK};
+Promise.all([
+  fetch(SB+'/rest/v1/rhode_bio_config?select=*&id=eq.1',{headers:H}).then(r=>r.ok?r.json():[]).then(a=>a&&a[0]||null).catch(()=>null),
+  fetch(SB+'/rest/v1/rhode_links_efetivos?select=id,titulo,subtitulo,url,icone,destaque,meta',{headers:H}).then(r=>r.ok?r.json():null).catch(()=>null),
+]).then(([cfg,rows])=>{
+  if(cfg===null&&rows===null)return;
+  const same=cached&&JSON.stringify(cached.cfg)===JSON.stringify(cfg)&&JSON.stringify(cached.rows)===JSON.stringify(rows);
+  if(!same){
+    if(cfg) applyConfig(cfg);
+    if(rows) render(rows);
+    try{localStorage.setItem(CACHE_KEY,JSON.stringify({cfg,rows,at:Date.now()}))}catch(e){}
+  }
+});
 
-// 3. Track page_view (async, não bloqueia)
+// 3. Track page_view
 setTimeout(()=>track('page_view',{}),50);
 })();
 </script>
