@@ -94,13 +94,13 @@ GROUP BY 1
 ORDER BY 1 DESC;
 
 
--- ── 4. Seed inicial (bloco mínimo pra página não nascer vazia) ─────────────
+-- ── 4. Seed inicial (espelha o Linktree atual da Rhode) ────────────────────
 INSERT INTO rhode_links (ordem, titulo, subtitulo, url, icone, destaque, ativo)
 VALUES
-  (10, 'Loja oficial no TikTok Shop', 'Wide Leg, Baggy, Mom · frete pro Brasil todo', 'https://www.tiktok.com/shop/store/rhodejeans', '🛍', false, true),
-  (20, 'Vem ser afiliada Rhode', 'Comissão de 8-12% + benefícios por tier', 'https://creators.rhodejeans.com.br/parceria', '💛', false, true),
-  (30, 'Instagram @rhodejeans', 'Ver últimos posts', 'https://instagram.com/rhodejeans', '📸', false, true),
-  (40, 'Fale conosco no WhatsApp', 'Tire dúvidas de pedido, tamanho, troca', 'https://wa.me/5511999999999', '💬', false, true)
+  (10, 'Compre pelo site',              'Loja oficial · rhodejeans.com.br',        'https://www.rhodejeans.com.br/',                             '🛍', false, true),
+  (20, 'TikTok · @rhodejeans',          'Novidades, lançamentos, lives',            'https://www.tiktok.com/@rhodejeans',                          '🎵', false, true),
+  (30, 'Rhodelovers · Grupo WhatsApp',  'Novidades em primeira mão · grátis',       'https://chat.whatsapp.com/HG4nlcM7gYyE4Bd4JymEqJ',            '💛', true,  true),
+  (40, 'Dúvidas? Fala com a gente',     'WhatsApp direto · troca, tamanho, prazo',  'https://wa.me/5511959550649',                                '💬', false, true)
 ON CONFLICT DO NOTHING;
 
 
