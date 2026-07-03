@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{
     --ink:#1d1d1f; --ink-64:#5a5a5e; --ink-48:#85858a; --ink-24:#bcbcc0;
@@ -151,6 +152,7 @@
       <div class="fld">Mês <select id="f-mes" onchange="setMes(this.value)"></select></div>
       <div class="fld">Data <input type="date" id="f-de" onchange="setRange()"> → <input type="date" id="f-ate" onchange="setRange()"></div>
       <div class="fmeta" id="f-meta"></div>
+      <button class="lnk" id="btn-export" onclick="exportRelatorio()" style="margin-left:12px;font-weight:600">⬇ Exportar relatório</button>
     </div>
   </div>
 
@@ -538,19 +540,28 @@ function renderLucro(D){
 // ===== ADS =====
 function renderAds(D){
   const ad=D.ad;
-  if(!(ad.custo>0)) return `<div class="sec"><div class="empty">Sem dados de GMV Max no período. Importe via <span class="mono">importar_gmvmax.py</span>.</div></div>`;
-  const adRoi=ad.custo?ad.receita/ad.custo:0, adGmvPct=D.gmvAll?ad.custo/D.gmvAll*100:0;
-  const camp=Object.entries(ad.camp).map(([n,c])=>({n,...c,roi:c.custo?c.receita/c.custo:0})).sort((a,b)=>b.custo-a.custo).slice(0,20);
-  return `<div class="kpis">
-    ${kpi('Gasto GMV Max',fmt(ad.custo),NUM.format(ad.pedidos)+' pedidos','danger')}
-    ${kpi('Receita atribuída',fmt(ad.receita),'GMV gerado por ads')}
-    ${kpi('ROI (ROAS)',adRoi.toFixed(2)+'x','receita / gasto','accent')}
-    ${kpi('Ads / GMV',adGmvPct.toFixed(1)+'%','intensidade de mídia')}
-  </div>
-  <div class="sec"><div class="sec-h"><h2>Campanhas</h2><div class="meta">${periodoLabel()} · Seller Center</div></div>
+  if(!(ad.receita>0||ad.custo>0)) return `<div class="sec"><div class="empty">Sem dados de GMV Max no período. Importe via <span class="mono">importar_gmvmax.py</span>.</div></div>`;
+  const camps=Object.entries(ad.camp).map(([n,c])=>({n,...c,roi:c.custo>0?c.receita/c.custo:0}));
+  const trad=camps.filter(c=>c.custo>0).sort((a,b)=>b.custo-a.custo);
+  const vl=camps.filter(c=>c.custo<=0&&c.receita>0).sort((a,b)=>b.receita-a.receita);
+  const tG=trad.reduce((s,c)=>s+c.custo,0), tR=trad.reduce((s,c)=>s+c.receita,0), tP=trad.reduce((s,c)=>s+c.pedidos,0);
+  const vR=vl.reduce((s,c)=>s+c.receita,0), vP=vl.reduce((s,c)=>s+c.pedidos,0);
+  const tRoi=tG?tR/tG:0, adGmvPct=D.gmvAll?tG/D.gmvAll*100:0;
+  const k=`<div class="kpis">
+    ${kpi('Gasto tradicional',fmt(tG),NUM.format(tP)+' pedidos · pago à parte','danger')}
+    ${kpi('ROI tradicional',tRoi.toFixed(2)+'x','receita '+fmt(tR),'accent')}
+    ${kpi('Receita Vendas Líq.',fmt(vR),NUM.format(vP)+' ped · custo fora do settlement')}
+    ${kpi('Ads / GMV',adGmvPct.toFixed(1)+'%','só tradicional')}
+  </div>`;
+  const clip='max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+  const tradTbl=trad.length?`<div class="sec"><div class="sec-h"><h2>GMV Max Tradicional <span class="pill">gasto pago à parte</span></h2><div class="meta">${periodoLabel()} · cobrado na conta de ads (fora do repasse)</div></div>
   <table><thead><tr><th>Campanha</th><th>Gasto</th><th>Receita</th><th>ROI</th><th>Pedidos</th></tr></thead>
-  <tbody>${camp.map((c,i)=>`<tr><td class="mp" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.n.replace(/"/g,'')}">${i+1}. ${c.n}</td><td class="neg">${fmt(c.custo)}</td><td>${fmt(c.receita)}</td><td style="font-weight:700;color:var(--green)">${c.roi.toFixed(1)}x</td><td>${NUM.format(c.pedidos)}</td></tr>`).join('')}</tbody></table></div>
-  <div class="note"><span>⚠️</span><div>O gasto de GMV Max <b>já está embutido no fee</b> (descontado do settlement) — a margem líquida já é líquida de ads. Esta aba é a <b>lente do ROI</b>, não uma dedução extra.</div></div>`;
+  <tbody>${trad.slice(0,20).map((c,i)=>`<tr><td class="mp" style="${clip}" title="${c.n.replace(/"/g,'')}">${i+1}. ${c.n}</td><td class="neg">${fmt(c.custo)}</td><td>${fmt(c.receita)}</td><td style="font-weight:700;color:var(--green)">${c.roi.toFixed(1)}x</td><td>${NUM.format(c.pedidos)}</td></tr>`).join('')}</tbody></table></div>`:'';
+  const vlTbl=vl.length?`<div class="sec"><div class="sec-h"><h2>GMV Max Vendas Líquidas <span class="pill">custo deduzido</span></h2><div class="meta">${periodoLabel()} · gasto=0 no export (cobra descontando do líquido)</div></div>
+  <table><thead><tr><th>Campanha</th><th>Receita</th><th>Pedidos</th></tr></thead>
+  <tbody>${vl.slice(0,20).map((c,i)=>`<tr><td class="mp" style="${clip}" title="${c.n.replace(/"/g,'')}">${i+1}. ${c.n}</td><td>${fmt(c.receita)}</td><td>${NUM.format(c.pedidos)}</td></tr>`).join('')}</tbody></table>
+  <div class="note"><span>ℹ️</span><div>Modelo <b>Vendas Líquidas</b>: você define o <b>ROI-alvo</b> e o custo é cobrado <b>descontando do seu líquido</b> — não há gasto antecipado (por isso 0 no export). Esse custo é cobrado na <b>conta de ads</b>, <b>fora do settlement do seller</b> (não vem no Finance API). Pra ter o custo exato dessas, exporte o "gasto por campanha" do painel de ads e importe.</div></div></div>`:'';
+  return k+tradTbl+vlTbl;
 }
 
 // ===== PEDIDOS (drill-down) =====
@@ -590,6 +601,59 @@ function renderPedidosTable(){
     <td>${p.taxa_pct!=null?p.taxa_pct+'%':'—'}</td><td>${sit(p.situacao)}</td></tr>`).join('')}</tbody></table>`;
 }
 function filterPedidos(){ renderPedidosTable(); }
+
+// ===== EXPORTAR RELATÓRIO (XLSX multi-aba) =====
+async function exportRelatorio(){
+  if(!window.XLSX){ alert('Biblioteca de exportação ainda carregando — tente de novo em 2s.'); return; }
+  const btn=document.getElementById('btn-export'), orig=btn?btn.textContent:'';
+  if(btn){ btn.textContent='Gerando…'; btn.disabled=true; }
+  const B=v=>Math.round((+v||0)*100)/100;
+  try{
+    const ms=getMeses(), D=agg(ms), C=D.conc, feeTot=C.com_real+C.serv_real+C.afi+C.ads;
+    const wb=XLSX.utils.book_new();
+    // 1) RESUMO EXECUTIVO
+    const s1=[['RELATÓRIO DE CONCILIAÇÃO — RHODE'],['Período',periodoLabel()],['Gerado em',new Date().toLocaleString('pt-BR')],[],
+      ['RECEITA & REPASSE','R$'],
+      ['GMV oficial (Seller Center)',B(D.gmvOficial||D.faturamento)],['GMV bruto (todos pedidos)',B(D.gmv)],
+      ['Receita líquida (base das taxas)',B(C.receita)],['Repasse líquido (settlement)',B(C.repasse)],
+      ['Taxa efetiva (% da receita)',C.receita?B(feeTot/C.receita*100):0],[],
+      ['PROMOÇÃO — o que você banca','R$'],
+      ['Preço de tabela',B(C.tabela)],['Desconto do vendedor',B(C.desc)],['% desconto',C.tabela?B(C.desc/C.tabela*100):0],[],
+      ['TAXAS (real, deduzido do repasse)','R$'],
+      ['Comissão plataforma (6%)',B(C.com_real)],['Serviço + frete grátis',B(C.serv_real)],
+      ['Comissão afiliada',B(C.afi)],['Mídia GMV Max (settlement)',B(C.ads)],['Frete líquido',B(C.fre)],[],
+      ['CONCILIAÇÃO POR STATUS','qtd'],
+      ['Conciliado (ok)',C.n_ok],['Serviço/frete a revisar',C.n_serv],['Com devolução',C.n_dev],
+      ['Comissão acima',C.n_com],['Repasse faltante',C.n_falt],['Cancelado',C.n_canc],[],
+      ['ALERTAS','R$'],
+      ['Impacto tarifa 15/07 (por mês)',B(C.imp)],['A recuperar (repasse faltante)',B(C.faltante)]];
+    const ws1=XLSX.utils.aoa_to_sheet(s1); ws1['!cols']=[{wch:36},{wch:16}]; XLSX.utils.book_append_sheet(wb,ws1,'Resumo');
+    // 2) CONCILIAÇÃO POR MÊS
+    const h2=['Mês','Pedidos','Receita','Repasse','Comissão real','Comissão esp','Serv/frete real','Serv/frete esp','Afiliada','Ads','Desconto vend','% desc','Impacto 15/07','ok','revisar','faltante'];
+    const s2=[h2]; ms.forEach(m=>{const c=CONC[m]; if(!c)return; s2.push([m,c.pedidos_total,B(c.receita),B(c.repasse),B(c.comissao_real),B(c.comissao_esp),B(c.servico_real),B(c.servico_esp),B(c.afiliada),B(c.ads),B(c.desconto_vendedor),c.preco_tabela?B(c.desconto_vendedor/c.preco_tabela*100):0,B(c.impacto_1507),c.n_ok,c.n_servico,c.n_faltante]);});
+    const ws2=XLSX.utils.aoa_to_sheet(s2); ws2['!cols']=h2.map((_,i)=>({wch:i===0?9:14})); XLSX.utils.book_append_sheet(wb,ws2,'Conciliação por mês');
+    // 3) PEDIDOS (completo)
+    let path='conciliacao_pedido?select=order_id,periodo,data,produto,qty,preco_tabela,desconto_vendedor,desconto_pct,receita_liq,comissao_real,comissao_esperada,servico_frete_real,servico_frete_esperado,afiliada_real,ads_real,frete_real,custo_devolucao,settlement,taxa_efetiva_pct,div_comissao,div_servico_frete,impacto_1507,conciliacao&order=receita_liq.desc';
+    if(ms.length===1) path+=`&periodo=eq.${ms[0]}`; else if(ms.length) path+=`&periodo=in.(${ms.join(',')})`;
+    let ped=[]; try{ const r=await admProxy('GET',path,{paged:true}); ped=r.data||[]; }catch(e){}
+    const h3=['Pedido','Período','Data','Produto','Qtd','Preço tabela','Desc vendedor','Desc %','Receita líq','Comissão real','Comissão esp','Serv/frete real','Serv/frete esp','Afiliada','Ads','Frete','Custo devol','Repasse','Taxa %','Div comissão','Div serv/frete','Impacto 15/07','Status'];
+    const s3=[h3].concat(ped.map(p=>[p.order_id,p.periodo,p.data,p.produto,+p.qty||0,B(p.preco_tabela),B(p.desconto_vendedor),B(p.desconto_pct),B(p.receita_liq),B(p.comissao_real),B(p.comissao_esperada),B(p.servico_frete_real),B(p.servico_frete_esperado),B(p.afiliada_real),B(p.ads_real),B(p.frete_real),B(p.custo_devolucao),B(p.settlement),B(p.taxa_efetiva_pct),B(p.div_comissao),B(p.div_servico_frete),B(p.impacto_1507),p.conciliacao]));
+    const ws3=XLSX.utils.aoa_to_sheet(s3); ws3['!cols']=[{wch:20},{wch:9},{wch:11},{wch:34}].concat(h3.slice(4).map(()=>({wch:13}))); ws3['!autofilter']={ref:'A1:'+XLSX.utils.encode_col(h3.length-1)+'1'};
+    XLSX.utils.book_append_sheet(wb,ws3,'Pedidos ('+ped.length+')');
+    // 4) PRODUTOS
+    const prod=Object.entries(D.margAgg).map(([n,v])=>({n,...v})).filter(x=>x.gmv>0).sort((a,b)=>b.gmv-a.gmv);
+    const s4=[['Produto','Qtd','GMV','Custo CPV','Contribuição','Margem líq','Margem %']];
+    prod.forEach(x=>{const contrib=x.gmvCpv-x.custo, liq=x.gmvCpv*D.eficFrac-x.custo; s4.push([x.n,x.qty,B(x.gmvCpv),B(x.custo),B(contrib),B(liq),x.gmvCpv?B(liq/x.gmvCpv*100):0]);});
+    const ws4=XLSX.utils.aoa_to_sheet(s4); ws4['!cols']=[{wch:42},{wch:8},{wch:13},{wch:13},{wch:13},{wch:13},{wch:10}]; XLSX.utils.book_append_sheet(wb,ws4,'Produtos');
+    // 5) ADS
+    const s5=[['Campanha','Modelo','Gasto','Receita','ROI','Pedidos']];
+    Object.entries(D.ad.camp).map(([n,c])=>({n,...c})).sort((a,b)=>b.receita-a.receita).forEach(c=>{s5.push([c.n,c.custo>0?'Tradicional':'Vendas Líquidas',B(c.custo),B(c.receita),c.custo>0?B(c.receita/c.custo):'',c.pedidos]);});
+    const ws5=XLSX.utils.aoa_to_sheet(s5); ws5['!cols']=[{wch:46},{wch:16},{wch:12},{wch:13},{wch:8},{wch:9}]; XLSX.utils.book_append_sheet(wb,ws5,'Ads GMV Max');
+    const per=periodoLabel().replace(/[^\w]+/g,'-').replace(/^-|-$/g,'');
+    XLSX.writeFile(wb, `Relatorio Conciliacao ${per}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }catch(e){ alert('Erro ao gerar relatório: '+e.message); }
+  finally{ if(btn){ btn.textContent=orig; btn.disabled=false; } }
+}
 
 function enter(){
   document.getElementById('login').style.display='none';

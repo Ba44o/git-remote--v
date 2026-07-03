@@ -93,5 +93,15 @@ const PED = [
     await page.screenshot({ path: out, fullPage: true });
     console.log('screenshot:', out);
   }
+  // testa o export XLSX de verdade
+  try {
+    const [dl] = await Promise.all([
+      page.waitForEvent('download', { timeout: 10000 }),
+      page.click('#btn-export'),
+    ]);
+    const p2 = path.resolve(__dirname, 'out', dl.suggestedFilename());
+    await dl.saveAs(p2);
+    console.log('EXPORT OK:', dl.suggestedFilename());
+  } catch (e) { console.log('EXPORT FAIL:', e.message); }
   await browser.close();
 })();
