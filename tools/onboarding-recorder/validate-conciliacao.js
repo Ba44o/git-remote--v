@@ -73,12 +73,18 @@ const PED = [
     { order_id:'584299881122334455', data:'2026-06-03', produto:'Body Básico Feminino Regata', qty:2, preco_tabela:90.00, desconto_pct:50, receita_liq:45.00, comissao_real:2.70, comissao_esperada:2.70, servico_frete_real:8.70, servico_frete_esperado:10.70, afiliada_real:4.50, ads_real:0, settlement:29.10, taxa_efetiva_pct:35, conciliacao:'com_devolucao' },
     { order_id:'584154067080283289', data:'2026-06-20', produto:'Shorts Mom Jeans', qty:1, preco_tabela:80.00, desconto_pct:35, receita_liq:52.00, comissao_real:3.12, comissao_esperada:3.12, servico_frete_real:7.12, servico_frete_esperado:7.12, afiliada_real:0, ads_real:0, settlement:0, taxa_efetiva_pct:0, conciliacao:'repasse_faltante' },
   ];
+  const ADCUSTO = [
+    { periodo:'2026-06', custo:78000, receita:581000, pedidos:1800, roi:7.45 },
+    { periodo:'2026-05', custo:48003, receita:668265, pedidos:2600, roi:7.0 },
+    { periodo:'2026-04', custo:52000, receita:700000, pedidos:2400, roi:7.2 },
+    { periodo:'2026-03', custo:50000, receita:690000, pedidos:2300, roi:7.1 },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
+      const data = p.includes('ads_custo_resumo') ? ADCUSTO : p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();

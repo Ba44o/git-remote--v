@@ -191,7 +191,7 @@ const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','De
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
 // estado
-let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}, CONC={}, MESES=[];
+let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}, CONC={}, ADC={}, MESES=[];
 let TAB='visao';
 let FILTER={modo:'tudo', mes:'', de:'', ate:''};
 let CHART=null;
@@ -202,7 +202,7 @@ function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{loc
 const TABS=[['visao','Visão Geral'],['conciliacao','Conciliação'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['lucro','Lucro'],['ads','Ads'],['pedidos','Pedidos']];
 
 async function load(){
-  const [fin, ped, cpv, ads, stx, div, ofi, conc] = await Promise.all([
+  const [fin, ped, cpv, ads, stx, div, ofi, conc, adc] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
     admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku,status',{paged:true}),
     admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
@@ -210,10 +210,12 @@ async function load(){
     admProxy('GET','statement_tx_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
     admProxy('GET','repasse_divergencias?select=*',{paged:true}).catch(()=>({data:[]})),
     admProxy('GET','gmv_oficial_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
-    admProxy('GET','conciliacao_resumo?select=*',{paged:true}).catch(()=>({data:[]}))
+    admProxy('GET','conciliacao_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
+    admProxy('GET','ads_custo_resumo?select=*',{paged:true}).catch(()=>({data:[]}))
   ]);
   OFI={}; (ofi&&ofi.data?ofi.data:[]).forEach(r=>{ if(r.periodo) OFI[r.periodo]=r; });
   CONC={}; (conc&&conc.data?conc.data:[]).forEach(r=>{ if(r.periodo) CONC[r.periodo]=r; });
+  ADC={}; (adc&&adc.data?adc.data:[]).forEach(r=>{ if(r.periodo) ADC[r.periodo]=r; });
   CPVMAP={}; (cpv.data||[]).forEach(r=>{ if(r.ref) CPVMAP[String(r.ref).toUpperCase()]=+r.cpv||0; });
   STX={}; (stx.data||[]).forEach(r=>{ if(r.periodo) STX[r.periodo]=r; });
   DIV = (div&&div.data)?div.data:[];
@@ -274,7 +276,9 @@ function agg(meses){
   const eficExata = exPago>0;
   const cobertura = gmvAll?mGmvCpv/gmvAll*100:0;
   const mContrib=mGmvCpv-mCusto, mLiq=mGmvCpv*eficFrac-mCusto;
-  const impVenda=mGmvCpv*TX_VENDA/100, lucroAntesIR=mLiq-impVenda, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucroFinal=lucroAntesIR-impIR;
+  let adReal=0,adRealRec=0,adRealHas=false;
+  meses.forEach(m=>{const a=ADC[m]; if(a){adRealHas=true; adReal+=+a.custo||0; adRealRec+=+a.receita||0;}});
+  const impVenda=mGmvCpv*TX_VENDA/100, lucroAntesIR=mLiq-impVenda-adReal, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucroFinal=lucroAntesIR-impIR;
   const rp={liq:0,pagoLiq:0,rec:0,recN:0,dev:0,devN:0,plat:0,afi:0,ads:0,frete:0,liqN:0};
   meses.forEach(m=>{const s=STX[m]; if(!s)return; rp.liq+=+s.settle_liq||0;rp.pagoLiq+=+s.pago_liq||0;rp.liqN+=+s.liquidados||0;rp.rec+=+s.a_receber||0;rp.recN+=+s.pendentes||0;rp.dev+=+s.devolucao||0;rp.devN+=+s.devolvidos||0;rp.plat+=+s.comissao_plataforma||0;rp.afi+=+s.comissao_afiliada||0;rp.ads+=+s.comissao_ads_afil||0;rp.frete+=+s.frete||0;});
   const rpTaxa=rp.pagoLiq?(1-rp.liq/rp.pagoLiq)*100:0;
@@ -291,7 +295,7 @@ function agg(meses){
     C.faltante+=+c.valor_faltante||0; C.imp+=+c.impacto_1507||0;
     C.n_ok+=+c.n_ok||0; C.n_serv+=+c.n_servico||0; C.n_com+=+c.n_comissao||0; C.n_dev+=+c.n_devolucao||0; C.n_falt+=+c.n_faltante||0; C.n_canc+=+c.n_cancelado||0; C.n_total+=+c.pedidos_total||0;
   });
-  return {A,gmv,qty,gmvAll,gmvVal,qtyVal,cancV,pago,faturamento,ofiHas,gmvOficial,ofiFrete,ofiProduto,ofiPagoCanc,ofiProdValido,ofiN,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra,conc:C};
+  return {A,gmv,qty,gmvAll,gmvVal,qtyVal,cancV,pago,faturamento,ofiHas,gmvOficial,ofiFrete,ofiProduto,ofiPagoCanc,ofiProdValido,ofiN,eficFrac,eficExata,margAgg,mCusto,mGmvCpv,mQty,cobertura,mContrib,mLiq,impVenda,impIR,lucroAntesIR,lucroFinal,rp,rpTaxa,ad,gmvLt,qtyGe,tarifaExtra,conc:C,adReal,adRealRec,adRealHas};
 }
 
 // helpers UI
@@ -523,8 +527,9 @@ function renderLucro(D){
     ${cascRow('GMV (c/ CPV)','base de produtos com custo',D.mGmvCpv,'#cbd5e1',maxv)}
     ${cascRow('− Custo (CPV)','custo de produto vendido',-D.mCusto,'#9a7030',maxv)}
     ${cascRow('= Contribuição','GMV − CPV',D.mContrib,'#7fc9a3',maxv)}
-    ${cascRow('− Fee plataforma','fee + afiliada + GMV Max (eficiência)',-(D.mGmvCpv-D.mGmvCpv*D.eficFrac),'var(--rhode-red)',maxv)}
-    ${cascRow('= Margem líquida','antes de imposto',D.mLiq,'#7fc9a3',maxv)}
+    ${cascRow('− Fee plataforma','fee + afiliada + creator-ads (eficiência settlement)',-(D.mGmvCpv-D.mGmvCpv*D.eficFrac),'var(--rhode-red)',maxv)}
+    ${cascRow('= Margem líquida','após taxas do settlement',D.mLiq,'#7fc9a3',maxv)}
+    ${D.adRealHas?cascRow('− Custo GMV Max (real)','mídia paga na conta de ads (fora do settlement)',-D.adReal,'var(--rhode-red)',maxv):''}
     ${cascRow('− Imposto s/ venda',TX_VENDA+'% · PIS/COFINS+ICMS',-D.impVenda,'var(--orange)',maxv)}
     ${cascRow('− IRPJ + CSLL',TX_IR+'% s/ lucro',-D.impIR,'var(--orange)',maxv)}
     ${cascRow('= LUCRO FINAL',lucroPct.toFixed(1)+'% do GMV',D.lucroFinal,'var(--green)',maxv,'total')}</div>
@@ -534,7 +539,7 @@ function renderLucro(D){
       <label>IRPJ + CSLL <input type="number" step="1" value="${TX_IR}" onchange="setTx('ir',this.value)" style="${inp}"> %</label>
       <span style="color:var(--ink-48)">Lucro final: <b style="color:var(--green);font-family:'JetBrains Mono',monospace">${fmt(D.lucroFinal)}</b></span>
     </div></div>
-  <div class="note"><span>🧾</span><div><b>Estimativa Lucro Real.</b> Ajuste as alíquotas e confirme com a contabilidade. O CPV gera crédito de PIS/COFINS/ICMS aqui simplificado, então o real tende a ser <b>um pouco melhor</b>. Tudo já é líquido de fee + afiliada + GMV Max (sem double-count).</div></div>`;
+  <div class="note"><span>🧾</span><div><b>Estimativa Lucro Real.</b> A margem líquida já é líquida das taxas do settlement (fee + afiliada + creator-ads). ${D.adRealHas?'O <b>custo real do GMV Max</b> ('+fmt(D.adReal)+') é subtraído à parte — é pago na conta de ads, fora do repasse.':'<b>Falta o custo real do GMV Max</b> — rode <span class="mono">ads_custo.sql</span> + <span class="mono">importar_ads_overview.py</span> pra ele entrar no lucro.'} Confirme as alíquotas com a contabilidade.</div></div>`;
 }
 
 // ===== ADS =====
@@ -561,7 +566,12 @@ function renderAds(D){
   <table><thead><tr><th>Campanha</th><th>Receita</th><th>Pedidos</th></tr></thead>
   <tbody>${vl.slice(0,20).map((c,i)=>`<tr><td class="mp" style="${clip}" title="${c.n.replace(/"/g,'')}">${i+1}. ${c.n}</td><td>${fmt(c.receita)}</td><td>${NUM.format(c.pedidos)}</td></tr>`).join('')}</tbody></table>
   <div class="note"><span>ℹ️</span><div>Modelo <b>Vendas Líquidas</b>: você define o <b>ROI-alvo</b> e o custo é cobrado <b>descontando do seu líquido</b> — não há gasto antecipado (por isso 0 no export). Esse custo é cobrado na <b>conta de ads</b>, <b>fora do settlement do seller</b> (não vem no Finance API). Pra ter o custo exato dessas, exporte o "gasto por campanha" do painel de ads e importe.</div></div></div>`:'';
-  return k+tradTbl+vlTbl;
+  const realBanner = D.adRealHas ? `<div class="alert" style="border-color:#f6cdd6">
+    <div class="ic">🎯</div>
+    <div><div class="big">${fmt(D.adReal)}</div>
+    <div class="tx"><b>Custo REAL do GMV Max</b> (painel de ads · todas as campanhas) — ROI ${D.adReal?(D.adRealRec/D.adReal).toFixed(1):0}x. O export "creative" só via ${fmt(tG)} (tradicional); os outros <b>${fmt(Math.max(0,D.adReal-tG))}</b> são Vendas Líquidas — invisíveis até agora. <b>É esse o custo que entra no lucro.</b></div></div>
+  </div>` : `<div class="note" style="margin-bottom:16px"><span>⚠️</span><div>Só o custo do export "creative" (tradicional). Pra ver o <b>custo real</b> (incl. Vendas Líquidas), rode <span class="mono">ads_custo.sql</span> + <span class="mono">importar_ads_overview.py</span>.</div></div>`;
+  return realBanner+k+tradTbl+vlTbl;
 }
 
 // ===== PEDIDOS (drill-down) =====
