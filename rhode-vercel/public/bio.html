@@ -5,142 +5,164 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A0A0A">
 <title>Rhode Jeans · Bio</title>
-<meta name="description" content="Rhode Jeans · denim brasileiro. Loja no TikTok Shop, colabs, contato.">
+<meta name="description" content="Rhode Jeans · denim brasileiro. Feito pra durar.">
 <meta property="og:title" content="Rhode Jeans">
-<meta property="og:description" content="Denim brasileiro. Shop, colabs, contato.">
+<meta property="og:description" content="Denim feito pra durar. Shop, colabs, atendimento.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://creators.rhodejeans.com.br/logo.png">
 <link rel="preconnect" href="https://ivzpykuluxcxefhyzfsf.supabase.co">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;1,700&family=DM+Sans:wght@400;500;600&display=swap">
 <style>
 :root{
-  --ink:#0A0A0A;
-  --ink-72:rgba(255,255,255,.72);
-  --ink-48:rgba(255,255,255,.48);
-  --ink-24:rgba(255,255,255,.24);
-  --hairline:rgba(255,255,255,.1);
-  --hairline-strong:rgba(255,255,255,.18);
-  --rhode-red:#FE2C55;
-  --card:rgba(255,255,255,.04);
-  --card-hover:rgba(255,255,255,.08);
+  --charcoal:#0A0A0A;
+  --white:#FFFFFF;
+  --amarelo:#F2D413;
+  --indigo:#1B3A5C;
+  --denim-claro:#7A9BB5;
+  --grafite:#4A4A48;
+  --nevoa:#B5B2AC;
+  --hairline:rgba(255,255,255,.09);
+  --hairline-strong:rgba(255,255,255,.16);
+  --card:rgba(74,74,72,.32);
+  --card-hover:rgba(74,74,72,.52);
+  --ink-48:rgba(255,255,255,.52);
+  --ink-64:rgba(255,255,255,.64);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 body{
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-  background:var(--ink);color:#fff;
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--charcoal);color:var(--white);
   min-height:100vh;min-height:100svh;
-  line-height:1.5;letter-spacing:-0.011em;
+  line-height:1.5;letter-spacing:-0.005em;
   overflow-x:hidden;
   padding:48px 20px 80px;
   display:flex;flex-direction:column;align-items:center;
   position:relative;
 }
-body::before{
-  content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);
-  width:120%;height:60%;pointer-events:none;
-  background:radial-gradient(ellipse at center top,rgba(254,44,85,.12) 0%,transparent 55%);
-}
 body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity:.4;mix-blend-mode:overlay;
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.5;mix-blend-mode:overlay;
 }
 .wrap{width:100%;max-width:520px;position:relative;z-index:1}
 
-/* Header */
-.header{text-align:center;margin-bottom:36px}
-.avatar{
-  width:88px;height:88px;border-radius:50%;
-  background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%);
-  border:1px solid var(--hairline-strong);
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 20px;overflow:hidden;
-  font-family:'Inter',sans-serif;font-weight:800;font-size:32px;letter-spacing:-0.04em;
-  color:#fff;
-  position:relative;
+/* ── LOGO WORDMARK ── */
+.logo{
+  display:inline-flex;align-items:flex-end;justify-content:center;
+  gap:0;line-height:1;position:relative;
+  margin:0 auto 14px;
 }
-.avatar::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(254,44,85,.15) 0%,transparent 60%);
-  border-radius:50%;
+.logo-main{
+  font-family:'Montserrat',sans-serif;
+  font-weight:800;letter-spacing:-0.03em;
+  font-size:clamp(38px,10vw,54px);
+  color:var(--white);text-transform:uppercase;
+  line-height:.9;
 }
-.avatar span{position:relative;z-index:1}
-.avatar .dot{color:var(--rhode-red)}
-.brand{font-family:'Inter',sans-serif;font-weight:600;letter-spacing:-0.03em;font-size:26px;line-height:1.15;margin-bottom:6px}
-.brand .dot{color:var(--rhode-red)}
-.tagline{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500}
+.logo-dot{color:var(--amarelo)}
+.logo-jeans{
+  font-family:'Montserrat',sans-serif;
+  font-weight:700;font-style:italic;
+  font-size:clamp(10px,2.4vw,13px);
+  color:var(--white);text-transform:uppercase;letter-spacing:.06em;
+  transform:translate(-4px,-6px);
+  line-height:1;
+}
+.tagline{
+  text-align:center;
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--nevoa);font-weight:500;
+  margin-bottom:44px;
+}
 
-/* Blocks */
+/* ── BLOCKS ── */
 .blocks{display:flex;flex-direction:column;gap:12px}
 .block{
   display:flex;align-items:center;gap:14px;
   background:var(--card);border:1px solid var(--hairline);
   padding:16px 18px;border-radius:14px;
-  text-decoration:none;color:#fff;
-  transition:transform .15s ease,background .15s ease,border-color .15s ease;
+  text-decoration:none;color:var(--white);
+  transition:transform .18s ease,background .18s ease,border-color .18s ease;
 }
-.block:hover{background:var(--card-hover);border-color:var(--hairline-strong);transform:translateY(-1px)}
-.block:active{transform:scale(.98)}
+.block:hover,.block:focus-visible{
+  background:var(--card-hover);border-color:var(--hairline-strong);transform:translateY(-1px);outline:none;
+}
+.block:active{transform:scale(.985)}
 .block.destaque{
-  background:linear-gradient(135deg,rgba(254,44,85,.18) 0%,rgba(254,44,85,.05) 100%);
-  border-color:rgba(254,44,85,.32);
+  background:var(--amarelo);border-color:var(--amarelo);
+  color:var(--charcoal);
 }
-.block.destaque:hover{background:linear-gradient(135deg,rgba(254,44,85,.24) 0%,rgba(254,44,85,.08) 100%)}
+.block.destaque:hover{background:#e6c810;border-color:#e6c810;color:var(--charcoal)}
 .block-icon{
   width:40px;height:40px;border-radius:12px;
-  background:rgba(255,255,255,.05);
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;
-  font-size:20px;flex-shrink:0;line-height:1;
+  font-size:19px;flex-shrink:0;line-height:1;
+  font-family:'DM Sans',sans-serif;font-weight:500;color:var(--white);
 }
-.block.destaque .block-icon{background:rgba(254,44,85,.15)}
+.block.destaque .block-icon{background:var(--charcoal);border-color:var(--charcoal);color:var(--amarelo)}
 .block-info{flex:1;min-width:0}
-.block-titulo{font-weight:600;font-size:15px;letter-spacing:-0.011em;line-height:1.25;color:#fff}
-.block-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.02em;color:var(--ink-48);margin-top:4px;line-height:1.4}
-.block-arrow{color:var(--ink-48);font-size:18px;flex-shrink:0;transition:transform .15s ease,color .15s ease}
-.block:hover .block-arrow{color:#fff;transform:translateX(2px)}
+.block-titulo{
+  font-family:'Montserrat',sans-serif;
+  font-weight:600;font-size:15px;letter-spacing:-0.01em;line-height:1.25;
+}
+.block.destaque .block-titulo{font-weight:700;color:var(--charcoal)}
+.block-sub{
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;letter-spacing:0;color:var(--ink-64);margin-top:3px;line-height:1.4;font-weight:400;
+}
+.block.destaque .block-sub{color:rgba(10,10,10,.72)}
+.block-arrow{color:var(--ink-48);font-size:16px;flex-shrink:0;transition:transform .18s ease,color .18s ease;line-height:1}
+.block:hover .block-arrow{color:var(--white);transform:translateX(3px)}
+.block.destaque .block-arrow{color:var(--charcoal)}
+.block.destaque:hover .block-arrow{color:var(--charcoal)}
 
-/* Footer */
+/* ── FOOTER ── */
 footer{
   margin-top:40px;text-align:center;
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
+  font-family:'DM Sans',sans-serif;
+  font-size:10px;letter-spacing:.24em;text-transform:uppercase;
   color:var(--ink-48);font-weight:500;
 }
-footer .heart{color:var(--rhode-red)}
+footer .sep{color:var(--amarelo);margin:0 8px}
 
-/* Loading */
+/* ── LOADING ── */
 .loading{
   display:flex;justify-content:center;align-items:center;
-  padding:60px 0;color:var(--ink-48);
-  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;
-  text-transform:uppercase;
+  padding:48px 0;color:var(--ink-48);
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.24em;
+  text-transform:uppercase;font-weight:500;
 }
 .loading::before{
-  content:'';width:8px;height:8px;border-radius:50%;background:var(--rhode-red);
-  margin-right:12px;opacity:.7;
+  content:'';width:8px;height:8px;background:var(--amarelo);
+  margin-right:12px;
 }
 
 @media (prefers-reduced-motion: reduce){
-  *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="header">
-    <div class="avatar"><span>R<span class="dot">.</span></span></div>
-    <h1 class="brand">Rhode Jeans<span class="dot">.</span></h1>
-    <div class="tagline">DENIM BRASILEIRO · SÃO PAULO</div>
+  <div style="text-align:center">
+    <div class="logo">
+      <span class="logo-main">Rhode<span class="logo-dot">.</span></span>
+      <span class="logo-jeans">Jeans</span>
+    </div>
   </div>
+  <div class="tagline">Feito pra durar</div>
 
   <div class="blocks" id="blocks">
     <div class="loading">Carregando</div>
   </div>
 
-  <footer>RHODE JEANS &nbsp;·&nbsp; <span class="heart">♥</span> &nbsp;·&nbsp; 2026</footer>
+  <footer>RHODE<span class="sep">.</span>JEANS<span class="sep">·</span>2026</footer>
 </div>
 
 <script>
@@ -149,7 +171,6 @@ footer .heart{color:var(--rhode-red)}
   const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
   const H={apikey:AK,Authorization:'Bearer '+AK};
 
-  // ── SESSION ──
   let sid;
   try{sid=sessionStorage.getItem('bio_sid');if(!sid){sid=(crypto.randomUUID?crypto.randomUUID():'x'+Math.random().toString(36).slice(2)+Date.now().toString(36));sessionStorage.setItem('bio_sid',sid)}}
   catch(e){sid='x'+Math.random().toString(36).slice(2)}
@@ -158,13 +179,11 @@ footer .heart{color:var(--rhode-red)}
   const IS_BOT=/bot|crawl|spider|preview|facebookexternalhit|whatsapp|telegram|slack|linkedin/i.test(UA);
   const referrerHost=(()=>{try{return new URL(document.referrer).hostname.replace(/^www\./,'').split('.').slice(-2).join('.')}catch(e){return null}})();
 
-  // ── ESCAPE ──
   const ESC={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
   const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>ESC[c]);
   const escAttr=s=>esc(s);
   const safeUrl=u=>{try{const x=new URL(u);return ['http:','https:','mailto:','tel:'].includes(x.protocol)?u:'#'}catch(e){return '#'}};
 
-  // ── TRACK ──
   function track(evento,meta){
     try{
       const payload={
@@ -178,11 +197,10 @@ footer .heart{color:var(--rhode-red)}
     }catch(e){}
   }
 
-  // ── RENDER BLOCKS ──
   const blocksEl=document.getElementById('blocks');
   function renderBlocks(rows){
     if(!rows||!rows.length){
-      blocksEl.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--ink-48);font-size:13px">em breve</div>';
+      blocksEl.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--ink-48);font-family:\'DM Sans\',sans-serif;font-size:13px;letter-spacing:.06em">em breve</div>';
       return;
     }
     blocksEl.innerHTML=rows.map(r=>{
@@ -195,7 +213,6 @@ footer .heart{color:var(--rhode-red)}
              '<div class="block-info"><div class="block-titulo">'+esc(r.titulo)+'</div>'+sub+'</div>'+
              '<div class="block-arrow">→</div></a>';
     }).join('');
-    // click tracking
     blocksEl.querySelectorAll('.block').forEach(a=>{
       a.addEventListener('click',()=>{
         track('link_click',{link_id:a.dataset.lid,titulo:a.dataset.tit,url:a.href});
@@ -203,7 +220,6 @@ footer .heart{color:var(--rhode-red)}
     });
   }
 
-  // ── BOOT ──
   async function boot(){
     track('page_view',{});
     const r=await fetch(SB+'/rest/v1/rhode_links_efetivos?select=id,titulo,subtitulo,url,icone,destaque',{headers:H}).catch(()=>null);
