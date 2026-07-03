@@ -3,6 +3,7 @@
   "framework": null,
   "buildCommand": null,
   "rewrites": [
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "bio.rhodejeans.com.br" }], "destination": "/bio.html" },
     { "source": "/flash", "destination": "/wpp.html" },
     { "source": "/sac", "destination": "/sac.html" },
     { "source": "/equipe", "destination": "/wpp.html" },
@@ -15,7 +16,7 @@
   ],
   "headers": [
     {
-      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live|live|tamanho|privacidade-vitrine)\\.html",
+      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live|live|tamanho|privacidade-vitrine|bio)\\.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
