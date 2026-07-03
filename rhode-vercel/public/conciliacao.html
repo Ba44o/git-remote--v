@@ -175,10 +175,13 @@ async function admLogin(){
 }
 function logout(){ try{sessionStorage.removeItem(ADM_TOKEN_KEY);}catch(_){}; location.reload(); }
 async function admProxy(method, path, opts={}){
-  const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'admin_query', adminToken:admToken(), method, path, paged:opts.paged})});
+  const payload={action:'admin_query', adminToken:admToken(), method, path, paged:opts.paged};
+  if(opts.body!==undefined) payload.body=opts.body;
+  if(opts.prefer) payload.prefer=opts.prefer;
+  const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   if(r.status===401){ logout(); throw new Error('sessão expirada'); }
   if(!r.ok){ let e={};try{e=await r.json();}catch(_){}; throw new Error(e.error||('HTTP '+r.status)); }
-  return r.json();
+  return r.json().catch(()=>({}));
 }
 
 // formatação
@@ -545,7 +548,11 @@ function renderLucro(D){
 // ===== ADS =====
 function renderAds(D){
   const ad=D.ad;
-  if(!(ad.receita>0||ad.custo>0)) return `<div class="sec"><div class="empty">Sem dados de GMV Max no período. Importe via <span class="mono">importar_gmvmax.py</span>.</div></div>`;
+  const syncBar=`<div class="sec" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:16px 22px">
+    <div><b style="font-family:'JetBrains Mono',monospace;font-size:13px">Sincronizar custo real</b><div style="font-size:12px;color:var(--ink-48);margin-top:2px">Suba o export <b>"Campaign overview data"</b> do painel de ads — importa sozinho, sem rodar nada.</div></div>
+    <div style="display:flex;align-items:center;gap:6px"><input type="file" id="ads-file" accept=".xlsx,.csv" style="display:none" onchange="syncAdsCusto(this.files[0])"><button class="lnk" style="font-weight:600" onclick="document.getElementById('ads-file').click()">⬆ Sincronizar custo de ads</button><span id="ads-sync-msg" style="font-size:12px"></span></div>
+  </div>`;
+  if(!(ad.receita>0||ad.custo>0)) return syncBar+`<div class="sec"><div class="empty">Sem dados de GMV Max no período. Suba o "Campaign overview" acima ou importe via <span class="mono">importar_gmvmax.py</span>.</div></div>`;
   const camps=Object.entries(ad.camp).map(([n,c])=>({n,...c,roi:c.custo>0?c.receita/c.custo:0}));
   const trad=camps.filter(c=>c.custo>0).sort((a,b)=>b.custo-a.custo);
   const vl=camps.filter(c=>c.custo<=0&&c.receita>0).sort((a,b)=>b.receita-a.receita);
@@ -571,7 +578,38 @@ function renderAds(D){
     <div><div class="big">${fmt(D.adReal)}</div>
     <div class="tx"><b>Custo REAL do GMV Max</b> (painel de ads · todas as campanhas) — ROI ${D.adReal?(D.adRealRec/D.adReal).toFixed(1):0}x. O export "creative" só via ${fmt(tG)} (tradicional); os outros <b>${fmt(Math.max(0,D.adReal-tG))}</b> são Vendas Líquidas — invisíveis até agora. <b>É esse o custo que entra no lucro.</b></div></div>
   </div>` : `<div class="note" style="margin-bottom:16px"><span>⚠️</span><div>Só o custo do export "creative" (tradicional). Pra ver o <b>custo real</b> (incl. Vendas Líquidas), rode <span class="mono">ads_custo.sql</span> + <span class="mono">importar_ads_overview.py</span>.</div></div>`;
-  return realBanner+k+tradTbl+vlTbl;
+  return syncBar+realBanner+k+tradTbl+vlTbl;
+}
+async function syncAdsCusto(file){
+  if(!file) return;
+  const msg=document.getElementById('ads-sync-msg'), set=(t,c)=>{if(msg){msg.textContent=t;msg.style.color=c||'var(--ink-48)';}};
+  if(!window.XLSX){ set('biblioteca carregando — tente de novo','var(--orange)'); return; }
+  set('lendo '+file.name+'…');
+  try{
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array',cellDates:true});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:true});
+    const hdr=(aoa[0]||[]).map(h=>String(h==null?'':h).toLowerCase());
+    const col=(...ks)=>hdr.findIndex(h=>ks.some(k=>h.includes(k)));
+    const ci={dia:col('por dia','dia'),custo:col('custo do gmv','custo do gmv máximo'),rec:col('receita'),ped:col('pedidos de sku','pedidos'),roi:hdr.indexOf('roi')};
+    if(ci.custo<0){ set('não achei "Custo do GMV máximo" — é o "Campaign overview data"?','var(--rhode-red)'); return; }
+    const num=x=>{ if(typeof x==='number') return x; if(x==null) return 0; let s=String(x).trim().replace(/[^\d,.-]/g,''); if(s.includes(',')&&s.includes('.')) s=s.replace(/\./g,'').replace(',','.'); else if(s.includes(',')) s=s.replace(',','.'); return parseFloat(s)||0; };
+    const rows=[];
+    for(let i=1;i<aoa.length;i++){
+      const r=aoa[i]; if(!r) continue; const d=r[ci.dia]; if(d==null||String(d).includes('Total')) continue;
+      let dt=null; if(d instanceof Date) dt=d; else { const m=String(d).match(/(\d{4})-(\d{2})-(\d{2})/); if(m) dt=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); }
+      if(!dt||isNaN(dt.getTime())) continue;
+      const iso=dt.toISOString().slice(0,10);
+      rows.push({id:iso,data:iso,periodo:iso.slice(0,7),custo:Math.round(num(r[ci.custo])*100)/100,receita:ci.rec>=0?Math.round(num(r[ci.rec])*100)/100:0,pedidos:Math.round(ci.ped>=0?num(r[ci.ped]):0),roi:ci.roi>=0?Math.round(num(r[ci.roi])*100)/100:0});
+    }
+    if(!rows.length){ set('nenhuma linha de custo encontrada','var(--rhode-red)'); return; }
+    set('enviando '+rows.length+' dias…');
+    await admProxy('POST','ads_custo?on_conflict=id',{body:rows,prefer:'resolution=merge-duplicates,return=minimal'});
+    const tot=rows.reduce((s,x)=>s+x.custo,0);
+    alert('✓ '+rows.length+' dias importados · custo R$ '+Math.round(tot).toLocaleString('pt-BR')+'. Atualizando o painel.');
+    await load();
+  }catch(e){ set('erro: '+e.message,'var(--rhode-red)'); }
 }
 
 // ===== PEDIDOS (drill-down) =====
