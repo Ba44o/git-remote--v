@@ -281,8 +281,8 @@ function agg(meses){
   const mContrib=mGmvCpv-mCusto, mLiq=mGmvCpv*eficFrac-mCusto;
   let adReal=0,adRealRec=0,adRealHas=false,adTrad=0;
   meses.forEach(m=>{const a=ADC[m]; if(a){adRealHas=true; adReal+=+a.custo||0; adRealRec+=+a.receita||0;} const g=ADS[m]; if(g) adTrad+=g.custo;});
-  // VL (Vendas Líquidas) já está no settlement (% da receita bruta por pedido) → NÃO subtrair de novo. Só o TRADICIONAL (Receita bruta, conta de ads) sai do lucro aqui.
-  const impVenda=mGmvCpv*TX_VENDA/100, lucroAntesIR=mLiq-impVenda-adTrad, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucroFinal=lucroAntesIR-impIR;
+  // PROVADO (4 investigadores · 98 statements reconciliam sem NENHUMA linha de ads): o settlement não tem custo de GMV Max. Tradicional E Vendas Líquidas são debitados da CONTA DE ADS → subtrair AMBOS (ads_custo total) do lucro.
+  const impVenda=mGmvCpv*TX_VENDA/100, lucroAntesIR=mLiq-impVenda-adReal, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucroFinal=lucroAntesIR-impIR;
   const rp={liq:0,pagoLiq:0,rec:0,recN:0,dev:0,devN:0,plat:0,afi:0,ads:0,frete:0,liqN:0};
   meses.forEach(m=>{const s=STX[m]; if(!s)return; rp.liq+=+s.settle_liq||0;rp.pagoLiq+=+s.pago_liq||0;rp.liqN+=+s.liquidados||0;rp.rec+=+s.a_receber||0;rp.recN+=+s.pendentes||0;rp.dev+=+s.devolucao||0;rp.devN+=+s.devolvidos||0;rp.plat+=+s.comissao_plataforma||0;rp.afi+=+s.comissao_afiliada||0;rp.ads+=+s.comissao_ads_afil||0;rp.frete+=+s.frete||0;});
   const rpTaxa=rp.pagoLiq?(1-rp.liq/rp.pagoLiq)*100:0;
@@ -533,7 +533,7 @@ function renderLucro(D){
     ${cascRow('= Contribuição','GMV − CPV',D.mContrib,'#7fc9a3',maxv)}
     ${cascRow('− Fee plataforma','fee + afiliada + creator-ads (eficiência settlement)',-(D.mGmvCpv-D.mGmvCpv*D.eficFrac),'var(--rhode-red)',maxv)}
     ${cascRow('= Margem líquida','após taxas do settlement',D.mLiq,'#7fc9a3',maxv)}
-    ${D.adTrad>0?cascRow('− GMV Max Tradicional','Receita bruta: pago na conta de ads (fora do settlement)',-D.adTrad,'var(--rhode-red)',maxv):''}
+    ${D.adRealHas?cascRow('− Custo GMV Max (real)','Tradicional + Vendas Líquidas · pago na conta de ads (fora do settlement)',-D.adReal,'var(--rhode-red)',maxv):''}
     ${cascRow('− Imposto s/ venda',TX_VENDA+'% · PIS/COFINS+ICMS',-D.impVenda,'var(--orange)',maxv)}
     ${cascRow('− IRPJ + CSLL',TX_IR+'% s/ lucro',-D.impIR,'var(--orange)',maxv)}
     ${cascRow('= LUCRO FINAL',lucroPct.toFixed(1)+'% do GMV',D.lucroFinal,'var(--green)',maxv,'total')}</div>
@@ -543,7 +543,7 @@ function renderLucro(D){
       <label>IRPJ + CSLL <input type="number" step="1" value="${TX_IR}" onchange="setTx('ir',this.value)" style="${inp}"> %</label>
       <span style="color:var(--ink-48)">Lucro final: <b style="color:var(--green);font-family:'JetBrains Mono',monospace">${fmt(D.lucroFinal)}</b></span>
     </div></div>
-  <div class="note"><span>🧾</span><div><b>Estimativa Lucro Real.</b> A margem líquida já é líquida das taxas do settlement — <b>incluindo o GMV Max Vendas Líquidas</b>, que a TikTok cobra por pedido (% da receita bruta) dentro do repasse. Por isso só o <b>GMV Max Tradicional</b> (Receita bruta, pago na conta de ads)${D.adTrad>0?' — '+fmt(D.adTrad)+' —':''} é subtraído à parte, pra não contar a VL duas vezes. Confirme as alíquotas com a contabilidade.</div></div>`;
+  <div class="note"><span>🧾</span><div><b>Estimativa Lucro Real.</b> A margem líquida é líquida das taxas do settlement (fee + comissões + frete). <b>Provado</b> (98 statements reconciliam sem nenhuma linha de ads): o repasse <b>não</b> tem custo de GMV Max. Todo o custo de mídia — <b>Tradicional + Vendas Líquidas</b> — é debitado da conta de ads e subtraído aqui${D.adRealHas?' ('+fmt(D.adReal)+')':''}. Confirme as alíquotas com a contabilidade.</div></div>`;
 }
 
 // ===== ADS =====
@@ -577,7 +577,7 @@ function renderAds(D){
   const realBanner = D.adRealHas ? `<div class="alert" style="border-color:#f6cdd6">
     <div class="ic">🎯</div>
     <div><div class="big">${fmt(D.adReal)}</div>
-    <div class="tx"><b>Custo total do GMV Max</b> (painel de ads · todas as campanhas) — ROI ${D.adReal?(D.adRealRec/D.adReal).toFixed(1):0}x. Divide em <b>Tradicional</b> (Receita bruta — pago na conta de ads, entra no lucro à parte) + <b>Vendas Líquidas</b> (% da receita bruta por pedido — <b>já dentro do settlement/margem</b>). No lucro entra só o Tradicional, pra não contar a VL duas vezes.</div></div>
+    <div class="tx"><b>Custo total do GMV Max</b> (painel de ads · todas as campanhas) — ROI ${D.adReal?(D.adRealRec/D.adReal).toFixed(1):0}x. Tradicional (Receita bruta) + Vendas Líquidas (% por pedido) são <b>ambos debitados da conta de ads</b>, fora do settlement — <b>provado</b> (o repasse não tem custo de ads). Esse total inteiro entra no lucro.</div></div>
   </div>` : `<div class="note" style="margin-bottom:16px"><span>⚠️</span><div>Custo de ads do export "creative" (tradicional). O total real (incl. Vendas Líquidas) vem do <b>Campaign overview</b> — suba pela barra acima.</div></div>`;
   return syncBar+realBanner+k+tradTbl+vlTbl;
 }
