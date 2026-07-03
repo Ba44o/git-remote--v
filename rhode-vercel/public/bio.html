@@ -73,34 +73,6 @@ body::after{
 .brand .dot{color:var(--rhode-red)}
 .tagline{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500}
 
-/* LIVE strip (auto-injetada quando tem live) */
-.live-strip{
-  display:none;
-  align-items:center;gap:12px;
-  background:linear-gradient(90deg,var(--rhode-red) 0%,#e01f45 100%);
-  color:#fff;padding:14px 18px;border-radius:14px;
-  margin-bottom:20px;
-  text-decoration:none;
-  box-shadow:0 8px 24px rgba(254,44,85,.28);
-  transition:transform .15s ease,box-shadow .15s ease;
-}
-.live-strip.on{display:flex}
-.live-strip:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(254,44,85,.4)}
-.live-strip:active{transform:scale(.98)}
-.live-dot{
-  width:10px;height:10px;border-radius:50%;background:#fff;flex-shrink:0;
-  box-shadow:0 0 0 0 rgba(255,255,255,.7);
-  animation:livePulse 1.6s ease-out infinite;
-}
-@keyframes livePulse{
-  0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}
-  70%{box-shadow:0 0 0 14px rgba(255,255,255,0)}
-  100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}
-}
-.live-strip-txt{flex:1;font-weight:600;font-size:15px;letter-spacing:-0.011em}
-.live-strip-txt small{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;opacity:.9;margin-bottom:2px}
-.live-strip-arrow{opacity:.9;font-size:20px;flex-shrink:0}
-
 /* Blocks */
 .blocks{display:flex;flex-direction:column;gap:12px}
 .block{
@@ -147,9 +119,8 @@ footer .heart{color:var(--rhode-red)}
   text-transform:uppercase;
 }
 .loading::before{
-  content:'';width:10px;height:10px;border-radius:50%;background:var(--rhode-red);
-  margin-right:12px;
-  animation:livePulse 1.6s ease-out infinite;
+  content:'';width:8px;height:8px;border-radius:50%;background:var(--rhode-red);
+  margin-right:12px;opacity:.7;
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -164,15 +135,6 @@ footer .heart{color:var(--rhode-red)}
     <h1 class="brand">Rhode Jeans<span class="dot">.</span></h1>
     <div class="tagline">DENIM BRASILEIRO · SÃO PAULO</div>
   </div>
-
-  <a class="live-strip" id="liveStrip" href="#" rel="noopener">
-    <div class="live-dot"></div>
-    <div class="live-strip-txt">
-      <small>AO VIVO AGORA</small>
-      <span id="liveTxt">Live acontecendo</span>
-    </div>
-    <div class="live-strip-arrow">→</div>
-  </a>
 
   <div class="blocks" id="blocks">
     <div class="loading">Carregando</div>
@@ -241,26 +203,11 @@ footer .heart{color:var(--rhode-red)}
     });
   }
 
-  // ── LIVE STRIP ──
-  const liveStrip=document.getElementById('liveStrip');
-  const liveTxt=document.getElementById('liveTxt');
-  function renderLive(row){
-    if(!row)return;
-    const handle=(row.creator_handle||'').toLowerCase();
-    liveTxt.textContent='Live com @'+handle;
-    liveStrip.href='https://creators.rhodejeans.com.br/live/'+encodeURIComponent(handle)+'?src=bio';
-    liveStrip.classList.add('on');
-    liveStrip.addEventListener('click',()=>track('link_click',{link_id:'auto_live',titulo:'Live com @'+handle,url:liveStrip.href}));
-  }
-
   // ── BOOT ──
   async function boot(){
     track('page_view',{});
-    const linksP=fetch(SB+'/rest/v1/rhode_links_efetivos?select=id,titulo,subtitulo,url,icone,destaque',{headers:H}).then(r=>r.ok?r.json():[]).catch(()=>[]);
-    const nowIso=new Date().toISOString();
-    const liveP=fetch(SB+'/rest/v1/live_schedule?status=eq.live&scheduled_end=gte.'+encodeURIComponent(nowIso)+'&select=creator_handle,tiktok_room_url&order=scheduled_start.desc&limit=1',{headers:H}).then(r=>r.ok?r.json():[]).catch(()=>[]);
-    const [links,lives]=await Promise.all([linksP,liveP]);
-    renderLive(lives&&lives[0]);
+    const r=await fetch(SB+'/rest/v1/rhode_links_efetivos?select=id,titulo,subtitulo,url,icone,destaque',{headers:H}).catch(()=>null);
+    const links=r&&r.ok?await r.json():[];
     renderBlocks(links);
   }
   boot();
