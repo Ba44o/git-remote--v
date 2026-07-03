@@ -2,8 +2,10 @@
   "outputDirectory": "public",
   "framework": null,
   "buildCommand": null,
+  "redirects": [
+    { "source": "/", "has": [{ "type": "host", "value": "bio.rhodejeans.com.br" }], "destination": "/bio.html", "permanent": false }
+  ],
   "rewrites": [
-    { "source": "/(.*)", "has": [{ "type": "host", "value": "bio.rhodejeans.com.br" }], "destination": "/bio.html" },
     { "source": "/flash", "destination": "/wpp.html" },
     { "source": "/sac", "destination": "/sac.html" },
     { "source": "/equipe", "destination": "/wpp.html" },
