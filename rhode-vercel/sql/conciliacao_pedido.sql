@@ -12,7 +12,11 @@
 -- revenue robusto: usa a coluna itemizada; se 0 (mês não re-coletado), deriva.
 -- Rodar no Supabase → SQL Editor → Run.
 -- =============================================================
-CREATE OR REPLACE VIEW conciliacao_pedido AS
+-- CREATE OR REPLACE não reestrutura colunas (só adiciona no fim) → dropar antes.
+-- resumo depende de pedido, então dropa resumo primeiro.
+DROP VIEW IF EXISTS conciliacao_resumo;
+DROP VIEW IF EXISTS conciliacao_pedido;
+CREATE VIEW conciliacao_pedido AS
 WITH tx AS (
     SELECT order_id,
            max(periodo) AS periodo, max(data) AS data,
