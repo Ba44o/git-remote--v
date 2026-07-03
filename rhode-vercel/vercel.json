@@ -14,11 +14,13 @@
     { "source": "/live/:creator([a-z0-9_.-]+)", "destination": "/live.html" },
     { "source": "/encontre-seu-tamanho", "destination": "/tamanho.html" },
     { "source": "/tamanho", "destination": "/tamanho.html" },
-    { "source": "/privacidade-vitrine", "destination": "/privacidade-vitrine.html" }
+    { "source": "/privacidade-vitrine", "destination": "/privacidade-vitrine.html" },
+    { "source": "/bio-admin", "destination": "/bio-admin.html" },
+    { "source": "/admin", "has": [{ "type": "host", "value": "bio.rhodejeans.com.br" }], "destination": "/bio-admin.html" }
   ],
   "headers": [
     {
-      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live|live|tamanho|privacidade-vitrine|bio)\\.html",
+      "source": "/(admin|hub|acesso|cadastro|bem-vinda|parceria|sac|index|dash-live|live|tamanho|privacidade-vitrine|bio|bio-admin)\\.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
