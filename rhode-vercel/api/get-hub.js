@@ -133,6 +133,42 @@ async function handleAdminQuery(body, res) {
   return res.json({ ok: true, status: r.status, data });
 }
 
+// ════════════ BIO_UPLOAD (imagem de fundo do bio via admin) ═════════════════
+// Recebe base64 data-URL, valida (image/*, <3MB), upload no bucket 'bio-assets'
+// via service_role, devolve URL pública. Bucket definido em bio_customization_v2.sql
+async function handleBioUpload(body, res) {
+  if (!process.env.ADMIN_TOKEN || body.adminToken !== process.env.ADMIN_TOKEN) {
+    return res.status(401).json({ error: 'não autorizado' });
+  }
+  const b64 = (body.dataUrl || '').toString();
+  const m = b64.match(/^data:(image\/(png|jpe?g|webp|gif));base64,(.+)$/i);
+  if (!m) return res.status(400).json({ error: 'formato inválido — só PNG/JPG/WEBP/GIF em data-URL' });
+  const mime = m[1].toLowerCase();
+  const ext = m[2].toLowerCase() === 'jpeg' ? 'jpg' : m[2].toLowerCase();
+  const data = Buffer.from(m[3], 'base64');
+  if (data.length > 3 * 1024 * 1024) {
+    return res.status(413).json({ error: 'imagem > 3MB — comprima antes' });
+  }
+  const filename = `bg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const path = `bg/${filename}`;
+  const r = await fetch(`${SB_URL}/storage/v1/object/bio-assets/${path}`, {
+    method: 'POST',
+    headers: {
+      apikey: SB_SVC,
+      Authorization: `Bearer ${SB_SVC}`,
+      'Content-Type': mime,
+      'x-upsert': 'true',
+    },
+    body: data,
+  });
+  if (!r.ok) return res.status(r.status).json({ error: (await r.text()).slice(0, 300) });
+  return res.json({
+    ok: true,
+    url: `${SB_URL}/storage/v1/object/public/bio-assets/${path}`,
+    path,
+  });
+}
+
 // ════════════ CADASTRO (signup público) ═════════════════════════════════════
 // Insert/upsert de novo cadastro em eventos_creators com a service key, pra essa
 // tabela poder ficar 100% deny-anon. É público (form de cadastro) — mesmo nível
@@ -518,6 +554,7 @@ export default async function handler(req, res) {
   // Modo ADMIN: login + passthrough autenticado (admin.html)
   if (body.action === 'admin_login') return handleAdminLogin(body, res);
   if (body.action === 'admin_query') return handleAdminQuery(body, res);
+  if (body.action === 'bio_upload') return handleBioUpload(body, res);
   // Cadastro público (cadastro.html)
   if (body.action === 'cadastro') return handleCadastro(body, res);
   // Dash de lives público (dash-live.html) — dado agregado da loja, sem PII

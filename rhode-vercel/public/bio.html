@@ -28,16 +28,19 @@
   --card-hover:rgba(74,74,72,.55);
   --ink-64:rgba(255,255,255,.64);
   --ink-48:rgba(255,255,255,.5);
+  --font-heading:'Montserrat',-apple-system,sans-serif;
+  --font-body:'DM Sans',-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 body{
-  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;
+  font-family:var(--font-body);
   background:var(--bg);color:var(--fg);
   min-height:100vh;min-height:100svh;
   padding:32px 20px 64px;
   display:flex;flex-direction:column;align-items:center;
   overflow-x:hidden;
+  background-attachment:fixed;
 }
 @media(max-width:480px){body{padding:24px 18px 56px}}
 .wrap{width:100%;max-width:480px}
@@ -47,21 +50,21 @@ body{
 }
 .logo{display:inline-flex;align-items:baseline;line-height:1}
 .logo-main{
-  font-family:'Montserrat',-apple-system,sans-serif;
+  font-family:var(--font-heading);
   font-weight:800;letter-spacing:-.02em;line-height:1;
   font-size:clamp(30px,8vw,42px);
   text-transform:uppercase;
 }
 .logo-dot{color:var(--amarelo);margin-left:.02em}
 .logo-jeans{
-  font-family:'Montserrat',-apple-system,sans-serif;
+  font-family:var(--font-heading);
   font-weight:700;font-style:italic;line-height:1;
   font-size:clamp(8px,1.9vw,10.5px);
   text-transform:uppercase;letter-spacing:.05em;
   margin-left:4px;
 }
 .tagline{
-  font-family:'DM Sans',-apple-system,sans-serif;
+  font-family:var(--font-body);
   font-size:clamp(10px,2.4vw,11.5px);
   letter-spacing:.28em;text-transform:uppercase;
   color:var(--nevoa);font-weight:500;
@@ -94,7 +97,7 @@ body{
 .block.destaque .block-icon{background:var(--bg);border-color:var(--bg);color:var(--amarelo)}
 .block-info{flex:1;min-width:0}
 .block-titulo{
-  font-family:'Montserrat',-apple-system,sans-serif;
+  font-family:var(--font-heading);
   font-weight:700;font-size:14.5px;letter-spacing:-.005em;line-height:1.25;
 }
 @media(min-width:481px){.block-titulo{font-size:15px}}
@@ -132,7 +135,7 @@ footer .sep{color:var(--amarelo);margin:0 8px}
 (()=>{
 const SB='https://ivzpykuluxcxefhyzfsf.supabase.co';
 const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
-const CACHE_KEY='bio_v3'; // bump — schema mudou (config + meta)
+const CACHE_KEY='bio_v4'; // bump — imagem + fonts
 const el=document.getElementById('blocks');
 const ESC={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>ESC[c]);
@@ -140,6 +143,21 @@ const safe=u=>{try{const x=new URL(u);return['http:','https:','mailto:','tel:'].
 // só permite valores CSS conservadores em cores (evita XSS via style)
 const cssColor=v=>{if(!v||typeof v!=='string')return null;const s=v.trim();return /^(#[0-9a-f]{3,8}|rgb|hsl|[a-z]+)/i.test(s)&&s.length<40&&!/[;"'<>]/.test(s)?s:null};
 const cssInt=(v,min,max,dflt)=>{const n=parseInt(v,10);return Number.isFinite(n)&&n>=min&&n<=max?n:dflt};
+// só aceita URL de imagem do Supabase Storage do projeto (bio-assets)
+const SUPABASE_HOST='ivzpykuluxcxefhyzfsf.supabase.co';
+const safeImg=u=>{try{const x=new URL(u);return x.host===SUPABASE_HOST&&x.pathname.startsWith('/storage/v1/object/public/bio-assets/')?x.href:null}catch(e){return null}};
+// fontes permitidas (Google Fonts)
+const FONT_WHITELIST=['Montserrat','DM Sans','Playfair Display','Space Grotesk','Inter','Poppins','Manrope','Archivo','Bebas Neue','Cormorant Garamond','Work Sans','Nunito','Lora','Fraunces','Outfit'];
+const safeFont=v=>FONT_WHITELIST.includes(v)?v:null;
+const injectedFonts=new Set(['Montserrat','DM Sans']);
+function injectFont(name){
+  const nm=safeFont(name); if(!nm||injectedFonts.has(nm)) return;
+  injectedFonts.add(nm);
+  const l=document.createElement('link');
+  l.rel='stylesheet';
+  l.href=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(nm)}:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap`;
+  document.head.appendChild(l);
+}
 
 let sid;
 try{sid=sessionStorage.getItem('bio_sid');if(!sid){sid=(crypto.randomUUID?crypto.randomUUID():'x'+Math.random().toString(36).slice(2)+Date.now().toString(36));sessionStorage.setItem('bio_sid',sid)}}
@@ -149,7 +167,12 @@ function applyConfig(c){
   if(!c) return;
   const root=document.documentElement, body=document.body;
   const pageBg=cssColor(c.page_bg), pageBg2=cssColor(c.page_bg_2);
-  if(c.page_bg_type==='gradient'&&pageBg&&pageBg2){
+  const img=safeImg(c.page_bg_image);
+  if(c.page_bg_type==='image'&&img){
+    const overlay=cssColor(c.page_bg_overlay)||'rgba(10,10,10,0.55)';
+    body.style.background=`linear-gradient(${overlay}, ${overlay}), url("${img}") center/cover no-repeat`;
+    body.style.backgroundAttachment='fixed';
+  }else if(c.page_bg_type==='gradient'&&pageBg&&pageBg2){
     const ang=cssInt(c.page_bg_angle,0,360,180);
     body.style.background=`linear-gradient(${ang}deg, ${pageBg}, ${pageBg2})`;
     body.style.backgroundAttachment='fixed';
@@ -157,6 +180,9 @@ function applyConfig(c){
   const acc=cssColor(c.accent_color); if(acc) root.style.setProperty('--amarelo',acc);
   const fg=cssColor(c.text_color); if(fg) root.style.setProperty('--fg',fg);
   const cb=cssColor(c.card_bg); if(cb) root.style.setProperty('--card',cb);
+  // fontes dinâmicas
+  const fh=safeFont(c.font_heading); if(fh){ injectFont(fh); root.style.setProperty('--font-heading', `'${fh}',-apple-system,sans-serif`); }
+  const fb=safeFont(c.font_body); if(fb){ injectFont(fb); root.style.setProperty('--font-body', `'${fb}',-apple-system,BlinkMacSystemFont,sans-serif`); }
   if(c.tagline!=null){ const t=document.querySelector('.tagline'); if(t) t.textContent=c.tagline; }
 }
 
@@ -211,7 +237,7 @@ try{const raw=localStorage.getItem(CACHE_KEY);if(raw){cached=JSON.parse(raw);if(
 // 2. Fresh fetch paralelo — config + links
 const H={apikey:AK,Authorization:'Bearer '+AK};
 Promise.all([
-  fetch(SB+'/rest/v1/rhode_bio_config?select=*&id=eq.1',{headers:H}).then(r=>r.ok?r.json():[]).then(a=>a&&a[0]||null).catch(()=>null),
+  fetch(SB+'/rest/v1/rhode_bio_config?select=page_bg,page_bg_type,page_bg_2,page_bg_angle,page_bg_image,page_bg_overlay,accent_color,text_color,tagline,font_heading,font_body,card_bg&id=eq.1',{headers:H}).then(r=>r.ok?r.json():[]).then(a=>a&&a[0]||null).catch(()=>null),
   fetch(SB+'/rest/v1/rhode_links_efetivos?select=id,titulo,subtitulo,url,icone,destaque,meta',{headers:H}).then(r=>r.ok?r.json():null).catch(()=>null),
 ]).then(([cfg,rows])=>{
   if(cfg===null&&rows===null)return;

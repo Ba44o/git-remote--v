@@ -266,6 +266,98 @@ input,button,select,textarea{font-family:inherit;color:inherit;background:none;b
 /* form-section (dentro do form de bloco) */
 .form-section{grid-column:1/-1;margin-top:10px;padding-top:14px;border-top:1px dashed var(--hairline)}
 .form-section-title{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+
+/* Upload de imagem */
+.upload{
+  display:flex;flex-direction:column;gap:10px;
+  padding:14px;background:var(--panel-2);border:1px dashed var(--hairline-2);border-radius:10px;
+}
+.upload-preview{
+  width:100%;height:130px;border-radius:8px;
+  background:var(--panel) center/cover no-repeat;
+  border:1px solid var(--hairline);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);
+}
+.upload-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.upload-row input[type=file]{display:none}
+.upload-btn{
+  padding:8px 14px;background:var(--panel);border:1px solid var(--hairline);border-radius:8px;
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;cursor:pointer;
+  transition:border-color .12s;
+}
+.upload-btn:hover{border-color:var(--amarelo);color:var(--amarelo)}
+.upload-status{font-size:11px;color:var(--ink-48);flex:1}
+
+/* Overlay picker (transparência) */
+.overlay-row{display:flex;align-items:center;gap:12px}
+.overlay-swatch{width:36px;height:36px;border-radius:8px;background:#0A0A0A;border:1px solid var(--hairline);position:relative;overflow:hidden;flex-shrink:0}
+.overlay-swatch::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,#333 25%,transparent 25%,transparent 75%,#333 75%),linear-gradient(45deg,#333 25%,transparent 25%,transparent 75%,#333 75%);background-position:0 0,4px 4px;background-size:8px 8px;z-index:0;opacity:.3}
+.overlay-swatch>*{position:relative;z-index:1;width:100%;height:100%}
+
+/* Select de fonte (dropdown estilizado) */
+.font-select{
+  height:38px;padding:0 32px 0 12px;
+  background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;
+  font-size:13px;color:var(--fg);
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23fff' fill='none' stroke-width='1.5' stroke-linecap='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.font-select:focus{border-color:var(--amarelo)}
+.font-preview{
+  padding:12px 14px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;
+  margin-top:8px;
+}
+.font-preview .fp-title{font-family:var(--fp-heading,inherit);font-weight:800;font-size:20px;letter-spacing:-.02em;line-height:1.1}
+.font-preview .fp-body{font-family:var(--fp-body,inherit);font-size:12px;color:var(--ink-64);margin-top:4px;letter-spacing:.24em;text-transform:uppercase}
+
+/* Analytics */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:520px){.stats-grid{grid-template-columns:1fr 1fr}}
+.stat{
+  padding:12px 14px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:10px;
+}
+.stat-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-bottom:4px}
+.stat-value{font-family:'Montserrat',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.02em}
+.stat-hint{font-size:10px;color:var(--ink-48);margin-top:2px}
+
+.stats-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.stats-table th{
+  text-align:left;padding:8px 10px;border-bottom:1px solid var(--hairline);
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;
+}
+.stats-table th:nth-child(n+2){text-align:right}
+.stats-table td{padding:10px;border-bottom:1px solid var(--hairline)}
+.stats-table td:nth-child(n+2){text-align:right;font-variant-numeric:tabular-nums}
+.stats-table td .titulo{font-weight:600}
+.stats-table td .sub{font-size:11px;color:var(--ink-48)}
+.stats-empty{padding:32px;text-align:center;color:var(--ink-48);font-size:12px}
+.stats-bar{
+  display:inline-block;height:6px;background:var(--amarelo);border-radius:99px;margin-right:6px;vertical-align:middle;
+}
+
+/* Chart mini (SVG polyline views/dia) */
+.mini-chart{
+  height:80px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;
+  padding:8px;margin-top:8px;overflow:hidden;
+}
+.mini-chart svg{width:100%;height:100%}
+.mini-chart polyline{fill:none;stroke:var(--amarelo);stroke-width:2}
+.mini-chart .area{fill:var(--amarelo);opacity:.14}
+.mini-chart .axis{stroke:var(--hairline);stroke-width:1}
+
+/* Colorização dos rows no listing (refletir meta.styles) */
+.row.styled .row-icon{background:var(--r-bg,rgba(255,255,255,.05));border-color:var(--r-bg,var(--hairline));color:var(--r-fg,var(--fg))}
+
+/* Agendamento */
+.schedule-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.schedule-row{grid-template-columns:1fr}}
+.schedule-row input[type=datetime-local]{
+  height:38px;padding:0 12px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;
+  font-size:13px;color:var(--fg);color-scheme:dark;
+}
+.schedule-row input:focus{border-color:var(--amarelo)}
 </style>
 </head>
 <body>
@@ -309,9 +401,10 @@ input,button,select,textarea{font-family:inherit;color:inherit;background:none;b
             <div class="seg" id="segBgType">
               <button type="button" data-v="solid">Cor sólida</button>
               <button type="button" data-v="gradient">Gradient</button>
+              <button type="button" data-v="image">Imagem</button>
             </div>
           </div>
-          <div class="cfg-field">
+          <div class="cfg-field" id="wrapBg">
             <label>Cor 1 (fundo)</label>
             <div class="cp">
               <div class="cp-swatch" style="background:#0A0A0A" id="swBg"><input type="color" id="cpBg" value="#0A0A0A"></div>
@@ -330,6 +423,31 @@ input,button,select,textarea{font-family:inherit;color:inherit;background:none;b
             <div class="slider-row">
               <input type="range" id="cpAngle" min="0" max="360" step="15" value="180">
               <output id="outAngle">180°</output>
+            </div>
+          </div>
+
+          <!-- Imagem de fundo -->
+          <div class="cfg-field full" id="wrapImage" style="display:none">
+            <label>Imagem de fundo</label>
+            <div class="upload">
+              <div class="upload-preview" id="uploadPreview">nenhuma imagem</div>
+              <div class="upload-row">
+                <label class="upload-btn" for="fileBg">📁 Escolher imagem</label>
+                <input type="file" id="fileBg" accept="image/png,image/jpeg,image/webp,image/gif">
+                <span class="upload-status" id="uploadStatus">PNG/JPG/WEBP · máx 3MB</span>
+                <button type="button" class="btn-cancel" id="btnRemoveImg" style="display:none">Remover</button>
+              </div>
+            </div>
+          </div>
+          <div class="cfg-field full" id="wrapOverlay" style="display:none">
+            <label>Overlay (escurece a imagem)</label>
+            <div class="overlay-row">
+              <div class="overlay-swatch"><input type="color" id="cpOverlay" value="#0A0A0A" style="width:100%;height:100%;border:none;padding:0;cursor:pointer;background:none"></div>
+              <input class="cp-hex" id="hxOverlayColor" value="#0A0A0A" maxlength="7" style="max-width:120px">
+              <div class="slider-row" style="flex:1">
+                <input type="range" id="cpOverlayA" min="0" max="90" step="5" value="55">
+                <output id="outOverlayA">55%</output>
+              </div>
             </div>
           </div>
 
@@ -358,12 +476,56 @@ input,button,select,textarea{font-family:inherit;color:inherit;background:none;b
             <label>Tagline</label>
             <input class="cp-hex" id="cfgTagline" value="" style="text-transform:none;font-family:inherit;font-size:13px;letter-spacing:0" maxlength="140">
           </div>
+
+          <!-- Tipografia -->
+          <div class="cfg-field full form-section" style="border-top:1px dashed var(--hairline);padding-top:16px;margin-top:6px">
+            <div class="form-section-title">✍️ Tipografia</div>
+            <div class="cfg-grid">
+              <div class="cfg-field">
+                <label>Fonte títulos/logo</label>
+                <select class="font-select" id="selFontH"></select>
+              </div>
+              <div class="cfg-field">
+                <label>Fonte corpo/blocos</label>
+                <select class="font-select" id="selFontB"></select>
+              </div>
+              <div class="cfg-field full">
+                <div class="font-preview" id="fontPreview">
+                  <div class="fp-title">Rhode.</div>
+                  <div class="fp-body">denim brasileiro · fábrica própria</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="panel-actions">
           <div class="panel-hint">Alterações refletem no bio ao vivo após salvar.</div>
           <button class="btn-cancel" id="btnResetCfg" type="button">Padrão</button>
           <button class="btn-primary" id="btnSaveCfg" type="button">Salvar aparência</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Painel Analytics -->
+    <div class="panel" id="panelStats">
+      <div class="panel-head" id="phStats">
+        <div class="panel-head-left">
+          <div class="panel-head-ico" style="background:#4ade80;color:#0a2818">📊</div>
+          <div class="panel-head-title">Analytics<small id="stHint">30 dias</small></div>
+        </div>
+        <div class="panel-chev">▾</div>
+      </div>
+      <div class="panel-body" id="pbStats">
+        <div class="stats-grid" id="statsCards">
+          <div class="stat"><div class="stat-label">Views (30d)</div><div class="stat-value" id="stViews">—</div><div class="stat-hint" id="stViewsSub">carregando…</div></div>
+          <div class="stat"><div class="stat-label">Cliques (30d)</div><div class="stat-value" id="stClicks">—</div><div class="stat-hint" id="stClicksSub">—</div></div>
+          <div class="stat"><div class="stat-label">CTR médio</div><div class="stat-value" id="stCTR">—</div><div class="stat-hint">clicks / views</div></div>
+        </div>
+        <div class="mini-chart" id="chartViews"><svg viewBox="0 0 300 64" preserveAspectRatio="none"></svg></div>
+        <table class="stats-table" id="statsTable">
+          <thead><tr><th>Link</th><th>Cliques</th><th>Únicos</th></tr></thead>
+          <tbody><tr><td colspan="3" class="stats-empty">carregando…</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -446,19 +608,42 @@ async function loadList(){
 }
 
 function fmt(v){ return v==null?'':String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+function fmtDate(iso){ try{ const d=new Date(iso); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}catch(e){return ''} }
+// datetime-local input aceita "YYYY-MM-DDTHH:mm" — converte de/pra ISO
+function isoToLocal(iso){ if(!iso) return ''; try{const d=new Date(iso);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}catch(e){return ''}}
+function localToIso(v){ if(!v) return null; try{return new Date(v).toISOString()}catch(e){return null}}
 
 function render(){
   el.counter.textContent=(rows||[]).length?`${rows.length} · ${rows.filter(r=>r.ativo).length} ativos`:'0';
   if(!rows||!rows.length){ el.list.innerHTML='<div class="empty">Sem blocos ainda. Cria o primeiro.</div>'; return; }
+  const now=new Date();
   el.list.innerHTML=rows.map((r,i)=>{
-    const cls='row'+(r.ativo?'':' inactive')+(r.destaque?' destaque':'');
+    const st=(r.meta&&r.meta.styles)||{};
+    const preset=st.preset||(r.destaque?'destaque':'default');
+    let cls='row'+(r.ativo?'':' inactive')+(r.destaque?' destaque':'');
+    let styleVars='';
+    if(preset==='solid'&&st.bg){ cls+=' styled'; styleVars=`--r-bg:${st.bg};--r-fg:${st.color||'#fff'}`; }
+    else if(preset==='ghost'&&st.bg){ cls+=' styled'; styleVars=`--r-bg:transparent;--r-fg:${st.color||'#fff'}`; }
+    // agendamento — mostra badge de status temporal
+    let tempBadge='';
+    if(r.starts_at&&new Date(r.starts_at)>now){
+      tempBadge=`<span class="badge">⏳ agendado ${fmtDate(r.starts_at)}</span>`;
+      cls+=' inactive';
+    }else if(r.ends_at&&new Date(r.ends_at)<now){
+      tempBadge=`<span class="badge off">⛔ expirou ${fmtDate(r.ends_at)}</span>`;
+      cls+=' inactive';
+    }else if(r.ends_at){
+      tempBadge=`<span class="badge">até ${fmtDate(r.ends_at)}</span>`;
+    }
     const badges=[
       r.ativo?'<span class="badge on">ativo</span>':'<span class="badge off">off</span>',
       r.destaque?'<span class="badge dst">destaque</span>':'',
+      preset!=='default'&&preset!=='destaque'?`<span class="badge">${preset}</span>`:'',
       `<span class="badge">ordem ${r.ordem}</span>`,
+      tempBadge,
     ].filter(Boolean).join('');
     return `
-      <div class="row ${cls}" data-id="${r.id}" data-idx="${i}">
+      <div class="row ${cls}" data-id="${r.id}" data-idx="${i}" style="${styleVars}">
         <div class="row-summary">
           <div class="row-icon">${fmt(r.icone||'→')}</div>
           <div class="row-info">
@@ -566,6 +751,15 @@ function openEdit(rowEl,id){
         </div>
       </div>
 
+      <div class="form-section">
+        <div class="form-section-title">⏰ Agendamento (opcional)</div>
+        <div class="schedule-row">
+          <div class="field"><label>Aparece a partir de</label><input type="datetime-local" id="f-starts" value="${isoToLocal(r.starts_at)}"></div>
+          <div class="field"><label>Some após</label><input type="datetime-local" id="f-ends" value="${isoToLocal(r.ends_at)}"></div>
+        </div>
+        <div style="font-size:11px;color:var(--ink-48);margin-top:8px">Deixa em branco pra ser sempre visível. Útil pra campanhas (6.6, Black Friday) que aparecem/somem sozinhas.</div>
+      </div>
+
       <div class="form-actions full">
         <button class="btn-cancel" data-a="cancel">Cancelar</button>
         <button class="btn-save" data-a="save">${isNew?'Criar':'Salvar'}</button>
@@ -604,6 +798,8 @@ function openEdit(rowEl,id){
       ordem: parseInt(editEl.querySelector('#f-ordem').value,10)||100,
       ativo: editEl.querySelector('#f-ativo').checked,
       destaque: editEl.querySelector('#f-destaque').checked,
+      starts_at: localToIso(editEl.querySelector('#f-starts').value),
+      ends_at: localToIso(editEl.querySelector('#f-ends').value),
       meta,
     };
     if(!body.titulo||!body.url){ toast('titulo e url são obrigatórios','err'); return; }
@@ -643,22 +839,100 @@ el.btnNew.addEventListener('click',()=>{
 // ═══════════════════════════════════════════════════════════
 // APARÊNCIA (config global)
 // ═══════════════════════════════════════════════════════════
+const FONTS=['Montserrat','DM Sans','Playfair Display','Space Grotesk','Inter','Poppins','Manrope','Archivo','Bebas Neue','Cormorant Garamond','Work Sans','Nunito','Lora','Fraunces','Outfit'];
+const injectedFonts=new Set(['Montserrat','DM Sans']);
+function injectFont(name){
+  if(!name||injectedFonts.has(name)||!FONTS.includes(name)) return;
+  injectedFonts.add(name);
+  const l=document.createElement('link'); l.rel='stylesheet';
+  l.href=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}:wght@400;500;600;700;800&display=swap`;
+  document.head.appendChild(l);
+}
+
 const cfgEls={
   panel:document.getElementById('panelAparencia'),
   head:document.getElementById('phAparencia'),
   hint:document.getElementById('apHint'),
   segBg:document.getElementById('segBgType'),
+  wrapBg:document.getElementById('wrapBg'),
   cpBg:document.getElementById('cpBg'),hxBg:document.getElementById('hxBg'),
   cpBg2:document.getElementById('cpBg2'),hxBg2:document.getElementById('hxBg2'),
   wrapBg2:document.getElementById('wrapBg2'),
   cpAngle:document.getElementById('cpAngle'),outAngle:document.getElementById('outAngle'),wrapAngle:document.getElementById('wrapAngle'),
+  wrapImage:document.getElementById('wrapImage'),
+  wrapOverlay:document.getElementById('wrapOverlay'),
+  fileBg:document.getElementById('fileBg'),
+  uploadPreview:document.getElementById('uploadPreview'),
+  uploadStatus:document.getElementById('uploadStatus'),
+  btnRemoveImg:document.getElementById('btnRemoveImg'),
+  cpOverlay:document.getElementById('cpOverlay'),
+  hxOverlayColor:document.getElementById('hxOverlayColor'),
+  cpOverlayA:document.getElementById('cpOverlayA'),
+  outOverlayA:document.getElementById('outOverlayA'),
   cpAcc:document.getElementById('cpAcc'),hxAcc:document.getElementById('hxAcc'),
   cpFg:document.getElementById('cpFg'),hxFg:document.getElementById('hxFg'),
   tagline:document.getElementById('cfgTagline'),
+  selFontH:document.getElementById('selFontH'),
+  selFontB:document.getElementById('selFontB'),
+  fontPreview:document.getElementById('fontPreview'),
   btnSave:document.getElementById('btnSaveCfg'),
   btnReset:document.getElementById('btnResetCfg'),
   presets:document.getElementById('presets'),
 };
+
+// popula selects de fonte
+FONTS.forEach(f=>{
+  const o1=document.createElement('option'); o1.value=f; o1.textContent=f; cfgEls.selFontH.appendChild(o1);
+  const o2=document.createElement('option'); o2.value=f; o2.textContent=f; cfgEls.selFontB.appendChild(o2);
+});
+function updateFontPreview(){
+  const h=cfgEls.selFontH.value, b=cfgEls.selFontB.value;
+  injectFont(h); injectFont(b);
+  cfgEls.fontPreview.style.setProperty('--fp-heading',`'${h}',sans-serif`);
+  cfgEls.fontPreview.style.setProperty('--fp-body',`'${b}',sans-serif`);
+}
+cfgEls.selFontH.addEventListener('change',updateFontPreview);
+cfgEls.selFontB.addEventListener('change',updateFontPreview);
+
+// ── Upload de imagem
+let uploadedImageUrl=null;
+cfgEls.fileBg.addEventListener('change',async(e)=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  if(!/^image\/(png|jpe?g|webp|gif)$/.test(f.type)){ toast('formato inválido','err'); return; }
+  if(f.size>3*1024*1024){ toast('imagem >3MB — comprime antes','err'); return; }
+  cfgEls.uploadStatus.textContent='enviando…';
+  try{
+    const dataUrl=await new Promise((ok,ng)=>{const rd=new FileReader();rd.onload=()=>ok(rd.result);rd.onerror=ng;rd.readAsDataURL(f);});
+    const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'bio_upload',adminToken:token,dataUrl})});
+    const j=await r.json();
+    if(!r.ok||!j.url) throw new Error(j.error||'erro no upload');
+    uploadedImageUrl=j.url;
+    cfgEls.uploadPreview.style.background=`center/cover no-repeat url("${j.url}")`;
+    cfgEls.uploadPreview.textContent='';
+    cfgEls.uploadStatus.textContent='✓ pronto — clica em salvar aparência';
+    cfgEls.btnRemoveImg.style.display='';
+    toast('imagem enviada','ok');
+  }catch(err){ cfgEls.uploadStatus.textContent='erro: '+err.message; toast(err.message,'err'); }
+});
+cfgEls.btnRemoveImg.addEventListener('click',()=>{
+  uploadedImageUrl=null;
+  cfgEls.uploadPreview.style.background='var(--panel)';
+  cfgEls.uploadPreview.textContent='nenhuma imagem';
+  cfgEls.uploadStatus.textContent='PNG/JPG/WEBP · máx 3MB';
+  cfgEls.btnRemoveImg.style.display='none';
+  cfgEls.fileBg.value='';
+});
+
+// overlay picker
+cfgEls.cpOverlay.addEventListener('input',()=>{
+  cfgEls.hxOverlayColor.value=cfgEls.cpOverlay.value.toUpperCase();
+  cfgEls.cpOverlay.parentElement.querySelector('.overlay-swatch')?.style.setProperty('background',cfgEls.cpOverlay.value);
+});
+cfgEls.hxOverlayColor.addEventListener('input',()=>{
+  let v=cfgEls.hxOverlayColor.value.trim(); if(v&&!v.startsWith('#'))v='#'+v;
+  if(/^#[0-9a-fA-F]{6}$/.test(v)) cfgEls.cpOverlay.value=v;
+});
+cfgEls.cpOverlayA.addEventListener('input',()=>{ cfgEls.outOverlayA.value=cfgEls.cpOverlayA.value+'%'; });
 
 let currentCfg={};
 let bgType='solid';
@@ -672,8 +946,11 @@ cfgEls.segBg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()
 }));
 function refreshBgType(){
   cfgEls.segBg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===bgType));
+  cfgEls.wrapBg.style.display    = bgType!=='image'?'flex':'none';
   cfgEls.wrapBg2.style.display   = bgType==='gradient'?'flex':'none';
   cfgEls.wrapAngle.style.display = bgType==='gradient'?'flex':'none';
+  cfgEls.wrapImage.style.display   = bgType==='image'?'flex':'none';
+  cfgEls.wrapOverlay.style.display = bgType==='image'?'flex':'none';
 }
 
 // wire color pickers
@@ -713,6 +990,25 @@ function applyPreset(p){
 }
 renderPresets();
 
+// parse rgba(r,g,b,a) → {hex, alphaPct}
+function parseOverlay(v){
+  if(!v) return {hex:'#0A0A0A',pct:55};
+  const m=String(v).match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\)/i);
+  if(m){
+    const [r,g,b]=[+m[1],+m[2],+m[3]];
+    const a=m[4]==null?1:parseFloat(m[4]);
+    const hex='#'+[r,g,b].map(n=>n.toString(16).padStart(2,'0')).join('').toUpperCase();
+    return {hex,pct:Math.round(a*100)};
+  }
+  if(/^#[0-9a-f]{6}$/i.test(v.trim())) return {hex:v.trim().toUpperCase(),pct:55};
+  return {hex:'#0A0A0A',pct:55};
+}
+function buildOverlay(hex,pct){
+  const m=hex.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i); if(!m) return 'rgba(10,10,10,0.55)';
+  const r=parseInt(m[1],16),g=parseInt(m[2],16),b=parseInt(m[3],16),a=(pct/100).toFixed(2);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
 // carrega config
 async function loadCfg(){
   try{
@@ -726,7 +1022,23 @@ async function loadCfg(){
     setColorField(cfgEls.cpAcc,cfgEls.hxAcc,c.accent_color||'#F2D413');
     setColorField(cfgEls.cpFg,cfgEls.hxFg,c.text_color||'#FFFFFF');
     cfgEls.tagline.value=c.tagline||'';
-    cfgEls.hint.textContent = bgType==='gradient'?'· gradient':'· sólido';
+    // imagem
+    uploadedImageUrl=c.page_bg_image||null;
+    if(uploadedImageUrl){
+      cfgEls.uploadPreview.style.background=`center/cover no-repeat url("${uploadedImageUrl}")`;
+      cfgEls.uploadPreview.textContent='';
+      cfgEls.uploadStatus.textContent='imagem atual';
+      cfgEls.btnRemoveImg.style.display='';
+    }
+    // overlay
+    const ov=parseOverlay(c.page_bg_overlay);
+    cfgEls.cpOverlay.value=ov.hex; cfgEls.hxOverlayColor.value=ov.hex;
+    cfgEls.cpOverlayA.value=ov.pct; cfgEls.outOverlayA.value=ov.pct+'%';
+    // fontes
+    cfgEls.selFontH.value=c.font_heading||'Montserrat';
+    cfgEls.selFontB.value=c.font_body||'DM Sans';
+    updateFontPreview();
+    cfgEls.hint.textContent = bgType==='gradient'?'· gradient':(bgType==='image'?'· imagem':'· sólido');
     refreshBgType();
   }catch(err){ cfgEls.hint.textContent='erro: '+err.message; }
 }
@@ -739,17 +1051,22 @@ cfgEls.btnSave.addEventListener('click',async()=>{
     page_bg_type: bgType,
     page_bg_2:    bgType==='gradient'?cfgEls.hxBg2.value.trim():null,
     page_bg_angle:parseInt(cfgEls.cpAngle.value,10)||180,
+    page_bg_image:bgType==='image'?uploadedImageUrl:null,
+    page_bg_overlay:bgType==='image'?buildOverlay(cfgEls.hxOverlayColor.value.trim(),parseInt(cfgEls.cpOverlayA.value,10)):null,
     accent_color: cfgEls.hxAcc.value.trim(),
     text_color:   cfgEls.hxFg.value.trim(),
     tagline:      cfgEls.tagline.value.trim()||null,
+    font_heading: cfgEls.selFontH.value,
+    font_body:    cfgEls.selFontB.value,
   };
+  if(bgType==='image'&&!body.page_bg_image){ toast('faça upload de uma imagem primeiro','err'); return; }
   cfgEls.btnSave.disabled=true;cfgEls.btnSave.textContent='Salvando…';
   try{
     await api('PATCH','rhode_bio_config?id=eq.1',body);
     toast('aparência salva','ok');
-    cfgEls.hint.textContent = bgType==='gradient'?'· gradient':'· sólido';
+    cfgEls.hint.textContent = bgType==='gradient'?'· gradient':(bgType==='image'?'· imagem':'· sólido');
     // limpa cache do bio.html no cliente pra ele re-fetchar mais rápido em teste
-    try{localStorage.removeItem('bio_v3')}catch(e){}
+    try{localStorage.removeItem('bio_v4');localStorage.removeItem('bio_v3')}catch(e){}
   }catch(err){ toast(err.message,'err'); }
   finally{ cfgEls.btnSave.disabled=false;cfgEls.btnSave.textContent='Salvar aparência'; }
 });
@@ -759,7 +1076,82 @@ cfgEls.btnReset.addEventListener('click',()=>{
   if(!confirm('Voltar pro padrão Rhode?')) return;
   applyPreset(PRESETS[0]);
   cfgEls.tagline.value='Denim brasileiro · Fábrica própria';
+  cfgEls.selFontH.value='Montserrat';
+  cfgEls.selFontB.value='DM Sans';
+  updateFontPreview();
 });
+
+// ═══════════════════════════════════════════════════════════
+// ANALYTICS (views/clicks 30d)
+// ═══════════════════════════════════════════════════════════
+const stEls={
+  panel:document.getElementById('panelStats'),
+  head:document.getElementById('phStats'),
+  hint:document.getElementById('stHint'),
+  views:document.getElementById('stViews'),viewsSub:document.getElementById('stViewsSub'),
+  clicks:document.getElementById('stClicks'),clicksSub:document.getElementById('stClicksSub'),
+  ctr:document.getElementById('stCTR'),
+  chart:document.getElementById('chartViews').querySelector('svg'),
+  table:document.getElementById('statsTable').querySelector('tbody'),
+};
+stEls.head.addEventListener('click',()=>{
+  stEls.panel.classList.toggle('open');
+  if(stEls.panel.classList.contains('open')) loadStats();
+});
+
+function fmtNum(n){ return (n||0).toLocaleString('pt-BR'); }
+
+async function loadStats(){
+  try{
+    const [links,viewsDaily]=await Promise.all([
+      api('GET','rhode_links_stats?select=link_id,titulo_no_clique,clicks,clicks_unicos'),
+      api('GET','rhode_bio_views_diario?select=dia,views,sessoes_unicas&order=dia.asc'),
+    ]);
+    // headline cards
+    const totalClicks=(links||[]).reduce((a,b)=>a+(+b.clicks||0),0);
+    const totalClicksU=(links||[]).reduce((a,b)=>a+(+b.clicks_unicos||0),0);
+    const totalViews=(viewsDaily||[]).reduce((a,b)=>a+(+b.views||0),0);
+    const totalViewsU=(viewsDaily||[]).reduce((a,b)=>a+(+b.sessoes_unicas||0),0);
+    stEls.views.textContent=fmtNum(totalViews);
+    stEls.viewsSub.textContent=fmtNum(totalViewsU)+' únicas';
+    stEls.clicks.textContent=fmtNum(totalClicks);
+    stEls.clicksSub.textContent=fmtNum(totalClicksU)+' únicos';
+    stEls.ctr.textContent=totalViews?((totalClicks/totalViews*100).toFixed(1)+'%'):'—';
+
+    // chart views/dia
+    if(viewsDaily&&viewsDaily.length){
+      const W=300,H=64,pad=4;
+      const vals=viewsDaily.map(d=>+d.views||0);
+      const max=Math.max(...vals,1);
+      const step=(W-pad*2)/Math.max(vals.length-1,1);
+      const pts=vals.map((v,i)=>`${pad+i*step},${H-pad-(v/max)*(H-pad*2)}`).join(' ');
+      const area=`M ${pad},${H-pad} L ${pts.split(' ').join(' L ')} L ${W-pad},${H-pad} Z`;
+      stEls.chart.innerHTML=`<path class="area" d="${area}"/><polyline points="${pts}"/>`;
+    }else{
+      stEls.chart.innerHTML=`<text x="150" y="36" text-anchor="middle" fill="rgba(255,255,255,.4)" font-size="10" font-family="DM Sans">sem views ainda</text>`;
+    }
+
+    // tabela: junta link_id com titulo do link atual
+    if(!links||!links.length){
+      stEls.table.innerHTML='<tr><td colspan="3" class="stats-empty">Sem cliques nos últimos 30d</td></tr>';
+    }else{
+      const byId=Object.fromEntries((rows||[]).map(r=>[r.id,r]));
+      const max=Math.max(...links.map(l=>+l.clicks||0),1);
+      stEls.table.innerHTML=links.map(l=>{
+        const link=byId[l.link_id]||{};
+        const titulo=link.titulo||l.titulo_no_clique||`link #${l.link_id}`;
+        const pct=(+l.clicks||0)/max*100;
+        return `<tr><td><div class="titulo">${fmt(titulo)}</div><div class="sub">${fmt(link.url||'')}</div></td>
+          <td><span class="stats-bar" style="width:${pct.toFixed(0)}%;min-width:2px"></span>${fmtNum(l.clicks)}</td>
+          <td>${fmtNum(l.clicks_unicos)}</td></tr>`;
+      }).join('');
+    }
+    stEls.hint.textContent=`30d · ${fmtNum(totalViews)}v / ${fmtNum(totalClicks)}c`;
+  }catch(err){
+    stEls.hint.textContent='erro';
+    stEls.table.innerHTML=`<tr><td colspan="3" class="stats-empty">Erro: ${fmt(err.message)}</td></tr>`;
+  }
+}
 
 // ── boot
 if(token) showApp(); else showLogin();
