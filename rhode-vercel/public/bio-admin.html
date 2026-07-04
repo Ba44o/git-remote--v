@@ -506,6 +506,64 @@ input,button,select,textarea{font-family:inherit;color:inherit;background:none;b
       </div>
     </div>
 
+    <!-- Painel Hero (card do topo do bio) -->
+    <div class="panel" id="panelHero">
+      <div class="panel-head" id="phHero">
+        <div class="panel-head-left">
+          <div class="panel-head-ico" style="background:#D24B3F;color:#fff">🎯</div>
+          <div class="panel-head-title">Hero (card do topo)<small id="hHint">carregando…</small></div>
+        </div>
+        <div class="panel-chev">▾</div>
+      </div>
+      <div class="panel-body" id="pbHero">
+        <div class="cfg-grid">
+          <div class="cfg-field full">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" id="hAtivo" style="width:18px;height:18px;accent-color:var(--amarelo);cursor:pointer"> Mostrar hero no bio
+            </label>
+          </div>
+          <div class="cfg-field full">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:rgba(210,75,63,.1);border:1px solid rgba(210,75,63,.3);padding:10px 14px;border-radius:10px">
+              <input type="checkbox" id="hLive" style="width:20px;height:20px;accent-color:#D24B3F;cursor:pointer">
+              <div><div style="font-weight:600;font-size:13px;color:#f66">🔴 Modo AO VIVO</div><div style="font-size:11px;color:var(--ink-48);margin-top:2px">Quando ligado, hero fica vermelho pulsante com "AO VIVO AGORA"</div></div>
+            </label>
+          </div>
+
+          <div class="cfg-field full form-section" style="border-top:1px dashed var(--hairline);padding-top:14px;margin-top:6px">
+            <div class="form-section-title">Estado normal (campanha)</div>
+            <div class="cfg-grid">
+              <div class="cfg-field"><label>Kicker (chip pequeno)</label><input class="cp-hex" id="hKicker" placeholder="Ex: Agora na Rhode" style="text-transform:none;font-family:inherit;font-size:13px;letter-spacing:0" maxlength="40"></div>
+              <div class="cfg-field"><label>CTA (texto do link)</label><input class="cp-hex" id="hCta" placeholder="Ver na lojinha →" style="text-transform:none;font-family:inherit;font-size:13px;letter-spacing:0" maxlength="40"></div>
+              <div class="cfg-field full"><label>Título</label><input class="cp-hex" id="hTitulo" placeholder="Wide Leg Marmorizada de volta" style="text-transform:none;font-family:inherit;font-size:14px;letter-spacing:0" maxlength="80"></div>
+              <div class="cfg-field full"><label>Descrição</label><input class="cp-hex" id="hDesc" placeholder="A queridinha voltou pro estoque — e vai rápido." style="text-transform:none;font-family:inherit;font-size:13px;letter-spacing:0" maxlength="140"></div>
+              <div class="cfg-field full"><label>URL (destino do card)</label><input class="cp-hex" id="hUrl" placeholder="https://..." style="text-transform:none;font-family:inherit;font-size:12px;letter-spacing:0" type="url"></div>
+              <div class="cfg-field"><label>Cor de fundo</label>
+                <div class="cp"><div class="cp-swatch"><input type="color" id="hBgCp" value="#3C444C"></div><input class="cp-hex" id="hBgHex" value="#3C444C" maxlength="7"></div>
+              </div>
+              <div class="cfg-field"><label>Cor do texto</label>
+                <div class="cp"><div class="cp-swatch"><input type="color" id="hColorCp" value="#F6F0EA"></div><input class="cp-hex" id="hColorHex" value="#F6F0EA" maxlength="7"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cfg-field full form-section" style="border-top:1px dashed var(--hairline);padding-top:14px;margin-top:6px">
+            <div class="form-section-title">🔴 Estado AO VIVO</div>
+            <div class="cfg-grid">
+              <div class="cfg-field"><label>Kicker (live)</label><input class="cp-hex" id="hLiveKicker" placeholder="AO VIVO AGORA" style="text-transform:none;font-family:inherit;font-size:13px;letter-spacing:0" maxlength="30"></div>
+              <div class="cfg-field"><label>CTA (live)</label><input class="cp-hex" id="hLiveCta" placeholder="Entrar na live →" style="text-transform:none;font-family:inherit;font-size:13px;letter-spacing:0" maxlength="40"></div>
+              <div class="cfg-field full"><label>Título (live)</label><input class="cp-hex" id="hLiveTitulo" placeholder="A live tá rolando!" style="text-transform:none;font-family:inherit;font-size:14px;letter-spacing:0" maxlength="80"></div>
+              <div class="cfg-field full"><label>Descrição (live)</label><input class="cp-hex" id="hLiveDesc" placeholder="Cupom e condição especial só pra quem tá dentro." style="text-transform:none;font-family:inherit;font-size:13px;letter-spacing:0" maxlength="140"></div>
+              <div class="cfg-field full"><label>URL da live</label><input class="cp-hex" id="hLiveUrl" placeholder="https://www.tiktok.com/@rhodejeans/live" style="text-transform:none;font-family:inherit;font-size:12px;letter-spacing:0" type="url"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <div class="panel-hint">Ligue "AO VIVO" antes de começar a live, desligue depois.</div>
+          <button class="btn-primary" id="btnSaveHero" type="button">Salvar hero</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Painel Analytics -->
     <div class="panel" id="panelStats">
       <div class="panel-head" id="phStats">
@@ -582,7 +640,7 @@ async function api(method,path,body){
 }
 
 function showLogin(){ el.login.style.display='flex'; el.app.style.display='none'; el.pwd.value=''; setTimeout(()=>el.pwd.focus(),50); }
-function showApp(){ el.login.style.display='none'; el.app.style.display='block'; loadList(); if(typeof loadCfg==='function') loadCfg(); }
+function showApp(){ el.login.style.display='none'; el.app.style.display='block'; loadList(); if(typeof loadCfg==='function') loadCfg(); if(typeof loadHero==='function') loadHero(); }
 
 el.loginForm.addEventListener('submit',async(e)=>{
   e.preventDefault();
@@ -723,6 +781,15 @@ function openEdit(rowEl,id){
       </div>
 
       <div class="form-section">
+        <div class="form-section-title">📦 Onde aparece</div>
+        <div class="cfg-grid">
+          <div class="cfg-field"><label>Seção (opcional)</label><input id="f-secao" value="${fmt(r.secao||'')}" placeholder="Ex: Comprar, Pra você que cria" maxlength="40" style="height:38px;padding:0 12px;background:var(--panel);border:1px solid var(--hairline);border-radius:8px;font-size:13px"></div>
+          <div class="cfg-field"><label>Mensagem WhatsApp (só se URL é wa.me)</label><input id="f-wamsg" value="${fmt(r.wa_msg||'')}" placeholder="Oi! Vim pelo link do bio..." maxlength="200" style="height:38px;padding:0 12px;background:var(--panel);border:1px solid var(--hairline);border-radius:8px;font-size:13px"></div>
+        </div>
+        <div style="font-size:11px;color:var(--ink-48);margin-top:8px">Seção agrupa visualmente blocos consecutivos com o mesmo nome. WhatsApp: mensagem pré-preenchida no chat quando o cliente clica.</div>
+      </div>
+
+      <div class="form-section">
         <div class="form-section-title">🎨 Estilo visual</div>
         <div class="cfg-grid">
           <div class="cfg-field full">
@@ -732,6 +799,7 @@ function openEdit(rowEl,id){
               <button type="button" data-v="destaque">Amarelo</button>
               <button type="button" data-v="solid">Cor sólida</button>
               <button type="button" data-v="ghost">Contorno</button>
+              <button type="button" data-v="chip">Chip (rodapé)</button>
             </div>
           </div>
           <div class="cfg-field" data-cf="bg">
@@ -771,8 +839,7 @@ function openEdit(rowEl,id){
   let selPreset=preset;
   function refreshPreset(){
     seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===selPreset));
-    // exibe/oculta campos de cor conforme preset
-    const showBg=(selPreset!=='default');
+    const showBg=(selPreset==='solid'||selPreset==='ghost'||selPreset==='destaque');
     const showColor=(selPreset==='solid'||selPreset==='ghost'||selPreset==='destaque');
     editEl.querySelector('[data-cf="bg"]').style.display   = showBg?'flex':'none';
     editEl.querySelector('[data-cf="color"]').style.display= showColor?'flex':'none';
@@ -800,6 +867,8 @@ function openEdit(rowEl,id){
       destaque: editEl.querySelector('#f-destaque').checked,
       starts_at: localToIso(editEl.querySelector('#f-starts').value),
       ends_at: localToIso(editEl.querySelector('#f-ends').value),
+      secao: editEl.querySelector('#f-secao').value.trim()||null,
+      wa_msg: editEl.querySelector('#f-wamsg').value.trim()||null,
       meta,
     };
     if(!body.titulo||!body.url){ toast('titulo e url são obrigatórios','err'); return; }
@@ -809,6 +878,7 @@ function openEdit(rowEl,id){
       if(isNew) await api('POST','rhode_links',body);
       else      await api('PATCH','rhode_links?id=eq.'+id,body);
       toast('salvo','ok');
+      try{localStorage.removeItem('bio_v5');localStorage.removeItem('bio_v4');localStorage.removeItem('bio_v3')}catch(e){}
       loadList();
     }catch(err){ toast(err.message,'err');btn.disabled=false;btn.textContent=isNew?'Criar':'Salvar'; }
   });
@@ -965,6 +1035,7 @@ cfgEls.cpAngle.addEventListener('input',()=>{ cfgEls.outAngle.value=cfgEls.cpAng
 // presets rápidos
 const PRESETS=[
   {name:'Rhode padrão',bg:'#0A0A0A',accent:'#F2D413',fg:'#FFFFFF',type:'solid'},
+  {name:'Warm blush',bg:'#F3E8E0',accent:'#3C444C',fg:'#2A2724',type:'solid'},
   {name:'Índigo denim',bg:'#101828',bg2:'#1a2540',accent:'#F2D413',fg:'#FFFFFF',type:'gradient',angle:200},
   {name:'Grafite fosco',bg:'#1a1a1a',bg2:'#2a2a2a',accent:'#F2D413',fg:'#FFFFFF',type:'gradient',angle:180},
   {name:'Amanhecer',bg:'#F5E6D3',bg2:'#E8D5B7',accent:'#7C2D12',fg:'#1a1a1a',type:'gradient',angle:160},
@@ -1066,7 +1137,7 @@ cfgEls.btnSave.addEventListener('click',async()=>{
     toast('aparência salva','ok');
     cfgEls.hint.textContent = bgType==='gradient'?'· gradient':(bgType==='image'?'· imagem':'· sólido');
     // limpa cache do bio.html no cliente pra ele re-fetchar mais rápido em teste
-    try{localStorage.removeItem('bio_v4');localStorage.removeItem('bio_v3')}catch(e){}
+    try{localStorage.removeItem('bio_v5');localStorage.removeItem('bio_v4');localStorage.removeItem('bio_v3')}catch(e){}
   }catch(err){ toast(err.message,'err'); }
   finally{ cfgEls.btnSave.disabled=false;cfgEls.btnSave.textContent='Salvar aparência'; }
 });
@@ -1079,6 +1150,51 @@ cfgEls.btnReset.addEventListener('click',()=>{
   cfgEls.selFontH.value='Montserrat';
   cfgEls.selFontB.value='DM Sans';
   updateFontPreview();
+});
+
+// ═══════════════════════════════════════════════════════════
+// HERO (card do topo)
+// ═══════════════════════════════════════════════════════════
+const hEls={
+  panel:document.getElementById('panelHero'),head:document.getElementById('phHero'),hint:document.getElementById('hHint'),
+  ativo:document.getElementById('hAtivo'),live:document.getElementById('hLive'),
+  kicker:document.getElementById('hKicker'),titulo:document.getElementById('hTitulo'),desc:document.getElementById('hDesc'),cta:document.getElementById('hCta'),url:document.getElementById('hUrl'),
+  bgCp:document.getElementById('hBgCp'),bgHex:document.getElementById('hBgHex'),colorCp:document.getElementById('hColorCp'),colorHex:document.getElementById('hColorHex'),
+  liveKicker:document.getElementById('hLiveKicker'),liveTitulo:document.getElementById('hLiveTitulo'),liveDesc:document.getElementById('hLiveDesc'),liveCta:document.getElementById('hLiveCta'),liveUrl:document.getElementById('hLiveUrl'),
+  btnSave:document.getElementById('btnSaveHero'),
+};
+hEls.head.addEventListener('click',()=>hEls.panel.classList.toggle('open'));
+wireColor(hEls.bgCp,hEls.bgHex);
+wireColor(hEls.colorCp,hEls.colorHex);
+
+async function loadHero(){
+  try{
+    const arr=await api('GET','rhode_bio_hero?select=*&id=eq.1&limit=1');
+    const h=(arr&&arr[0])||{};
+    hEls.ativo.checked=h.ativo!==false;
+    hEls.live.checked=!!h.live_mode;
+    hEls.kicker.value=h.kicker||''; hEls.titulo.value=h.titulo||''; hEls.desc.value=h.descricao||''; hEls.cta.value=h.cta||''; hEls.url.value=h.url||'';
+    setColorField(hEls.bgCp,hEls.bgHex,h.bg||'#3C444C');
+    setColorField(hEls.colorCp,hEls.colorHex,h.color||'#F6F0EA');
+    hEls.liveKicker.value=h.live_kicker||''; hEls.liveTitulo.value=h.live_titulo||''; hEls.liveDesc.value=h.live_desc||''; hEls.liveCta.value=h.live_cta||''; hEls.liveUrl.value=h.live_url||'';
+    hEls.hint.textContent = h.live_mode?'🔴 AO VIVO':(h.ativo===false?'oculto':'· ativo');
+  }catch(err){ hEls.hint.textContent='erro: '+err.message; }
+}
+hEls.btnSave.addEventListener('click',async()=>{
+  const body={
+    ativo:hEls.ativo.checked, live_mode:hEls.live.checked,
+    kicker:hEls.kicker.value.trim()||null, titulo:hEls.titulo.value.trim()||null, descricao:hEls.desc.value.trim()||null, cta:hEls.cta.value.trim()||null, url:hEls.url.value.trim()||null,
+    bg:hEls.bgHex.value.trim(), color:hEls.colorHex.value.trim(),
+    live_kicker:hEls.liveKicker.value.trim()||null, live_titulo:hEls.liveTitulo.value.trim()||null, live_desc:hEls.liveDesc.value.trim()||null, live_cta:hEls.liveCta.value.trim()||null, live_url:hEls.liveUrl.value.trim()||null,
+  };
+  hEls.btnSave.disabled=true; hEls.btnSave.textContent='Salvando…';
+  try{
+    await api('PATCH','rhode_bio_hero?id=eq.1',body);
+    toast(body.live_mode?'🔴 hero AO VIVO':'hero salvo','ok');
+    hEls.hint.textContent = body.live_mode?'🔴 AO VIVO':(body.ativo===false?'oculto':'· ativo');
+    try{localStorage.removeItem('bio_v5');localStorage.removeItem('bio_v4');localStorage.removeItem('bio_v3')}catch(e){}
+  }catch(err){ toast(err.message,'err'); }
+  finally{ hEls.btnSave.disabled=false; hEls.btnSave.textContent='Salvar hero'; }
 });
 
 // ═══════════════════════════════════════════════════════════
