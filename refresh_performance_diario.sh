@@ -86,6 +86,12 @@ python3 coletar_extrato.py --dias 21 || echo "  ⚠ extrato falhou (não-crític
 echo "[15/17] Pedidos por SKU (--dias 21)..."
 python3 coletar_pedidos_sku.py --dias 21 || echo "  ⚠ pedidos_sku falhou (não-crítico — segue)"
 
+# 15b) Custo GMV Max via Business/Ads API — mata o import manual do "Campaign overview".
+#      metric `cost` do /gmv_max/report/get/ = "Custo do GMV máximo" do Seller Center
+#      (validado ao centavo). Popula ads_custo (total diário). --dias 35 (API chunka 30d).
+echo "[15b] Custo GMV Max (Ads API)..."
+python3 coletar_gmvmax_api.py --dias 35 || echo "  ⚠ GMV Max API falhou (não-crítico — segue)"
+
 # 16) ETL sample_applications (free sample REAL — peças por creator × SKU + data do convite)
 echo "[16/17] ETL sample_applications (free sample real)..."
 python3 agente_rhode/etl_sample_applications.py || echo "  ⚠ ETL sample_applications falhou (não-crítico — segue)"
