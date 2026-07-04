@@ -206,8 +206,25 @@ const CACHE_KEY='bio_v5'; // bump — hero + seções + chips
 const el=document.getElementById('blocks');
 const chipsEl=document.getElementById('chips');
 const heroEl=document.getElementById('hero');
-// live mode overridable por ?live=1 (útil pra live team abrir sem tocar no admin)
-const LIVE_OVERRIDE=new URLSearchParams(location.search).get('live')==='1';
+// origem: ?src=tiktok|ig|yt — default tiktok. Propaga como UTM em URLs externas.
+const QP=new URLSearchParams(location.search);
+const SRC=(QP.get('src')||'tiktok').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,20);
+const LIVE_OVERRIDE=QP.get('live')==='1';
+let LIVE_ACTIVE=false; // preenchido depois pelo renderHero — flag no tracking
+
+// Adiciona utm_source/medium/campaign em URLs externas.
+// NÃO suja wa.me nem tiktok.com (deep links) — UTM ali quebra/polui.
+function withUtm(url){
+  if(!url||url==='#') return url;
+  try{
+    const u=new URL(url);
+    if(u.hostname==='wa.me'||u.hostname==='api.whatsapp.com'||u.hostname.endsWith('tiktok.com')) return url;
+    if(!u.searchParams.has('utm_source')) u.searchParams.set('utm_source',SRC);
+    if(!u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium','bio_link');
+    if(!u.searchParams.has('utm_campaign')) u.searchParams.set('utm_campaign','bio_rhode');
+    return u.toString();
+  }catch(e){ return url; }
+}
 const ESC={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>ESC[c]);
 const safe=u=>{try{const x=new URL(u);return['http:','https:','mailto:','tel:'].includes(x.protocol)?u:'#'}catch(e){return'#'}};
@@ -276,26 +293,29 @@ function styleForBlock(r){
 }
 
 // Se URL for wa.me/N e r.wa_msg estiver preenchido → wa.me/N?text=<encoded>
+// Se for URL externa (não wa.me / não tiktok.com) → adiciona UTM
 function urlFor(r){
   const u=safe(r.url); if(!u||u==='#') return '#';
-  if(!r.wa_msg) return u;
-  try{
-    const x=new URL(u);
-    if(x.hostname==='wa.me'||x.hostname==='api.whatsapp.com'){
-      if(!x.searchParams.has('text')) x.searchParams.set('text', r.wa_msg);
-      return x.toString();
-    }
-  }catch(e){}
-  return u;
+  if(r.wa_msg){
+    try{
+      const x=new URL(u);
+      if(x.hostname==='wa.me'||x.hostname==='api.whatsapp.com'){
+        if(!x.searchParams.has('text')) x.searchParams.set('text', r.wa_msg);
+        return x.toString();
+      }
+    }catch(e){}
+  }
+  return withUtm(u);
 }
 
 function renderHero(hero,liveMode){
-  if(!hero){ heroEl.classList.remove('show','is-live'); return; }
+  if(!hero){ heroEl.classList.remove('show','is-live'); LIVE_ACTIVE=false; return; }
   const isLive=liveMode||LIVE_OVERRIDE;
+  LIVE_ACTIVE=isLive;
   heroEl.classList.add('show');
   if(isLive){
     heroEl.classList.add('is-live');
-    heroEl.href=safe(hero.live_url||hero.url);
+    heroEl.href=withUtm(safe(hero.live_url||hero.url));
     document.getElementById('hero-kicker').innerHTML='<span class="dot"></span> '+esc(hero.live_kicker||'AO VIVO AGORA');
     document.getElementById('hero-title').textContent=hero.live_titulo||'A live tá rolando!';
     document.getElementById('hero-desc').textContent=hero.live_desc||'';
@@ -303,7 +323,7 @@ function renderHero(hero,liveMode){
     heroEl.style.background=''; heroEl.style.color='';
   }else{
     heroEl.classList.remove('is-live');
-    heroEl.href=safe(hero.url);
+    heroEl.href=withUtm(safe(hero.url));
     const bg=cssColor(hero.bg), color=cssColor(hero.color);
     heroEl.style.background=bg||'';
     heroEl.style.color=color||'';
@@ -313,7 +333,7 @@ function renderHero(hero,liveMode){
     document.getElementById('hero-desc').textContent=hero.descricao||'';
     document.getElementById('hero-go').textContent=hero.cta||'→';
   }
-  heroEl.addEventListener('click',()=>track('hero_click',{live:isLive,titulo:isLive?(hero.live_titulo||''):(hero.titulo||''),url:heroEl.href}),{once:true});
+  heroEl.addEventListener('click',()=>track('hero_click',{live_mode:isLive,titulo:isLive?(hero.live_titulo||''):(hero.titulo||''),url:heroEl.href}),{once:true});
 }
 
 function render(rows){
@@ -359,7 +379,8 @@ function render(rows){
 
 function track(evento,meta){
   try{
-    const p={action:'track',aba:'bio_rhode',evento,session_id:sid,meta:meta||{},referrer:document.referrer||null};
+    const enriched=Object.assign({src:SRC,live_mode:LIVE_ACTIVE},meta||{});
+    const p={action:'track',aba:'bio_rhode',evento,session_id:sid,meta:enriched,referrer:document.referrer||null};
     const b=new Blob([JSON.stringify(p)],{type:'application/json'});
     if(navigator.sendBeacon&&navigator.sendBeacon('/api/get-hub',b))return;
     fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p),keepalive:true}).catch(()=>{});
