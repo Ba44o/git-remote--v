@@ -550,8 +550,8 @@ function renderLucro(D){
 function renderAds(D){
   const ad=D.ad;
   const syncBar=`<div class="sec" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:16px 22px">
-    <div><b style="font-family:'JetBrains Mono',monospace;font-size:13px">Sincronizar custo real</b><div style="font-size:12px;color:var(--ink-48);margin-top:2px">Suba o export <b>"Campaign overview data"</b> do painel de ads — importa sozinho, sem rodar nada.</div></div>
-    <div style="display:flex;align-items:center;gap:6px"><input type="file" id="ads-file" accept=".xlsx,.csv" style="display:none" onchange="syncAdsCusto(this.files[0])"><button class="lnk" style="font-weight:600" onclick="document.getElementById('ads-file').click()">⬆ Sincronizar custo de ads</button><span id="ads-sync-msg" style="font-size:12px"></span></div>
+    <div><b style="font-family:'JetBrains Mono',monospace;font-size:13px">Custo GMV Max · automático 🤖</b><div style="font-size:12px;color:var(--ink-48);margin-top:2px">Coletado direto da <b>Ads API</b> (diário, no cron) — bate ao centavo com o Seller Center. Upload manual do "Campaign overview" é só fallback.</div></div>
+    <div style="display:flex;align-items:center;gap:6px"><input type="file" id="ads-file" accept=".xlsx,.csv" style="display:none" onchange="syncAdsCusto(this.files[0])"><button class="lnk" onclick="document.getElementById('ads-file').click()">⬆ Upload manual</button><span id="ads-sync-msg" style="font-size:12px"></span></div>
   </div>`;
   if(!(ad.receita>0||ad.custo>0)) return syncBar+`<div class="sec"><div class="empty">Sem dados de GMV Max no período. Suba o "Campaign overview" acima ou importe via <span class="mono">importar_gmvmax.py</span>.</div></div>`;
   const camps=Object.entries(ad.camp).map(([n,c])=>({n,...c,roi:c.custo>0?c.receita/c.custo:0}));
