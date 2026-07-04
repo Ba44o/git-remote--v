@@ -57,6 +57,16 @@ FIELDS = {
     "refund_admin_fee":         "refund_administration_fee_amount",
 }
 
+# statement_transactions com type != 'ORDER' vêm com order_id NULL (pedido em
+# adjustment_order_id) e o valor duplicado em settlement_amount E adjustment_amount.
+# Tipos de REEMBOLSO (crédito +) ganham coluna própria; os demais tipos de ajuste
+# (penalty/chargeback/compensation/etc.) caem no `adjustment` genérico. Todos são
+# religados por adjustment_order_id pra não sumir do settlement (gap de conciliação).
+REIMB_TYPES = {
+    "LOGISTICS_REIMBURSEMENT": "logistics_reimbursement",  # reembolso por problema logístico (extravio/atraso)
+    "PLATFORM_REIMBURSEMENT":  "platform_reimbursement",   # "refund without return": plataforma absorve e credita a loja
+}
+
 
 def retry(method, path, params=None):
     """Retry no rate-limit (code 36009002) com backoff — igual ao analise_liquidacao_66."""
@@ -87,6 +97,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dias", type=int, default=60, help="janela de statements (por statement_time)")
     ap.add_argument("--inicio"); ap.add_argument("--fim")
+    ap.add_argument("--dry-run", action="store_true", help="não escreve no Supabase; só valida e mostra o breakdown")
     args = ap.parse_args()
     if args.inicio:
         ini, fim = args.inicio, (args.fim or datetime.now().strftime("%Y-%m-%d"))
@@ -99,7 +110,7 @@ def main():
     ids = [s["id"] for s in stmts]
     print(f"  {len(ids)} statements a processar")
 
-    acc, ntx = {}, 0   # (statement_id, order_id) -> linha agregada
+    acc, ntx, unknown_types = {}, 0, {}   # (statement_id, order_id) -> linha agregada
     for i, sid in enumerate(ids, 1):
         cur = ""
         while True:
@@ -110,7 +121,17 @@ def main():
                 print(f"    ⚠ statement {sid}: code={r.get('code')} {str(r.get('message'))[:60]}"); break
             d = r.get("data", {}); txs = d.get("statement_transactions") or []
             for t in txs:
+                ty  = t.get("type") or ""
                 oid = str(t.get("order_id") or "")
+                reimb_col = REIMB_TYPES.get(ty)
+                if not oid and ty and ty != "ORDER":
+                    # Linha de ajuste (reembolso/penalidade/chargeback/…) vem com order_id
+                    # NULL; o pedido está no adjustment_order_id. Sem religar, o coletor
+                    # descartava (if not oid) → statement_tx ficava MENOR que
+                    # finance_statements pelo total desses lançamentos (gap de conciliação).
+                    oid = str(t.get("adjustment_order_id") or "")
+                    if ty not in REIMB_TYPES:
+                        unknown_types[ty] = unknown_types.get(ty, 0) + 1
                 if not oid: continue
                 ct = int(t.get("order_create_time") or 0)
                 key = (sid, oid); row = acc.get(key)
@@ -119,9 +140,17 @@ def main():
                     per  = datetime.fromtimestamp(ct, tz=timezone.utc).strftime("%Y-%m") if ct else None
                     row = acc[key] = {"id": f"{sid}:{oid}", "statement_id": str(sid), "order_id": oid,
                         "order_create_time": ct, "data": data, "periodo": per,
-                        "moeda": t.get("currency") or "BRL", **{c: 0.0 for c in FIELDS}}
+                        "moeda": t.get("currency") or "BRL",
+                        **{c: 0.0 for c in REIMB_TYPES.values()}, **{c: 0.0 for c in FIELDS}}
                 for col, src in FIELDS.items():
+                    # Tipos de reembolso chegam com o crédito duplicado em settlement_amount
+                    # E adjustment_amount. Mantemos em `settlement` (dinheiro recebido →
+                    # fecha o gap), mas fora do `adjustment` genérico: cada um vai pra sua
+                    # coluna dedicada. (Outros ajustes sem coluna própria seguem em adjustment.)
+                    if reimb_col and col == "adjustment": continue
                     row[col] = round(row[col] + F(t.get(src)), 2)
+                if reimb_col:
+                    row[reimb_col] = round(row[reimb_col] + F(t.get("settlement_amount")), 2)
                 ntx += 1
             cur = d.get("next_page_token", "")
             if not cur or not txs: break
@@ -132,6 +161,23 @@ def main():
         tp = sum(r["customer_payment"] for r in rows); ts = sum(r["settlement"] for r in rows)
         taxa = (1 - ts / tp) * 100 if tp else 0
         print(f"  → {ntx} tx → {len(rows)} (statement×pedido) · pago R$ {tp:,.0f} · settlement R$ {ts:,.0f} · taxa média {taxa:.1f}%")
+        # breakdown de cada reembolso (crédito) por período
+        for col in REIMB_TYPES.values():
+            tot = sum(r.get(col, 0) for r in rows)
+            per = {}
+            for r in rows:
+                v = r.get(col, 0) or 0
+                if v:
+                    p = r["periodo"] or "s/ período"
+                    per.setdefault(p, [0.0, 0]); per[p][0] += v; per[p][1] += 1
+            print(f"     {col}: R$ {tot:,.2f}")
+            for p in sorted(per):
+                t0, n = per[p]; print(f"        {p}: R$ {t0:,.2f}  ({n} pedidos)")
+        if unknown_types:
+            print(f"  ⚠ types SEM coluna própria (foram p/ adjustment genérico): "
+                  f"{dict(sorted(unknown_types.items(), key=lambda kv: -kv[1]))}")
+    if args.dry_run:
+        print("  ⚠ DRY-RUN: nada gravado no Supabase."); return
     upsert("statement_tx", rows, on_conflict="id")
     print("  ✓ concluído.")
 

@@ -14,7 +14,9 @@ WITH por_pedido AS (
            sum(platform_commission)      AS plat,
            sum(affiliate_commission)     AS afi,
            sum(affiliate_ads_commission) AS ads,
-           sum(shipping)                 AS ship
+           sum(shipping)                 AS ship,
+           sum(logistics_reimbursement)  AS reimb_log,
+           sum(platform_reimbursement)   AS reimb_plat
     FROM statement_tx
     GROUP BY order_id
 )
@@ -31,7 +33,9 @@ SELECT periodo,
        round(abs(sum(plat))::numeric, 2)                                 AS comissao_plataforma,
        round(abs(sum(afi))::numeric, 2)                                  AS comissao_afiliada,
        round(abs(sum(ads))::numeric, 2)                                  AS comissao_ads_afil,
-       round(abs(sum(ship))::numeric, 2)                                 AS frete
+       round(abs(sum(ship))::numeric, 2)                                 AS frete,
+       round(sum(reimb_log)::numeric, 2)                                 AS reembolso_logistica,
+       round(sum(reimb_plat)::numeric, 2)                                AS reembolso_plataforma
 FROM por_pedido
 WHERE periodo IS NOT NULL
 GROUP BY periodo

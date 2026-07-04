@@ -186,8 +186,38 @@ Coletor: `coletar_statement_tx.py`. SQL: `statement_tx.sql`.
 | `affiliate_commission` | numeric | comissão de creator/afiliada |
 | `affiliate_ads_commission` | numeric | comissão de shop ads (GMV Max) |
 | `shipping` | numeric | custo de envio |
-| `adjustment` | numeric | ajustes/correções |
+| `adjustment` | numeric | ajustes/correções (exclui os reembolsos com coluna própria) |
+| `logistics_reimbursement` | numeric | **crédito (+)** por problema logístico (extravio/atraso). Ver nota. |
+| `platform_reimbursement` | numeric | **crédito (+)** política "refund without return" (plataforma absorve). Ver nota. |
 | `moeda` | text | `BRL` |
+
+> **O campo `type` das statement_transactions e o gap de conciliação.** Cada linha tem um
+> campo `type`. `type='ORDER'` é a venda normal (tem `order_id`). Os demais tipos são
+> lançamentos de **ajuste** que vêm com **`order_id` NULL** (pedido em `adjustment_order_id`)
+> e valor duplicado em `settlement_amount` **e** `adjustment_amount`. Nos dados da Rhode
+> (mai+jun/26, 16.570 tx) só aparecem **3** tipos:
+>
+> | `type` | Significado | Sinal |
+> |--------|-------------|-------|
+> | `ORDER` | liquidação normal do pedido | +/− |
+> | `LOGISTICS_REIMBURSEMENT` | reembolso por problema logístico (extravio/atraso) | **+** |
+> | `PLATFORM_REIMBURSEMENT` | "refund without return" — plataforma absorve e credita | **+** |
+>
+> O coletor antigo (`if not oid: continue`) **descartava** todo `type != ORDER`, então
+> `sum(statement_tx.settlement)` ficava MENOR que `finance_statements` pelo total desses
+> créditos. Reconciliação junho/26: gap de **R$ 3.096,59** → **R$ 0** após o fix
+> (R$ 3.029,24 LOGISTICS + R$ 67,35 PLATFORM). Agora o coletor religa qualquer `type != ORDER`
+> por `adjustment_order_id`, soma em `settlement` (fecha o gap), isola cada reembolso na sua
+> coluna e mantém tipos **sem coluna própria** no `adjustment` genérico (com aviso no log
+> pra virarem coluna quando aparecerem). Migração: `statement_tx_logistics.sql`.
+>
+> **Irmãos documentados (ainda não vistos na Rhode)** — mesmo campo `type`, tratar quando
+> surgirem: `CHARGE_BACK`, `PLATFORM_PENALTY`, `DEDUCTIONS_INCURRED_BY_SELLER`,
+> `GMV_PAYMENT_FOR_ADS` (débito −); `CUSTOMER_SERVICE_COMPENSATION`, `PLATFORM_COMPENSATION`,
+> `SHIPPING_FEE_COMPENSATION`, `REBATE`, `SAMPLE_SHIPPING_FEE`, `PROMOTION_ADJUSTMENT`,
+> `OTHER_ADJUSTMENT`, entre outros. A geração **202501** do endpoint entrega os mesmos
+> números como breakdown tipado aninhado (`fee_tax_breakdown`, `revenue_breakdown`,
+> `shipping_cost_breakdown`) em vez de campos `*_amount` achatados.
 
 ### 3.5 `statement_tx_resumo` (VIEW) — conciliação por período
 Agrega `statement_tx` **por pedido** (across statements, somando todas as linhas do
@@ -208,6 +238,7 @@ Classificação por pedido (após somar `settlement` de todas as linhas):
 | `a_receber` | `customer_payment` dos pendentes |
 | `devolucao` | `settlement` (negativo) dos devolvidos |
 | `comissao_plataforma` / `comissao_afiliada` / `comissao_ads_afil` / `frete` | decomposição do fee (valores absolutos) |
+| `reembolso_logistica` / `reembolso_plataforma` | créditos (+) devolvidos pela TikTok no período (logística / "refund without return") |
 
 ### 3.6 Tabelas de apoio (já existentes)
 | Tabela | Papel | Fonte / ETL |
