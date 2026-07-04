@@ -53,17 +53,21 @@ def report(tok, sd, ed, dims):
     return out
 
 
-def upsert(rows):
+def upsert(table, rows, chunk=500):
     if not rows:
         return
-    url = f"{SB_URL}/rest/v1/ads_custo?on_conflict=id"
-    body = json.dumps(rows).encode()
-    req = urllib.request.Request(url, data=body, headers={**SBH, "Prefer": "resolution=merge-duplicates,return=minimal"}, method="POST")
-    try:
-        urllib.request.urlopen(req, timeout=120)
-    except urllib.error.HTTPError as e:
-        print(f"  [ERRO upsert] {e.code}: {e.read()[:300]}"); raise
-    print(f"  ✓ ads_custo: {len(rows)} dias upsertados")
+    url = f"{SB_URL}/rest/v1/{table}?on_conflict=id"
+    for i in range(0, len(rows), chunk):
+        body = json.dumps(rows[i:i + chunk]).encode()
+        req = urllib.request.Request(url, data=body, headers={**SBH, "Prefer": "resolution=merge-duplicates,return=minimal"}, method="POST")
+        try:
+            urllib.request.urlopen(req, timeout=120)
+        except urllib.error.HTTPError as e:
+            print(f"  [ERRO upsert {table}] {e.code}: {e.read()[:300]}")
+            if table != "ads_custo":
+                print(f"  (rode {table}.sql no Supabase primeiro?)")
+            raise
+    print(f"  ✓ {table}: {len(rows)} linhas upsertadas")
 
 
 def main():
@@ -111,7 +115,24 @@ def main():
     tot = sum(r["custo"] for r in rows)
     tvl = sum(a["vl"] for a in byday.values()); ttr = sum(a["trad"] for a in byday.values())
     print(f"  → {len(rows)} dias · custo total R$ {tot:,.2f}  (Tradicional R$ {ttr:,.0f} · Vendas Líquidas R$ {tvl:,.0f})")
-    upsert(rows)
+    upsert("ads_custo", rows)
+    # detalhe por campanha × dia (relatório de mídia)
+    camp = []
+    for x in lst:
+        dm, m = x["dimensions"], x["metrics"]
+        dia = str(dm[dkey])[:10]; cid = str(dm.get("campaign_id", ""))
+        c = float(m.get("cost", 0) or 0); n = float(m.get("net_cost", 0) or 0)
+        rec = float(m.get("gross_revenue", 0) or 0); ped = int(float(m.get("orders", 0) or 0))
+        if c <= 0 and n <= 0 and rec <= 0 and ped <= 0:
+            continue
+        camp.append({"id": f"{dia}:{cid}", "data": dia, "periodo": dia[:7],
+                     "campaign_id": cid, "campanha": (m.get("campaign_name") or "")[:160],
+                     "modelo": "vendas_liquidas" if (c > 0 and n == 0) else "tradicional",
+                     "cost": round(c, 2), "net_cost": round(n, 2), "receita": round(rec, 2), "pedidos": ped})
+    try:
+        upsert("ads_campanha", camp)
+    except urllib.error.HTTPError:
+        print("  ⚠ ads_campanha não upsertada (rode ads_campanha.sql) — ads_custo OK.")
     print("  ✓ concluído.")
 
 

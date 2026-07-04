@@ -79,12 +79,20 @@ const PED = [
     { periodo:'2026-04', custo:52000, receita:700000, pedidos:2400, roi:7.2 },
     { periodo:'2026-03', custo:50000, receita:690000, pedidos:2300, roi:7.1 },
   ];
+  const ADCAMP = [
+    { data:'2026-06-07', periodo:'2026-06', campaign_id:'1837899752347697', campanha:'[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]', modelo:'tradicional', cost:23663.87, net_cost:23613.20, receita:163126.24, pedidos:1729 },
+    { data:'2026-06-07', periodo:'2026-06', campaign_id:'1850046186207441', campanha:'LIVE-TESTE-GMV-MAX', modelo:'tradicional', cost:8812.97, net_cost:8748.91, receita:79363.02, pedidos:935 },
+    { data:'2026-06-07', periodo:'2026-06', campaign_id:'1865736380155937', campanha:'[GMV]-[MIX_PRODUTOS][TESTE VENDAS LIQUIDAS]-20.05', modelo:'vendas_liquidas', cost:4752.78, net_cost:0, receita:24396.46, pedidos:240 },
+    { data:'2026-06-07', periodo:'2026-06', campaign_id:'1866366311820657', campanha:'[GMV-MAX]-TESTE DE VENDAS LIQUIDAS-[MOM-BAGGY]-27.05.26', modelo:'vendas_liquidas', cost:4554.31, net_cost:0, receita:16836.86, pedidos:164 },
+    { data:'2026-06-07', periodo:'2026-06', campaign_id:'1861190909809970', campanha:'[GMVMAX][AZM-BRANCA-STN-USED]-31.03.26', modelo:'tradicional', cost:979.06, net_cost:974.57, receita:6558.39, pedidos:65 },
+    { data:'2026-05-07', periodo:'2026-05', campaign_id:'1837899752347697', campanha:'[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]', modelo:'tradicional', cost:15161.79, net_cost:15006.48, receita:100235.83, pedidos:997 },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('ads_custo_resumo') ? ADCUSTO : p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
+      const data = p.includes('ads_campanha') ? ADCAMP : p.includes('ads_custo_resumo') ? ADCUSTO : p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();
