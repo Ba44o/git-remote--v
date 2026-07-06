@@ -96,12 +96,18 @@ const PED = [
     { room_id:'7652364503748135701', data:'2026-06-17', periodo:'2026-06', campanha:'LIVE-TESTE-GMV-MAX', origem:'propria', cost:434, receita:10412, pedidos:124, views:9649 },
   ];
   const LIVEPER = [{ periodo:'2026-06', gmv_loja:674615, gmv_live:340530, gmv_video:225816, gmv_card:108268, pedidos_live:3590, buyers_live:3590 }];
+  const LIVEATTR = [
+    { room_id:'7646426490209815317', titulo:'SEXTOU DE RHODE JEANS', inicio:'2026-06-26T10:36:00', data:'2026-06-26', periodo:'2026-06', origem:'propria', gmv:9875.90, pedidos:121, itens:130, customers:110, aov:81.62, views:12500 },
+    { room_id:'7646489039230602005', titulo:'SEXTA DE RHODE E JOGO DO BRASIL', inicio:'2026-06-19T10:01:00', data:'2026-06-19', periodo:'2026-06', origem:'propria', gmv:9440.83, pedidos:110, itens:118, customers:98, aov:85.82, views:11800 },
+    { room_id:'7646000000000000001', titulo:'NA QUARTA USAMOS RHODE JEANS', inicio:'2026-06-17T11:02:00', data:'2026-06-17', periodo:'2026-06', origem:'propria', gmv:9162.44, pedidos:121, itens:128, customers:104, aov:75.72, views:11200 },
+    { room_id:'7646000000000000002', titulo:'DIA DOS NAMORADOS NA RHODE', inicio:'2026-06-08T11:00:00', data:'2026-06-08', periodo:'2026-06', origem:'propria', gmv:8962.25, pedidos:116, itens:120, customers:99, aov:77.26, views:10800 },
+  ];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('live_sessao') ? LIVESES : p.includes('live_periodo') ? LIVEPER : p.includes('ads_campanha') ? ADCAMP : p.includes('ads_custo_resumo') ? ADCUSTO : p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
+      const data = p.includes('live_attr') ? LIVEATTR : p.includes('live_sessao') ? LIVESES : p.includes('live_periodo') ? LIVEPER : p.includes('ads_campanha') ? ADCAMP : p.includes('ads_custo_resumo') ? ADCUSTO : p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();

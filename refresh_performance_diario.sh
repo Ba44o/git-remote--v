@@ -92,9 +92,20 @@ python3 coletar_pedidos_sku.py --dias 21 || echo "  ⚠ pedidos_sku falhou (não
 echo "[15b] Custo GMV Max (Ads API)..."
 python3 coletar_gmvmax_api.py --dias 35 || echo "  ⚠ GMV Max API falhou (não-crítico — segue)"
 
-# 15c) Live por sessão (Business API room-level) + GMV de live total (Analytics).
-echo "[15c] Live (sessão + GMV total)..."
-python3 coletar_lives_api.py --dias 35 || echo "  ⚠ lives falhou (não-crítico — segue)"
+# 15c) Live por sessão (Business API room-level, GMV Max/ads) + GMV de live total (Analytics).
+echo "[15c] Live GMV Max (sessão) + GMV total..."
+python3 coletar_lives_api.py --dias 35 || echo "  ⚠ lives GMV Max falhou (não-crítico — segue)"
+
+# 15d) Live ATRIBUÍDA do Seller Center via API (/analytics/202509/shop_lives/performance,
+#      filtra username=rhodejeans). Fonte da verdade do GMV de live (bate com o export ~0,02%).
+#      Popula live_attr. Mata o import manual do Livestream.
+echo "[15d] Live atribuída (Seller Center via API)..."
+python3 coletar_lives_attr_api.py --dias 40 || echo "  ⚠ live_attr API falhou (não-crítico — segue)"
+
+# 15e) Enriquece live_attr com VIEWS a partir de exports do Livestream dropados em
+#      dados/lives/exports/ (a API não traz views). Casa por room_id. Idempotente.
+echo "[15e] Views de live (export → live_attr)..."
+python3 importar_live_performance.py || echo "  ⚠ import de views falhou (não-crítico — segue)"
 
 # 16) ETL sample_applications (free sample REAL — peças por creator × SKU + data do convite)
 echo "[16/17] ETL sample_applications (free sample real)..."

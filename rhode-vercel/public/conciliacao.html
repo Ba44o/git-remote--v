@@ -194,11 +194,9 @@ const MES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','De
 const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${String(y).slice(2)}`:id;};
 
 // estado
-let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}, CONC={}, ADC={}, ADCAMP=[], LIVESES=[], LIVEPER={}, MESES=[];
+let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}, CONC={}, ADC={}, ADCAMP=[], LIVESES=[], LIVEATTR=[], LIVEPER={}, MESES=[];
 let TAB='visao';
 let FILTER={modo:'tudo', mes:'', de:'', ate:''};
-let LIVEORIG='propria';
-function setLiveOrig(o){ LIVEORIG=o; render(); }
 let CHART=null;
 let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||9.25;
 let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||34;
@@ -207,7 +205,7 @@ function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{loc
 const TABS=[['visao','Visão Geral'],['conciliacao','Conciliação'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['lucro','Lucro'],['ads','Ads'],['lives','Lives'],['pedidos','Pedidos']];
 
 async function load(){
-  const [fin, ped, cpv, ads, stx, div, ofi, conc, adc, adcamp, livs, livp] = await Promise.all([
+  const [fin, ped, cpv, ads, stx, div, ofi, conc, adc, adcamp, livs, livp, liva] = await Promise.all([
     admProxy('GET','finance_statements?select=data,revenue_amount,fee_amount,shipping_cost,adjustment,settlement&order=data.asc',{paged:true}),
     admProxy('GET','pedidos_sku?select=periodo,gmv,qty,produto,seller_sku,status',{paged:true}),
     admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
@@ -219,8 +217,10 @@ async function load(){
     admProxy('GET','ads_custo_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
     admProxy('GET','ads_campanha?select=data,periodo,campaign_id,campanha,modelo,cost,net_cost,receita,pedidos',{paged:true}).catch(()=>({data:[]})),
     admProxy('GET','live_sessao?select=room_id,data,periodo,campanha,origem,cost,receita,pedidos,views',{paged:true}).catch(()=>({data:[]})),
-    admProxy('GET','live_periodo?select=*',{paged:true}).catch(()=>({data:[]}))
+    admProxy('GET','live_periodo?select=*',{paged:true}).catch(()=>({data:[]})),
+    admProxy('GET','live_attr?select=room_id,titulo,inicio,data,periodo,origem,gmv,pedidos,itens,customers,aov,views',{paged:true}).catch(()=>({data:[]}))
   ]);
+  LIVEATTR = (liva&&liva.data)?liva.data:[];
   LIVESES = (livs&&livs.data)?livs.data:[];
   LIVEPER={}; (livp&&livp.data?livp.data:[]).forEach(r=>{ if(r.periodo) LIVEPER[r.periodo]=r; });
   OFI={}; (ofi&&ofi.data?ofi.data:[]).forEach(r=>{ if(r.periodo) OFI[r.periodo]=r; });
@@ -558,69 +558,78 @@ function renderLucro(D){
 
 // ===== ADS =====
 // ===== LIVES =====
-function renderLives(D){
-  const ms=getMeses();
+// ---- núcleo de LIVE — fonte da verdade: Seller Center Livestream "Attributed GMV" (live_attr); fallback GMV Max (live_sessao) ----
+function liveAgg(ms, D){
   const inP=r=>(FILTER.modo==='range'&&FILTER.de&&FILTER.ate)?(r.data>=FILTER.de&&r.data<=FILTER.ate):ms.includes(r.periodo);
-  const sesAll=LIVESES.filter(inP);
-  if(!sesAll.length) return `<div class="sec"><div class="empty">Sem dados de live no período. Rode <span class="mono">live_sessao.sql</span> + <span class="mono">coletar_lives_api.py</span>.</div></div>`;
-  const sumo=arr=>arr.reduce((s,r)=>({cost:s.cost+(+r.cost||0),gmv:s.gmv+(+r.receita||0),ped:s.ped+(+r.pedidos||0),views:s.views+(+r.views||0)}),{cost:0,gmv:0,ped:0,views:0});
-  const P=sumo(sesAll.filter(r=>r.origem==='propria')), C=sumo(sesAll.filter(r=>r.origem==='creator'));
-  const ses = LIVEORIG==='todas' ? sesAll : sesAll.filter(r=>r.origem==='propria');
-  const A=sumo(ses);
-  const toggle=`<div class="sec" style="display:flex;align-items:center;gap:14px;padding:14px 22px;flex-wrap:wrap">
-    <b style="font-family:'JetBrains Mono',monospace;font-size:13px">Live</b>
-    <div class="seg"><button class="${LIVEORIG==='propria'?'on':''}" onclick="setLiveOrig('propria')">Rhode (própria)</button><button class="${LIVEORIG==='todas'?'on':''}" onclick="setLiveOrig('todas')">Todas</button></div>
-    <span style="margin-left:auto;font-size:12px;color:var(--ink-48)">${ses.length} sessões · ${LIVEORIG==='propria'?'só Rhode Jeans':'própria + creators'}</span>
-  </div>`;
-  let gmvLiveTot=0, gmvLoja=0; ms.forEach(m=>{const p=LIVEPER[m]; if(p){gmvLiveTot+=+p.gmv_live||0; gmvLoja+=+p.gmv_loja||0;}});
-  const org=gmvLiveTot>0?Math.max(0,gmvLiveTot-A.gmv):0;
-  // ROI real — cascata da loja aplicada ao GMV de live (ad-attributed)
-  const cpvPct=D.mGmvCpv>0?D.mCusto/D.mGmvCpv:0.58, G=A.gmv;
+  const attr=LIVEATTR.filter(inP);
+  const gmS=LIVESES.filter(inP), propGM=gmS.filter(r=>r.origem==='propria'), creGM=gmS.filter(r=>r.origem==='creator');
+  const invest=propGM.reduce((s,r)=>s+(+r.cost||0),0);   // mídia da live própria (GMV Max)
+  const creator={gmv:creGM.reduce((s,r)=>s+(+r.receita||0),0),cost:creGM.reduce((s,r)=>s+(+r.cost||0),0),ped:creGM.reduce((s,r)=>s+(+r.pedidos||0),0)};
+  let gmvLoja=0,gmvLiveTot=0; ms.forEach(m=>{const p=LIVEPER[m]; if(p){gmvLoja+=+p.gmv_loja||0; gmvLiveTot+=+p.gmv_live||0;}});
+  let src,sessions;
+  if(attr.length){
+    src='sc';
+    sessions=attr.map(r=>({name:r.titulo||('Sala '+r.room_id),data:r.data,inicio:r.inicio,gmv:+r.gmv||0,ped:+r.pedidos||0,views:+r.views||0,cust:+r.customers||0,aov:+r.aov||0}));
+  }else{
+    src='gmvmax';
+    sessions=propGM.map(r=>({name:r.campanha||('Sala '+r.room_id),data:r.data,inicio:r.data,gmv:+r.receita||0,ped:+r.pedidos||0,views:+r.views||0,cust:0,aov:(+r.pedidos?(+r.receita/+r.pedidos):0)}));
+  }
+  const gmv=sessions.reduce((s,r)=>s+r.gmv,0), ped=sessions.reduce((s,r)=>s+r.ped,0), views=sessions.reduce((s,r)=>s+r.views,0), cust=sessions.reduce((s,r)=>s+r.cust,0);
+  // ROI real — cascata da loja aplicada ao GMV de live
+  const cpvPct=D.mGmvCpv>0?D.mCusto/D.mGmvCpv:0.58, G=gmv;
   const taxas=G*(1-D.eficFrac), cpv=G*cpvPct, mLiq=G*D.eficFrac-cpv, impV=G*TX_VENDA/100;
-  const lucroAntesIR=mLiq-impV-A.cost, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucro=lucroAntesIR-impIR;
-  const roas=A.cost?A.gmv/A.cost:0, roiReal=A.cost?lucro/A.cost*100:0, margem=G?lucro/G*100:0, convVw=A.views?A.ped/A.views*100:0;
-  const k=`<div class="kpis k6">
-    ${kpi('GMV de live',fmt(A.gmv),(gmvLoja?(A.gmv/gmvLoja*100).toFixed(0)+'% da loja · ':'')+'GMV Max','k6')}
-    ${kpi('Investimento',fmt(A.cost),'mídia de live','k6 danger')}
-    ${kpi('ROAS',roas.toFixed(1)+'x','GMV ads / invest.','k6')}
-    ${kpi('Lucro real',fmt(lucro),'após tudo','k6 '+(lucro>=0?'accent':'danger'))}
-    ${kpi('ROI real',roiReal.toFixed(0)+'%','lucro / mídia','k6 '+(roiReal>=0?'accent':'danger'))}
-    ${kpi('Visualizações',NUM.format(A.views),'conv. '+convVw.toFixed(1)+'% → pedido','k6')}
+  const lucroAntesIR=mLiq-impV-invest, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucro=lucroAntesIR-impIR;
+  const roas=invest?G/invest:0, roiReal=invest?lucro/invest*100:0, margem=G?lucro/G*100:0, convVw=views?ped/views*100:0, ticket=ped?G/ped:0, cpa=ped?invest/ped:0;
+  return {src,sessions,gmv,ped,views,cust,invest,creator,gmvLoja,gmvLiveTot,cpvPct,taxas,cpv,mLiq,impV,impIR,lucro,roas,roiReal,margem,convVw,ticket,cpa};
+}
+function renderLives(D){
+  const ms=getMeses(), L=liveAgg(ms,D), scSrc=L.src==='sc';
+  if(!L.sessions.length) return `<div class="sec"><div class="empty">Sem dados de live no período. Importe o export do Seller Center com <span class="mono">importar_live_performance.py</span> (fonte da verdade) ou rode <span class="mono">coletar_lives_api.py</span> (GMV Max).</div></div>`;
+  const bar=`<div class="sec" style="display:flex;align-items:center;gap:12px;padding:14px 22px;flex-wrap:wrap">
+    <b style="font-family:'JetBrains Mono',monospace;font-size:13px">Live · Rhode Jeans</b>
+    <span class="tag ${scSrc?'ok':'mut'}">${scSrc?'Seller Center · Attributed GMV':'GMV Max (aprox.)'}</span>
+    <span style="margin-left:auto;font-size:12px;color:var(--ink-48)">${L.sessions.length} sessões · ${scSrc?'GMV atribuído à sala (orgânico + ads)':'atribuição de ads · exporte o Livestream p/ número exato'}</span>
   </div>`;
-  const mx=Math.max(G,1);
-  const casc=`<div class="sec"><div class="sec-h"><h2>ROI real da live <span class="pill">lucro, não ROAS</span></h2><div class="meta">${periodoLabel()} · GMV atribuído a ads</div></div>
-    ${cascRow('GMV da live','atribuído às campanhas de ads',G,'#cbd5e1',mx)}
-    ${cascRow('− Taxas TikTok',((1-D.eficFrac)*100).toFixed(0)+'% · comissão+serviço+afiliada+frete',-taxas,'var(--rhode-red)',mx)}
-    ${cascRow('− CPV',(cpvPct*100).toFixed(0)+'% · custo dos produtos',-cpv,'#9a7030',mx)}
-    ${cascRow('= Margem de contribuição','após taxas e CPV',mLiq,'#7fc9a3',mx)}
-    ${cascRow('− Mídia da live','investimento em ads',-A.cost,'var(--rhode-red)',mx)}
-    ${cascRow('− Imposto (venda + IR)','Lucro Real',-(impV+impIR),'var(--orange)',mx)}
-    ${cascRow('= LUCRO REAL da live',margem.toFixed(1)+'% do GMV · ROI '+roiReal.toFixed(0)+'%',lucro,'var(--green)',mx,'total')}
-    <div class="note" style="margin-top:12px"><span>⚠️</span><div><b>ROAS ${roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(lucro)}</b> (margem ${margem.toFixed(1)}%). ROI real = <b>${roiReal.toFixed(0)}%</b> sobre a mídia. Alíquotas editáveis na aba Lucro.</div></div></div>`;
+  const k=`<div class="kpis k6">
+    ${kpi('GMV de live',fmt(L.gmv),(L.gmvLoja?(L.gmv/L.gmvLoja*100).toFixed(0)+'% da loja · ':'')+(scSrc?'Seller Center':'GMV Max'),'k6')}
+    ${kpi('Investimento',fmt(L.invest),'mídia de live (GMV Max)','k6 danger')}
+    ${kpi('ROAS',L.roas.toFixed(1)+'x','GMV de live / mídia','k6')}
+    ${kpi('Lucro real',fmt(L.lucro),'após tudo','k6 '+(L.lucro>=0?'accent':'danger'))}
+    ${kpi('ROI real',L.roiReal.toFixed(0)+'%','lucro / mídia','k6 '+(L.roiReal>=0?'accent':'danger'))}
+    ${kpi('Visualizações',NUM.format(L.views),'conv. '+L.convVw.toFixed(1)+'% → pedido','k6')}
+  </div>`;
+  const mx=Math.max(L.gmv,1);
+  const casc=`<div class="sec"><div class="sec-h"><h2>ROI real da live <span class="pill">lucro, não ROAS</span></h2><div class="meta">${periodoLabel()} · ${scSrc?'GMV atribuído (Seller Center)':'GMV Max'}</div></div>
+    ${cascRow('GMV da live',scSrc?'atribuído às salas de live (orgânico + ads)':'atribuído às campanhas de ads',L.gmv,'#cbd5e1',mx)}
+    ${cascRow('− Taxas TikTok',((1-D.eficFrac)*100).toFixed(0)+'% · comissão+serviço+afiliada+frete',-L.taxas,'var(--rhode-red)',mx)}
+    ${cascRow('− CPV',(L.cpvPct*100).toFixed(0)+'% · custo dos produtos',-L.cpv,'#9a7030',mx)}
+    ${cascRow('= Margem de contribuição','após taxas e CPV',L.mLiq,'#7fc9a3',mx)}
+    ${cascRow('− Mídia da live','investimento em ads (GMV Max)',-L.invest,'var(--rhode-red)',mx)}
+    ${cascRow('− Imposto (venda + IR)','Lucro Real',-(L.impV+L.impIR),'var(--orange)',mx)}
+    ${cascRow('= LUCRO REAL da live',L.margem.toFixed(1)+'% do GMV · ROI '+L.roiReal.toFixed(0)+'%',L.lucro,'var(--green)',mx,'total')}
+    <div class="note" style="margin-top:12px"><span>⚠️</span><div><b>ROAS ${L.roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(L.cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(L.lucro)}</b> (margem ${L.margem.toFixed(1)}%). ROI real = <b>${L.roiReal.toFixed(0)}%</b> sobre a mídia. Alíquotas editáveis na aba Lucro.</div></div></div>`;
   const canal=`<div class="grid2">
-    <div class="sec"><div class="sec-h"><h2>Live no mix da loja</h2><div class="meta">GMV Max da live vs loja</div></div>
-      ${cascRow('GMV da loja','todos os canais',gmvLoja||A.gmv,'#cbd5e1',Math.max(gmvLoja,A.gmv,1))}
-      ${cascRow('GMV de live '+(LIVEORIG==='propria'?'(Rhode)':'(todas)'),(gmvLoja?(A.gmv/gmvLoja*100).toFixed(0):0)+'% do total',A.gmv,'var(--green)',Math.max(gmvLoja,A.gmv,1))}
-      <div class="note" style="margin-top:10px"><span>🔎</span><div>Rhode própria <b>${fmt(P.gmv)}</b> + creators ${fmt(C.gmv)} = <b>${fmt(P.gmv+C.gmv)}</b> (GMV Max, ≈ seu painel de ads). O analytics da loja mostra "live" ${fmt(gmvLiveTot)} — atribuição de conteúdo mais ampla + orgânico, outra métrica.</div></div></div>
+    <div class="sec"><div class="sec-h"><h2>Live no mix da loja</h2><div class="meta">GMV de live vs loja</div></div>
+      ${cascRow('GMV da loja','todos os canais',L.gmvLoja||L.gmv,'#cbd5e1',Math.max(L.gmvLoja,L.gmv,1))}
+      ${cascRow('GMV de live (Rhode)',(L.gmvLoja?(L.gmv/L.gmvLoja*100).toFixed(0):0)+'% do total',L.gmv,'var(--green)',Math.max(L.gmvLoja,L.gmv,1))}
+      <div class="note" style="margin-top:10px"><span>🔎</span><div>${scSrc?`<b>${fmt(L.gmv)}</b> = soma das salas de live da Rhode no Seller Center (Attributed GMV). `:''}Lives de creators (conta deles, via GMV Max): <b>${fmt(L.creator.gmv)}</b> — fora desse número. Analytics da loja marca "live" ${fmt(L.gmvLiveTot)} (atribuição de canal mais ampla, outra métrica).</div></div></div>
     <div class="sec"><div class="sec-h"><h2>Funil da live</h2><div class="meta">${periodoLabel()}</div></div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;justify-content:space-between"><span>👁️ Visualizações</span><b class="mono">${NUM.format(A.views)}</b></div>
-        <div style="display:flex;justify-content:space-between"><span>🛒 Pedidos</span><b class="mono">${NUM.format(A.ped)} <small style="color:var(--ink-48)">(${convVw.toFixed(1)}% conv.)</small></b></div>
-        <div style="display:flex;justify-content:space-between"><span>💰 GMV</span><b class="mono">${fmt(A.gmv)} <small style="color:var(--ink-48)">(ticket ${fmt2(A.ped?A.gmv/A.ped:0)})</small></b></div>
+        <div style="display:flex;justify-content:space-between"><span>👁️ Visualizações</span><b class="mono">${NUM.format(L.views)}</b></div>
+        <div style="display:flex;justify-content:space-between"><span>🛒 Pedidos</span><b class="mono">${NUM.format(L.ped)} <small style="color:var(--ink-48)">(${L.convVw.toFixed(1)}% conv.)</small></b></div>
+        <div style="display:flex;justify-content:space-between"><span>💰 GMV</span><b class="mono">${fmt(L.gmv)} <small style="color:var(--ink-48)">(ticket ${fmt2(L.ticket)})</small></b></div>
+        ${L.cust?`<div style="display:flex;justify-content:space-between"><span>👥 Clientes</span><b class="mono">${NUM.format(L.cust)}</b></div>`:''}
       </div></div></div>`;
-  const orow=(nome,x,cor)=>`<tr><td class="mp">${nome}</td><td class="neg">${fmt(x.cost)}</td><td>${fmt(x.gmv)}</td><td style="font-weight:700;color:var(--green)">${x.cost?(x.gmv/x.cost).toFixed(1):'—'}x</td><td>${NUM.format(x.ped)}</td><td>${NUM.format(x.views)}</td><td>${x.views?(x.ped/x.views*100).toFixed(1):0}%</td></tr>`;
-  const origem=`<div class="sec"><div class="sec-h"><h2>Live própria (Rhode) × creators</h2></div>
-    <table><thead><tr><th>Origem</th><th>Investimento</th><th>GMV</th><th>ROAS</th><th>Pedidos</th><th>Views</th><th>Conv.</th></tr></thead><tbody>
-    ${P.cost>0||P.gmv>0?orow('Live própria (Rhode Jeans)',P):''}${C.cost>0||C.gmv>0?orow('Lives de creators',C):''}</tbody></table>
-    <div class="note"><span>ℹ️</span><div>Live própria = lives diárias da Rhode; creators = "MEGA LIVE-&lt;creator&gt;". Classificação por campanha — me fala se alguma sessão ficou no balde errado.</div></div></div>`;
-  const rooms=ses.slice().sort((a,b)=>(+b.receita||0)-(+a.receita||0)).slice(0,30);
-  const sess=`<div class="sec"><div class="sec-h"><h2>Sessões · detalhado</h2><div class="meta">${periodoLabel()} · ${ses.length} sessões · top por GMV</div></div>
-    <table><thead><tr><th>Data</th><th>Origem</th><th>Investimento</th><th>GMV</th><th>ROAS</th><th>Pedidos</th><th>Views</th><th>Conv.</th><th>CPA</th></tr></thead><tbody>
-    ${rooms.map(r=>{const c=+r.cost||0,g=+r.receita||0,pd=+r.pedidos||0,vw=+r.views||0; return `<tr>
-      <td class="mp">${r.data||'—'}</td><td><span class="tag ${r.origem==='propria'?'ok':'mut'}">${r.origem==='propria'?'própria':'creator'}</span></td>
-      <td class="neg">${fmt(c)}</td><td>${fmt(g)}</td><td style="font-weight:700;color:${(c?g/c:0)>=5?'var(--green)':'var(--orange)'}">${(c?g/c:0).toFixed(1)}x</td>
-      <td>${NUM.format(pd)}</td><td>${NUM.format(vw)}</td><td>${vw?(pd/vw*100).toFixed(1):0}%</td><td>${fmt2(pd?c/pd:0)}</td></tr>`;}).join('')}</tbody></table></div>`;
-  return toggle+k+casc+canal+origem+sess;
+  const rooms=L.sessions.slice().sort((a,b)=>b.gmv-a.gmv).slice(0,40);
+  const sess=`<div class="sec"><div class="sec-h"><h2>Sessões · detalhado</h2><div class="meta">${periodoLabel()} · ${L.sessions.length} sessões · top por GMV</div></div>
+    <table><thead><tr><th>Live</th><th>Data/hora</th><th>GMV</th><th>Pedidos</th><th>Views</th><th>Conv.</th><th>Ticket</th>${L.cust?'<th>Clientes</th>':''}</tr></thead><tbody>
+    ${rooms.map(r=>{const conv=r.views?(r.ped/r.views*100):0, tk=r.ped?r.gmv/r.ped:0; return `<tr>
+      <td class="mp" style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${(r.name||'').replace(/"/g,'')}">${r.name||'—'}</td>
+      <td class="mp">${scSrc?String(r.inicio||'').replace('T',' ').slice(0,16):(r.data||'—')}</td>
+      <td style="font-weight:700">${fmt(r.gmv)}</td><td>${NUM.format(r.ped)}</td><td>${NUM.format(r.views)}</td>
+      <td>${conv.toFixed(1)}%</td><td>${fmt2(tk)}</td>${L.cust?`<td>${NUM.format(r.cust)}</td>`:''}</tr>`;}).join('')}</tbody></table>
+    <div class="note"><span>ℹ️</span><div>${scSrc?'GMV = <b>Attributed GMV</b> do Seller Center (bate com seu fechamento). A mídia (GMV Max) é agregada — não casa 1:1 por sala com a atribuição de conteúdo —, por isso o ROI real está no bloco acima, não por sessão.':'Fonte GMV Max (atribuição de ads). Importe o export do Livestream do Seller Center pra ver a atribuição de conteúdo por sessão.'}</div></div></div>`;
+  return bar+k+casc+canal+sess;
 }
 function renderAds(D){
   const ms=getMeses();
@@ -750,27 +759,24 @@ function filterPedidos(){ renderPedidosTable(); }
 
 // ===== EXPORTAR RELATÓRIO (XLSX multi-aba) =====
 function exportLivesHTML(){
-  const ms=getMeses(), D=agg(ms);
+  const ms=getMeses(), D=agg(ms), L=liveAgg(ms,D), scSrc=L.src==='sc';
+  if(!L.sessions.length){ alert('Sem dados de live no período.'); return; }
   const inP=r=>(FILTER.modo==='range'&&FILTER.de&&FILTER.ate)?(r.data>=FILTER.de&&r.data<=FILTER.ate):ms.includes(r.periodo);
-  const sesAll=LIVESES.filter(inP), ses=LIVEORIG==='todas'?sesAll:sesAll.filter(r=>r.origem==='propria');
-  if(!ses.length){ alert('Sem dados de live no período.'); return; }
-  const sumo=a=>a.reduce((s,r)=>({cost:s.cost+(+r.cost||0),gmv:s.gmv+(+r.receita||0),ped:s.ped+(+r.pedidos||0),views:s.views+(+r.views||0)}),{cost:0,gmv:0,ped:0,views:0});
-  const A=sumo(ses), P=sumo(sesAll.filter(r=>r.origem==='propria')), C=sumo(sesAll.filter(r=>r.origem==='creator'));
-  const cpvPct=D.mGmvCpv>0?D.mCusto/D.mGmvCpv:0.58, G=A.gmv;
-  const taxas=G*(1-D.eficFrac), cpv=G*cpvPct, mLiq=G*D.eficFrac-cpv, impV=G*TX_VENDA/100;
-  const lucroAntesIR=mLiq-impV-A.cost, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucro=lucroAntesIR-impIR;
-  const roas=A.cost?A.gmv/A.cost:0, roiReal=A.cost?lucro/A.cost*100:0, margem=G?lucro/G*100:0, convVw=A.views?A.ped/A.views*100:0, cpa=A.ped?A.cost/A.ped:0, ticket=A.ped?A.gmv/A.ped:0;
-  let gmvLoja=0; ms.forEach(m=>{const p=LIVEPER[m]; if(p)gmvLoja+=+p.gmv_loja||0;});
-  const byday={}; ses.forEach(r=>{const x=byday[r.data]||(byday[r.data]={gmv:0,cost:0});x.gmv+=+r.receita||0;x.cost+=+r.cost||0;}); const days=Object.keys(byday).sort();
-  const rank=ses.slice().sort((a,b)=>(+b.receita||0)-(+a.receita||0));
+  const propGM=LIVESES.filter(inP).filter(r=>r.origem==='propria');
   const B=v=>Math.round((+v||0)*100)/100;
-  const DATA={days,gmv:days.map(d=>B(byday[d].gmv)),cost:days.map(d=>B(byday[d].cost)),
-    casc:{l:['GMV','− Taxas','− CPV','− Mídia','− Imposto','Lucro'],v:[B(G),-B(taxas),-B(cpv),-B(A.cost),-B(impV+impIR),B(lucro)]},
-    top:{l:rank.slice(0,12).map(r=>(r.data||'')+(r.origem==='propria'?'':' ·cr')),v:rank.slice(0,12).map(r=>B(+r.receita||0))}};
-  const kc=[['GMV de live',fmt(A.gmv)],['Investimento',fmt(A.cost)],['ROAS',roas.toFixed(1)+'x'],['Lucro real',fmt(lucro)],['ROI real',roiReal.toFixed(0)+'%'],['Margem',margem.toFixed(1)+'%'],['Pedidos',NUM.format(A.ped)],['Visualizações',NUM.format(A.views)]]
+  const gmvByDay={}, costByDay={};
+  L.sessions.forEach(r=>{const d=r.data||'—'; gmvByDay[d]=(gmvByDay[d]||0)+r.gmv;});
+  propGM.forEach(r=>{const d=r.data||'—'; costByDay[d]=(costByDay[d]||0)+(+r.cost||0);});
+  const days=[...new Set([...Object.keys(gmvByDay),...Object.keys(costByDay)])].sort();
+  const rank=L.sessions.slice().sort((a,b)=>b.gmv-a.gmv);
+  const DATA={days,gmv:days.map(d=>B(gmvByDay[d]||0)),cost:days.map(d=>B(costByDay[d]||0)),
+    casc:{l:['GMV','− Taxas','− CPV','− Mídia','− Imposto','Lucro'],v:[B(L.gmv),-B(L.taxas),-B(L.cpv),-B(L.invest),-B(L.impV+L.impIR),B(L.lucro)]},
+    top:{l:rank.slice(0,12).map(r=>String(r.name||'').slice(0,22)),v:rank.slice(0,12).map(r=>B(r.gmv))}};
+  const kc=[['GMV de live',fmt(L.gmv)],['Investimento',fmt(L.invest)],['ROAS',L.roas.toFixed(1)+'x'],['Lucro real',fmt(L.lucro)],['ROI real',L.roiReal.toFixed(0)+'%'],['Margem',L.margem.toFixed(1)+'%'],['Pedidos',NUM.format(L.ped)],['Visualizações',NUM.format(L.views)]]
     .map(([l,v])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
-  const strows=rank.slice(0,60).map((r,i)=>{const c=+r.cost||0,g=+r.receita||0,pd=+r.pedidos||0,vw=+r.views||0;
-    return `<tr><td>${i+1}</td><td>${r.data||''}</td><td>${r.origem==='propria'?'Rhode':'creator'}</td><td class="n">${fmt(c)}</td><td class="n">${fmt(g)}</td><td class="n">${(c?g/c:0).toFixed(1)}x</td><td class="n">${NUM.format(pd)}</td><td class="n">${NUM.format(vw)}</td><td class="n">${vw?(pd/vw*100).toFixed(1):0}%</td><td class="n">${fmt2(pd?c/pd:0)}</td></tr>`;}).join('');
+  const esc=t=>String(t||'').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  const strows=rank.slice(0,60).map((r,i)=>{const conv=r.views?(r.ped/r.views*100):0, tk=r.ped?r.gmv/r.ped:0;
+    return `<tr><td>${i+1}</td><td title="${esc(r.name)}">${esc(String(r.name||'').slice(0,40))}</td><td>${scSrc?String(r.inicio||'').replace('T',' ').slice(0,16):(r.data||'')}</td><td class="n">${fmt(r.gmv)}</td><td class="n">${NUM.format(r.ped)}</td><td class="n">${NUM.format(r.views)}</td><td class="n">${conv.toFixed(1)}%</td><td class="n">${fmt2(tk)}</td>${L.cust?`<td class="n">${NUM.format(r.cust)}</td>`:''}</tr>`;}).join('');
   const cascRows=DATA.casc.l.map((l,i)=>`<tr><td>${l}</td><td class="n" style="color:${DATA.casc.v[i]<0?'#c0392b':'#1a8f5a'}">${fmt(DATA.casc.v[i])}</td></tr>`).join('');
   const s='<'+'/script>';
   const html=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de Live — Rhode Jeans</title>
@@ -788,16 +794,16 @@ table{width:100%;border-collapse:collapse}th,td{text-align:right;padding:8px 10p
 .note{background:#fff8ee;border:1px solid #f0e2c8;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#7a5b1e;margin-top:14px}
 @media print{.btn{display:none}body{background:#fff;padding:0}.card,.kpi{break-inside:avoid}}
 </style></head><body><div class="rep">
-<div class="topbar"><div><h1>Relatório de Live — Rhode Jeans</h1><div class="sub">${LIVEORIG==='propria'?'Live própria (Rhode Jeans)':'Todas as lives'} · ${periodoLabel()} · gerado em ${new Date().toLocaleString('pt-BR')} · fonte: TikTok Business API</div></div><button class="btn" onclick="window.print()">🖨️ Salvar PDF</button></div>
+<div class="topbar"><div><h1>Relatório de Live — Rhode Jeans</h1><div class="sub">Live própria (Rhode Jeans) · ${periodoLabel()} · gerado em ${new Date().toLocaleString('pt-BR')} · fonte: ${scSrc?'Seller Center · Livestream (Attributed GMV)':'TikTok Business API · GMV Max (aprox.)'}</div></div><button class="btn" onclick="window.print()">🖨️ Salvar PDF</button></div>
 <div class="kpis">${kc}</div>
 <div class="card"><h2>Evolução — GMV × Investimento por dia</h2><div class="cw"><canvas id="c1"></canvas></div></div>
 <div class="grid2">
 <div class="card"><h2>ROI real — do GMV ao lucro</h2><div class="cw"><canvas id="c2"></canvas></div>
 <table style="margin-top:10px">${cascRows}</table></div>
 <div class="card"><h2>Top sessões por GMV</h2><div class="cw"><canvas id="c3"></canvas></div></div></div>
-<div class="card"><h2>Funil da live</h2><table><tr><td>👁️ Visualizações</td><td class="n">${NUM.format(A.views)}</td></tr><tr><td>🛒 Pedidos</td><td class="n">${NUM.format(A.ped)} (${convVw.toFixed(1)}% conv.)</td></tr><tr><td>💰 GMV</td><td class="n">${fmt(A.gmv)} (ticket ${fmt2(ticket)})</td></tr></table>
-<div class="note">⚠️ <b>ROAS ${roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(lucro)}</b> (margem ${margem.toFixed(1)}%, ROI real ${roiReal.toFixed(0)}% sobre a mídia).</div></div>
-<div class="card"><h2>Sessões detalhadas (${ses.length})</h2><table><thead><tr><th>#</th><th>Data</th><th>Origem</th><th>Investimento</th><th>GMV</th><th>ROAS</th><th>Pedidos</th><th>Views</th><th>Conv.</th><th>CPA</th></tr></thead><tbody>${strows}</tbody></table></div>
+<div class="card"><h2>Funil da live</h2><table><tr><td>👁️ Visualizações</td><td class="n">${NUM.format(L.views)}</td></tr><tr><td>🛒 Pedidos</td><td class="n">${NUM.format(L.ped)} (${L.convVw.toFixed(1)}% conv.)</td></tr><tr><td>💰 GMV</td><td class="n">${fmt(L.gmv)} (ticket ${fmt2(L.ticket)})</td></tr>${L.cust?`<tr><td>👥 Clientes</td><td class="n">${NUM.format(L.cust)}</td></tr>`:''}</table>
+<div class="note">⚠️ <b>ROAS ${L.roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(L.cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(L.lucro)}</b> (margem ${L.margem.toFixed(1)}%, ROI real ${L.roiReal.toFixed(0)}% sobre a mídia). ${scSrc?'GMV = Attributed GMV do Seller Center.':'Fonte GMV Max (aprox.).'}</div></div>
+<div class="card"><h2>Sessões detalhadas (${L.sessions.length})</h2><table><thead><tr><th>#</th><th>Live</th><th>Data/hora</th><th>GMV</th><th>Pedidos</th><th>Views</th><th>Conv.</th><th>Ticket</th>${L.cust?'<th>Clientes</th>':''}</tr></thead><tbody>${strows}</tbody></table></div>
 </div>
 <script>
 var D=${JSON.stringify(DATA)};
