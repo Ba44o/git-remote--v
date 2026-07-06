@@ -100,6 +100,23 @@ conversão · CPA · CAC. Metas ainda "em construção" → use variação vs. p
 leem do `warehouse/*.csv` local**; o Supabase é o que serve o Hub/Admin em produção. Ciclo diário
 completo: `refresh_performance_diario.sh` (launchd — renova token → ETLs via API → sync Supabase).
 
+> ⚠️ **Frescor dos dados (aprendido em uso real, jul/2026):** os `warehouse/*.csv` locais ficam
+> DEFASADOS — no fechamento de jun/2026 paravam entre 31/mai e 03/jun. O **mês fechado** vive no
+> **Supabase** (`gmv_oficial_resumo`, `performance_periods`, `ads_custo_resumo`, `finance_statements`,
+> `devolucoes`…). Somar só o warehouse local subestima o mês (chega a ~90%). Marque "sem dado" se
+> só tiver parcial — **nunca** trate 1–3 dias como mês.
+> ⚠️ **Ler o Supabase exige autorização:** o classificador do harness **bloqueia** leitura direta com
+> a `SUPABASE_SERVICE_KEY` do `.env` como "acesso a produção". Caminhos válidos: **(a)** usar um
+> snapshot local já materializado (ex. o dict `DATA` congelado em
+> `relatorios/2026-06/_build_fechamento_junho.py`, coletado 2026-07-06) e validar por **consistência
+> interna** (o split Tradicional+Vendas Líquidas fecha ao centavo com os totais); **(b)** PEDIR ao
+> usuário que autorize a leitura read-only (ele pode adicionar uma regra de permissão Bash). **Nunca
+> contornar o bloqueio.** Ver memória `project_dados_frescor_supabase_auth`.
+> ✅ **Autorizado (2026-07-06):** o usuário liberou a leitura read-only do Supabase para relatórios —
+> o pull direto passou a funcionar. Ex.: `warehouse/ads_history_snapshot.json` (7 meses de ads via
+> `ads_custo_resumo`/`ads_campanha`/`ads_custo`, coletor read-only). Continua sendo **só SELECT** —
+> jamais escrever. Se numa sessão nova o classificador barrar, pedir a autorização de novo.
+
 | Preciso de… | Fonte / arquivo | Tabela / view |
 |---|---|---|
 | **GMV oficial** (bate com Seller Center, sem atraso) | `coletar_pedidos_sku.py`, `pedido_pagamento.sql` | `pedido_pagamento`, view `gmv_oficial_resumo` |
@@ -142,6 +159,24 @@ Token: `token_store.py` / `obter_token.py` (Seller) e `obter_token_ads.py` (Ads/
 Prefira estender um gerador existente a escrever um do zero. Para planilhas use a skill **xlsx**;
 para gráficos/visualização, a skill **dataviz**; para dashboards HTML siga o padrão do
 `gerar_dashboard.py`.
+
+## 📊 Planilha nível EXPERT (padrão obrigatório de todo `.xlsx`)
+
+O usuário exige planilhas de nível expert — **não** tabelas estáticas. Todo `.xlsx` deve ter:
+
+- **Fórmulas VIVAS** (openpyxl), não valores hardcoded nas colunas derivadas: ROAS `=receita/custo`,
+  CPA `=custo/pedidos`, delta MoM `=(mês−anterior)/anterior`, share `=parte/total`. Assim o usuário
+  muda uma célula e tudo recalcula. **Sempre** `wb.calculation.fullCalcOnLoad = True` antes de salvar
+  (sem isso, e sem LibreOffice pra pré-cachear, Excel/Numbers pode mostrar 0 até recalcular).
+- **Gráficos nativos** (`openpyxl.chart` LineChart/BarChart + `Reference`), não imagens: evolução
+  temporal em linha, comparativos em barra, referenciando as células da aba de dados.
+- **Formatação condicional**: `ColorScaleRule` no ROAS, `DataBarRule` no investimento,
+  `CellIsRule`/`FormulaRule` pra destacar fora-da-meta (ex. campanha com ROAS < blended → vermelho).
+- **Number formats pt-BR**: moeda `'"R$" #,##0.00'`, inteiro `'#,##0'`, percentual `'0.0%'`,
+  ROAS `'0.00"x"'`. `freeze_panes` no cabeçalho, header estilizado, larguras ajustadas.
+- **Abas por lente**: Resumo · Série (mensal + diária) · Gráficos · quebras (por modelo / campanha /
+  canal). Comparativo MoM e ranking **decrescente** sempre. Delta assinado (+/-); participação sem sinal.
+- Referência viva e testada: [`relatorios/2026-06/_build_ads_detalhado.py`].
 
 ---
 

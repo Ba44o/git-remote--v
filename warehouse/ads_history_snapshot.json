@@ -1,0 +1,1801 @@
+{
+  "pulled_at": "2026-07-06",
+  "source": "Supabase read-only (ads_custo_resumo/ads_custo/ads_campanha)",
+  "periodos": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07"
+  ],
+  "monthly": {
+    "2026-01": {
+      "custo": 81300.24,
+      "receita": 728107.22,
+      "pedidos": 9184,
+      "roi": 8.96
+    },
+    "2026-02": {
+      "custo": 64483.65,
+      "receita": 589697.0,
+      "pedidos": 7214,
+      "roi": 9.14
+    },
+    "2026-03": {
+      "custo": 74632.53,
+      "receita": 524482.57,
+      "pedidos": 6318,
+      "roi": 7.03
+    },
+    "2026-04": {
+      "custo": 51880.9,
+      "receita": 392437.08,
+      "pedidos": 4688,
+      "roi": 7.56
+    },
+    "2026-05": {
+      "custo": 48003.01,
+      "receita": 334132.72,
+      "pedidos": 3614,
+      "roi": 6.96
+    },
+    "2026-06": {
+      "custo": 64061.74,
+      "receita": 525097.87,
+      "pedidos": 5759,
+      "roi": 8.2
+    },
+    "2026-07": {
+      "custo": 7616.41,
+      "receita": 56710.09,
+      "pedidos": 582,
+      "roi": 7.45
+    }
+  },
+  "daily": [
+    {
+      "data": "2026-01-01",
+      "periodo": "2026-01",
+      "custo": 987.4,
+      "receita": 5230.9,
+      "pedidos": 64
+    },
+    {
+      "data": "2026-01-02",
+      "periodo": "2026-01",
+      "custo": 1217.28,
+      "receita": 7845.96,
+      "pedidos": 95
+    },
+    {
+      "data": "2026-01-03",
+      "periodo": "2026-01",
+      "custo": 1205.11,
+      "receita": 7552.04,
+      "pedidos": 91
+    },
+    {
+      "data": "2026-01-04",
+      "periodo": "2026-01",
+      "custo": 1467.65,
+      "receita": 11220.26,
+      "pedidos": 135
+    },
+    {
+      "data": "2026-01-05",
+      "periodo": "2026-01",
+      "custo": 2030.19,
+      "receita": 21317.2,
+      "pedidos": 277
+    },
+    {
+      "data": "2026-01-06",
+      "periodo": "2026-01",
+      "custo": 2907.13,
+      "receita": 31371.57,
+      "pedidos": 398
+    },
+    {
+      "data": "2026-01-07",
+      "periodo": "2026-01",
+      "custo": 2947.85,
+      "receita": 30712.92,
+      "pedidos": 385
+    },
+    {
+      "data": "2026-01-08",
+      "periodo": "2026-01",
+      "custo": 1805.33,
+      "receita": 15347.54,
+      "pedidos": 183
+    },
+    {
+      "data": "2026-01-09",
+      "periodo": "2026-01",
+      "custo": 2241.55,
+      "receita": 14134.54,
+      "pedidos": 176
+    },
+    {
+      "data": "2026-01-10",
+      "periodo": "2026-01",
+      "custo": 1485.6,
+      "receita": 7153.88,
+      "pedidos": 90
+    },
+    {
+      "data": "2026-01-11",
+      "periodo": "2026-01",
+      "custo": 0.0,
+      "receita": 197.6,
+      "pedidos": 2
+    },
+    {
+      "data": "2026-01-12",
+      "periodo": "2026-01",
+      "custo": 1571.66,
+      "receita": 8376.28,
+      "pedidos": 106
+    },
+    {
+      "data": "2026-01-13",
+      "periodo": "2026-01",
+      "custo": 2458.27,
+      "receita": 15700.82,
+      "pedidos": 207
+    },
+    {
+      "data": "2026-01-14",
+      "periodo": "2026-01",
+      "custo": 5254.81,
+      "receita": 42155.31,
+      "pedidos": 557
+    },
+    {
+      "data": "2026-01-15",
+      "periodo": "2026-01",
+      "custo": 4253.88,
+      "receita": 35448.7,
+      "pedidos": 463
+    },
+    {
+      "data": "2026-01-16",
+      "periodo": "2026-01",
+      "custo": 3221.24,
+      "receita": 28602.28,
+      "pedidos": 360
+    },
+    {
+      "data": "2026-01-17",
+      "periodo": "2026-01",
+      "custo": 2175.81,
+      "receita": 17867.04,
+      "pedidos": 223
+    },
+    {
+      "data": "2026-01-18",
+      "periodo": "2026-01",
+      "custo": 1749.18,
+      "receita": 13508.14,
+      "pedidos": 162
+    },
+    {
+      "data": "2026-01-19",
+      "periodo": "2026-01",
+      "custo": 2298.98,
+      "receita": 22348.45,
+      "pedidos": 283
+    },
+    {
+      "data": "2026-01-20",
+      "periodo": "2026-01",
+      "custo": 2947.65,
+      "receita": 27009.78,
+      "pedidos": 339
+    },
+    {
+      "data": "2026-01-21",
+      "periodo": "2026-01",
+      "custo": 4274.04,
+      "receita": 41806.65,
+      "pedidos": 533
+    },
+    {
+      "data": "2026-01-22",
+      "periodo": "2026-01",
+      "custo": 2462.39,
+      "receita": 21457.85,
+      "pedidos": 267
+    },
+    {
+      "data": "2026-01-23",
+      "periodo": "2026-01",
+      "custo": 4106.88,
+      "receita": 38054.59,
+      "pedidos": 481
+    },
+    {
+      "data": "2026-01-24",
+      "periodo": "2026-01",
+      "custo": 3079.96,
+      "receita": 28658.06,
+      "pedidos": 359
+    },
+    {
+      "data": "2026-01-25",
+      "periodo": "2026-01",
+      "custo": 2704.06,
+      "receita": 26261.87,
+      "pedidos": 316
+    },
+    {
+      "data": "2026-01-26",
+      "periodo": "2026-01",
+      "custo": 4656.12,
+      "receita": 46892.83,
+      "pedidos": 603
+    },
+    {
+      "data": "2026-01-27",
+      "periodo": "2026-01",
+      "custo": 3312.86,
+      "receita": 32398.55,
+      "pedidos": 405
+    },
+    {
+      "data": "2026-01-28",
+      "periodo": "2026-01",
+      "custo": 4443.46,
+      "receita": 45788.03,
+      "pedidos": 577
+    },
+    {
+      "data": "2026-01-29",
+      "periodo": "2026-01",
+      "custo": 1531.44,
+      "receita": 17514.62,
+      "pedidos": 221
+    },
+    {
+      "data": "2026-01-30",
+      "periodo": "2026-01",
+      "custo": 3929.82,
+      "receita": 38625.11,
+      "pedidos": 485
+    },
+    {
+      "data": "2026-01-31",
+      "periodo": "2026-01",
+      "custo": 2572.64,
+      "receita": 27547.85,
+      "pedidos": 341
+    },
+    {
+      "data": "2026-02-01",
+      "periodo": "2026-02",
+      "custo": 2659.28,
+      "receita": 25681.9,
+      "pedidos": 310
+    },
+    {
+      "data": "2026-02-02",
+      "periodo": "2026-02",
+      "custo": 4198.07,
+      "receita": 42298.66,
+      "pedidos": 531
+    },
+    {
+      "data": "2026-02-03",
+      "periodo": "2026-02",
+      "custo": 3855.28,
+      "receita": 37572.21,
+      "pedidos": 469
+    },
+    {
+      "data": "2026-02-04",
+      "periodo": "2026-02",
+      "custo": 4330.06,
+      "receita": 40324.18,
+      "pedidos": 500
+    },
+    {
+      "data": "2026-02-05",
+      "periodo": "2026-02",
+      "custo": 2260.41,
+      "receita": 22308.76,
+      "pedidos": 278
+    },
+    {
+      "data": "2026-02-06",
+      "periodo": "2026-02",
+      "custo": 0.0,
+      "receita": 248.35,
+      "pedidos": 3
+    },
+    {
+      "data": "2026-02-07",
+      "periodo": "2026-02",
+      "custo": 0.0,
+      "receita": 0.0,
+      "pedidos": 0
+    },
+    {
+      "data": "2026-02-08",
+      "periodo": "2026-02",
+      "custo": 0.0,
+      "receita": 94.9,
+      "pedidos": 1
+    },
+    {
+      "data": "2026-02-09",
+      "periodo": "2026-02",
+      "custo": 0.0,
+      "receita": 228.86,
+      "pedidos": 3
+    },
+    {
+      "data": "2026-02-10",
+      "periodo": "2026-02",
+      "custo": 500.0,
+      "receita": 3623.53,
+      "pedidos": 43
+    },
+    {
+      "data": "2026-02-11",
+      "periodo": "2026-02",
+      "custo": 492.93,
+      "receita": 3689.89,
+      "pedidos": 43
+    },
+    {
+      "data": "2026-02-12",
+      "periodo": "2026-02",
+      "custo": 2445.87,
+      "receita": 26942.66,
+      "pedidos": 323
+    },
+    {
+      "data": "2026-02-13",
+      "periodo": "2026-02",
+      "custo": 2251.7,
+      "receita": 26452.93,
+      "pedidos": 326
+    },
+    {
+      "data": "2026-02-14",
+      "periodo": "2026-02",
+      "custo": 2820.2,
+      "receita": 26520.64,
+      "pedidos": 321
+    },
+    {
+      "data": "2026-02-15",
+      "periodo": "2026-02",
+      "custo": 1995.98,
+      "receita": 17070.39,
+      "pedidos": 200
+    },
+    {
+      "data": "2026-02-16",
+      "periodo": "2026-02",
+      "custo": 2094.26,
+      "receita": 18768.62,
+      "pedidos": 222
+    },
+    {
+      "data": "2026-02-17",
+      "periodo": "2026-02",
+      "custo": 2042.29,
+      "receita": 17553.37,
+      "pedidos": 207
+    },
+    {
+      "data": "2026-02-18",
+      "periodo": "2026-02",
+      "custo": 1587.81,
+      "receita": 12255.47,
+      "pedidos": 144
+    },
+    {
+      "data": "2026-02-19",
+      "periodo": "2026-02",
+      "custo": 2864.5,
+      "receita": 31047.15,
+      "pedidos": 386
+    },
+    {
+      "data": "2026-02-20",
+      "periodo": "2026-02",
+      "custo": 3315.26,
+      "receita": 32592.93,
+      "pedidos": 406
+    },
+    {
+      "data": "2026-02-21",
+      "periodo": "2026-02",
+      "custo": 2815.76,
+      "receita": 26963.76,
+      "pedidos": 328
+    },
+    {
+      "data": "2026-02-22",
+      "periodo": "2026-02",
+      "custo": 0.0,
+      "receita": 269.9,
+      "pedidos": 3
+    },
+    {
+      "data": "2026-02-23",
+      "periodo": "2026-02",
+      "custo": 2468.16,
+      "receita": 23158.68,
+      "pedidos": 283
+    },
+    {
+      "data": "2026-02-24",
+      "periodo": "2026-02",
+      "custo": 2812.41,
+      "receita": 25558.62,
+      "pedidos": 317
+    },
+    {
+      "data": "2026-02-25",
+      "periodo": "2026-02",
+      "custo": 2416.57,
+      "receita": 21983.49,
+      "pedidos": 265
+    },
+    {
+      "data": "2026-02-26",
+      "periodo": "2026-02",
+      "custo": 3364.88,
+      "receita": 26070.69,
+      "pedidos": 319
+    },
+    {
+      "data": "2026-02-27",
+      "periodo": "2026-02",
+      "custo": 5652.92,
+      "receita": 43222.6,
+      "pedidos": 533
+    },
+    {
+      "data": "2026-02-28",
+      "periodo": "2026-02",
+      "custo": 5239.05,
+      "receita": 37193.86,
+      "pedidos": 450
+    },
+    {
+      "data": "2026-03-01",
+      "periodo": "2026-03",
+      "custo": 32.43,
+      "receita": 1091.9,
+      "pedidos": 13
+    },
+    {
+      "data": "2026-03-02",
+      "periodo": "2026-03",
+      "custo": 3817.29,
+      "receita": 28338.21,
+      "pedidos": 347
+    },
+    {
+      "data": "2026-03-03",
+      "periodo": "2026-03",
+      "custo": 4789.68,
+      "receita": 32531.32,
+      "pedidos": 386
+    },
+    {
+      "data": "2026-03-04",
+      "periodo": "2026-03",
+      "custo": 1520.46,
+      "receita": 9260.64,
+      "pedidos": 113
+    },
+    {
+      "data": "2026-03-05",
+      "periodo": "2026-03",
+      "custo": 2986.89,
+      "receita": 15302.76,
+      "pedidos": 183
+    },
+    {
+      "data": "2026-03-06",
+      "periodo": "2026-03",
+      "custo": 1764.44,
+      "receita": 7884.29,
+      "pedidos": 94
+    },
+    {
+      "data": "2026-03-07",
+      "periodo": "2026-03",
+      "custo": 4898.01,
+      "receita": 24702.25,
+      "pedidos": 294
+    },
+    {
+      "data": "2026-03-08",
+      "periodo": "2026-03",
+      "custo": 0.0,
+      "receita": 290.66,
+      "pedidos": 3
+    },
+    {
+      "data": "2026-03-09",
+      "periodo": "2026-03",
+      "custo": 4755.05,
+      "receita": 31532.28,
+      "pedidos": 387
+    },
+    {
+      "data": "2026-03-10",
+      "periodo": "2026-03",
+      "custo": 4704.98,
+      "receita": 37621.06,
+      "pedidos": 461
+    },
+    {
+      "data": "2026-03-11",
+      "periodo": "2026-03",
+      "custo": 4687.06,
+      "receita": 40055.95,
+      "pedidos": 492
+    },
+    {
+      "data": "2026-03-12",
+      "periodo": "2026-03",
+      "custo": 193.98,
+      "receita": 2979.77,
+      "pedidos": 37
+    },
+    {
+      "data": "2026-03-13",
+      "periodo": "2026-03",
+      "custo": 2247.85,
+      "receita": 15361.0,
+      "pedidos": 183
+    },
+    {
+      "data": "2026-03-14",
+      "periodo": "2026-03",
+      "custo": 2315.58,
+      "receita": 13304.96,
+      "pedidos": 156
+    },
+    {
+      "data": "2026-03-15",
+      "periodo": "2026-03",
+      "custo": 2265.31,
+      "receita": 13372.47,
+      "pedidos": 156
+    },
+    {
+      "data": "2026-03-16",
+      "periodo": "2026-03",
+      "custo": 756.64,
+      "receita": 4503.95,
+      "pedidos": 55
+    },
+    {
+      "data": "2026-03-17",
+      "periodo": "2026-03",
+      "custo": 0.0,
+      "receita": 387.09,
+      "pedidos": 5
+    },
+    {
+      "data": "2026-03-18",
+      "periodo": "2026-03",
+      "custo": 90.59,
+      "receita": 589.53,
+      "pedidos": 7
+    },
+    {
+      "data": "2026-03-19",
+      "periodo": "2026-03",
+      "custo": 2803.45,
+      "receita": 21311.52,
+      "pedidos": 258
+    },
+    {
+      "data": "2026-03-20",
+      "periodo": "2026-03",
+      "custo": 3277.08,
+      "receita": 25422.92,
+      "pedidos": 302
+    },
+    {
+      "data": "2026-03-21",
+      "periodo": "2026-03",
+      "custo": 2816.89,
+      "receita": 21673.43,
+      "pedidos": 256
+    },
+    {
+      "data": "2026-03-22",
+      "periodo": "2026-03",
+      "custo": 0.0,
+      "receita": 0.0,
+      "pedidos": 0
+    },
+    {
+      "data": "2026-03-23",
+      "periodo": "2026-03",
+      "custo": 2833.03,
+      "receita": 21340.88,
+      "pedidos": 254
+    },
+    {
+      "data": "2026-03-24",
+      "periodo": "2026-03",
+      "custo": 1621.63,
+      "receita": 11597.0,
+      "pedidos": 137
+    },
+    {
+      "data": "2026-03-25",
+      "periodo": "2026-03",
+      "custo": 2979.79,
+      "receita": 22485.19,
+      "pedidos": 277
+    },
+    {
+      "data": "2026-03-26",
+      "periodo": "2026-03",
+      "custo": 2525.9,
+      "receita": 16458.0,
+      "pedidos": 194
+    },
+    {
+      "data": "2026-03-27",
+      "periodo": "2026-03",
+      "custo": 3152.67,
+      "receita": 25145.17,
+      "pedidos": 309
+    },
+    {
+      "data": "2026-03-28",
+      "periodo": "2026-03",
+      "custo": 2596.34,
+      "receita": 17444.69,
+      "pedidos": 204
+    },
+    {
+      "data": "2026-03-29",
+      "periodo": "2026-03",
+      "custo": 2117.44,
+      "receita": 15111.54,
+      "pedidos": 177
+    },
+    {
+      "data": "2026-03-30",
+      "periodo": "2026-03",
+      "custo": 3513.06,
+      "receita": 28636.41,
+      "pedidos": 350
+    },
+    {
+      "data": "2026-03-31",
+      "periodo": "2026-03",
+      "custo": 2569.01,
+      "receita": 18745.73,
+      "pedidos": 228
+    },
+    {
+      "data": "2026-04-01",
+      "periodo": "2026-04",
+      "custo": 2027.39,
+      "receita": 17797.84,
+      "pedidos": 208
+    },
+    {
+      "data": "2026-04-02",
+      "periodo": "2026-04",
+      "custo": 2705.12,
+      "receita": 22913.35,
+      "pedidos": 275
+    },
+    {
+      "data": "2026-04-03",
+      "periodo": "2026-04",
+      "custo": 1819.08,
+      "receita": 12868.11,
+      "pedidos": 151
+    },
+    {
+      "data": "2026-04-04",
+      "periodo": "2026-04",
+      "custo": 32.65,
+      "receita": 363.41,
+      "pedidos": 4
+    },
+    {
+      "data": "2026-04-05",
+      "periodo": "2026-04",
+      "custo": 0.0,
+      "receita": 0.0,
+      "pedidos": 0
+    },
+    {
+      "data": "2026-04-06",
+      "periodo": "2026-04",
+      "custo": 3414.22,
+      "receita": 26500.53,
+      "pedidos": 323
+    },
+    {
+      "data": "2026-04-07",
+      "periodo": "2026-04",
+      "custo": 1200.51,
+      "receita": 7451.27,
+      "pedidos": 85
+    },
+    {
+      "data": "2026-04-08",
+      "periodo": "2026-04",
+      "custo": 3141.29,
+      "receita": 28217.38,
+      "pedidos": 344
+    },
+    {
+      "data": "2026-04-09",
+      "periodo": "2026-04",
+      "custo": 2788.47,
+      "receita": 23772.81,
+      "pedidos": 277
+    },
+    {
+      "data": "2026-04-10",
+      "periodo": "2026-04",
+      "custo": 2670.68,
+      "receita": 20527.02,
+      "pedidos": 248
+    },
+    {
+      "data": "2026-04-11",
+      "periodo": "2026-04",
+      "custo": 359.4,
+      "receita": 1505.19,
+      "pedidos": 18
+    },
+    {
+      "data": "2026-04-12",
+      "periodo": "2026-04",
+      "custo": 0.0,
+      "receita": 0.0,
+      "pedidos": 0
+    },
+    {
+      "data": "2026-04-13",
+      "periodo": "2026-04",
+      "custo": 0.0,
+      "receita": 144.53,
+      "pedidos": 2
+    },
+    {
+      "data": "2026-04-14",
+      "periodo": "2026-04",
+      "custo": 2528.84,
+      "receita": 20534.45,
+      "pedidos": 244
+    },
+    {
+      "data": "2026-04-15",
+      "periodo": "2026-04",
+      "custo": 3324.92,
+      "receita": 31058.38,
+      "pedidos": 373
+    },
+    {
+      "data": "2026-04-16",
+      "periodo": "2026-04",
+      "custo": 3792.39,
+      "receita": 26461.93,
+      "pedidos": 313
+    },
+    {
+      "data": "2026-04-17",
+      "periodo": "2026-04",
+      "custo": 2339.8,
+      "receita": 17818.33,
+      "pedidos": 204
+    },
+    {
+      "data": "2026-04-18",
+      "periodo": "2026-04",
+      "custo": 1614.81,
+      "receita": 11012.37,
+      "pedidos": 129
+    },
+    {
+      "data": "2026-04-19",
+      "periodo": "2026-04",
+      "custo": 0.0,
+      "receita": 79.9,
+      "pedidos": 1
+    },
+    {
+      "data": "2026-04-20",
+      "periodo": "2026-04",
+      "custo": 3714.29,
+      "receita": 27782.11,
+      "pedidos": 343
+    },
+    {
+      "data": "2026-04-21",
+      "periodo": "2026-04",
+      "custo": 2157.32,
+      "receita": 18596.16,
+      "pedidos": 221
+    },
+    {
+      "data": "2026-04-22",
+      "periodo": "2026-04",
+      "custo": 2746.15,
+      "receita": 19210.63,
+      "pedidos": 248
+    },
+    {
+      "data": "2026-04-23",
+      "periodo": "2026-04",
+      "custo": 610.16,
+      "receita": 2715.17,
+      "pedidos": 30
+    },
+    {
+      "data": "2026-04-24",
+      "periodo": "2026-04",
+      "custo": 3408.49,
+      "receita": 21282.42,
+      "pedidos": 259
+    },
+    {
+      "data": "2026-04-25",
+      "periodo": "2026-04",
+      "custo": 2027.56,
+      "receita": 13739.99,
+      "pedidos": 158
+    },
+    {
+      "data": "2026-04-26",
+      "periodo": "2026-04",
+      "custo": 1863.08,
+      "receita": 14143.53,
+      "pedidos": 163
+    },
+    {
+      "data": "2026-04-27",
+      "periodo": "2026-04",
+      "custo": 0.0,
+      "receita": 139.89,
+      "pedidos": 2
+    },
+    {
+      "data": "2026-04-28",
+      "periodo": "2026-04",
+      "custo": 0.0,
+      "receita": 85.32,
+      "pedidos": 1
+    },
+    {
+      "data": "2026-04-29",
+      "periodo": "2026-04",
+      "custo": 0.0,
+      "receita": 90.16,
+      "pedidos": 1
+    },
+    {
+      "data": "2026-04-30",
+      "periodo": "2026-04",
+      "custo": 1594.28,
+      "receita": 5624.9,
+      "pedidos": 63
+    },
+    {
+      "data": "2026-05-01",
+      "periodo": "2026-05",
+      "custo": 1987.7,
+      "receita": 11151.59,
+      "pedidos": 128
+    },
+    {
+      "data": "2026-05-02",
+      "periodo": "2026-05",
+      "custo": 752.05,
+      "receita": 2428.68,
+      "pedidos": 26
+    },
+    {
+      "data": "2026-05-03",
+      "periodo": "2026-05",
+      "custo": 0.0,
+      "receita": 0.0,
+      "pedidos": 0
+    },
+    {
+      "data": "2026-05-04",
+      "periodo": "2026-05",
+      "custo": 0.0,
+      "receita": 0.0,
+      "pedidos": 0
+    },
+    {
+      "data": "2026-05-05",
+      "periodo": "2026-05",
+      "custo": 0.0,
+      "receita": 0.0,
+      "pedidos": 0
+    },
+    {
+      "data": "2026-05-06",
+      "periodo": "2026-05",
+      "custo": 596.07,
+      "receita": 2149.27,
+      "pedidos": 20
+    },
+    {
+      "data": "2026-05-07",
+      "periodo": "2026-05",
+      "custo": 146.15,
+      "receita": 336.55,
+      "pedidos": 3
+    },
+    {
+      "data": "2026-05-08",
+      "periodo": "2026-05",
+      "custo": 512.68,
+      "receita": 8541.19,
+      "pedidos": 92
+    },
+    {
+      "data": "2026-05-09",
+      "periodo": "2026-05",
+      "custo": 210.47,
+      "receita": 1255.78,
+      "pedidos": 12
+    },
+    {
+      "data": "2026-05-10",
+      "periodo": "2026-05",
+      "custo": 412.64,
+      "receita": 2906.41,
+      "pedidos": 29
+    },
+    {
+      "data": "2026-05-11",
+      "periodo": "2026-05",
+      "custo": 797.68,
+      "receita": 3162.26,
+      "pedidos": 35
+    },
+    {
+      "data": "2026-05-12",
+      "periodo": "2026-05",
+      "custo": 0.0,
+      "receita": 0.0,
+      "pedidos": 0
+    },
+    {
+      "data": "2026-05-13",
+      "periodo": "2026-05",
+      "custo": 1949.75,
+      "receita": 11369.4,
+      "pedidos": 126
+    },
+    {
+      "data": "2026-05-14",
+      "periodo": "2026-05",
+      "custo": 2050.25,
+      "receita": 11288.52,
+      "pedidos": 123
+    },
+    {
+      "data": "2026-05-15",
+      "periodo": "2026-05",
+      "custo": 931.15,
+      "receita": 7176.7,
+      "pedidos": 76
+    },
+    {
+      "data": "2026-05-16",
+      "periodo": "2026-05",
+      "custo": 1520.83,
+      "receita": 13919.53,
+      "pedidos": 145
+    },
+    {
+      "data": "2026-05-17",
+      "periodo": "2026-05",
+      "custo": 1105.66,
+      "receita": 9326.76,
+      "pedidos": 89
+    },
+    {
+      "data": "2026-05-18",
+      "periodo": "2026-05",
+      "custo": 1681.11,
+      "receita": 14174.5,
+      "pedidos": 147
+    },
+    {
+      "data": "2026-05-19",
+      "periodo": "2026-05",
+      "custo": 1138.08,
+      "receita": 6877.21,
+      "pedidos": 65
+    },
+    {
+      "data": "2026-05-20",
+      "periodo": "2026-05",
+      "custo": 2918.09,
+      "receita": 19125.78,
+      "pedidos": 208
+    },
+    {
+      "data": "2026-05-21",
+      "periodo": "2026-05",
+      "custo": 1129.68,
+      "receita": 8196.32,
+      "pedidos": 76
+    },
+    {
+      "data": "2026-05-22",
+      "periodo": "2026-05",
+      "custo": 12021.39,
+      "receita": 67231.55,
+      "pedidos": 813
+    },
+    {
+      "data": "2026-05-23",
+      "periodo": "2026-05",
+      "custo": 1330.27,
+      "receita": 12044.28,
+      "pedidos": 124
+    },
+    {
+      "data": "2026-05-24",
+      "periodo": "2026-05",
+      "custo": 1861.7,
+      "receita": 11488.37,
+      "pedidos": 108
+    },
+    {
+      "data": "2026-05-25",
+      "periodo": "2026-05",
+      "custo": 2601.18,
+      "receita": 23213.97,
+      "pedidos": 255
+    },
+    {
+      "data": "2026-05-26",
+      "periodo": "2026-05",
+      "custo": 2060.46,
+      "receita": 19728.85,
+      "pedidos": 206
+    },
+    {
+      "data": "2026-05-27",
+      "periodo": "2026-05",
+      "custo": 2698.94,
+      "receita": 21443.0,
+      "pedidos": 228
+    },
+    {
+      "data": "2026-05-28",
+      "periodo": "2026-05",
+      "custo": 1853.97,
+      "receita": 13636.69,
+      "pedidos": 142
+    },
+    {
+      "data": "2026-05-29",
+      "periodo": "2026-05",
+      "custo": 2062.71,
+      "receita": 16057.4,
+      "pedidos": 175
+    },
+    {
+      "data": "2026-05-30",
+      "periodo": "2026-05",
+      "custo": 1329.81,
+      "receita": 9734.77,
+      "pedidos": 102
+    },
+    {
+      "data": "2026-05-31",
+      "periodo": "2026-05",
+      "custo": 342.54,
+      "receita": 6167.39,
+      "pedidos": 61
+    },
+    {
+      "data": "2026-06-01",
+      "periodo": "2026-06",
+      "custo": 1658.69,
+      "receita": 12745.22,
+      "pedidos": 138
+    },
+    {
+      "data": "2026-06-02",
+      "periodo": "2026-06",
+      "custo": 3259.01,
+      "receita": 22581.09,
+      "pedidos": 244
+    },
+    {
+      "data": "2026-06-03",
+      "periodo": "2026-06",
+      "custo": 2271.12,
+      "receita": 18368.62,
+      "pedidos": 199
+    },
+    {
+      "data": "2026-06-04",
+      "periodo": "2026-06",
+      "custo": 3064.57,
+      "receita": 25636.04,
+      "pedidos": 276
+    },
+    {
+      "data": "2026-06-05",
+      "periodo": "2026-06",
+      "custo": 2498.19,
+      "receita": 20824.23,
+      "pedidos": 229
+    },
+    {
+      "data": "2026-06-06",
+      "periodo": "2026-06",
+      "custo": 1794.65,
+      "receita": 11719.71,
+      "pedidos": 128
+    },
+    {
+      "data": "2026-06-07",
+      "periodo": "2026-06",
+      "custo": 3159.5,
+      "receita": 22556.62,
+      "pedidos": 233
+    },
+    {
+      "data": "2026-06-08",
+      "periodo": "2026-06",
+      "custo": 3816.0,
+      "receita": 27707.21,
+      "pedidos": 302
+    },
+    {
+      "data": "2026-06-09",
+      "periodo": "2026-06",
+      "custo": 4069.37,
+      "receita": 30986.78,
+      "pedidos": 343
+    },
+    {
+      "data": "2026-06-10",
+      "periodo": "2026-06",
+      "custo": 4137.54,
+      "receita": 28887.04,
+      "pedidos": 317
+    },
+    {
+      "data": "2026-06-11",
+      "periodo": "2026-06",
+      "custo": 3026.65,
+      "receita": 18435.23,
+      "pedidos": 200
+    },
+    {
+      "data": "2026-06-12",
+      "periodo": "2026-06",
+      "custo": 2358.71,
+      "receita": 19268.06,
+      "pedidos": 210
+    },
+    {
+      "data": "2026-06-13",
+      "periodo": "2026-06",
+      "custo": 1560.38,
+      "receita": 11036.34,
+      "pedidos": 115
+    },
+    {
+      "data": "2026-06-14",
+      "periodo": "2026-06",
+      "custo": 546.4,
+      "receita": 4334.4,
+      "pedidos": 42
+    },
+    {
+      "data": "2026-06-15",
+      "periodo": "2026-06",
+      "custo": 1768.85,
+      "receita": 15534.78,
+      "pedidos": 160
+    },
+    {
+      "data": "2026-06-16",
+      "periodo": "2026-06",
+      "custo": 2559.9,
+      "receita": 18373.85,
+      "pedidos": 183
+    },
+    {
+      "data": "2026-06-17",
+      "periodo": "2026-06",
+      "custo": 2662.31,
+      "receita": 28240.49,
+      "pedidos": 320
+    },
+    {
+      "data": "2026-06-18",
+      "periodo": "2026-06",
+      "custo": 2670.49,
+      "receita": 24145.83,
+      "pedidos": 268
+    },
+    {
+      "data": "2026-06-19",
+      "periodo": "2026-06",
+      "custo": 2343.71,
+      "receita": 20059.41,
+      "pedidos": 221
+    },
+    {
+      "data": "2026-06-20",
+      "periodo": "2026-06",
+      "custo": 1954.74,
+      "receita": 16704.83,
+      "pedidos": 187
+    },
+    {
+      "data": "2026-06-21",
+      "periodo": "2026-06",
+      "custo": 1000.43,
+      "receita": 7730.59,
+      "pedidos": 76
+    },
+    {
+      "data": "2026-06-22",
+      "periodo": "2026-06",
+      "custo": 1676.02,
+      "receita": 14636.16,
+      "pedidos": 163
+    },
+    {
+      "data": "2026-06-23",
+      "periodo": "2026-06",
+      "custo": 2136.81,
+      "receita": 17237.12,
+      "pedidos": 193
+    },
+    {
+      "data": "2026-06-24",
+      "periodo": "2026-06",
+      "custo": 1813.96,
+      "receita": 14095.36,
+      "pedidos": 157
+    },
+    {
+      "data": "2026-06-25",
+      "periodo": "2026-06",
+      "custo": 1127.65,
+      "receita": 18356.4,
+      "pedidos": 232
+    },
+    {
+      "data": "2026-06-26",
+      "periodo": "2026-06",
+      "custo": 1796.82,
+      "receita": 14512.16,
+      "pedidos": 156
+    },
+    {
+      "data": "2026-06-27",
+      "periodo": "2026-06",
+      "custo": 1131.4,
+      "receita": 7788.1,
+      "pedidos": 73
+    },
+    {
+      "data": "2026-06-28",
+      "periodo": "2026-06",
+      "custo": 545.73,
+      "receita": 3527.33,
+      "pedidos": 37
+    },
+    {
+      "data": "2026-06-29",
+      "periodo": "2026-06",
+      "custo": 437.85,
+      "receita": 3636.51,
+      "pedidos": 39
+    },
+    {
+      "data": "2026-06-30",
+      "periodo": "2026-06",
+      "custo": 1214.29,
+      "receita": 25432.36,
+      "pedidos": 318
+    },
+    {
+      "data": "2026-07-01",
+      "periodo": "2026-07",
+      "custo": 1782.33,
+      "receita": 15469.72,
+      "pedidos": 160
+    },
+    {
+      "data": "2026-07-02",
+      "periodo": "2026-07",
+      "custo": 1655.1,
+      "receita": 11156.15,
+      "pedidos": 115
+    },
+    {
+      "data": "2026-07-03",
+      "periodo": "2026-07",
+      "custo": 1466.8,
+      "receita": 10490.58,
+      "pedidos": 108
+    },
+    {
+      "data": "2026-07-04",
+      "periodo": "2026-07",
+      "custo": 1646.92,
+      "receita": 11926.88,
+      "pedidos": 123
+    },
+    {
+      "data": "2026-07-05",
+      "periodo": "2026-07",
+      "custo": 1050.34,
+      "receita": 7562.36,
+      "pedidos": 75
+    },
+    {
+      "data": "2026-07-06",
+      "periodo": "2026-07",
+      "custo": 14.92,
+      "receita": 104.4,
+      "pedidos": 1
+    }
+  ],
+  "modelo": {
+    "2026-01": {
+      "vendas_liquidas": [
+        2204.68,
+        13076.86,
+        159
+      ],
+      "tradicional": [
+        79095.56,
+        715030.36,
+        9025
+      ]
+    },
+    "2026-02": {
+      "tradicional": [
+        64483.65,
+        589697.0,
+        7214
+      ]
+    },
+    "2026-03": {
+      "tradicional": [
+        74347.96,
+        520913.27,
+        6274
+      ],
+      "vendas_liquidas": [
+        284.57,
+        3569.3,
+        44
+      ]
+    },
+    "2026-04": {
+      "tradicional": [
+        51848.25,
+        392171.55,
+        4685
+      ],
+      "vendas_liquidas": [
+        32.65,
+        265.53,
+        3
+      ]
+    },
+    "2026-05": {
+      "tradicional": [
+        42056.13,
+        296133.37,
+        3245
+      ],
+      "vendas_liquidas": [
+        5946.88,
+        37999.35,
+        369
+      ]
+    },
+    "2026-06": {
+      "tradicional": [
+        54545.82,
+        452793.85,
+        5046
+      ],
+      "vendas_liquidas": [
+        9515.92,
+        72304.02,
+        713
+      ]
+    },
+    "2026-07": {
+      "tradicional": [
+        6064.53,
+        44075.81,
+        444
+      ],
+      "vendas_liquidas": [
+        1551.88,
+        12634.28,
+        138
+      ]
+    }
+  },
+  "campanha": {
+    "2026-01": [
+      [
+        "[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]",
+        51847.83,
+        390292.4,
+        4794
+      ],
+      [
+        "LIVE-TESTE- GMV-MAX",
+        25539.54,
+        303424.2,
+        4027
+      ],
+      [
+        "[GMV-MAX][WIDE ROSA BEBE]- 20.01.26",
+        1462.74,
+        14296.68,
+        150
+      ],
+      [
+        "[GMV-MAX][WIDE LEG AMARELA MANTEIGA]- 13.01.2026",
+        1428.09,
+        11645.2,
+        119
+      ],
+      [
+        "[GMV-MAX][WIDE LEG PRETA]- 13.01.2026",
+        549.15,
+        4479.91,
+        49
+      ],
+      [
+        "[GMVMAX][PRETAMARMORIZADA] 25.09",
+        472.89,
+        3968.83,
+        45
+      ]
+    ],
+    "2026-02": [
+      [
+        "[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]",
+        44915.97,
+        384245.06,
+        4653
+      ],
+      [
+        "LIVE-TESTE- GMV-MAX",
+        12602.87,
+        144416.61,
+        1919
+      ],
+      [
+        "[GMV-MAX][MIX-PRODUTOS][TESTE-P/ESCALA]-03.02.26",
+        2800.48,
+        24585.88,
+        258
+      ],
+      [
+        "[GMV-MAX][WIDE ROSA BEBE]- 20.01.26",
+        1856.92,
+        18357.47,
+        193
+      ],
+      [
+        "[GMV-MAX][WIDE LEG AMARELA MANTEIGA]- 13.01.2026",
+        1137.98,
+        9280.31,
+        96
+      ],
+      [
+        "[GMV-MAX][WIDE LEG PRETA]- 13.01.2026",
+        701.59,
+        4781.87,
+        51
+      ],
+      [
+        "[GMVMAX][PRETAMARMORIZADA] 25.09",
+        467.84,
+        4029.8,
+        44
+      ]
+    ],
+    "2026-03": [
+      [
+        "[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]",
+        39153.07,
+        267001.49,
+        3221
+      ],
+      [
+        "LIVE-TESTE- GMV-MAX",
+        13422.71,
+        150563.59,
+        1921
+      ],
+      [
+        "[GMV-MAX][WIDE ROSA BEBE]- 20.01.26",
+        11144.69,
+        38235.25,
+        420
+      ],
+      [
+        "[GMV-MAX][MIX-PRODUTOS][TESTE-P/ESCALA]-03.02.26",
+        7264.05,
+        43883.97,
+        481
+      ],
+      [
+        "[GMVMAX][PRETAMARMORIZADA] 25.09",
+        1394.33,
+        9514.52,
+        104
+      ],
+      [
+        "[GMV-MAX][WIDE LEG PRETA]- 13.01.2026",
+        1184.99,
+        8023.35,
+        92
+      ],
+      [
+        "[GMV-MAX][WIDE LEG AMARELA MANTEIGA]- 13.01.2026",
+        954.5,
+        6626.24,
+        72
+      ],
+      [
+        "[GMVMAX][AZM-BRANCA-STN-USED]-31.03.26",
+        114.19,
+        634.16,
+        7
+      ]
+    ],
+    "2026-04": [
+      [
+        "[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]",
+        32164.2,
+        248940.0,
+        2991
+      ],
+      [
+        "LIVE-TESTE- GMV-MAX",
+        8115.39,
+        79179.38,
+        1026
+      ],
+      [
+        "[GMVMAX][AZM-BRANCA-STN-USED]-31.03.26",
+        3417.94,
+        25144.91,
+        260
+      ],
+      [
+        "[GMV-MAX][MIX-PRODUTOS][TESTE-P/ESCALA]-03.02.26",
+        3282.32,
+        13837.34,
+        151
+      ],
+      [
+        "[GMV-MAX][WIDE ROSA BEBE]- 20.01.26",
+        2276.57,
+        8654.63,
+        88
+      ],
+      [
+        "[GMVMAX][PRETAMARMORIZADA] 25.09",
+        1131.4,
+        7973.69,
+        86
+      ],
+      [
+        "[GMV-MAX][WIDE LEG AMARELA MANTEIGA]- 13.01.2026",
+        957.99,
+        7053.21,
+        69
+      ],
+      [
+        "[GMV-MAX][WIDE LEG PRETA]- 13.01.2026",
+        535.09,
+        1653.92,
+        17
+      ]
+    ],
+    "2026-05": [
+      [
+        "[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]",
+        15161.79,
+        100235.86,
+        997
+      ],
+      [
+        "MEGA LIVE- MAICONEANDREIA",
+        11458.7,
+        64057.51,
+        786
+      ],
+      [
+        "LIVE-TESTE- GMV-MAX",
+        10013.22,
+        107721.25,
+        1241
+      ],
+      [
+        "[GMV-MAX][MOM-BAGGY]-07.05.26",
+        3385.79,
+        18266.46,
+        171
+      ],
+      [
+        "[GMV]-[MIX_PRODUTOS][TESTE VENDAS LIQUIDAS]-20.05",
+        2630.07,
+        21471.38,
+        215
+      ],
+      [
+        "[GMV-MAX][WIDE ROSA BEBE]- 20.01.26",
+        1820.51,
+        4005.2,
+        33
+      ],
+      [
+        "[GMV-MAX]-TESTE DE VENDAS LIQUIDAS-[MOM-BAGGY]-27.05.26",
+        1459.45,
+        5785.46,
+        54
+      ],
+      [
+        "[GMVMAX][AZM-BRANCA-STN-USED]-31.03.26",
+        1023.34,
+        6827.72,
+        66
+      ],
+      [
+        "[GMV-MAX][WIDE LEG AMARELA MANTEIGA]- 13.01.2026",
+        808.1,
+        4944.36,
+        42
+      ],
+      [
+        "[GMV-MAX][MIX-PRODUTOS][TESTE-P/ESCALA]-03.02.26",
+        172.07,
+        710.06,
+        8
+      ],
+      [
+        "[GMVMAX][PRETAMARMORIZADA] 25.09",
+        36.13,
+        0.0,
+        0
+      ],
+      [
+        "[GMV-MAX][WIDE LEG PRETA]- 13.01.2026",
+        33.84,
+        107.46,
+        1
+      ]
+    ],
+    "2026-06": [
+      [
+        "[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]",
+        35265.27,
+        234293.64,
+        2416
+      ],
+      [
+        "LIVE-TESTE- GMV-MAX",
+        17353.19,
+        176285.32,
+        2099
+      ],
+      [
+        "[GMV]-[MIX_PRODUTOS][TESTE VENDAS LIQUIDAS]-20.05",
+        4752.78,
+        38176.78,
+        375
+      ],
+      [
+        "[GMV-MAX]-TESTE DE VENDAS LIQUIDAS-[MOM-BAGGY]-27.05.26",
+        4554.31,
+        32038.9,
+        314
+      ],
+      [
+        "[GMVMAX][AZM-BRANCA-STN-USED]-31.03.26",
+        979.06,
+        6558.39,
+        65
+      ],
+      [
+        "LIVE GMV Max_Receita bruta_Rhode Jeans_20260625113858",
+        454.72,
+        15373.59,
+        199
+      ],
+      [
+        "MEGA LIVE-adv.dayane",
+        406.28,
+        19942.54,
+        264
+      ],
+      [
+        "LIVE GMV Max_Receita bruta_Rhode Jeans_20260629220316",
+        208.83,
+        2088.34,
+        24
+      ],
+      [
+        "[GMV-MAX][WIDE LEG AMARELA MANTEIGA]- 13.01.2026",
+        87.3,
+        219.8,
+        2
+      ],
+      [
+        "MEGA LIVE- MAICONEANDREIA",
+        0.0,
+        120.57,
+        1
+      ]
+    ],
+    "2026-07": [
+      [
+        "[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]",
+        5501.61,
+        36643.67,
+        357
+      ],
+      [
+        "[GMV-MAX]-TESTE DE VENDAS LIQUIDAS-[MOM-BAGGY]-27.05.26",
+        933.55,
+        6443.98,
+        65
+      ],
+      [
+        "LIVE GMV Max_Receita bruta_Rhode Jeans_20260629220316",
+        618.33,
+        6190.3,
+        73
+      ],
+      [
+        "LIVE-TESTE- GMV-MAX",
+        562.84,
+        5571.74,
+        63
+      ],
+      [
+        "MEGA LIVE-adv.dayane",
+        0.08,
+        1860.4,
+        24
+      ]
+    ]
+  }
+}
