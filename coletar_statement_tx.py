@@ -45,6 +45,10 @@ FIELDS = {
     "referral_fee":             "referral_fee_amount",
     "transaction_fee":          "transaction_fee_amount",
     "shipping":                 "shipping_cost_amount",
+    # frete detalhado (alta frequência nos dados — ~83-91% das linhas)
+    "actual_shipping_fee":       "actual_shipping_fee_amount",            # frete REAL pago à transportadora (−)
+    "fbm_shipping_cost":         "fbm_shipping_cost_amount",              # frete que a LOJA banca (merchant-fulfilled, −)
+    "platform_shipping_subsidy": "platform_shipping_fee_discount_amount", # subsídio de frete da plataforma (crédito +)
     "adjustment":               "adjustment_amount",
     # receita / promoção
     "gross_sales":              "gross_sales_amount",

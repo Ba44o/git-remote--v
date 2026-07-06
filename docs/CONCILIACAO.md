@@ -189,6 +189,9 @@ Coletor: `coletar_statement_tx.py`. SQL: `statement_tx.sql`.
 | `adjustment` | numeric | ajustes/correções (exclui os reembolsos com coluna própria) |
 | `logistics_reimbursement` | numeric | **crédito (+)** por problema logístico (extravio/atraso). Ver nota. |
 | `platform_reimbursement` | numeric | **crédito (+)** política "refund without return" (plataforma absorve). Ver nota. |
+| `actual_shipping_fee` | numeric | frete **real** pago à transportadora (−) |
+| `fbm_shipping_cost` | numeric | frete que a **loja** banca (merchant-fulfilled, −) |
+| `platform_shipping_subsidy` | numeric | **subsídio (+)** de frete pago pela plataforma → `frete líquido = actual_shipping_fee − platform_shipping_subsidy` |
 | `moeda` | text | `BRL` |
 
 > **O campo `type` das statement_transactions e o gap de conciliação.** Cada linha tem um
@@ -239,6 +242,7 @@ Classificação por pedido (após somar `settlement` de todas as linhas):
 | `devolucao` | `settlement` (negativo) dos devolvidos |
 | `comissao_plataforma` / `comissao_afiliada` / `comissao_ads_afil` / `frete` | decomposição do fee (valores absolutos) |
 | `reembolso_logistica` / `reembolso_plataforma` | créditos (+) devolvidos pela TikTok no período (logística / "refund without return") |
+| `frete_real` / `frete_fbm` / `subsidio_frete` / `frete_liquido` | frete real, frete que a loja banca, subsídio da plataforma e frete líquido (`frete_real − subsidio_frete`) por período |
 
 ### 3.6 Tabelas de apoio (já existentes)
 | Tabela | Papel | Fonte / ETL |
