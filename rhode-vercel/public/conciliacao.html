@@ -587,8 +587,12 @@ function liveAgg(ms, D){
   const pPlat=rt('plat'), pAfi=rt('afi')+rt('ads'), pFrete=rt('frete');
   const pServ=Math.max(0,(1-D.eficFrac)-pPlat-pAfi-pFrete);
   const feeItem=feeBase>0?{plat:G*pPlat,serv:G*pServ,afi:G*pAfi,frete:G*pFrete,pPlat,pServ,pAfi,pFrete}:null;
+  // VISÃO INCREMENTAL — a mídia se paga? GMV que os ads puxaram (GMV Max gross_revenue) ×
+  // taxa de contribuição (eficiência − CPV) vs o gasto de mídia. Não aloca imposto nem custo do orgânico.
+  const adsGmv=propGM.reduce((s,r)=>s+(+r.receita||0),0);
+  const contribRate=Math.max(0,D.eficFrac-cpvPct), contribGer=adsGmv*contribRate, contribLiq=contribGer-invest, retMidia=invest?contribGer/invest:0, roasAds=invest?adsGmv/invest:0;
   const roas=invest?G/invest:0, roiReal=invest?lucro/invest*100:0, margem=G?lucro/G*100:0, convVw=views?ped/views*100:0, ticket=ped?G/ped:0, cpa=ped?invest/ped:0;
-  return {src,sessions,gmv,ped,views,cust,invest,creator,gmvLoja,gmvLiveTot,cpvPct,taxas,cpv,mLiq,impV,impIR,lucro,roas,roiReal,margem,convVw,ticket,cpa,feeItem};
+  return {src,sessions,gmv,ped,views,cust,invest,creator,gmvLoja,gmvLiveTot,cpvPct,taxas,cpv,mLiq,impV,impIR,lucro,roas,roiReal,margem,convVw,ticket,cpa,feeItem,adsGmv,contribRate,contribGer,contribLiq,retMidia,roasAds};
 }
 function renderLives(D){
   const ms=getMeses(), L=liveAgg(ms,D), scSrc=L.src==='sc';
@@ -642,7 +646,15 @@ function renderLives(D){
       <td style="font-weight:700">${fmt(r.gmv)}</td><td>${NUM.format(r.ped)}</td><td>${NUM.format(r.views)}</td>
       <td>${conv.toFixed(1)}%</td><td>${fmt2(tk)}</td>${L.cust?`<td>${NUM.format(r.cust)}</td>`:''}</tr>`;}).join('')}</tbody></table>
     <div class="note"><span>ℹ️</span><div>${scSrc?'GMV = <b>Attributed GMV</b> do Seller Center (bate com seu fechamento). A mídia (GMV Max) é agregada — não casa 1:1 por sala com a atribuição de conteúdo —, por isso o ROI real está no bloco acima, não por sessão.':'Fonte GMV Max (atribuição de ads). Importe o export do Livestream do Seller Center pra ver a atribuição de conteúdo por sessão.'}</div></div></div>`;
-  return bar+k+casc+canal+sess;
+  const midia = L.adsGmv>0 ? `<div class="sec"><div class="sec-h"><h2>Eficiência da mídia de live <span class="pill">a mídia se paga?</span></h2><div class="meta">${periodoLabel()} · visão incremental — só o que os ads puxaram</div></div>
+    <div class="kpis">
+      ${kpi('Mídia investida',fmt(L.invest),'GMV Max de live','danger')}
+      ${kpi('GMV puxado por ads',fmt(L.adsGmv),'ROAS '+L.roasAds.toFixed(1)+'x')}
+      ${kpi('Margem gerada',fmt(L.contribGer),(L.contribRate*100).toFixed(0)+'% do GMV (após taxas+CPV)','accent')}
+      ${kpi('Retorno da mídia',L.retMidia.toFixed(1)+'x','R$'+L.retMidia.toFixed(2)+'/R$1 · líq '+fmt(L.contribLiq))}
+    </div>
+    <div class="note"><span>💡</span><div><b>A mídia se paga com folga.</b> Os <b>${fmt(L.invest)}</b> de ads puxaram ${fmt(L.adsGmv)} de GMV e geraram <b>${fmt(L.contribGer)}</b> de margem de contribuição (depois do custo do produto e das taxas TikTok nos pedidos que a mídia trouxe) → retorno <b>${L.retMidia.toFixed(1)}x</b>, sobra líquida <b>${fmt(L.contribLiq)}</b>. Responde "vale investir em live?" — vale. É diferente do <b>lucro cheio</b> da cascata acima, que aloca <b>todo</b> custo (incl. do GMV orgânico) + imposto sobre a live inteira (visão conservadora, "live como negócio isolado"). As duas são verdadeiras: a live isolada tem margem fina (igual à loja inteira), mas a <b>mídia de live</b> rende ${L.retMidia.toFixed(1)}x.</div></div></div>` : '';
+  return bar+k+casc+midia+canal+sess;
 }
 function renderAds(D){
   const ms=getMeses();
@@ -819,7 +831,8 @@ table{width:100%;border-collapse:collapse}th,td{text-align:right;padding:8px 10p
 <table style="margin-top:10px">${cascRows}</table></div>
 <div class="card"><h2>Top sessões por GMV</h2><div class="cw"><canvas id="c3"></canvas></div></div></div>
 <div class="card"><h2>Funil da live</h2><table><tr><td>👁️ Visualizações</td><td class="n">${NUM.format(L.views)}</td></tr><tr><td>🛒 Pedidos</td><td class="n">${NUM.format(L.ped)} (${L.convVw.toFixed(1)}% conv.)</td></tr><tr><td>💰 GMV</td><td class="n">${fmt(L.gmv)} (ticket ${fmt2(L.ticket)})</td></tr>${L.cust?`<tr><td>👥 Clientes</td><td class="n">${NUM.format(L.cust)}</td></tr>`:''}</table>
-<div class="note">⚠️ <b>ROAS ${L.roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(L.cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(L.lucro)}</b> (margem ${L.margem.toFixed(1)}%, ROI real ${L.roiReal.toFixed(0)}% sobre a mídia). ${scSrc?'GMV = Attributed GMV do Seller Center.':'Fonte GMV Max (aprox.).'}</div></div>
+<div class="note">⚠️ <b>ROAS ${L.roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(L.cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(L.lucro)}</b> (margem ${L.margem.toFixed(1)}%, ROI real ${L.roiReal.toFixed(0)}% sobre a mídia). ${scSrc?'GMV = Attributed GMV do Seller Center.':'Fonte GMV Max (aprox.).'}</div>
+${L.adsGmv>0?`<div class="note" style="background:#eef7f0;border-color:#cfe8d6;color:#1a6b3f">💡 <b>Mas a mídia se paga com folga:</b> ${fmt(L.invest)} de ads geraram <b>${fmt(L.contribGer)}</b> de margem de contribuição (retorno <b>${L.retMidia.toFixed(1)}x</b>, sobra líquida ${fmt(L.contribLiq)}). O lucro fino acima é a visão conservadora (aloca todo custo + imposto na live inteira); a mídia isolada rende ${L.retMidia.toFixed(1)}x.</div>`:''}</div>
 <div class="card"><h2>Sessões detalhadas (${L.sessions.length})</h2><table><thead><tr><th>#</th><th>Live</th><th>Data/hora</th><th>GMV</th><th>Pedidos</th><th>Views</th><th>Conv.</th><th>Ticket</th>${L.cust?'<th>Clientes</th>':''}</tr></thead><tbody>${strows}</tbody></table></div>
 </div>
 <script>
