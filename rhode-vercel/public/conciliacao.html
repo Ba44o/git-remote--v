@@ -310,6 +310,7 @@ const cascRow=(lbl,sub,val,color,maxv,cls='')=>`<div class="casc-row ${cls}"><di
 
 function render(){
   document.getElementById('f-meta').textContent = periodoLabel()+' · '+getMeses().length+(getMeses().length===1?' mês':' meses');
+  const be=document.getElementById('btn-export'); if(be) be.textContent = TAB==='ads' ? '⬇ Exportar Ads' : '⬇ Exportar relatório';
   const ms=getMeses(), D=agg(ms);
   const el=document.getElementById('content');
   if(!ms.length){ el.innerHTML='<div class="empty">Sem dados no período.</div>'; return; }
@@ -661,6 +662,31 @@ function renderPedidosTable(){
 function filterPedidos(){ renderPedidosTable(); }
 
 // ===== EXPORTAR RELATÓRIO (XLSX multi-aba) =====
+function exportAdsXLSX(ms, D, B){
+  const inP=r=>(FILTER.modo==='range'&&FILTER.de&&FILTER.ate)?(r.data>=FILTER.de&&r.data<=FILTER.ate):ms.includes(r.periodo);
+  const byc={}; ADCAMP.filter(inP).forEach(r=>{const c=byc[r.campaign_id]||(byc[r.campaign_id]={campanha:r.campanha,modelo:r.modelo,cost:0,receita:0,pedidos:0}); c.cost+=+r.cost||0; c.receita+=+r.receita||0; c.pedidos+=+r.pedidos||0; if(r.campanha)c.campanha=r.campanha; if(r.modelo)c.modelo=r.modelo;});
+  const camps=Object.values(byc).filter(c=>c.cost>0||c.receita>0).sort((a,b)=>b.cost-a.cost);
+  const T=camps.reduce((s,c)=>({cost:s.cost+c.cost,receita:s.receita+c.receita,pedidos:s.pedidos+c.pedidos}),{cost:0,receita:0,pedidos:0});
+  const mdl=m=>camps.filter(c=>c.modelo===m).reduce((s,c)=>({cost:s.cost+c.cost,receita:s.receita+c.receita,pedidos:s.pedidos+c.pedidos}),{cost:0,receita:0,pedidos:0});
+  const tr=mdl('tradicional'), vl=mdl('vendas_liquidas');
+  const wb=XLSX.utils.book_new();
+  const rz=[['RELATÓRIO DE MÍDIA — GMV MAX · RHODE'],['Período',periodoLabel()],['Gerado em',new Date().toLocaleString('pt-BR')],[],
+    ['MÉTRICA','VALOR'],
+    ['Investimento',B(T.cost)],['Receita (GMV atribuído)',B(T.receita)],['ROAS',T.cost?B(T.receita/T.cost):0],
+    ['Pedidos',T.pedidos],['CPA (custo/pedido)',T.pedidos?B(T.cost/T.pedidos):0],['Ticket médio',T.pedidos?B(T.receita/T.pedidos):0],
+    ['Investimento (% do GMV)',D.gmvAll?B(T.cost/D.gmvAll*100):0],[],
+    ['POR MODELO DE COBRANÇA','Investimento','%','Receita','ROAS','Pedidos','CPA'],
+    ['Receita bruta (tradicional)',B(tr.cost),T.cost?B(tr.cost/T.cost*100):0,B(tr.receita),tr.cost?B(tr.receita/tr.cost):0,tr.pedidos,tr.pedidos?B(tr.cost/tr.pedidos):0],
+    ['Vendas líquidas (pay-with-GMV)',B(vl.cost),T.cost?B(vl.cost/T.cost*100):0,B(vl.receita),vl.cost?B(vl.receita/vl.cost):0,vl.pedidos,vl.pedidos?B(vl.cost/vl.pedidos):0]];
+  const ws=XLSX.utils.aoa_to_sheet(rz); ws['!cols']=[{wch:32},{wch:14},{wch:8},{wch:14},{wch:8},{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws,'Resumo');
+  const h=['#','Campanha','Modelo','Investimento','% invest','Receita','ROAS','Pedidos','CPA','Ticket'];
+  const sc=[h].concat(camps.map((c,i)=>[i+1,c.campanha,c.modelo==='vendas_liquidas'?'Vendas Líquidas':'Receita bruta',B(c.cost),T.cost?B(c.cost/T.cost*100):0,B(c.receita),c.cost?B(c.receita/c.cost):0,c.pedidos,c.pedidos?B(c.cost/c.pedidos):0,c.pedidos?B(c.receita/c.pedidos):0]));
+  const wsc=XLSX.utils.aoa_to_sheet(sc); wsc['!cols']=[{wch:4},{wch:46},{wch:16},{wch:14},{wch:9},{wch:14},{wch:8},{wch:9},{wch:10},{wch:10}]; wsc['!autofilter']={ref:'A1:'+XLSX.utils.encode_col(h.length-1)+'1'};
+  XLSX.utils.book_append_sheet(wb,wsc,'Campanhas');
+  const per=periodoLabel().replace(/[^\w]+/g,'-').replace(/^-|-$/g,'');
+  XLSX.writeFile(wb, `Relatorio Ads GMV Max ${per}_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
 async function exportRelatorio(){
   if(!window.XLSX){ alert('Biblioteca de exportação ainda carregando — tente de novo em 2s.'); return; }
   const btn=document.getElementById('btn-export'), orig=btn?btn.textContent:'';
@@ -668,6 +694,8 @@ async function exportRelatorio(){
   const B=v=>Math.round((+v||0)*100)/100;
   try{
     const ms=getMeses(), D=agg(ms), C=D.conc, feeTot=C.com_real+C.serv_real+C.afi+C.ads;
+    // export CONTEXTUAL: na aba Ads, exporta só o relatório de mídia
+    if(TAB==='ads'){ exportAdsXLSX(ms, D, B); return; }
     const wb=XLSX.utils.book_new();
     // 1) RESUMO EXECUTIVO
     const s1=[['RELATÓRIO DE CONCILIAÇÃO — RHODE'],['Período',periodoLabel()],['Gerado em',new Date().toLocaleString('pt-BR')],[],

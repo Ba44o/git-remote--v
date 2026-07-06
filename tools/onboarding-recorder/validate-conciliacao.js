@@ -107,7 +107,9 @@ const PED = [
     await page.screenshot({ path: out, fullPage: true });
     console.log('screenshot:', out);
   }
-  // testa o export XLSX de verdade
+  // testa o export XLSX de verdade (aba Ads = export contextual só de mídia)
+  await page.click('#tabnav button[data-t="ads"]').catch(()=>{});
+  await page.waitForTimeout(600);
   try {
     const [dl] = await Promise.all([
       page.waitForEvent('download', { timeout: 10000 }),
@@ -115,7 +117,7 @@ const PED = [
     ]);
     const p2 = path.resolve(__dirname, 'out', dl.suggestedFilename());
     await dl.saveAs(p2);
-    console.log('EXPORT OK:', dl.suggestedFilename());
+    console.log('EXPORT ADS OK:', dl.suggestedFilename());
   } catch (e) { console.log('EXPORT FAIL:', e.message); }
   await browser.close();
 })();
