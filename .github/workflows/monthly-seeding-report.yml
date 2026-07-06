@@ -1,0 +1,65 @@
+name: Rhode — Relatório mensal de Seeding (dia 01)
+
+# Todo dia 01, 09:00 BRT (12:00 UTC), gera o relatório de Seeding do mês que
+# FECHOU (mês anterior) e ENTREGA no Google Sheets do projeto: o service account
+# adiciona/atualiza as abas de seeding ("AAAA-MM · Resumo/Detalhe/Itens/Segmentos"
+# + "KPIs (histórico)"). O `relatorios/` é gitignored, então não commitamos o
+# .xlsx de volta — o .xlsx é só artefato local; a entrega compartilhada é o Sheet.
+#
+# Token TikTok vem da tabela api_tokens no Supabase (token_store.py), renovado no
+# início do run. Roda 2h antes do daily-collect (14:00 UTC), sem colidir o refresh.
+# Entrypoint no ROOT (não em agente_rhode/) de propósito: o push NÃO dispara o
+# etl_sync.yml (que reescreve performance_periods em produção).
+on:
+  schedule:
+    - cron: "0 12 1 * *"
+  workflow_dispatch:
+    inputs:
+      mes:
+        description: "Mês alvo AAAA-MM (vazio = mês anterior)"
+        required: false
+        default: ""
+
+# 1 execução por vez (evita 2 runs correndo o refresh_token juntos)
+concurrency:
+  group: rhode-monthly-seeding
+  cancel-in-progress: false
+
+jobs:
+  seeding-report:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      TIKTOK_APP_KEY:       ${{ secrets.TIKTOK_APP_KEY }}
+      TIKTOK_APP_SECRET:    ${{ secrets.TIKTOK_APP_SECRET }}
+      TIKTOK_SHOP_CIPHER:   ${{ secrets.TIKTOK_SHOP_CIPHER }}
+      PYTHONUNBUFFERED: "1"
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependências
+        run: pip install requests pandas openpyxl python-dotenv numpy gspread oauth2client
+
+      - name: Setup credentials (service account p/ Google Sheets)
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          echo "${GCP_CREDENTIALS}" > credentials.json
+          chmod 600 credentials.json
+
+      - name: Gerar relatório de Seeding (coleta fresca + monta o .xlsx do mês anterior)
+        run: python gerar_relatorio_seeding_mensal.py --mes "${{ github.event.inputs.mes }}"
+
+      - name: Entregar no Google Sheets do projeto (abas de seeding)
+        run: python sync_seeding_to_sheets.py --mes "${{ github.event.inputs.mes }}"
+
+      - name: Cleanup credentials
+        if: always()
+        run: rm -f credentials.json

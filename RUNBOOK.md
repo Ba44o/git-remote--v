@@ -509,6 +509,63 @@ curl -X PATCH "https://...supabase.co/rest/v1/affiliates?affiliate_id=eq.HANDLE"
 
 ---
 
+## 11. Cron do Relatório Mensal de Seeding falhou (dia 01)
+
+### Sintoma
+Dia 01 passou e as **abas de seeding do mês** (`AAAA-MM · Resumo/Detalhe/Itens/Segmentos` + linha
+nova em `KPIs (histórico)`) não apareceram no Google Sheet do projeto (`1hiyu1y9…Lv0Mh0`). Workflow:
+`.github/workflows/monthly-seeding-report.yml` (cron `0 12 1 * *` = 09h BRT). Passos: coleta via
+`gerar_relatorio_seeding_mensal.py` (ROOT) → entrega via `sync_seeding_to_sheets.py` (ROOT).
+
+### Rodar manualmente (a forma normal de recuperar)
+1. GitHub → **Actions** → **"Rhode — Relatório mensal de Seeding (dia 01)"** → **Run workflow**.
+2. Input `mes`: **deixe vazio** para o mês anterior a hoje, OU informe `AAAA-MM` (ex.: `2026-06`)
+   para reprocessar um mês específico. É o `workflow_dispatch` com input `mes`.
+3. Equivale a rodar localmente (coleta + entrega no Sheets):
+   ```bash
+   python gerar_relatorio_seeding_mensal.py --mes 2026-06     # coleta + monta .xlsx (mês explícito)
+   python sync_seeding_to_sheets.py        --mes 2026-06      # entrega: escreve as abas no Sheet do projeto
+   # sem --mes = mês anterior a hoje; --skip-collect no 1º reusa warehouse/*.csv (não rebusca API)
+   ```
+
+### Diagnóstico (onde olhar o log)
+- Actions → run vermelho → abrir a step que falhou. Ordem dos passos internos do entrypoint:
+  `renovar token TikTok` (best-effort) → `coletar sample_applications` → `coletar vendas (Affiliate Orders)` → build.
+
+### Fixes por causa
+**Token TikTok inválido/expirado** (passo de coleta retorna `code != 0`, ex. 105002/erro de auth):
+- O `refresh_token` na tabela `api_tokens` (Supabase) pode ter expirado. Renovar: `python obter_token.py --refresh`
+  local; se o refresh também expirou, refazer o fluxo de `auth_code` no browser (ver `obter_token.py`) e re-salvar.
+- Confirmar secrets no repo: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `TIKTOK_APP_KEY`, `TIKTOK_APP_SECRET`,
+  `TIKTOK_SHOP_CIPHER`. Sem eles o token não resolve (token_store lê `api_tokens` e cai pro env).
+
+**`coletar sample_applications` abortou** ("Nenhum pedido de amostra retornado"):
+- Token morto (acima), ou a API renomeou campos de `sample_applications`. Rodar o ETL isolado pra ver o erro:
+  `python agente_rhode/etl_sample_applications.py`. **NÃO editar `agente_rhode/*.py` num commit avulso** — isso
+  dispara o `etl_sync.yml` (reescreve `performance_periods` em prod). Só importa/executa.
+
+**`coletar vendas (Affiliate Orders)` abortou** (`RuntimeError: affiliate_orders falhou na página N`):
+- Timeout do servidor TikTok (code 36009007) estourou os 5 retries, ou token expirou. Reexecutar (o dispatch
+  recolhe do zero). O CSV parcial NÃO é gravado se a coleta abortar (não gera dado inconsistente).
+
+**Entrega no Google Sheets falhou** (passo "Entregar no Google Sheets do projeto"):
+- `credentials.json` vazio/malformado → conferir o secret `GCP_CREDENTIALS` no repo (mesmo do `etl_sync.yml`).
+- `403 ... storage quota exceeded` ao **criar** Sheet → o SA não tem cota; o script **reusa** o Sheet existente
+  (`SPREADSHEET_ID` fixo em `sync_seeding_to_sheets.py`). Nunca usar `client.create`. Se o ID do Sheet mudar, atualizar a constante.
+- `403`/`PermissionError` ao escrever → o SA `rhode-etl-936@creators-rhode.iam.gserviceaccount.com` perdeu acesso de Editor ao
+  Sheet do projeto → recompartilhar. As abas de seeding são recriadas a cada run (idempotente; só tocam abas de seeding).
+
+**Rodou mas conversão/GMV gerado ficou "sem dado":**
+- Faltou `warehouse/raw_vendas_seeding_<AAAA-MM>.csv` (coleta de vendas falhou mas o build seguiu). Rodar
+  `python coletar_vendas_seeding.py --mes AAAA-MM` e depois `--skip-collect` no entrypoint.
+- ROI (lucro÷custo) é **sempre "sem dado"** de propósito enquanto não houver COGS/frete real — isso é esperado, não é bug.
+
+**Números divergem levemente de uma execução pra outra no MESMO dia:**
+- Esperado. A janela de atribuição termina em "hoje" e os pedidos de afiliada do dia ainda estão entrando →
+  o `GMV gerado` cresce ao longo do dia. As contagens (enviadas/atingidas/conversão) são estáveis.
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:

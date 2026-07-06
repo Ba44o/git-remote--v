@@ -237,6 +237,49 @@ _(nada no momento)_
 
 ---
 
+### ✅ 12. Relatório MENSAL de Seeding (envio de amostras) — automatizado (jul/2026)
+
+Relatório detalhado de envio de amostras por creator, no padrão do projeto (5 seções, `.xlsx` + `.md`),
+**comparando sempre com o mês anterior** e com o **lado de ROI/conversão da amostra** (a creator vendeu
+peça nossa depois do convite?). Primeiro entregue para **junho/2026** e depois **generalizado + posto no cron**.
+
+**Fontes (100% API, materializadas em `warehouse/`):**
+- Peças: `sample_applications/search` → `raw_sample_applications.csv` (peça enviada = COMPLETED/SHIPPED/CONTENT_PENDING).
+- Conversão/ROI: **Affiliate Orders API** `/affiliate_seller/202410/orders/search` → `raw_vendas_seeding_<AAAA-MM>.csv`
+  (creator×produto×dia com GMV `estimated_commission_base` + `quantity`). Atribuição = vendas de afiliada da creator
+  do **1º convite do mês dela até a data de execução** (proximidade temporal, não causal). Aliases de handle colapsados.
+
+**Números de referência (junho/2026, refresh 2026-07-06):** 39 peças enviadas · 18 creators atingidas · 1 cancelada
+· conversão **38.9%** (7 de 18) · **GMV gerado R$ 10.378,57** (104 un.). ROI lucro÷custo = **sem dado** (falta COGS/frete real —
+mesma pendência do item 11); o que se mede sem premissa é o GMV gerado e o GMV gerado/peça.
+
+**Template (6 abas):** Resumo & KPIs · Detalhe por creator · Itens linha a linha · Comparativo mês anterior ·
+Segmentos (tier/produto/conversão-por-tier) · Metodologia. Comentário na célula "GMV afiliação (R$)" explicando que é o
+cacife all-time (proxy de tier), NÃO o retorno da amostra nem o GMV oficial. Colunas de conversão/ROI na aba Detalhe.
+
+**✅ ENTREGUE:**
+- [x] Núcleo reutilizável `seeding_report.py` (ROOT) — `build_report(mes, exec_date)` parametrizado, narrativa 100% data-driven.
+- [x] Coletor `coletar_vendas_seeding.py` (ROOT) — vendas de afiliada por mês → `raw_vendas_seeding_<AAAA-MM>.csv`.
+- [x] Entrypoint `gerar_relatorio_seeding_mensal.py` (ROOT) — `[--mes AAAA-MM]`; vazio/ausente = mês anterior a hoje
+  (trata virada de ano). Self-contained: renova token → roda `etl_sample_applications.py` → coleta vendas → build.
+- [x] `.github/workflows/monthly-seeding-report.yml` — cron `0 12 1 * *` (dia 01, 09h BRT) + `workflow_dispatch` (input `mes`).
+  Passos: coleta → monta `.xlsx` → **entrega no Google Sheets** (`sync_seeding_to_sheets.py`). Precisa do secret `GCP_CREDENTIALS`.
+- [x] `sync_seeding_to_sheets.py` (ROOT) — espelha no Sheet do projeto: abas `AAAA-MM · Resumo/Detalhe/Itens/Segmentos` +
+  rolling `KPIs (histórico)` (1 linha/mês, upsert). Formatação nativa (header, fills de tier, nota na coluna "GMV afiliação").
+  Junho já populado (2026-07-06). Blindado: só toca abas de seeding, nunca as abas do ETL.
+- [x] `relatorios/2026-06/_build_seeding_junho.py` virou **shim de regressão** (chama `build_report("2026-06")`).
+
+**🧠 Decisão:** entrypoint e coletores ficam no **ROOT**, nunca em `agente_rhode/` — push em `agente_rhode/*.py` dispara o
+`etl_sync.yml` (reescreve `performance_periods` em prod). **Entrega = Google Sheets, não commit:** `relatorios/` é gitignored,
+então o workflow NÃO commita nada; o service account (`rhode-etl-936@creators-rhode.iam.gserviceaccount.com`) escreve as abas
+de seeding no Sheet do projeto (`1hiyu1y9…Lv0Mh0`, mesmo do `sync_v2.py`). O SA não tem cota de Drive p/ **criar** Sheet novo
+(dá `storageQuotaExceeded`), por isso **reusa** o existente. O `.xlsx` continua sendo só artefato local.
+
+**🔜 A fazer:** ligar o ROI monetário quando o COGS/frete real existir (herda do item 11); opcional: coletar vendas do mês
+de comparação para ter conversão vs. mês anterior (hoje a conversão é só do mês-alvo).
+
+---
+
 ### ✅ ~~1. Amostras Enviadas (admin)~~ — concluído mai/2026
 
 **Entregue:**
