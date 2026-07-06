@@ -318,6 +318,30 @@ Base de todos os coletores que falam com a TikTok Shop API.
 > (que o GitHub Action não tem) e fica fora de `agente_rhode/` para **não** disparar o
 > `etl_sync.yml` (que reescreve a `performance_periods` em produção).
 
+### 4.7 Live — duas lentes (aba **Lives**)
+
+O GMV de live tem **duas atribuições diferentes**; a aba Lives usa `live_attr` como headline
+e cai pra `live_sessao` (GMV Max) quando não há dado no período.
+
+| Tabela | Fonte | Atribuição | Coletor |
+|--------|-------|-----------|---------|
+| **`live_attr`** ← headline | Seller Center · Livestream (**"Attributed GMV"**) | conteúdo (a live como canal: orgânico + ads) | `coletar_lives_attr_api.py` + `importar_live_performance.py` |
+| `live_sessao` | Business API GMV Max (`/gmv_max/report/get/` room-level) | **ads** (`gross_revenue`) | `coletar_lives_api.py` |
+| `live_periodo` | Partner Analytics `/analytics/202405/shop/performance` | canal LIVE da loja inteira (mix) | `coletar_lives_api.py` |
+
+- **`coletar_lives_attr_api.py` → `live_attr`** (fonte da verdade): API
+  `GET /analytics/202509/shop_lives/performance` (**só a versão 202509 funciona**), pagina
+  todas as salas atribuídas à loja e filtra `username == "rhodejeans"` (lives da própria
+  Rhode). Reproduz o export do Seller Center a ~0,02% (é snapshot ao vivo, converge). Traz
+  `gmv/pedidos/clientes/aov` — **não traz views**. Preserva `views` já existentes no upsert.
+- **`importar_live_performance.py` → `live_attr`** (enriquecimento): lê o export
+  *"Creator-Live-Performance_*.xlsx"* / Livestream (`dados/lives/exports/`), casa por
+  `room_id`, grava o **GMV exato do fechamento + views**. Só processa exports com Room ID
+  (formato novo) — os antigos, sem Room ID, ficam pra API (evita duplicar). Parser BR/US.
+- **Cron:** `refresh_performance_diario.sh` passos `15d` (API) → `15e` (import de views),
+  nessa ordem (o export refina o mês fechado por cima do snapshot da API).
+- **Junho/26 validado ao centavo:** 54 salas = **R$ 205.591,75**.
+
 ---
 
 ## 5. Metodologia

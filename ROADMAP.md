@@ -84,6 +84,18 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 - **Contagem de funções Vercel:** 10 → **11** (limite Hobby 12) — conferido, sob o teto (ver risco conhecido).
 - **Pendências (fora do dev):** (1) confirmar `waist` do 38 (74→72, provável typo — mantido oficial até OK, troca de 1 linha); (2) grades Mom/Baggy/Chocolate; (3) decidir logar `recomendação→compra→devolução`. Quirk: flag `hipTight` é inalcançável pela lógica de seleção (vira `hipOver→consultar`) — documentado.
 
+### Live — GMV atribuído (aba Lives do console) — jul/2026
+- **Fonte da verdade do GMV de live = "Attributed GMV" do Seller Center** (atribuição de
+  conteúdo: a live como canal, orgânico + ads). Tabela `live_attr`. Junho/26 validado ao
+  centavo: 54 salas = **R$ 205.591,75**.
+- **Automatizado via API** `GET /analytics/202509/shop_lives/performance` (`coletar_lives_attr_api.py`,
+  filtra `username=rhodejeans`, reproduz o export a ~0,02%) → mata o import manual. Export do
+  Livestream (`importar_live_performance.py`) só enriquece **views** (a API não traz). Cron 15d/15e.
+- **Duas lentes separadas:** `live_attr` (Seller Center, headline) × `live_sessao` (GMV Max, ads).
+  A aba Lives usa `live_attr` e cai pra GMV Max quando não há dado no período. Sessões com nome
+  real + hora, funil com clientes, ROI real recalculado, export HTML com gráficos (nomes reais).
+- Doc: [docs/CONCILIACAO.md](docs/CONCILIACAO.md) §4.7 + [docs/APIS_TIKTOK.md](docs/APIS_TIKTOK.md) §4.3.
+
 ### Subagente de Relatórios (`.claude/agents/relatorios.md`) — jul/2026
 - Subagente Claude Code especialista em relatórios (modelo Opus). Pipeline completo: coleta (coletores Python/API TikTok Shop) → KPIs vs. período anterior → escreve `.xlsx` + `.md` no padrão de 5 seções → salva em `relatorios/AAAA-MM/`.
 - Embute as regras firmes do projeto (nunca inventar dado, comparar vs. anterior, 1 casa decimal, filtros temporais, ordenação decrescente), a convenção de nome atual (`Relatorio <Descrição>_AAAA-MM-DD`), o mapa de fontes (GMV oficial / settlement / affiliate / ads_custo / seeding / lives) e as minas operacionais (push em `agente_rhode/*` = deploy de prod; teto de 12 funções Vercel; aliases de handle).

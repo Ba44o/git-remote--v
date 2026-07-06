@@ -96,6 +96,19 @@ split por tipo de conteúdo (live vs vídeo vs card). É a base do item 10 do RO
 - `/affiliate_partner/202405/campaigns/...` — campanhas TAP (TikTok Affiliate Partner)
 - `seller.affiliate_messages.write` (ativo) — **enviar mensagem pra afiliada** pelo canal nativo do TikTok (hoje a comunicação é Z-API/WhatsApp)
 
+### 4.3 Live — GMV atribuído por sala (reproduz o export do Seller Center)
+- `GET /analytics/202509/shop_lives/performance` — **única versão válida** (202405/202406/202409
+  → `36009009 Invalid path`; 202508 → erro interno). Params: `start_date_ge` + `end_date_lt`
+  (YYYY-MM-DD, meio-aberto), `granularity=ALL`, `page_size` (máx 50), paginar via `page_token`.
+  Retorna `data.live_stream_sessions[]`: `id` (room_id), `title`, `username`, `start_time`/
+  `end_time` (unix), `sales_performance.gmv.amount` = **"Attributed GMV"** (+ `sku_orders`,
+  `customers`, `items_sold`, `avg_price`=AOV). **Não traz views/impressions.**
+  Retorna TODAS as salas (creators + própria, ~5.570/mês); **sem filtro server-side** → filtrar
+  em código por `username == "rhodejeans"` (própria Rhode). Bate com o export a ~0,02%.
+  → coletor `coletar_lives_attr_api.py` → `live_attr` (headline de GMV de live).
+- `POST /gmv_max/report/get/` (Business API, room-level, dimensions `[campaign_id,room_id,stat_time_day]`)
+  — atribuição de **ads** (`gross_revenue`) + `cost`. Outra lente. → `coletar_lives_api.py` → `live_sessao`.
+
 ---
 
 ## 5. Construído vs disponível (jun/2026)
