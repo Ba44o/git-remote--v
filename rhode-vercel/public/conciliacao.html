@@ -316,7 +316,7 @@ const cascRow=(lbl,sub,val,color,maxv,cls='')=>`<div class="casc-row ${cls}"><di
 
 function render(){
   document.getElementById('f-meta').textContent = periodoLabel()+' · '+getMeses().length+(getMeses().length===1?' mês':' meses');
-  const be=document.getElementById('btn-export'); if(be) be.textContent = TAB==='ads' ? '⬇ Exportar Ads' : '⬇ Exportar relatório';
+  const be=document.getElementById('btn-export'); if(be) be.textContent = TAB==='ads' ? '⬇ Exportar Ads' : (TAB==='lives' ? '⬇ Relatório de Live' : '⬇ Exportar relatório');
   const ms=getMeses(), D=agg(ms);
   const el=document.getElementById('content');
   if(!ms.length){ el.innerHTML='<div class="empty">Sem dados no período.</div>'; return; }
@@ -749,6 +749,67 @@ function renderPedidosTable(){
 function filterPedidos(){ renderPedidosTable(); }
 
 // ===== EXPORTAR RELATÓRIO (XLSX multi-aba) =====
+function exportLivesHTML(){
+  const ms=getMeses(), D=agg(ms);
+  const inP=r=>(FILTER.modo==='range'&&FILTER.de&&FILTER.ate)?(r.data>=FILTER.de&&r.data<=FILTER.ate):ms.includes(r.periodo);
+  const sesAll=LIVESES.filter(inP), ses=LIVEORIG==='todas'?sesAll:sesAll.filter(r=>r.origem==='propria');
+  if(!ses.length){ alert('Sem dados de live no período.'); return; }
+  const sumo=a=>a.reduce((s,r)=>({cost:s.cost+(+r.cost||0),gmv:s.gmv+(+r.receita||0),ped:s.ped+(+r.pedidos||0),views:s.views+(+r.views||0)}),{cost:0,gmv:0,ped:0,views:0});
+  const A=sumo(ses), P=sumo(sesAll.filter(r=>r.origem==='propria')), C=sumo(sesAll.filter(r=>r.origem==='creator'));
+  const cpvPct=D.mGmvCpv>0?D.mCusto/D.mGmvCpv:0.58, G=A.gmv;
+  const taxas=G*(1-D.eficFrac), cpv=G*cpvPct, mLiq=G*D.eficFrac-cpv, impV=G*TX_VENDA/100;
+  const lucroAntesIR=mLiq-impV-A.cost, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucro=lucroAntesIR-impIR;
+  const roas=A.cost?A.gmv/A.cost:0, roiReal=A.cost?lucro/A.cost*100:0, margem=G?lucro/G*100:0, convVw=A.views?A.ped/A.views*100:0, cpa=A.ped?A.cost/A.ped:0, ticket=A.ped?A.gmv/A.ped:0;
+  let gmvLoja=0; ms.forEach(m=>{const p=LIVEPER[m]; if(p)gmvLoja+=+p.gmv_loja||0;});
+  const byday={}; ses.forEach(r=>{const x=byday[r.data]||(byday[r.data]={gmv:0,cost:0});x.gmv+=+r.receita||0;x.cost+=+r.cost||0;}); const days=Object.keys(byday).sort();
+  const rank=ses.slice().sort((a,b)=>(+b.receita||0)-(+a.receita||0));
+  const B=v=>Math.round((+v||0)*100)/100;
+  const DATA={days,gmv:days.map(d=>B(byday[d].gmv)),cost:days.map(d=>B(byday[d].cost)),
+    casc:{l:['GMV','− Taxas','− CPV','− Mídia','− Imposto','Lucro'],v:[B(G),-B(taxas),-B(cpv),-B(A.cost),-B(impV+impIR),B(lucro)]},
+    top:{l:rank.slice(0,12).map(r=>(r.data||'')+(r.origem==='propria'?'':' ·cr')),v:rank.slice(0,12).map(r=>B(+r.receita||0))}};
+  const kc=[['GMV de live',fmt(A.gmv)],['Investimento',fmt(A.cost)],['ROAS',roas.toFixed(1)+'x'],['Lucro real',fmt(lucro)],['ROI real',roiReal.toFixed(0)+'%'],['Margem',margem.toFixed(1)+'%'],['Pedidos',NUM.format(A.ped)],['Visualizações',NUM.format(A.views)]]
+    .map(([l,v])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  const strows=rank.slice(0,60).map((r,i)=>{const c=+r.cost||0,g=+r.receita||0,pd=+r.pedidos||0,vw=+r.views||0;
+    return `<tr><td>${i+1}</td><td>${r.data||''}</td><td>${r.origem==='propria'?'Rhode':'creator'}</td><td class="n">${fmt(c)}</td><td class="n">${fmt(g)}</td><td class="n">${(c?g/c:0).toFixed(1)}x</td><td class="n">${NUM.format(pd)}</td><td class="n">${NUM.format(vw)}</td><td class="n">${vw?(pd/vw*100).toFixed(1):0}%</td><td class="n">${fmt2(pd?c/pd:0)}</td></tr>`;}).join('');
+  const cascRows=DATA.casc.l.map((l,i)=>`<tr><td>${l}</td><td class="n" style="color:${DATA.casc.v[i]<0?'#c0392b':'#1a8f5a'}">${fmt(DATA.casc.v[i])}</td></tr>`).join('');
+  const s='<'+'/script>';
+  const html=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de Live — Rhode Jeans</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">${s}
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,-apple-system,Segoe UI,sans-serif;background:#f5f5f7;color:#1d1d1f;padding:28px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rep{max-width:1000px;margin:0 auto}h1{font-family:'JetBrains Mono',monospace;font-size:22px;letter-spacing:-.02em}.sub{color:#85858a;font-size:13px;margin-top:4px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1d1d1f;padding-bottom:14px;margin-bottom:22px}
+.btn{font-size:13px;padding:9px 16px;background:#1d1d1f;color:#fff;border:none;border-radius:9px;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:#fff;border:1px solid #e6e6ea;border-radius:12px;padding:14px 16px}.kpi .l{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#85858a}.kpi .v{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:700;margin-top:6px}
+.card{background:#fff;border:1px solid #e6e6ea;border-radius:14px;padding:20px 22px;margin-bottom:18px}.card h2{font-family:'JetBrains Mono',monospace;font-size:15px;margin-bottom:14px}
+.cw{height:300px;position:relative}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+table{width:100%;border-collapse:collapse}th,td{text-align:right;padding:8px 10px;font-size:12.5px;font-variant-numeric:tabular-nums}th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;color:#85858a;border-bottom:1px solid #e6e6ea}td{border-bottom:1px solid #f1f1f4;font-family:'JetBrains Mono',monospace}th:nth-child(-n+3),td:nth-child(-n+3){text-align:left}td.n{text-align:right}
+.note{background:#fff8ee;border:1px solid #f0e2c8;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#7a5b1e;margin-top:14px}
+@media print{.btn{display:none}body{background:#fff;padding:0}.card,.kpi{break-inside:avoid}}
+</style></head><body><div class="rep">
+<div class="topbar"><div><h1>Relatório de Live — Rhode Jeans</h1><div class="sub">${LIVEORIG==='propria'?'Live própria (Rhode Jeans)':'Todas as lives'} · ${periodoLabel()} · gerado em ${new Date().toLocaleString('pt-BR')} · fonte: TikTok Business API</div></div><button class="btn" onclick="window.print()">🖨️ Salvar PDF</button></div>
+<div class="kpis">${kc}</div>
+<div class="card"><h2>Evolução — GMV × Investimento por dia</h2><div class="cw"><canvas id="c1"></canvas></div></div>
+<div class="grid2">
+<div class="card"><h2>ROI real — do GMV ao lucro</h2><div class="cw"><canvas id="c2"></canvas></div>
+<table style="margin-top:10px">${cascRows}</table></div>
+<div class="card"><h2>Top sessões por GMV</h2><div class="cw"><canvas id="c3"></canvas></div></div></div>
+<div class="card"><h2>Funil da live</h2><table><tr><td>👁️ Visualizações</td><td class="n">${NUM.format(A.views)}</td></tr><tr><td>🛒 Pedidos</td><td class="n">${NUM.format(A.ped)} (${convVw.toFixed(1)}% conv.)</td></tr><tr><td>💰 GMV</td><td class="n">${fmt(A.gmv)} (ticket ${fmt2(ticket)})</td></tr></table>
+<div class="note">⚠️ <b>ROAS ${roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(lucro)}</b> (margem ${margem.toFixed(1)}%, ROI real ${roiReal.toFixed(0)}% sobre a mídia).</div></div>
+<div class="card"><h2>Sessões detalhadas (${ses.length})</h2><table><thead><tr><th>#</th><th>Data</th><th>Origem</th><th>Investimento</th><th>GMV</th><th>ROAS</th><th>Pedidos</th><th>Views</th><th>Conv.</th><th>CPA</th></tr></thead><tbody>${strows}</tbody></table></div>
+</div>
+<script>
+var D=${JSON.stringify(DATA)};
+var f={family:"'JetBrains Mono',monospace",size:10};
+new Chart(document.getElementById('c1'),{data:{labels:D.days,datasets:[{type:'bar',label:'GMV',data:D.gmv,backgroundColor:'#1a8f5a',borderRadius:4},{type:'bar',label:'Investimento',data:D.cost,backgroundColor:'#FE2C55',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Inter'},usePointStyle:true,boxWidth:8}}},scales:{y:{ticks:{callback:function(v){return 'R$'+(v/1000)+'k'},font:f}},x:{ticks:{font:f}}}}});
+new Chart(document.getElementById('c2'),{type:'bar',data:{labels:D.casc.l,datasets:[{data:D.casc.v,backgroundColor:D.casc.v.map(function(x){return x<0?'#FE2C55':'#1a8f5a'}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return 'R$'+(v/1000)+'k'},font:f}},x:{ticks:{font:f}}}}});
+new Chart(document.getElementById('c3'),{type:'bar',data:{labels:D.top.l,datasets:[{data:D.top.v,backgroundColor:'#2563eb',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return 'R$'+(v/1000)+'k'},font:f}},y:{ticks:{font:f}}}}});
+${s}
+</body></html>`;
+  const w=window.open(URL.createObjectURL(new Blob([html],{type:'text/html'})),'_blank');
+  if(!w) alert('Permita pop-ups pra abrir o relatório de live.');
+}
 function exportAdsXLSX(ms, D, B){
   const inP=r=>(FILTER.modo==='range'&&FILTER.de&&FILTER.ate)?(r.data>=FILTER.de&&r.data<=FILTER.ate):ms.includes(r.periodo);
   const byc={}; ADCAMP.filter(inP).forEach(r=>{const c=byc[r.campaign_id]||(byc[r.campaign_id]={campanha:r.campanha,modelo:r.modelo,cost:0,receita:0,pedidos:0}); c.cost+=+r.cost||0; c.receita+=+r.receita||0; c.pedidos+=+r.pedidos||0; if(r.campanha)c.campanha=r.campanha; if(r.modelo)c.modelo=r.modelo;});
@@ -781,7 +842,8 @@ async function exportRelatorio(){
   const B=v=>Math.round((+v||0)*100)/100;
   try{
     const ms=getMeses(), D=agg(ms), C=D.conc, feeTot=C.com_real+C.serv_real+C.afi+C.ads;
-    // export CONTEXTUAL: na aba Ads, exporta só o relatório de mídia
+    // export CONTEXTUAL por aba
+    if(TAB==='lives'){ exportLivesHTML(); return; }
     if(TAB==='ads'){ exportAdsXLSX(ms, D, B); return; }
     const wb=XLSX.utils.book_new();
     // 1) RESUMO EXECUTIVO

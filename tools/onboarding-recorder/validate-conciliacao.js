@@ -128,5 +128,18 @@ const PED = [
     await dl.saveAs(p2);
     console.log('EXPORT ADS OK:', dl.suggestedFilename());
   } catch (e) { console.log('EXPORT FAIL:', e.message); }
+  // relatório HTML de Live (abre popup com gráficos)
+  await page.click('#tabnav button[data-t="lives"]').catch(()=>{});
+  await page.waitForTimeout(600);
+  try {
+    const [pop] = await Promise.all([
+      page.waitForEvent('popup', { timeout: 9000 }),
+      page.click('#btn-export'),
+    ]);
+    await pop.waitForLoadState('domcontentloaded').catch(()=>{});
+    await pop.waitForTimeout(2500);
+    await pop.screenshot({ path: path.resolve(__dirname, 'out', 'live-report.png'), fullPage: true, timeout: 15000 });
+    console.log('LIVE REPORT OK');
+  } catch (e) { console.log('LIVE REPORT FAIL:', e.message); }
   await browser.close();
 })();
