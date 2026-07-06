@@ -198,9 +198,10 @@ let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}
 let TAB='visao';
 let FILTER={modo:'tudo', mes:'', de:'', ate:''};
 let CHART=null;
-let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||9.25;
-let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||34;
+let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||6.4;   // Lucro Presumido (Rhode): ~6,4% s/ faturamento
+let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||0;           // Presumido: IRPJ/CSLL já embutidos no % s/ venda (sem 34% s/ lucro)
 function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{localStorage.setItem('rhode_tx_venda',n)}catch(e){}}else{TX_IR=n;try{localStorage.setItem('rhode_tx_ir',n)}catch(e){}} render();}
+function setRegime(r){ if(r==='presumido'){TX_VENDA=6.4;TX_IR=0;} else if(r==='real'){TX_VENDA=9.25;TX_IR=34;} try{localStorage.setItem('rhode_tx_venda',TX_VENDA);localStorage.setItem('rhode_tx_ir',TX_IR);}catch(e){} render(); }
 
 const TABS=[['visao','Visão Geral'],['conciliacao','Conciliação'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['lucro','Lucro'],['ads','Ads'],['lives','Lives'],['pedidos','Pedidos']];
 
@@ -547,13 +548,17 @@ function renderLucro(D){
     ${cascRow('− Imposto s/ venda',TX_VENDA+'% · PIS/COFINS+ICMS',-D.impVenda,'var(--orange)',maxv)}
     ${cascRow('− IRPJ + CSLL',TX_IR+'% s/ lucro',-D.impIR,'var(--orange)',maxv)}
     ${cascRow('= LUCRO FINAL',lucroPct.toFixed(1)+'% do GMV',D.lucroFinal,'var(--green)',maxv,'total')}</div>
-  <div class="sec"><div class="sec-h"><h2>Imposto <span class="pill">Lucro Real · editável</span></h2><div class="meta">a confirmar c/ contador</div></div>
+  <div class="sec"><div class="sec-h"><h2>Imposto <span class="pill">Lucro Presumido</span></h2><div class="meta">Rhode · regime confirmado — só o ICMS a checar</div></div>
+    <div class="seg" style="margin-bottom:14px">
+      <button class="${(TX_VENDA==6.4&&TX_IR==0)?'on':''}" onclick="setRegime('presumido')">Lucro Presumido (Rhode)</button>
+      <button class="${(TX_VENDA==9.25&&TX_IR==34)?'on':''}" onclick="setRegime('real')">Lucro Real</button>
+    </div>
     <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-64)">
       <label>Imposto s/ venda <input type="number" step="0.25" value="${TX_VENDA}" onchange="setTx('venda',this.value)" style="${inp}"> %</label>
       <label>IRPJ + CSLL <input type="number" step="1" value="${TX_IR}" onchange="setTx('ir',this.value)" style="${inp}"> %</label>
       <span style="color:var(--ink-48)">Lucro final: <b style="color:var(--green);font-family:'JetBrains Mono',monospace">${fmt(D.lucroFinal)}</b></span>
     </div></div>
-  <div class="note"><span>🧾</span><div><b>Estimativa Lucro Real.</b> A margem líquida é líquida das taxas do settlement (fee + comissões + frete). O custo de mídia — <b>Tradicional</b> (pago na conta de ads) + <b>Vendas Líquidas</b> (a TikTok banca e <b>recupera do seu GMV</b>, % por pedido — por isso roda sem saldo) — <b>não está no repasse dos pedidos</b> (98 statements reconciliam sem linha de ads), é uma dedução à parte, subtraída aqui${D.adRealHas?' ('+fmt(D.adReal)+')':''}. Confirme as alíquotas com a contabilidade.</div></div>`;
+  <div class="note"><span>🧾</span><div><b>Lucro Presumido (Rhode).</b> No Presumido o imposto é sobre o <b>faturamento</b>, não sobre o lucro: PIS/COFINS 3,65% + IRPJ (15%×8%) 1,2% + CSLL (9%×12%) 1,08% ≈ <b>~6,4%</b> — <b>sem os 34% sobre o lucro</b> do Lucro Real. Falta só cravar o <b>ICMS</b> com o contador (se for ST, já está dentro do CPV → 6,4% é o número). A margem líquida já é líquida das taxas do settlement; a mídia (Tradicional + Vendas Líquidas) é dedução à parte${D.adRealHas?' ('+fmt(D.adReal)+')':''}.</div></div>`;
 }
 
 // ===== ADS =====
@@ -641,9 +646,9 @@ function renderLives(D){
     ${cascRow('− CPV',(L.cpvPct*100).toFixed(0)+'% · custo dos produtos',-L.cpv,'#9a7030',mx)}
     ${cascRow('= Margem de contribuição','após taxas TikTok e CPV',L.mLiq,'#7fc9a3',mx)}
     ${cascRow('− Mídia da live','investimento em ads (GMV Max)',-L.invest,'var(--rhode-red)',mx)}
-    ${cascRow('− Imposto (venda + IR) <span style="font-weight:400;font-size:10px;color:var(--orange);border:1px solid var(--orange);border-radius:4px;padding:0 4px;vertical-align:middle">provisório · confirmar c/ Lucas</span>',TX_VENDA+'% venda + '+TX_IR+'% IR · regime tributário não confirmado',-(L.impV+L.impIR),'var(--orange)',mx)}
+    ${cascRow('− Imposto '+(TX_IR>0?'(venda + IR)':'(Lucro Presumido)')+' <span style="font-weight:400;font-size:10px;color:var(--orange);border:1px solid var(--orange);border-radius:4px;padding:0 4px;vertical-align:middle">'+(TX_IR>0?'Lucro Real':'Presumido · ICMS a checar')+'</span>',(TX_IR>0?TX_VENDA+'% venda + '+TX_IR+'% IR':TX_VENDA+'% s/ faturamento (PIS/COFINS+IRPJ+CSLL)'),-(L.impV+L.impIR),'var(--orange)',mx)}
     ${cascRow('= LUCRO REAL da live',L.margem.toFixed(1)+'% do GMV · ROI '+L.roiReal.toFixed(0)+'%',L.lucro,'var(--green)',mx,'total')}
-    <div class="note" style="margin-top:12px"><span>⚠️</span><div><b>ROAS ${L.roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(L.cpvPct*100).toFixed(0)}%), taxas TikTok${L.feeItem?` (incl. <b>afiliada ${fmt(L.feeItem.afi)}</b>)`:''}, mídia e imposto, a live rende <b>${fmt(L.lucro)}</b> (margem ${L.margem.toFixed(1)}%). ROI real = <b>${L.roiReal.toFixed(0)}%</b> sobre a mídia. ${L.feeItem?'Taxas itemizadas = rateio real do settlement do período (fecha com o total). ':''}<b>⚠️ O imposto é provisório</b> — depende do regime tributário (Presumido/Real) que só o Lucas confirma. Até a <b>margem de contribuição (${fmt(L.mLiq)})</b> é tudo settlement/custo real e é o número que você pode bater o pé. Ajuste a alíquota na aba Lucro quando tiver a informação.</div></div></div>`;
+    <div class="note" style="margin-top:12px"><span>⚠️</span><div><b>ROAS ${L.roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(L.cpvPct*100).toFixed(0)}%), taxas TikTok${L.feeItem?` (incl. <b>afiliada ${fmt(L.feeItem.afi)}</b>)`:''}, mídia e imposto, a live rende <b>${fmt(L.lucro)}</b> (margem ${L.margem.toFixed(1)}%). ROI real = <b>${L.roiReal.toFixed(0)}%</b> sobre a mídia. ${L.feeItem?'Taxas itemizadas = rateio real do settlement do período (fecha com o total). ':''}Imposto = <b>Lucro Presumido (~${TX_VENDA}% s/ faturamento${TX_IR>0?' + '+TX_IR+'% IR':', sem 34% s/ lucro'})</b> — falta só confirmar o ICMS. Até a <b>margem de contribuição (${fmt(L.mLiq)})</b> é tudo settlement/custo real. Regime editável na aba Lucro.</div></div></div>`;
   const canal=`<div class="grid2">
     <div class="sec"><div class="sec-h"><h2>Live no mix da loja</h2><div class="meta">GMV de live vs loja</div></div>
       ${cascRow('GMV da loja','todos os canais',L.gmvLoja||L.gmv,'#cbd5e1',Math.max(L.gmvLoja,L.gmv,1))}
