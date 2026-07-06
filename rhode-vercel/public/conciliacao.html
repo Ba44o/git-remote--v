@@ -197,6 +197,8 @@ const fmtMes=id=>{const[y,m]=String(id||'').split('-');return m?`${MES[+m-1]}/${
 let FIN={}, GMV={}, PROD={}, CPVMAP={}, ADS={}, STX={}, DIV=[], SPLIT={}, OFI={}, CONC={}, ADC={}, ADCAMP=[], LIVESES=[], LIVEPER={}, MESES=[];
 let TAB='visao';
 let FILTER={modo:'tudo', mes:'', de:'', ate:''};
+let LIVEORIG='propria';
+function setLiveOrig(o){ LIVEORIG=o; render(); }
 let CHART=null;
 let TX_VENDA=parseFloat(localStorage.getItem('rhode_tx_venda'))||9.25;
 let TX_IR=parseFloat(localStorage.getItem('rhode_tx_ir'))||34;
@@ -559,10 +561,17 @@ function renderLucro(D){
 function renderLives(D){
   const ms=getMeses();
   const inP=r=>(FILTER.modo==='range'&&FILTER.de&&FILTER.ate)?(r.data>=FILTER.de&&r.data<=FILTER.ate):ms.includes(r.periodo);
-  const ses=LIVESES.filter(inP);
-  if(!ses.length) return `<div class="sec"><div class="empty">Sem dados de live no período. Rode <span class="mono">live_sessao.sql</span> + <span class="mono">coletar_lives_api.py</span>.</div></div>`;
+  const sesAll=LIVESES.filter(inP);
+  if(!sesAll.length) return `<div class="sec"><div class="empty">Sem dados de live no período. Rode <span class="mono">live_sessao.sql</span> + <span class="mono">coletar_lives_api.py</span>.</div></div>`;
   const sumo=arr=>arr.reduce((s,r)=>({cost:s.cost+(+r.cost||0),gmv:s.gmv+(+r.receita||0),ped:s.ped+(+r.pedidos||0),views:s.views+(+r.views||0)}),{cost:0,gmv:0,ped:0,views:0});
-  const A=sumo(ses), P=sumo(ses.filter(r=>r.origem==='propria')), C=sumo(ses.filter(r=>r.origem==='creator'));
+  const P=sumo(sesAll.filter(r=>r.origem==='propria')), C=sumo(sesAll.filter(r=>r.origem==='creator'));
+  const ses = LIVEORIG==='todas' ? sesAll : sesAll.filter(r=>r.origem==='propria');
+  const A=sumo(ses);
+  const toggle=`<div class="sec" style="display:flex;align-items:center;gap:14px;padding:14px 22px;flex-wrap:wrap">
+    <b style="font-family:'JetBrains Mono',monospace;font-size:13px">Live</b>
+    <div class="seg"><button class="${LIVEORIG==='propria'?'on':''}" onclick="setLiveOrig('propria')">Rhode (própria)</button><button class="${LIVEORIG==='todas'?'on':''}" onclick="setLiveOrig('todas')">Todas</button></div>
+    <span style="margin-left:auto;font-size:12px;color:var(--ink-48)">${ses.length} sessões · ${LIVEORIG==='propria'?'só Rhode Jeans':'própria + creators'}</span>
+  </div>`;
   let gmvLiveTot=0, gmvLoja=0; ms.forEach(m=>{const p=LIVEPER[m]; if(p){gmvLiveTot+=+p.gmv_live||0; gmvLoja+=+p.gmv_loja||0;}});
   const org=gmvLiveTot>0?Math.max(0,gmvLiveTot-A.gmv):0;
   // ROI real — cascata da loja aplicada ao GMV de live (ad-attributed)
@@ -571,7 +580,7 @@ function renderLives(D){
   const lucroAntesIR=mLiq-impV-A.cost, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucro=lucroAntesIR-impIR;
   const roas=A.cost?A.gmv/A.cost:0, roiReal=A.cost?lucro/A.cost*100:0, margem=G?lucro/G*100:0, convVw=A.views?A.ped/A.views*100:0;
   const k=`<div class="kpis k6">
-    ${kpi('GMV de live',fmt(gmvLiveTot||A.gmv),gmvLoja?(gmvLiveTot/gmvLoja*100).toFixed(0)+'% do GMV da loja':'canal live','k6')}
+    ${kpi('GMV de live',fmt(A.gmv),(gmvLoja?(A.gmv/gmvLoja*100).toFixed(0)+'% da loja · ':'')+'GMV Max','k6')}
     ${kpi('Investimento',fmt(A.cost),'mídia de live','k6 danger')}
     ${kpi('ROAS',roas.toFixed(1)+'x','GMV ads / invest.','k6')}
     ${kpi('Lucro real',fmt(lucro),'após tudo','k6 '+(lucro>=0?'accent':'danger'))}
@@ -589,10 +598,10 @@ function renderLives(D){
     ${cascRow('= LUCRO REAL da live',margem.toFixed(1)+'% do GMV · ROI '+roiReal.toFixed(0)+'%',lucro,'var(--green)',mx,'total')}
     <div class="note" style="margin-top:12px"><span>⚠️</span><div><b>ROAS ${roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(lucro)}</b> (margem ${margem.toFixed(1)}%). ROI real = <b>${roiReal.toFixed(0)}%</b> sobre a mídia. Alíquotas editáveis na aba Lucro.</div></div></div>`;
   const canal=`<div class="grid2">
-    <div class="sec"><div class="sec-h"><h2>Live no mix da loja</h2></div>
+    <div class="sec"><div class="sec-h"><h2>Live no mix da loja</h2><div class="meta">GMV Max da live vs loja</div></div>
       ${cascRow('GMV da loja','todos os canais',gmvLoja||A.gmv,'#cbd5e1',Math.max(gmvLoja,A.gmv,1))}
-      ${cascRow('GMV de live',(gmvLoja?(gmvLiveTot/gmvLoja*100).toFixed(0):0)+'% do total',gmvLiveTot||A.gmv,'var(--green)',Math.max(gmvLoja,A.gmv,1))}
-      <div class="note green" style="margin-top:10px"><span>📺</span><div>Do GMV de live, <b>${fmt(A.gmv)}</b> (${gmvLiveTot?(A.gmv/gmvLiveTot*100).toFixed(0):0}%) vem de <b>ads</b> e <b>${fmt(org)}</b> (${gmvLiveTot?(org/gmvLiveTot*100).toFixed(0):0}%) é <b>orgânico</b>.</div></div></div>
+      ${cascRow('GMV de live '+(LIVEORIG==='propria'?'(Rhode)':'(todas)'),(gmvLoja?(A.gmv/gmvLoja*100).toFixed(0):0)+'% do total',A.gmv,'var(--green)',Math.max(gmvLoja,A.gmv,1))}
+      <div class="note" style="margin-top:10px"><span>🔎</span><div>Rhode própria <b>${fmt(P.gmv)}</b> + creators ${fmt(C.gmv)} = <b>${fmt(P.gmv+C.gmv)}</b> (GMV Max, ≈ seu painel de ads). O analytics da loja mostra "live" ${fmt(gmvLiveTot)} — atribuição de conteúdo mais ampla + orgânico, outra métrica.</div></div></div>
     <div class="sec"><div class="sec-h"><h2>Funil da live</h2><div class="meta">${periodoLabel()}</div></div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;justify-content:space-between"><span>👁️ Visualizações</span><b class="mono">${NUM.format(A.views)}</b></div>
@@ -611,7 +620,7 @@ function renderLives(D){
       <td class="mp">${r.data||'—'}</td><td><span class="tag ${r.origem==='propria'?'ok':'mut'}">${r.origem==='propria'?'própria':'creator'}</span></td>
       <td class="neg">${fmt(c)}</td><td>${fmt(g)}</td><td style="font-weight:700;color:${(c?g/c:0)>=5?'var(--green)':'var(--orange)'}">${(c?g/c:0).toFixed(1)}x</td>
       <td>${NUM.format(pd)}</td><td>${NUM.format(vw)}</td><td>${vw?(pd/vw*100).toFixed(1):0}%</td><td>${fmt2(pd?c/pd:0)}</td></tr>`;}).join('')}</tbody></table></div>`;
-  return k+casc+canal+origem+sess;
+  return toggle+k+casc+canal+origem+sess;
 }
 function renderAds(D){
   const ms=getMeses();
