@@ -114,7 +114,9 @@ def coletar_periodo(sd, ed):
             if r.get("code") == 0:
                 break
             time.sleep(2.5)
-        iv = ((r or {}).get("data", {}).get("performance", {}) or {}).get("intervals", [])
+        data = (r or {}).get("data") or {}
+        perf = data.get("performance") or {}
+        iv = perf.get("intervals") or []
         if iv:
             p = iv[0]
             gmv_loja = f(p.get("gmv", {}).get("amount") if isinstance(p.get("gmv"), dict) else p.get("gmv"))
