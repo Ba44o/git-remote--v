@@ -579,8 +579,16 @@ function liveAgg(ms, D){
   const cpvPct=D.mGmvCpv>0?D.mCusto/D.mGmvCpv:0.58, G=gmv;
   const taxas=G*(1-D.eficFrac), cpv=G*cpvPct, mLiq=G*D.eficFrac-cpv, impV=G*TX_VENDA/100;
   const lucroAntesIR=mLiq-impV-invest, impIR=lucroAntesIR>0?lucroAntesIR*TX_IR/100:0, lucro=lucroAntesIR-impIR;
+  // Itemização REAL das taxas (settlement do período, via D.rp) — a soma reconcilia com o total
+  // (1-eficFrac) que bate com o settlement. Comissão de afiliada aparece EXPLÍCITA; serviço/frete
+  // grátis é o resíduo pra fechar. base = receita paga (pago_liq).
+  const feeBase=(D.rp&&D.rp.pagoLiq>0)?D.rp.pagoLiq:0;
+  const rt=k=>feeBase>0?(+D.rp[k]||0)/feeBase:0;
+  const pPlat=rt('plat'), pAfi=rt('afi')+rt('ads'), pFrete=rt('frete');
+  const pServ=Math.max(0,(1-D.eficFrac)-pPlat-pAfi-pFrete);
+  const feeItem=feeBase>0?{plat:G*pPlat,serv:G*pServ,afi:G*pAfi,frete:G*pFrete,pPlat,pServ,pAfi,pFrete}:null;
   const roas=invest?G/invest:0, roiReal=invest?lucro/invest*100:0, margem=G?lucro/G*100:0, convVw=views?ped/views*100:0, ticket=ped?G/ped:0, cpa=ped?invest/ped:0;
-  return {src,sessions,gmv,ped,views,cust,invest,creator,gmvLoja,gmvLiveTot,cpvPct,taxas,cpv,mLiq,impV,impIR,lucro,roas,roiReal,margem,convVw,ticket,cpa};
+  return {src,sessions,gmv,ped,views,cust,invest,creator,gmvLoja,gmvLiveTot,cpvPct,taxas,cpv,mLiq,impV,impIR,lucro,roas,roiReal,margem,convVw,ticket,cpa,feeItem};
 }
 function renderLives(D){
   const ms=getMeses(), L=liveAgg(ms,D), scSrc=L.src==='sc';
@@ -601,13 +609,18 @@ function renderLives(D){
   const mx=Math.max(L.gmv,1);
   const casc=`<div class="sec"><div class="sec-h"><h2>ROI real da live <span class="pill">lucro, não ROAS</span></h2><div class="meta">${periodoLabel()} · ${scSrc?'GMV atribuído (Seller Center)':'GMV Max'}</div></div>
     ${cascRow('GMV da live',scSrc?'atribuído às salas de live (orgânico + ads)':'atribuído às campanhas de ads',L.gmv,'#cbd5e1',mx)}
-    ${cascRow('− Taxas TikTok',((1-D.eficFrac)*100).toFixed(0)+'% · comissão+serviço+afiliada+frete',-L.taxas,'var(--rhode-red)',mx)}
+    ${L.feeItem?`
+    ${cascRow('− Comissão plataforma',(L.feeItem.pPlat*100).toFixed(1)+'% · TikTok (~6%)',-L.feeItem.plat,'var(--rhode-red)',mx)}
+    ${cascRow('− Serviço + frete grátis',(L.feeItem.pServ*100).toFixed(1)+'% · programa 6% + R$4/item',-L.feeItem.serv,'#d9536b',mx)}
+    ${cascRow('− Comissão de afiliada',(L.feeItem.pAfi*100).toFixed(1)+'% · creator/afiliada (orgânica + ads)',-L.feeItem.afi,'#e8794b',mx)}
+    ${cascRow('− Frete',(L.feeItem.pFrete*100).toFixed(1)+'% · logística',-L.feeItem.frete,'#c9738a',mx)}`
+    :cascRow('− Taxas TikTok',((1-D.eficFrac)*100).toFixed(0)+'% · comissão+serviço+afiliada+frete',-L.taxas,'var(--rhode-red)',mx)}
     ${cascRow('− CPV',(L.cpvPct*100).toFixed(0)+'% · custo dos produtos',-L.cpv,'#9a7030',mx)}
-    ${cascRow('= Margem de contribuição','após taxas e CPV',L.mLiq,'#7fc9a3',mx)}
+    ${cascRow('= Margem de contribuição','após taxas TikTok e CPV',L.mLiq,'#7fc9a3',mx)}
     ${cascRow('− Mídia da live','investimento em ads (GMV Max)',-L.invest,'var(--rhode-red)',mx)}
-    ${cascRow('− Imposto (venda + IR)','Lucro Real',-(L.impV+L.impIR),'var(--orange)',mx)}
+    ${cascRow('− Imposto (venda + IR)',TX_VENDA+'% venda + '+TX_IR+'% IR',-(L.impV+L.impIR),'var(--orange)',mx)}
     ${cascRow('= LUCRO REAL da live',L.margem.toFixed(1)+'% do GMV · ROI '+L.roiReal.toFixed(0)+'%',L.lucro,'var(--green)',mx,'total')}
-    <div class="note" style="margin-top:12px"><span>⚠️</span><div><b>ROAS ${L.roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(L.cpvPct*100).toFixed(0)}%), taxas TikTok, mídia e imposto, a live rende <b>${fmt(L.lucro)}</b> (margem ${L.margem.toFixed(1)}%). ROI real = <b>${L.roiReal.toFixed(0)}%</b> sobre a mídia. Alíquotas editáveis na aba Lucro.</div></div></div>`;
+    <div class="note" style="margin-top:12px"><span>⚠️</span><div><b>ROAS ${L.roas.toFixed(1)}x não é lucro.</b> Depois de CPV (${(L.cpvPct*100).toFixed(0)}%), taxas TikTok${L.feeItem?` (incl. <b>afiliada ${fmt(L.feeItem.afi)}</b>)`:''}, mídia e imposto, a live rende <b>${fmt(L.lucro)}</b> (margem ${L.margem.toFixed(1)}%). ROI real = <b>${L.roiReal.toFixed(0)}%</b> sobre a mídia. ${L.feeItem?'Taxas itemizadas = rateio real do settlement do período (fecha com o total). ':''}Alíquotas de imposto editáveis na aba Lucro.</div></div></div>`;
   const canal=`<div class="grid2">
     <div class="sec"><div class="sec-h"><h2>Live no mix da loja</h2><div class="meta">GMV de live vs loja</div></div>
       ${cascRow('GMV da loja','todos os canais',L.gmvLoja||L.gmv,'#cbd5e1',Math.max(L.gmvLoja,L.gmv,1))}
@@ -769,8 +782,12 @@ function exportLivesHTML(){
   propGM.forEach(r=>{const d=r.data||'—'; costByDay[d]=(costByDay[d]||0)+(+r.cost||0);});
   const days=[...new Set([...Object.keys(gmvByDay),...Object.keys(costByDay)])].sort();
   const rank=L.sessions.slice().sort((a,b)=>b.gmv-a.gmv);
-  const DATA={days,gmv:days.map(d=>B(gmvByDay[d]||0)),cost:days.map(d=>B(costByDay[d]||0)),
-    casc:{l:['GMV','− Taxas','− CPV','− Mídia','− Imposto','Lucro'],v:[B(L.gmv),-B(L.taxas),-B(L.cpv),-B(L.invest),-B(L.impV+L.impIR),B(L.lucro)]},
+  const casc = L.feeItem
+    ? {l:['GMV','− Comissão','− Serviço','− Afiliada','− Frete','− CPV','− Mídia','− Imposto','Lucro'],
+       v:[B(L.gmv),-B(L.feeItem.plat),-B(L.feeItem.serv),-B(L.feeItem.afi),-B(L.feeItem.frete),-B(L.cpv),-B(L.invest),-B(L.impV+L.impIR),B(L.lucro)]}
+    : {l:['GMV','− Taxas','− CPV','− Mídia','− Imposto','Lucro'],
+       v:[B(L.gmv),-B(L.taxas),-B(L.cpv),-B(L.invest),-B(L.impV+L.impIR),B(L.lucro)]};
+  const DATA={days,gmv:days.map(d=>B(gmvByDay[d]||0)),cost:days.map(d=>B(costByDay[d]||0)),casc,
     top:{l:rank.slice(0,12).map(r=>String(r.name||'').slice(0,22)),v:rank.slice(0,12).map(r=>B(r.gmv))}};
   const kc=[['GMV de live',fmt(L.gmv)],['Investimento',fmt(L.invest)],['ROAS',L.roas.toFixed(1)+'x'],['Lucro real',fmt(L.lucro)],['ROI real',L.roiReal.toFixed(0)+'%'],['Margem',L.margem.toFixed(1)+'%'],['Pedidos',NUM.format(L.ped)],['Visualizações',NUM.format(L.views)]]
     .map(([l,v])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
