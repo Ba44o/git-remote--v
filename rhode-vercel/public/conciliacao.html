@@ -327,7 +327,7 @@ function render(){
   else if(TAB==='produtos')el.innerHTML=renderProdutos(D);
   else if(TAB==='lucro')   el.innerHTML=renderLucro(D);
   else if(TAB==='ads')     el.innerHTML=renderAds(D);
-  else if(TAB==='lives')   el.innerHTML=renderLives(D);
+  else if(TAB==='lives'){  el.innerHTML=renderLives(D); simLive(); }
   else if(TAB==='pedidos') { el.innerHTML=renderPedidosShell(); loadPedidos(); }
   if(TAB==='visao') drawChart();
 }
@@ -558,6 +558,25 @@ function renderLucro(D){
 
 // ===== ADS =====
 // ===== LIVES =====
+// Simulador de desconto → breakeven (dash de live). Atualiza só os outputs (sem re-render, pros sliders ficarem suaves).
+function simLive(){
+  const box=document.getElementById('sim-box'); if(!box) return;
+  const taxa=+box.dataset.taxa||0, midia=+box.dataset.midia||0, iv=+box.dataset.iv||0, k=taxa+midia+iv;
+  const gv=id=>{const e=document.getElementById(id); return e?(+e.value||0):0;};
+  const d=gv('sim-desc')/100, cpv=gv('sim-cpv'), tab=gv('sim-tab');
+  const venda=tab*(1-d), lucro=venda-cpv-venda*k, marg=venda>0?lucro/venda*100:0;
+  const be=(tab>0&&(1-k)>0)?(1-cpv/(tab*(1-k))):0, folga=(be-d)*100;
+  const set=(id,t,c)=>{const e=document.getElementById(id); if(e){e.textContent=t; if(c!==undefined)e.style.color=c;}};
+  const sc=v=>Math.max(0,Math.min(100,v/0.7)); // desconto% (0–70) → largura% (0–100)
+  set('sim-desc-v',(d*100).toFixed(0)+'%');
+  set('sim-out-venda','R$ '+venda.toFixed(2));
+  set('sim-out-lucro','R$ '+lucro.toFixed(2), lucro>=0?'var(--green)':'var(--rhode-red)');
+  set('sim-out-marg',marg.toFixed(1)+'%', lucro>=0?'var(--ink)':'var(--rhode-red)');
+  set('sim-out-be',(be*100).toFixed(0)+'%');
+  set('sim-out-folga',(folga>=0?'+':'')+folga.toFixed(0)+' pts', folga>=0?'var(--green)':'var(--rhode-red)');
+  const bar=document.getElementById('sim-bar'); if(bar){const b=sc(be*100); bar.style.background=`linear-gradient(90deg,#7fc9a3 0 ${b}%,#FE2C55 ${b}% 100%)`;}
+  const mk=document.getElementById('sim-marker'); if(mk) mk.style.left=sc(d*100)+'%';
+}
 // ---- núcleo de LIVE — fonte da verdade: Seller Center Livestream "Attributed GMV" (live_attr); fallback GMV Max (live_sessao) ----
 function liveAgg(ms, D){
   const inP=r=>(FILTER.modo==='range'&&FILTER.de&&FILTER.ate)?(r.data>=FILTER.de&&r.data<=FILTER.ate):ms.includes(r.periodo);
@@ -654,7 +673,33 @@ function renderLives(D){
       ${kpi('Retorno da mídia',L.retMidia.toFixed(1)+'x','R$'+L.retMidia.toFixed(2)+'/R$1 · líq '+fmt(L.contribLiq))}
     </div>
     <div class="note"><span>💡</span><div><b>A mídia se paga com folga.</b> Os <b>${fmt(L.invest)}</b> de ads puxaram ${fmt(L.adsGmv)} de GMV e geraram <b>${fmt(L.contribGer)}</b> de margem de contribuição (depois do custo do produto e das taxas TikTok nos pedidos que a mídia trouxe) → retorno <b>${L.retMidia.toFixed(1)}x</b>, sobra líquida <b>${fmt(L.contribLiq)}</b>. Responde "vale investir em live?" — vale. É diferente do <b>lucro cheio</b> da cascata acima, que aloca <b>todo</b> custo (incl. do GMV orgânico) + imposto sobre a live inteira (visão conservadora, "live como negócio isolado"). As duas são verdadeiras: a live isolada tem margem fina (igual à loja inteira), mas a <b>mídia de live</b> rende ${L.retMidia.toFixed(1)}x.</div></div></div>` : '';
-  return bar+k+casc+midia+canal+sess;
+  // Simulador de desconto → breakeven
+  const descAtual=(D.conc&&D.conc.tabela>0)?(D.conc.desc/D.conc.tabela*100):45;
+  const taxaR=Math.max(0,1-D.eficFrac), midiaR=Math.min(0.15,L.gmv>0?L.invest/L.gmv:0.088), ivR=TX_VENDA/100;
+  const sinp='width:100%;margin-top:5px;padding:7px 9px;border:1px solid var(--hairline);border-radius:8px;font-family:JetBrains Mono,monospace;font-size:13px;outline:none;background:var(--card)';
+  const sim=`<div class="sec" id="sim-box" data-taxa="${taxaR.toFixed(4)}" data-midia="${midiaR.toFixed(4)}" data-iv="${ivR.toFixed(4)}">
+    <div class="sec-h"><h2>Simulador de desconto → breakeven <span class="pill">e se…?</span></h2><div class="meta">custo variável da venda: taxa ${(taxaR*100).toFixed(1)}% + mídia ${(midiaR*100).toFixed(1)}% + imposto ${(ivR*100).toFixed(1)}% · o CPV é fixo por peça</div></div>
+    <div class="grid2" style="align-items:start">
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>Desconto sobre a tabela</span><span id="sim-desc-v" class="mono">—</span></div>
+        <input type="range" id="sim-desc" min="0" max="70" step="1" value="${descAtual.toFixed(0)}" oninput="simLive()" style="width:100%;margin:8px 0;accent-color:var(--rhode-red)">
+        <div style="position:relative;margin:2px 0"><div id="sim-bar" style="height:14px;border-radius:7px;background:#eee"></div><div id="sim-marker" style="position:absolute;top:-3px;left:0;width:3px;height:20px;background:var(--ink);border-radius:2px"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-48);margin-top:3px"><span>0%</span><span>🎯 breakeven <b id="sim-out-be" style="color:var(--ink)">—</b></span><span>70%</span></div>
+        <div style="display:flex;gap:12px;margin-top:16px">
+          <label style="flex:1;font-size:12px;color:var(--ink-64)">CPV — custo/peça (R$)<input type="number" id="sim-cpv" value="45" step="1" min="0" oninput="simLive()" style="${sinp}"></label>
+          <label style="flex:1;font-size:12px;color:var(--ink-64)">Preço de tabela (R$)<input type="number" id="sim-tab" value="143" step="1" min="1" oninput="simLive()" style="${sinp}"></label>
+        </div>
+      </div>
+      <div class="kpis" style="grid-template-columns:1fr 1fr;gap:12px">
+        ${kpi('Preço de venda','<span id="sim-out-venda">—</span>','tabela − desconto')}
+        ${kpi('Lucro por peça','<span id="sim-out-lucro">—</span>','antes do IR')}
+        ${kpi('Margem','<span id="sim-out-marg">—</span>','operacional')}
+        ${kpi('Folga p/ breakeven','<span id="sim-out-folga">—</span>','pontos de desconto')}
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px"><span>🎯</span><div>Arrasta o <b>desconto</b> (ou muda CPV/tabela) e a margem vira na hora. A barra fica <b>verde</b> até o breakeven e <b>vermelha</b> depois — passou da linha, paga pra vender. <b>Baixar o CPV</b> ou <b>subir a tabela</b> empurra o breakeven pra direita (mais folga pra promo). Imposto = alíquota da aba Lucro (${(ivR*100).toFixed(1)}%); defaults CPV R$45 / tabela R$143 (Wide Leg) — ajuste pro seu produto.</div></div>
+  </div>`;
+  return bar+k+casc+midia+sim+canal+sess;
 }
 function renderAds(D){
   const ms=getMeses();
