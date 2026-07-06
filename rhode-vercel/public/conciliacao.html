@@ -589,7 +589,22 @@ function renderAds(D){
       <td>${NUM.format(c.pedidos)}</td><td>${fmt2(c.cpa)}</td><td>${fmt2(c.ticket)}</td></tr>`).join('')}
     </tbody></table></div>`;
   const note=`<div class="note"><span>ℹ️</span><div><b>ROAS</b> = receita ÷ investimento · <b>CPA</b> = investimento ÷ pedidos · <b>Ticket</b> = receita ÷ pedidos. <b>VL</b> (Vendas Líquidas) = a TikTok banca e recupera do seu GMV (roda sem saldo); <b>bruta</b> (Receita bruta) = pago na conta de ads. Fonte: Business API — bate ao centavo com o Seller Center. Investimento = ${adGmvPct.toFixed(1)}% do GMV.</div></div>`;
-  return syncBar+k+split+tbl+note;
+  // 📺 Lives (própria Rhode + creators) — classifica por nome ("LIVE" / "Rhode")
+  const isLive=c=>/live/i.test(c.campanha||''), isProp=c=>/rhode/i.test(c.campanha||'');
+  const sumc=arr=>arr.reduce((s,c)=>({cost:s.cost+c.cost,receita:s.receita+c.receita,pedidos:s.pedidos+c.pedidos}),{cost:0,receita:0,pedidos:0});
+  const lives=camps.filter(isLive).sort((a,b)=>b.cost-a.cost);
+  const Lv=sumc(lives), Lp=sumc(lives.filter(isProp)), Lc=sumc(lives.filter(c=>!isProp(c)));
+  const liveSec = lives.length ? `<div class="sec"><div class="sec-h"><h2>📺 Lives · GMV Max</h2><div class="meta">${periodoLabel()} · live própria (Rhode) + lives de creators</div></div>
+    <div class="kpis">
+      ${kpi('Invest. em live',fmt(Lv.cost),(T.cost?(Lv.cost/T.cost*100).toFixed(0):0)+'% do total de ads','danger')}
+      ${kpi('GMV da live',fmt(Lv.receita),(T.receita?(Lv.receita/T.receita*100).toFixed(0):0)+'% do GMV de ads')}
+      ${kpi('ROAS live',(Lv.cost?Lv.receita/Lv.cost:0).toFixed(2)+'x','receita / invest.','accent')}
+      ${kpi('Pedidos live',NUM.format(Lv.pedidos),'CPA '+fmt2(Lv.pedidos?Lv.cost/Lv.pedidos:0))}
+    </div>
+    <table><thead><tr><th>Live</th><th>Origem</th><th>Investimento</th><th>%</th><th>Receita (GMV)</th><th>ROAS</th><th>Pedidos</th><th>CPA</th></tr></thead><tbody>
+    ${lives.map(c=>`<tr><td class="mp" style="${clip}" title="${(c.campanha||'').replace(/"/g,'')}">${c.campanha}</td><td><span class="tag ${isProp(c)?'ok':'mut'}">${isProp(c)?'própria':'creator'}</span></td><td class="neg">${fmt(c.cost)}</td><td>${Lv.cost?(c.cost/Lv.cost*100).toFixed(0):0}%</td><td>${fmt(c.receita)}</td><td style="font-weight:700;color:${(c.cost?c.receita/c.cost:0)>=3?'var(--green)':'var(--orange)'}">${(c.cost?c.receita/c.cost:0).toFixed(1)}x</td><td>${NUM.format(c.pedidos)}</td><td>${fmt2(c.pedidos?c.cost/c.pedidos:0)}</td></tr>`).join('')}</tbody></table>
+    <div class="note"><span>📺</span><div><b>Live própria (Rhode Jeans):</b> invest. ${fmt(Lp.cost)} · GMV ${fmt(Lp.receita)} · ROAS ${(Lp.cost?Lp.receita/Lp.cost:0).toFixed(1)}x. &nbsp;<b>Lives de creators:</b> invest. ${fmt(Lc.cost)} · GMV ${fmt(Lc.receita)} · ROAS ${(Lc.cost?Lc.receita/Lc.cost:0).toFixed(1)}x. <i>Classificação por nome — me diz se alguma campanha ficou no balde errado.</i></div></div></div>` : '';
+  return syncBar+k+split+liveSec+tbl+note;
 }
 async function syncAdsCusto(file){
   if(!file) return;
