@@ -108,12 +108,12 @@ def coletar_periodo(sd, ed):
         nxt = (cur.replace(day=28) + timedelta(days=8)).replace(day=1)
         per = cur.strftime("%Y-%m")
         r = None
-        for attempt in range(3):
+        for attempt in range(8):  # analytics é instável (36009007 timeout) — retry generoso
             r = chamar("GET", "/analytics/202405/shop/performance", params={
                 "start_date_ge": cur.strftime("%Y-%m-%d"), "end_date_lt": nxt.strftime("%Y-%m-%d"), "granularity": "ALL"})
             if r.get("code") == 0:
                 break
-            time.sleep(2.5)
+            time.sleep(2)
         data = (r or {}).get("data") or {}
         perf = data.get("performance") or {}
         iv = perf.get("intervals") or []
