@@ -87,12 +87,21 @@ const PED = [
     { data:'2026-06-07', periodo:'2026-06', campaign_id:'1861190909809970', campanha:'[GMVMAX][AZM-BRANCA-STN-USED]-31.03.26', modelo:'tradicional', cost:979.06, net_cost:974.57, receita:6558.39, pedidos:65 },
     { data:'2026-05-07', periodo:'2026-05', campaign_id:'1837899752347697', campanha:'[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]', modelo:'tradicional', cost:15161.79, net_cost:15006.48, receita:100235.83, pedidos:997 },
   ];
+  const LIVESES = [
+    { room_id:'bulk', data:'2026-06-15', periodo:'2026-06', campanha:'LIVE-TESTE-GMV-MAX', origem:'propria', cost:14500, receita:155000, pedidos:1900, views:215000 },
+    { room_id:'7657206279072402193', data:'2026-06-30', periodo:'2026-06', campanha:'MEGA LIVE-adv.dayane', origem:'creator', cost:406, receita:19943, pedidos:264, views:24947 },
+    { room_id:'7655358022759435029', data:'2026-06-25', periodo:'2026-06', campanha:'LIVE GMV Max_Rhode_0625', origem:'propria', cost:455, receita:15374, pedidos:199, views:17365 },
+    { room_id:'7653461807312980757', data:'2026-06-20', periodo:'2026-06', campanha:'LIVE-TESTE-GMV-MAX', origem:'propria', cost:1050, receita:10788, pedidos:129, views:11188 },
+    { room_id:'7653090792521894677', data:'2026-06-19', periodo:'2026-06', campanha:'LIVE-TESTE-GMV-MAX', origem:'propria', cost:1045, receita:10452, pedidos:126, views:10576 },
+    { room_id:'7652364503748135701', data:'2026-06-17', periodo:'2026-06', campanha:'LIVE-TESTE-GMV-MAX', origem:'propria', cost:434, receita:10412, pedidos:124, views:9649 },
+  ];
+  const LIVEPER = [{ periodo:'2026-06', gmv_loja:674615, gmv_live:340530, gmv_video:225816, gmv_card:108268, pedidos_live:3590, buyers_live:3590 }];
   await page.route('**/api/get-hub', async (route) => {
     let b={}; try{ b=JSON.parse(route.request().postData()||'{}'); }catch{}
     if (b.action === 'admin_login') return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ token:'test-token' }) });
     if (b.action === 'admin_query') {
       const p = b.path || '';
-      const data = p.includes('ads_campanha') ? ADCAMP : p.includes('ads_custo_resumo') ? ADCUSTO : p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
+      const data = p.includes('live_sessao') ? LIVESES : p.includes('live_periodo') ? LIVEPER : p.includes('ads_campanha') ? ADCAMP : p.includes('ads_custo_resumo') ? ADCUSTO : p.includes('conciliacao_resumo') ? CONCR : p.includes('conciliacao_pedido') ? CONCP : p.includes('gmv_oficial_resumo') ? OFI : p.includes('pedido_conciliado') ? PEDC : p.includes('repasse_divergencias') ? DIV : p.includes('statement_tx_resumo') ? STX : p.includes('finance_statements') ? FIN : p.includes('pedidos_sku') ? PED : p.includes('custos_sku') ? CPV : p.includes('ads_gmvmax') ? ADS : [];
       return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ ok:true, status:200, data }) });
     }
     return route.continue();
@@ -100,7 +109,7 @@ const PED = [
 
   await page.goto(`${url}/conciliacao.html`, { waitUntil:'networkidle' });
   await page.waitForTimeout(1800);
-  const tabs = ['visao','conciliacao','repasse','receber','produtos','lucro','ads','pedidos'];
+  const tabs = ['visao','conciliacao','repasse','receber','produtos','lucro','ads','lives','pedidos'];
   for (const t of tabs) {
     if (t !== 'visao') { await page.click(`#tabnav button[data-t="${t}"]`).catch(()=>{}); await page.waitForTimeout(700); }
     const out = path.resolve(__dirname, 'out', `conc-${t}.png`);

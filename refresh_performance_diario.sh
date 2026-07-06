@@ -92,6 +92,10 @@ python3 coletar_pedidos_sku.py --dias 21 || echo "  ⚠ pedidos_sku falhou (não
 echo "[15b] Custo GMV Max (Ads API)..."
 python3 coletar_gmvmax_api.py --dias 35 || echo "  ⚠ GMV Max API falhou (não-crítico — segue)"
 
+# 15c) Live por sessão (Business API room-level) + GMV de live total (Analytics).
+echo "[15c] Live (sessão + GMV total)..."
+python3 coletar_lives_api.py --dias 35 || echo "  ⚠ lives falhou (não-crítico — segue)"
+
 # 16) ETL sample_applications (free sample REAL — peças por creator × SKU + data do convite)
 echo "[16/17] ETL sample_applications (free sample real)..."
 python3 agente_rhode/etl_sample_applications.py || echo "  ⚠ ETL sample_applications falhou (não-crítico — segue)"
