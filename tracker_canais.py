@@ -59,8 +59,8 @@ for mes in MESES:
         "canais":{c:{"pecas":ch[c]["pecas"],"meta":META[c],"sem":{str(s):ch[c]["sem"][s] for s in sorted(ch[c]["sem"])},"top":topskus(ch[c])} for c in CHANS}}
     for c in CHANS:
         rows_db.append({"id":f"{mes}:{c}","mes":mes,"canal":c,"pecas":ch[c]["pecas"],"meta_pecas":META[c],
-            "semanas":json.dumps({str(s):ch[c]["sem"][s] for s in sorted(ch[c]["sem"])}),"top_skus":json.dumps(topskus(ch[c]))})
-    rows_db.append({"id":f"{mes}:net","mes":mes,"canal":"net","pecas":net,"meta_pecas":META_NET,"semanas":json.dumps({str(k):net_sem[k] for k in sorted(net_sem)}),"top_skus":None})
+            "semanas":{str(s):ch[c]["sem"][s] for s in sorted(ch[c]["sem"])},"top_skus":topskus(ch[c])})
+    rows_db.append({"id":f"{mes}:net","mes":mes,"canal":"net","pecas":net,"meta_pecas":META_NET,"semanas":{str(k):net_sem[k] for k in sorted(net_sem)},"top_skus":None})
     rows_db.append({"id":f"{mes}:live_propria_ref","mes":mes,"canal":"live_propria_ref","pecas":propria_ref,"meta_pecas":META_PROPRIA_REF,"semanas":None,"top_skus":None})
 
 json.dump(out,open(os.path.join(BASE,"_tracker_data.json"),"w"))
