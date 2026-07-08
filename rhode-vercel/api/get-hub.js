@@ -197,6 +197,8 @@ async function handleDashlive(body, res) {
     return res.json(await sbGet('lives?select=*&order=started_at.asc&limit=2000'));
   if (body.which === 'store_daily')
     return res.json(await sbGet('store_daily?select=date,month,gmv_bruto,reembolsos&order=date.asc&limit=2000'));
+  if (body.which === 'live_produto')
+    return res.json(await sbGet('live_produto?select=*&order=gmv.desc&limit=300'));
   return res.status(400).json({ error: 'which inválido' });
 }
 

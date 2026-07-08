@@ -672,6 +672,42 @@ a{color:inherit;text-decoration:none}
       <tbody id="tbl-ads"></tbody>
     </table>
   </div>
+
+  <!-- ═══ RENTABILIDADE REAL (fase 2) ═══ -->
+  <div class="section-label" style="margin-top:26px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span>Rentabilidade Real — do GMV ao lucro</span>
+    <span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">
+      ICMS líquido <input type="number" id="lr-icms" min="0" max="30" step="0.5" placeholder="0"
+        style="width:56px;background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;margin:0 4px;font-size:12px" oninput="recalcLucroReal()">%
+      <span class="tbl-muted">a confirmar c/ contador</span>
+    </span>
+    <button onclick="exportLive()" style="background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0">⬇ Exportar relatório</button>
+  </div>
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">ROI real da live — cascata</div>
+      <div class="card-sub">GMV → taxas TikTok (19%) → CPV (58%) → mídia → imposto (Presumido 6,4% + ICMS) → lucro</div>
+      <div id="lr-cascade" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Eficiência da mídia — a mídia se paga?</div>
+      <div class="card-sub">GMV puxado por ads × margem de contribuição vs gasto de mídia</div>
+      <div class="grid g2" id="lr-media" style="margin-top:12px;gap:12px"></div>
+      <div class="tbl-muted" id="lr-media-note" style="margin-top:12px;font-size:12px;line-height:1.5"></div>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Comparativo mês a mês</div>
+      <div class="card-sub">Últimos 2 meses do período · GMV, investimento, ROAS, lucro (mesma metodologia, antes de ICMS)</div>
+      <table class="tbl" style="margin-top:8px"><thead><tr><th>Métrica</th><th class="r" id="lr-cmp-h1">—</th><th class="r" id="lr-cmp-h2">—</th><th class="r">Δ</th></tr></thead><tbody id="lr-cmp"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title">Margem por produto de live</div>
+      <div class="card-sub" id="lr-prod-sub">produtos vendidos nas lives · margem de contribuição por produto</div>
+      <table class="tbl" style="margin-top:8px"><thead><tr><th>Produto</th><th class="r">GMV</th><th class="r">Un.</th><th class="r">CPV</th><th class="r">Margem R$</th><th class="r">Margem %</th></tr></thead><tbody id="lr-prod"></tbody></table>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ PAGE 4: KPIs & METAS ═══ -->
@@ -1910,6 +1946,7 @@ function buildAdsPage(lives, prevLives) {
     roas ? `cada R$1 → ${brl2(roas)}` : (hasPrev ? `ant: ${prevRoas.toFixed(2)}×` : '—');
 
   recalcAdsRoi();  // ROI depende da margem digitada pelo usuário
+  buildLucroReal(lives);  // fase 2: rentabilidade real + mídia + comparativo + margem produto
 
   // ── Agregados mensais ────────────────────────────────────────────────────
   const months  = [...new Set(withAds.map(l => l.month))].sort();
@@ -1989,6 +2026,99 @@ function buildAdsPage(lives, prevLives) {
 
 // ROI = (GMV via ads × margem − investido) ÷ investido = ROAS × margem − 1.
 // Sem margem informada não dá pra calcular lucro → mostramos "—" (nunca inventa valor).
+// ═══ FASE 2: Rentabilidade real · mídia · comparativo · margem por produto ═══
+let LR_AGG = null, LR_PROD = [];
+const LR_TAXA = 0.187, LR_CPV = 0.58, LR_TXV = 0.064;   // taxa TikTok · CPV · imposto federal Presumido
+function buildLucroReal(lives){
+  const S = f => lives.reduce((a,l)=>a+(+l[f]||0),0);
+  const byM = {}; lives.forEach(l=>{ (byM[l.month]=byM[l.month]||[]).push(l); });
+  LR_AGG = { gmv:S('gmv_bruto'), invest:S('ads_cost'), adsGmv:S('ads_gmv'), orders:S('orders'), views:S('views'), byM };
+  recalcLucroReal();
+  renderCmp(byM);
+  fetchLiveProduto();
+}
+function recalcLucroReal(){
+  if(!LR_AGG) return;
+  const icms = (+((document.getElementById('lr-icms')||{}).value)||0)/100;
+  const { gmv, invest, adsGmv } = LR_AGG;
+  const taxas=gmv*LR_TAXA, cpv=gmv*LR_CPV, mcontrib=gmv-taxas-cpv, imp=gmv*(LR_TXV+icms), lucro=mcontrib-invest-imp;
+  const roi=invest?lucro/invest*100:0, marg=gmv?lucro/gmv*100:0;
+  const casc=[['GMV de live',gmv,'var(--blue)'],['− Taxas TikTok (19%)',-taxas,'var(--red)'],['− CPV (58%)',-cpv,'var(--orange)'],
+    ['= Margem de contribuição',mcontrib,'var(--teal)'],['− Mídia (GMV Max)',-invest,'var(--red)'],
+    ['− Imposto ('+((LR_TXV+icms)*100).toFixed(1)+'%)',-imp,'var(--orange)'],['= LUCRO'+(icms?' (c/ ICMS)':' (s/ ICMS)'),lucro,'var(--green)']];
+  const mx=Math.max(gmv,1), el=document.getElementById('lr-cascade');
+  if(el) el.innerHTML=casc.map(([l,v,c])=>`<div style="display:flex;align-items:center;gap:10px;margin:6px 0"><div style="width:190px;font-size:12px;color:var(--muted2)">${l}</div><div style="flex:1;height:12px;background:var(--s2);border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,Math.abs(v)/mx*100)}%;background:${c}"></i></div><div style="width:104px;text-align:right;font-weight:700;color:${v<0?'var(--red)':'var(--text)'}">${brl(v)}</div></div>`).join('');
+  const contribRate=Math.max(0,(1-LR_TAXA)-LR_CPV), contribGer=adsGmv*contribRate, ret=invest?contribGer/invest:0;
+  const me=document.getElementById('lr-media');
+  if(me) me.innerHTML=[['Mídia investida',brl(invest),'var(--red)'],['GMV puxado por ads',brl(adsGmv),'var(--green)'],['Margem gerada',brl(contribGer),'var(--teal)'],['Retorno da mídia',ret.toFixed(1)+'×','var(--purple)']].map(([l,v,c])=>`<div class="card kpi" style="padding:12px 14px"><div class="kpi-label">${l}</div><div class="kpi-value" style="color:${c};font-size:20px">${v}</div></div>`).join('');
+  const nt=document.getElementById('lr-media-note');
+  if(nt) nt.innerHTML=`A mídia rende <b style="color:var(--green)">${ret.toFixed(1)}×</b> em margem de contribuição. Lucro final: <b>${brl(lucro)}</b> · margem ${marg.toFixed(1)}% · ROI ${roi.toFixed(0)}%. Imposto = Lucro Presumido ${(LR_TXV*100).toFixed(1)}% + ICMS ${(icms*100).toFixed(1)}% (a confirmar c/ contador).`;
+}
+function renderCmp(byM){
+  const months=Object.keys(byM).sort(), m1=months[months.length-2], m2=months[months.length-1];
+  const body=document.getElementById('lr-cmp'); if(!body) return;
+  if(!m1){ body.innerHTML='<tr><td colspan="4" class="tbl-muted">Precisa de 2 meses no período.</td></tr>'; return; }
+  const agg=ls=>{ const S=f=>ls.reduce((a,l)=>a+(+l[f]||0),0); const gmv=S('gmv_bruto'),inv=S('ads_cost'),ag=S('ads_gmv'); return {n:ls.length,gmv,inv,ag,roas:inv?ag/inv:0,ped:S('orders'),lucro:(gmv-gmv*LR_TAXA-gmv*LR_CPV)-inv-gmv*LR_TXV}; };
+  const A=agg(byM[m1]), B=agg(byM[m2]);
+  document.getElementById('lr-cmp-h1').textContent=monthLabel(m1); document.getElementById('lr-cmp-h2').textContent=monthLabel(m2);
+  const f=(v,t)=>t==='brl'?brl(v):t==='x'?v.toFixed(1)+'×':intFmt(Math.round(v));
+  const rows=[['GMV de live',A.gmv,B.gmv,'brl'],['Lives',A.n,B.n,'int'],['Investido em ads',A.inv,B.inv,'brl'],['ROAS',A.roas,B.roas,'x'],['Pedidos',A.ped,B.ped,'int'],['Lucro (s/ ICMS)',A.lucro,B.lucro,'brl']];
+  body.innerHTML=rows.map(([l,a,b,t])=>{ const d=a?(b/a-1)*100:0, col=d>=0?'var(--green)':'var(--red)'; return `<tr><td>${l}</td><td class="r">${f(a,t)}</td><td class="r">${f(b,t)}</td><td class="r" style="color:${col};font-weight:700">${(d>=0?'+':'')+d.toFixed(0)}%</td></tr>`; }).join('');
+}
+async function fetchLiveProduto(){
+  const el=document.getElementById('lr-prod'); if(!el) return;
+  try{
+    const r=await fetch('/api/get-hub',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'dashlive',which:'live_produto'})});
+    if(!r.ok) throw 0; const d=await r.json(); LR_PROD=d||[];
+    if(!d.length){ el.innerHTML='<tr><td colspan="6" class="tbl-muted">Sem dados de produto de live ainda.</td></tr>'; return; }
+    d.sort((a,b)=>(+b.gmv||0)-(+a.gmv||0));
+    const sub=document.getElementById('lr-prod-sub'); if(sub) sub.textContent=`${d.length} produtos · ${d[0].periodo||''} · margem de contribuição por produto`;
+    el.innerHTML=d.slice(0,20).map(p=>{ const mp=+p.margem_pct||0, col=mp<0?'var(--red)':mp<8?'var(--yellow)':'var(--green)'; return `<tr><td>${(p.produto||'—').slice(0,32)}</td><td class="r">${brl(p.gmv)}</td><td class="r">${intFmt(p.unidades||0)}</td><td class="r">${p.cpv_un?brl2(p.cpv_un):'—'}</td><td class="r">${p.margem!=null?brl(p.margem):'—'}</td><td class="r" style="color:${col};font-weight:700">${mp.toFixed(0)}%</td></tr>`; }).join('');
+  }catch(e){ el.innerHTML='<tr><td colspan="6" class="tbl-muted">live_produto indisponível (rode a SQL + o populador).</td></tr>'; }
+}
+function exportLive(){
+  if(!LR_AGG){ alert('Abra a página Ads primeiro (os dados carregam lá).'); return; }
+  const icms=(+((document.getElementById('lr-icms')||{}).value)||0)/100;
+  const {gmv,invest,adsGmv,orders,byM}=LR_AGG;
+  const taxas=gmv*LR_TAXA,cpv=gmv*LR_CPV,mcontrib=gmv-taxas-cpv,imp=gmv*(LR_TXV+icms),lucro=mcontrib-invest-imp;
+  const roi=invest?lucro/invest*100:0,marg=gmv?lucro/gmv*100:0,roas=invest?gmv/invest:0;
+  const contribRate=Math.max(0,(1-LR_TAXA)-LR_CPV),contribGer=adsGmv*contribRate,ret=invest?contribGer/invest:0;
+  const b=v=>'R$ '+(+v).toLocaleString('pt-BR',{maximumFractionDigits:0});
+  const ml=y=>{const p=y.split('-');return ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+p[1]-1]+'/'+p[0].slice(2);};
+  const casc=[['GMV de live',gmv],['− Taxas TikTok (19%)',-taxas],['− CPV (58%)',-cpv],['= Margem de contribuição',mcontrib],['− Mídia (GMV Max)',-invest],['− Imposto ('+((LR_TXV+icms)*100).toFixed(1)+'%)',-imp],['= LUCRO'+(icms?' (c/ ICMS)':' (s/ ICMS)'),lucro]];
+  const cascRows=casc.map(([l,v])=>`<tr><td>${l}</td><td class=n style="font-weight:700;color:${v<0?'#c0392b':'#1a8f5a'}">${b(v)}</td></tr>`).join('');
+  const kc=[['GMV de live',b(gmv)],['Investimento',b(invest)],['ROAS',roas.toFixed(1)+'×'],['Lucro real',b(lucro)],['ROI real',roi.toFixed(0)+'%'],['Margem',marg.toFixed(1)+'%'],['Retorno mídia',ret.toFixed(1)+'×'],['Pedidos',(orders||0).toLocaleString('pt-BR')]].map(([l,v])=>`<div class=kpi><div class=l>${l}</div><div class=v>${v}</div></div>`).join('');
+  const months=Object.keys(byM).sort(); let cmpHtml='';
+  if(months.length>=2){
+    const agg=ls=>{const S=f=>ls.reduce((a,l)=>a+(+l[f]||0),0);const g=S('gmv_bruto'),iv=S('ads_cost'),ag=S('ads_gmv');return{n:ls.length,g,iv,roas:iv?ag/iv:0,ped:S('orders'),lucro:(g-g*LR_TAXA-g*LR_CPV)-iv-g*LR_TXV};};
+    const m1=months[months.length-2],m2=months[months.length-1],A=agg(byM[m1]),B=agg(byM[m2]);
+    const rows=[['GMV de live',A.g,B.g,'b'],['Lives',A.n,B.n,'i'],['Investido',A.iv,B.iv,'b'],['ROAS',A.roas,B.roas,'x'],['Pedidos',A.ped,B.ped,'i'],['Lucro',A.lucro,B.lucro,'b']];
+    const f=(v,t)=>t==='b'?b(v):t==='x'?v.toFixed(1)+'×':Math.round(v).toLocaleString('pt-BR');
+    cmpHtml=`<div class=card><h2>Comparativo ${ml(m1)} × ${ml(m2)}</h2><table><thead><tr><th>Métrica</th><th class=n>${ml(m1)}</th><th class=n>${ml(m2)}</th><th class=n>Δ</th></tr></thead><tbody>${rows.map(([l,a,bb,t])=>{const d=a?(bb/a-1)*100:0;return `<tr><td>${l}</td><td class=n>${f(a,t)}</td><td class=n>${f(bb,t)}</td><td class=n style="color:${d>=0?'#1a8f5a':'#c0392b'};font-weight:700">${(d>=0?'+':'')+d.toFixed(0)}%</td></tr>`;}).join('')}</tbody></table></div>`;
+  }
+  const prod=(LR_PROD||[]).slice().sort((a,b)=>(+b.gmv||0)-(+a.gmv||0)).slice(0,25);
+  const prodHtml=prod.length?`<div class=card><h2>Margem por produto de live</h2><table><thead><tr><th>Produto</th><th class=n>GMV</th><th class=n>Un.</th><th class=n>Margem R$</th><th class=n>Margem %</th></tr></thead><tbody>${prod.map(p=>`<tr><td>${(p.produto||'').slice(0,44)}</td><td class=n>${b(p.gmv)}</td><td class=n>${p.unidades||0}</td><td class=n>${p.margem!=null?b(p.margem):'—'}</td><td class=n>${(+p.margem_pct||0).toFixed(0)}%</td></tr>`).join('')}</tbody></table></div>`:'';
+  const html=`<!doctype html><html lang=pt-BR><head><meta charset=utf-8><title>Relatório de Live — Rhode Jeans</title><style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,-apple-system,sans-serif;background:#f5f5f7;color:#1d1d1f;padding:28px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rep{max-width:920px;margin:0 auto}h1{font-size:22px}.sub{color:#85858a;font-size:13px;margin:4px 0 20px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1d1d1f;padding-bottom:14px;margin-bottom:20px}
+.btn{font-size:13px;padding:9px 16px;background:#1d1d1f;color:#fff;border:none;border-radius:9px;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid #e6e6ea;border-radius:12px;padding:14px}.kpi .l{font-size:10px;text-transform:uppercase;color:#85858a;letter-spacing:.05em}.kpi .v{font-size:20px;font-weight:700;margin-top:5px}
+.card{background:#fff;border:1px solid #e6e6ea;border-radius:14px;padding:18px 20px;margin-bottom:16px}.card h2{font-size:15px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:7px 9px;font-size:13px;border-bottom:1px solid #f0f0f3}th{font-size:10px;text-transform:uppercase;color:#85858a}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.note{background:#fff8ee;border:1px solid #f0e2c8;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#7a5b1e;margin-top:14px}
+@media print{.btn{display:none}body{background:#fff;padding:0}.card,.kpi{break-inside:avoid}}
+</style></head><body><div class=rep>
+<div class=top><div><h1>Relatório de Live — Rhode Jeans</h1><div class=sub>Rentabilidade real · gerado em ${new Date().toLocaleString('pt-BR')} · fonte: painel interno (API)</div></div><button class=btn onclick="window.print()">🖨️ Salvar PDF</button></div>
+<div class=kpis>${kc}</div>
+<div class=card><h2>ROI real — do GMV ao lucro</h2><table><tbody>${cascRows}</tbody></table>
+<div class=note><b>ROAS ${roas.toFixed(1)}× não é lucro.</b> A mídia rende <b>${ret.toFixed(1)}×</b> em margem de contribuição, mas depois de CPV (58%), taxas TikTok, mídia e imposto a live rende <b>${b(lucro)}</b> (margem ${marg.toFixed(1)}%, ROI ${roi.toFixed(0)}%). Imposto = Lucro Presumido ${(LR_TXV*100).toFixed(1)}% + ICMS ${(icms*100).toFixed(1)}% (a confirmar c/ contador).</div></div>
+${cmpHtml}${prodHtml}
+</div></body></html>`;
+  const w=window.open(URL.createObjectURL(new Blob([html],{type:'text/html'})),'_blank');
+  if(!w) alert('Permita pop-ups pra abrir o relatório.');
+}
 function recalcAdsRoi() {
   const el = document.getElementById('kpi-ads-roi');
   const bn = document.getElementById('kpi-ads-roi-bench');
