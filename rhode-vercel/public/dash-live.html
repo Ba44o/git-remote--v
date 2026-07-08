@@ -875,9 +875,15 @@ a{color:inherit;text-decoration:none}
     <table class="tbl" style="margin-top:8px"><thead><tr><th>Canal</th><th class="r">Meta</th><th class="r">Realizado</th><th class="r">Atingimento</th><th class="r">Base jun</th><th class="r">Δ base</th><th style="width:170px">Progresso</th></tr></thead><tbody id="meta-tbl"></tbody></table>
   </div>
   <div class="grid g2" style="margin-bottom:16px">
+    <div class="card"><div class="card-title">Fatia por canal de origem</div><div class="card-sub">% das peças por canal (atribuído por pedido) — mês corrente</div><div class="chart-wrap-lg"><canvas id="c-meta-pie"></canvas></div></div>
     <div class="card"><div class="card-title">Evolução semanal (NET)</div><div class="card-sub">Peças por semana no mês corrente</div><div class="chart-wrap-lg"><canvas id="c-meta-sem"></canvas></div></div>
-    <div class="card"><div class="card-title">Leitura</div><div class="card-sub" id="meta-note" style="line-height:1.6;margin-top:8px">Carregando…</div></div>
   </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Top SKUs por canal</div>
+    <div class="card-sub">Os mais vendidos em cada canal de origem (mês corrente) — gancho pra esteira de produtos</div>
+    <div class="grid g3" id="meta-skus" style="margin-top:10px;gap:14px"></div>
+  </div>
+  <div class="card" style="margin-bottom:16px"><div class="card-title">Leitura</div><div class="card-sub" id="meta-note" style="line-height:1.6;margin-top:8px">Carregando…</div></div>
 </div>
 
 <script>
@@ -1058,28 +1064,40 @@ async function loadMeta(){
   }catch(e){ const t=document.getElementById('meta-tbl'); if(t) t.innerHTML='<tr><td colspan="7" class="tbl-muted">tracker_canais ainda vazio — rode tracker_canais.sql + tracker_canais.py.</td></tr>'; const n=document.getElementById('meta-note'); if(n) n.textContent='Sem dados do tracker ainda.'; }
 }
 function renderMeta(rows){
-  const LBL={live_propria:'Live própria (Rhode)',live_afiliada:'Live de afiliada',video_afiliada:'Vídeo de afiliada',organico:'Orgânico/loja'};
+  const LBL={video_afiliada:'Vídeo de afiliada',live_afiliada:'Live de afiliada',loja_propria:'Loja própria (venda direta)',live_propria_ref:'Live própria (rooms)'};
+  const COL={video_afiliada:'#7c6dff',live_afiliada:'#2dd4bf',loja_propria:'#f472b6'};
   const meses=[...new Set(rows.map(r=>r.mes))].sort(), cur=meses[meses.length-1], base=meses[0];
   const M={}; rows.forEach(r=>{ M[r.mes+':'+r.canal]=r; });
   const net=M[cur+':net']||{pecas:0,meta_pecas:10000,semanas:{}};
+  const ref=M[cur+':live_propria_ref']||{pecas:0};
   const today=new Date(), dim=new Date(today.getFullYear(),today.getMonth()+1,0).getDate(), frac=today.getDate()/dim;
   const ating=net.meta_pecas?net.pecas/net.meta_pecas:0, proj=frac?Math.round(net.pecas/frac):0, onpace=frac?net.pecas>=net.meta_pecas*frac:false;
   document.getElementById('meta-kpis').innerHTML=[
     ['NET realizado',intFmt(net.pecas),'var(--purple)'],['Meta net',intFmt(net.meta_pecas),'var(--text)'],
     ['Atingimento',(ating*100).toFixed(0)+'%',ating>=frac?'var(--green)':'var(--yellow)'],
-    ['Projeção do mês',intFmt(proj),onpace?'var(--green)':'var(--yellow)'],['No ritmo?',onpace?'SIM':'ATRÁS',onpace?'var(--green)':'var(--yellow)']
+    ['Projeção do mês',intFmt(proj),onpace?'var(--green)':'var(--yellow)'],['Live própria (ref)',intFmt(ref.pecas),'var(--muted2)']
   ].map(([l,v,c])=>`<div class="card kpi"><div class="card-accent" style="background:${c}"></div><div class="kpi-label">${l}</div><div class="kpi-value" style="color:${c}">${v}</div></div>`).join('');
-  const order=['video_afiliada','live_afiliada','live_propria','organico'];
+  const order=['video_afiliada','live_afiliada','loja_propria'];
   document.getElementById('meta-tbl').innerHTML=order.map(k=>{
     const c=M[cur+':'+k]||{pecas:0,meta_pecas:0}, b=M[base+':'+k]||{pecas:0};
     const at=c.meta_pecas?c.pecas/c.meta_pecas:0, d=b.pecas?(c.pecas/b.pecas-1):0;
     const col=at>=frac?'var(--green)':at>=frac*0.8?'var(--yellow)':'var(--red)';
     return `<tr><td>${LBL[k]}</td><td class="r">${intFmt(c.meta_pecas)}</td><td class="r" style="font-weight:700">${intFmt(c.pecas)}</td><td class="r" style="color:${col};font-weight:700">${(at*100).toFixed(0)}%</td><td class="r">${intFmt(b.pecas)}</td><td class="r" style="color:${d>=0?'var(--green)':'var(--red)'}">${(d>=0?'+':'')+(d*100).toFixed(0)}%</td><td><div style="height:10px;background:var(--s2);border-radius:5px;overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,at*100)}%;background:${col}"></i></div></td></tr>`;
   }).join('');
+  const pv=order.map(k=>(M[cur+':'+k]||{pecas:0}).pecas);
+  if(window._pie) window._pie.destroy();
+  window._pie=new Chart(document.getElementById('c-meta-pie'),{type:'doughnut',data:{labels:order.map(k=>LBL[k]),datasets:[{data:pv,backgroundColor:order.map(k=>COL[k]),borderColor:'#0f1120',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:10}}}}});
   const sem=net.semanas||{}, wks=Object.keys(sem).sort();
   if(META_CHART) META_CHART.destroy();
   META_CHART=new Chart(document.getElementById('c-meta-sem'),{type:'bar',data:{labels:wks.map(w=>'Sem '+w),datasets:[{data:wks.map(w=>sem[w]),backgroundColor:'#7c6dff',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1d2238'},ticks:{color:'#94a3b8'}},x:{ticks:{color:'#94a3b8'}}}}});
-  document.getElementById('meta-note').innerHTML=`Motor = <b>afiliadas (~77% das peças)</b>. O caminho pras 10k é <b>mais creators ativos</b> (vídeo + live), segurando a live própria (margem fina). Projeção do mês: <b style="color:${onpace?'var(--green)':'var(--yellow)'}">${intFmt(proj)}</b> peças.<br><br><span style="color:var(--muted)">🔌 Gancho da esteira: cruzar produto × canal quando o outro relatório ficar pronto (margem por produto de live já está na aba Ads).</span>`;
+  const sk=document.getElementById('meta-skus'); sk.style.display='grid'; sk.style.gridTemplateColumns='repeat(3,1fr)'; sk.style.gap='14px';
+  sk.innerHTML=order.map(k=>{
+    const c=M[cur+':'+k]||{}; let tops=c.top_skus||[]; if(typeof tops==='string'){try{tops=JSON.parse(tops)}catch(e){tops=[]}}
+    const li=(tops||[]).slice(0,6).map(t=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px" title="${(t.produto||'').replace(/"/g,'')}">${t.sku}</span><b>${intFmt(t.pecas)}</b></div>`).join('')||'<div class="tbl-muted">—</div>';
+    return `<div><div style="font-weight:700;color:${COL[k]};margin-bottom:6px">${LBL[k]}</div>${li}</div>`;
+  }).join('');
+  const afilPct=Math.round((1-(M[cur+':loja_propria']||{pecas:0}).pecas/(net.pecas||1))*100);
+  document.getElementById('meta-note').innerHTML=`Atribuição <b>por pedido</b> (order_id × afiliada) — cada peça 1 dono, soma exata ao net. <b>Afiliadas ≈ ${afilPct}%</b> das peças. Caminho pras 10k = mais creators ativos (vídeo + live). <b>Live própria (ref) = ${intFmt(ref.pecas)}</b> peças nas lives da conta Rhode (a maioria já contada em afiliada-live/loja — lente de esforço, não some com os outros). Projeção do mês: <b style="color:${onpace?'var(--green)':'var(--yellow)'}">${intFmt(proj)}</b>.<br><br><span style="color:var(--muted)">🔌 Esteira: os top SKUs por canal acima já dizem qual produto vende em qual canal.</span>`;
 }
 
 function deltaClass(pct) {

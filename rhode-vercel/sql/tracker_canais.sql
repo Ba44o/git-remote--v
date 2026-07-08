@@ -7,10 +7,11 @@
 CREATE TABLE IF NOT EXISTS tracker_canais (
   id          text PRIMARY KEY,   -- "{mes}:{canal}"  (canal='net' = loja total)
   mes         text,
-  canal       text,               -- live_propria | live_afiliada | video_afiliada | organico | net
-  pecas       integer DEFAULT 0,  -- realizado (peças)
+  canal       text,               -- video_afiliada | live_afiliada | loja_propria | net | live_propria_ref
+  pecas       integer DEFAULT 0,  -- realizado (peças) — atribuído POR PEDIDO (order_id × extrato afiliada)
   meta_pecas  integer DEFAULT 0,
   semanas     jsonb,              -- {"1":n,"2":n,...} peças por semana do mês
+  top_skus    jsonb,              -- [{sku,produto,pecas},...] top SKUs do canal
   updated_at  timestamptz DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_tracker_canais_mes ON tracker_canais(mes);
