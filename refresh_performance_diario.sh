@@ -113,6 +113,11 @@ python3 importar_live_performance.py || echo "  ⚠ import de views falhou (não
 echo "[15f] Painel dash-live (lives + ads via API)..."
 python3 atualizar_painel_lives.py || echo "  ⚠ painel dash-live falhou (não-crítico — segue)"
 
+# 15g) Tracker da meta 10 mil peças/mês por canal (origem × conteúdo, dedup cascata).
+#      Usa live_attr + affiliate_perf + pedidos_sku (já coletados acima). Popula tracker_canais.
+echo "[15g] Tracker meta 10k por canal..."
+python3 tracker_canais.py || echo "  ⚠ tracker meta falhou (não-crítico — segue)"
+
 # 16) ETL sample_applications (free sample REAL — peças por creator × SKU + data do convite)
 echo "[16/17] ETL sample_applications (free sample real)..."
 python3 agente_rhode/etl_sample_applications.py || echo "  ⚠ ETL sample_applications falhou (não-crítico — segue)"
