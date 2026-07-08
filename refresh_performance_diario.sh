@@ -107,6 +107,12 @@ python3 coletar_lives_attr_api.py --dias 40 || echo "  ⚠ live_attr API falhou 
 echo "[15e] Views de live (export → live_attr)..."
 python3 importar_live_performance.py || echo "  ⚠ import de views falhou (não-crítico — segue)"
 
+# 15f) Painel INTERNO dash-live (tabela `lives`): funil do export do Seller Center (formato
+#      novo/performance_detail) + ads do GMV Max (live_sessao, casado por room_id). ROOT (não
+#      dispara etl_sync). Deixa o painel dash.rhodejeans.com.br atual e com ROAS/ROI vivos.
+echo "[15f] Painel dash-live (lives + ads via API)..."
+python3 atualizar_painel_lives.py || echo "  ⚠ painel dash-live falhou (não-crítico — segue)"
+
 # 16) ETL sample_applications (free sample REAL — peças por creator × SKU + data do convite)
 echo "[16/17] ETL sample_applications (free sample real)..."
 python3 agente_rhode/etl_sample_applications.py || echo "  ⚠ ETL sample_applications falhou (não-crítico — segue)"
