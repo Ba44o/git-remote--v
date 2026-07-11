@@ -192,6 +192,10 @@ Coletor: `coletar_statement_tx.py`. SQL: `statement_tx.sql`.
 | `actual_shipping_fee` | numeric | frete **real** pago à transportadora (−) |
 | `fbm_shipping_cost` | numeric | frete que a **loja** banca (merchant-fulfilled, −) |
 | `platform_shipping_subsidy` | numeric | **subsídio (+)** de frete pago pela plataforma → `frete líquido = actual_shipping_fee − platform_shipping_subsidy` |
+| `gross_sales` | numeric | preço de tabela (antes de qualquer desconto) |
+| `seller_discount` | numeric | promo que o **VENDEDOR** banca (sai do bolso da loja) |
+| `platform_discount` | numeric | **subsídio de cupom da PLATAFORMA** (TikTok banca e reembolsa ao vendedor — **não** sai do bolso da loja). Acum. dez/25–jun/26: **R$ 278.430** (~2–5% do gross/mês; pico jun **R$ 46.272**). |
+| `revenue` | numeric | receita líquida (net_sales) = `gross_sales − seller_discount − platform_discount` |
 | `moeda` | text | `BRL` |
 
 > **O campo `type` das statement_transactions e o gap de conciliação.** Cada linha tem um
@@ -417,10 +421,19 @@ NÃO dedução** — ver §6.1). ROI ~7,9x, ~R$24k/mês.
 
 ## 6. Achados / notas críticas
 
-### 6.1 ⚠️ O fee do TikTok JÁ INCLUI a comissão de afiliada E a mídia GMV Max — não subtrair de novo
-O `fee` (~26 % da receita) descontado direto do settlement **já embute** a comissão de
-afiliada (~11 %) **e** o custo de mídia GMV Max. Confirmado por **decomposição
-order-level**: o resíduo não-comissão do fee bate ~98 % com o gasto de mídia.
+### 6.1 ⚠️ CORRIGIDO (08/07/2026): o fee inclui afiliada + serviço/SFP, mas **NÃO** a mídia GMV Max
+> **ERRO ANTERIOR (superado):** este parágrafo afirmava que o fee já embutia a mídia GMV Max
+> ("resíduo ≈ mídia, 98%"). **Teste de grupo (08/07) refutou:** o resíduo do fee (fee_total −
+> comissão − afiliada) é **igual em pedidos COM afiliada (13,3%) e SEM afiliada (12,7%)** — se
+> fosse mídia, os pedidos de GMV Max (grupo sem afiliada) teriam resíduo maior. É **taxa de
+> serviço/SFP, universal**. A coincidência que enganou: resíduo total jun R$58k ≈ mídia R$64k.
+> **Conclusão correta: a mídia GMV Max está FORA do settlement — subtrair como custo à parte.**
+> **Impacto no console:** a "margem líquida" atual NÃO subtrai a mídia → **superestima o lucro em
+> ~R$64k/mês**. Corrigir: margem líquida = settlement − CPV − **mídia GMV Max** − imposto.
+
+O `fee` (~24 % da receita) descontado direto do settlement embute a comissão de
+afiliada (~6 %) e o serviço/SFP + R$4/item (~11 %), além da comissão de plataforma (~6 %).
+**Não** embute a mídia GMV Max (essa sai da conta de ads, à parte).
 
 Consequência: **a margem líquida (settlement − CPV) já é líquida de ads.** Subtrair o
 gasto de GMV Max de novo é **double-count** — gerava falso prejuízo (bug já corrigido).
@@ -510,3 +523,96 @@ SELECT periodo, SUM(custo), SUM(receita_bruta) FROM ads_gmvmax GROUP BY periodo;
 Conferência cruzada: a **taxa real** da `statement_tx_resumo` (≈26 %) deve bater com o
 `%taxa` da `finance_statements` no mesmo período (ajustando o defasamento dos dois
 relógios — §5.2).
+
+---
+
+## 8. Feature — Conciliação de ADS + P&L mensal por campanha
+
+> Status: aprovado 08/07/2026. Periodicidade: mensal (padrão do cron). Objetivo: fechar a
+> **P&L real de cada campanha GMV Max na unidade certa (a campanha/PID, não o SKU)**, com o
+> **attach hero × esteira reconciliado**. Responde: *cada campanha se paga depois da própria
+> mídia? Quanto o hero empata e quanto a esteira lucra?*
+
+### 8.1 ✅ RESOLVIDO (08/07/2026) — Cenário A confirmado
+
+**Teste de grupo:** resíduo do fee igual em pedidos com afiliada (13,3%) e sem afiliada (12,7%)
+→ é serviço/SFP universal, **não mídia**. **GMV Max está FORA do settlement → subtrair como
+custo (cenário A).** A cascata da P&L usa cenário A (mídia como linha própria). Detalhe abaixo:
+
+A **§6.1 (agora corrigida)** afirmava que *o fee do settlement já inclui a mídia GMV Max*. **A
+decomposição order-level (08/07) refutou:**
+
+`settlement = revenue + fee_total + shipping`, e `fee_total (≈23% da revenue)` decompõe em
+**comissão 6% + serviço/SFP+R$4/item ~11% + afiliada ~6% = 23%**. Não sobra espaço pra
+GMV Max (que é ~9,5% do GMV) dentro do fee. O resíduo de ~11% que a §6.1 leu como "mídia
+GMV Max" é, na verdade, **serviço/SFP + R$4/item** — coincide em magnitude com o gasto de
+mídia (~R$70k serviço vs ~R$64k mídia), mas **não é a mesma coisa**.
+
+**Impacto:** muda o lucro em ~R$64k/mês (loja) e ~R$35k/mês (campanha Marmorizada):
+| Cenário | Cascata | P&L junho campanha |
+|---|---|---|
+| **A) GMV Max FORA do settlement** (leitura nova) | liquidado − CPV − **mídia** − imposto | +R$25.457 |
+| B) GMV Max DENTRO do fee (§6.1) | liquidado − CPV − imposto (mídia já embutida) | +R$60.722 |
+
+**Teste que resolve em <1h:** comparar o resíduo do fee (`fee_total − comissão − afiliada`)
+em pedidos de **afiliada sem GMV Max** vs pedidos **com GMV Max**. Se o resíduo (% do
+pago) for igual nos dois → é serviço/SFP, **GMV Max está fora** (cenário A). Se for maior
+nos pedidos com GMV Max → parte é mídia (cenário B). **Confirmar com Lucas + esse teste
+antes de cravar o número.** O `modelo` de `ads_campanha` (`tradicional` vs
+`vendas_liquidas`/pay-with-GMV) também importa: pay-with-GMV pode sair por dentro do
+settlement — tratar separado.
+
+### 8.2 A regra de ouro (o erro que já custou uma sessão)
+
+A atribuição por produto do TikTok **joga quase todo o custo/pedido no card âncora**. Ler
+`custo=0`/`pedidos=0` nas linhas dos outros produtos e concluir "campanha 100% do âncora"
+é **ERRADO**. O attach da esteira só aparece **reconciliando o total contra o âncora**:
+
+```
+attach_esteira (pedidos) = pedidos_campanha (ads_campanha) − pedidos_âncora (ads_gmvmax, product_id do hero)
+attach_esteira (receita) = receita_campanha               − receita_âncora
+```
+Validação: o **ticket** dos residuais deve bater com o preço da esteira (~R$104). Se o
+âncora não existir no `ads_gmvmax` do mês (dado incompleto) → marcar **não-reconciliável**,
+NÃO reportar 100%.
+
+### 8.3 Fontes, pipeline e cascata
+
+- **Mapa** `product_id → REF → classe` (hero/esteira) via `warehouse/raw_creator_product.csv`
+  (1 PID = 1 REF; SKUs = tamanhos). Heroes = **REF516/525/527**.
+- **Para cada campanha × mês:** total (`ads_campanha`) e âncora (`ads_gmvmax` no product_id
+  do hero) → reconciliar attach (§8.2) → P&L por segmento (hero/esteira):
+```
+Receita (GMV pago)
+(=) Liquidado   = Receita × 0,796            (settlement/GMV medido; take ~20%)
+(−) CPV         = pedidos × CPV_segmento      (hero R$45 / esteira ~R$48; de custos_sku)
+(−) Mídia       = pedidos × CPA               (CPA = cost/pedidos)  ← só no cenário A (ver §8.1)
+(−) Imposto     = Receita × 0,064             (taxa nova p/ venda ≥ 2026-07-15, §1.4)
+(=) Resultado   → e Resultado/pedidos = R$/peça
+```
+Ratear mídia igual por pedido é o baseline; se a esteira for spillover, ela lucra mais (flag).
+
+### 8.4 Saída e golden numbers
+
+Relatório mensal `Relatorio Conciliacao ADS_<AAAA-MM-DD>.xlsx` + `.md` em
+`relatorios/AAAA-MM/` (padrão do projeto): resumo executivo, tabela por campanha
+(custo/receita/ROAS/CPA/resultado/R$peça), **split hero×esteira**, comparativo vs mês
+anterior, alertas (CPA subindo, campanha no vermelho, choque de taxa 15/07).
+
+**Regressão — junho/2026, campanha `1837899752347697` (cenário A):**
+| | Hero | Esteira | Campanha |
+|---|--:|--:|--:|
+| Pedidos | 1.729 (72%) | 687 (28%) | 2.416 |
+| Receita | 163.126 | 71.168 | 234.294 |
+| Resultado | 16.366 | 9.091 | **25.457** |
+| R$/peça | +9,47 | +13,23 | +10,54 |
+
+Mídia R$35.265 · ROAS 6,6x. Maio: 100% hero, 0% attach (surgiu em junho). Pipeline que não
+reproduzir isso (±2%, cenário A) tem bug.
+
+### 8.5 Edge cases
+
+Mês sem âncora → não-reconciliável (não reportar 100%). Campanhas LIVE têm atribuição
+diferente → separar. `product_id` não mapeado → bucket "não classificado". Defasagem de
+settlement (~32% sem liquidar no fechamento) → por isso usa ratio 0,796 sobre a receita, e
+não settlement linkado pedido-a-pedido.

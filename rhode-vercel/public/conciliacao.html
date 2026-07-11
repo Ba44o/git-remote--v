@@ -301,11 +301,11 @@ function agg(meses){
   let gmvLt=0,qtyGe=0; meses.forEach(m=>{const s=SPLIT[m]; if(s){gmvLt+=s.gmvLt;qtyGe+=s.qtyGe;}});
   const tarifaExtra=0.04*gmvLt+2.0*qtyGe;
   // CONCILIAÇÃO (esperado × real)
-  const C={has:false,receita:0,repasse:0,com_real:0,com_esp:0,serv_real:0,serv_esp:0,afi:0,ads:0,fre:0,tabela:0,desc:0,div_serv:0,custo_dev:0,faltante:0,imp:0,n_ok:0,n_serv:0,n_com:0,n_dev:0,n_falt:0,n_canc:0,n_total:0};
+  const C={has:false,receita:0,repasse:0,com_real:0,com_esp:0,serv_real:0,serv_esp:0,afi:0,ads:0,fre:0,tabela:0,desc:0,desc_plat:0,div_serv:0,custo_dev:0,faltante:0,imp:0,n_ok:0,n_serv:0,n_com:0,n_dev:0,n_falt:0,n_canc:0,n_total:0};
   meses.forEach(m=>{const c=CONC[m]; if(!c)return; C.has=true;
     C.receita+=+c.receita||0; C.repasse+=+c.repasse||0; C.com_real+=+c.comissao_real||0; C.com_esp+=+c.comissao_esp||0;
     C.serv_real+=+c.servico_real||0; C.serv_esp+=+c.servico_esp||0; C.afi+=+c.afiliada||0; C.ads+=+c.ads||0; C.fre+=+c.frete||0;
-    C.tabela+=+c.preco_tabela||0; C.desc+=+c.desconto_vendedor||0; C.div_serv+=+c.div_servico_revisar||0; C.custo_dev+=+c.custo_devolucao||0;
+    C.tabela+=+c.preco_tabela||0; C.desc+=+c.desconto_vendedor||0; C.desc_plat+=+c.desconto_plataforma||0; C.div_serv+=+c.div_servico_revisar||0; C.custo_dev+=+c.custo_devolucao||0;
     C.faltante+=+c.valor_faltante||0; C.imp+=+c.impacto_1507||0;
     C.n_ok+=+c.n_ok||0; C.n_serv+=+c.n_servico||0; C.n_com+=+c.n_comissao||0; C.n_dev+=+c.n_devolucao||0; C.n_falt+=+c.n_faltante||0; C.n_canc+=+c.n_cancelado||0; C.n_total+=+c.pedidos_total||0;
   });
@@ -391,7 +391,7 @@ function renderConciliacao(D,ms){
   const C=D.conc;
   if(!C.has) return `<div class="sec"><div class="empty">Rode <span class="mono">conciliacao_pedido.sql</span> (view v2) pra ligar a conciliação esperado×real.<br><small>Precisa do statement_tx itemizado (backfill).</small></div></div>`;
   const feeTot=C.com_real+C.serv_real+C.afi+C.ads, taxaEf=C.receita?feeTot/C.receita*100:0;
-  const divCom=C.com_real-C.com_esp, descPct=C.tabela?C.desc/C.tabela*100:0;
+  const divCom=C.com_real-C.com_esp, descPct=C.tabela?C.desc/C.tabela*100:0, descPlatPct=C.tabela?C.desc_plat/C.tabela*100:0;
   const k=`<div class="kpis k6">
     ${kpi('Receita líquida',fmt(C.receita),NUM.format(C.n_total)+' pedidos','k6')}
     ${kpi('Taxa efetiva',taxaEf.toFixed(1)+'%','fee / receita','k6')}
@@ -425,8 +425,9 @@ function renderConciliacao(D,ms){
     <div class="sec"><div class="sec-h"><h2>Promoção — o que você banca</h2></div>
       ${cascRow('Preço de tabela','soma dos preços "de"',C.tabela,'#cbd5e1',mx)}
       ${cascRow('− Desconto do vendedor',descPct.toFixed(0)+'% · promo que você absorve',-C.desc,'var(--rhode-red)',mx)}
+      ${cascRow('+ Subsídio TikTok',descPlatPct.toFixed(1)+'% · cupom que a plataforma banca e reembolsa',C.desc_plat,'var(--green)',mx)}
       ${cascRow('= Receita líquida','preço real de venda',C.receita,'var(--green)',mx,'total')}
-      <div class="note" style="margin-top:12px"><span>🏷️</span><div>Você desconta <b>${descPct.toFixed(0)}%</b> do preço de tabela em promoção — define a base de <b>todas</b> as taxas, e o gatilho 15/07 usa o preço <b>pós-desconto</b>.</div></div></div>
+      <div class="note" style="margin-top:12px"><span>🏷️</span><div>Você desconta <b>${descPct.toFixed(0)}%</b> do preço de tabela em promoção — define a base de <b>todas</b> as taxas, e o gatilho 15/07 usa o preço <b>pós-desconto</b>. O <b>subsídio TikTok</b> (<b>${fmt(C.desc_plat)}</b> no período) é cupom que a <b>plataforma</b> banca e te reembolsa — <b>não</b> sai do seu bolso.</div></div></div>
     <div class="sec"><div class="sec-h"><h2>Simulação tarifa 15/07</h2></div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:800;color:var(--rhode-red)">+${fmt(C.imp)}<span style="font-size:14px;color:var(--ink-48);font-weight:500">/mês</span></div>
       <div style="font-size:13px;color:var(--ink-64);margin-top:10px;line-height:1.5">Custo novo a partir de <b>15/07/2026</b>: comissão de itens &lt;R$50 sobe 6%→10%; taxa por item ≥R$50 sobe R$4→R$6. ${feeTot?'<b>+'+(C.imp/feeTot*100).toFixed(1)+'%</b> sobre o fee atual.':''}</div></div>
@@ -941,8 +942,9 @@ async function exportRelatorio(){
       ['GMV oficial (Seller Center)',B(D.gmvOficial||D.faturamento)],['GMV bruto (todos pedidos)',B(D.gmv)],
       ['Receita líquida (base das taxas)',B(C.receita)],['Repasse líquido (settlement)',B(C.repasse)],
       ['Taxa efetiva (% da receita)',C.receita?B(feeTot/C.receita*100):0],[],
-      ['PROMOÇÃO — o que você banca','R$'],
-      ['Preço de tabela',B(C.tabela)],['Desconto do vendedor',B(C.desc)],['% desconto',C.tabela?B(C.desc/C.tabela*100):0],[],
+      ['PROMOÇÃO','R$'],
+      ['Preço de tabela',B(C.tabela)],['Desconto do vendedor (você banca)',B(C.desc)],['% desconto',C.tabela?B(C.desc/C.tabela*100):0],
+      ['Subsídio TikTok (plataforma banca)',B(C.desc_plat)],['% subsídio',C.tabela?B(C.desc_plat/C.tabela*100):0],[],
       ['TAXAS (real, deduzido do repasse)','R$'],
       ['Comissão plataforma (6%)',B(C.com_real)],['Serviço + frete grátis',B(C.serv_real)],
       ['Comissão afiliada',B(C.afi)],['Mídia GMV Max (settlement)',B(C.ads)],['Frete líquido',B(C.fre)],[],
@@ -953,15 +955,15 @@ async function exportRelatorio(){
       ['Impacto tarifa 15/07 (por mês)',B(C.imp)],['A recuperar (repasse faltante)',B(C.faltante)]];
     const ws1=XLSX.utils.aoa_to_sheet(s1); ws1['!cols']=[{wch:36},{wch:16}]; XLSX.utils.book_append_sheet(wb,ws1,'Resumo');
     // 2) CONCILIAÇÃO POR MÊS
-    const h2=['Mês','Pedidos','Receita','Repasse','Comissão real','Comissão esp','Serv/frete real','Serv/frete esp','Afiliada','Ads','Desconto vend','% desc','Impacto 15/07','ok','revisar','faltante'];
-    const s2=[h2]; ms.forEach(m=>{const c=CONC[m]; if(!c)return; s2.push([m,c.pedidos_total,B(c.receita),B(c.repasse),B(c.comissao_real),B(c.comissao_esp),B(c.servico_real),B(c.servico_esp),B(c.afiliada),B(c.ads),B(c.desconto_vendedor),c.preco_tabela?B(c.desconto_vendedor/c.preco_tabela*100):0,B(c.impacto_1507),c.n_ok,c.n_servico,c.n_faltante]);});
+    const h2=['Mês','Pedidos','Receita','Repasse','Comissão real','Comissão esp','Serv/frete real','Serv/frete esp','Afiliada','Ads','Desconto vend','% desc','Subsídio TikTok','% subsídio','Impacto 15/07','ok','revisar','faltante'];
+    const s2=[h2]; ms.forEach(m=>{const c=CONC[m]; if(!c)return; s2.push([m,c.pedidos_total,B(c.receita),B(c.repasse),B(c.comissao_real),B(c.comissao_esp),B(c.servico_real),B(c.servico_esp),B(c.afiliada),B(c.ads),B(c.desconto_vendedor),c.preco_tabela?B(c.desconto_vendedor/c.preco_tabela*100):0,B(c.desconto_plataforma),c.preco_tabela?B(c.desconto_plataforma/c.preco_tabela*100):0,B(c.impacto_1507),c.n_ok,c.n_servico,c.n_faltante]);});
     const ws2=XLSX.utils.aoa_to_sheet(s2); ws2['!cols']=h2.map((_,i)=>({wch:i===0?9:14})); XLSX.utils.book_append_sheet(wb,ws2,'Conciliação por mês');
     // 3) PEDIDOS (completo)
-    let path='conciliacao_pedido?select=order_id,periodo,data,produto,qty,preco_tabela,desconto_vendedor,desconto_pct,receita_liq,comissao_real,comissao_esperada,servico_frete_real,servico_frete_esperado,afiliada_real,ads_real,frete_real,custo_devolucao,settlement,taxa_efetiva_pct,div_comissao,div_servico_frete,impacto_1507,conciliacao&order=receita_liq.desc';
+    let path='conciliacao_pedido?select=order_id,periodo,data,produto,qty,preco_tabela,desconto_vendedor,desconto_pct,desconto_plataforma,desconto_plataforma_pct,receita_liq,comissao_real,comissao_esperada,servico_frete_real,servico_frete_esperado,afiliada_real,ads_real,frete_real,custo_devolucao,settlement,taxa_efetiva_pct,div_comissao,div_servico_frete,impacto_1507,conciliacao&order=receita_liq.desc';
     if(ms.length===1) path+=`&periodo=eq.${ms[0]}`; else if(ms.length) path+=`&periodo=in.(${ms.join(',')})`;
     let ped=[]; try{ const r=await admProxy('GET',path,{paged:true}); ped=r.data||[]; }catch(e){}
-    const h3=['Pedido','Período','Data','Produto','Qtd','Preço tabela','Desc vendedor','Desc %','Receita líq','Comissão real','Comissão esp','Serv/frete real','Serv/frete esp','Afiliada','Ads','Frete','Custo devol','Repasse','Taxa %','Div comissão','Div serv/frete','Impacto 15/07','Status'];
-    const s3=[h3].concat(ped.map(p=>[p.order_id,p.periodo,p.data,p.produto,+p.qty||0,B(p.preco_tabela),B(p.desconto_vendedor),B(p.desconto_pct),B(p.receita_liq),B(p.comissao_real),B(p.comissao_esperada),B(p.servico_frete_real),B(p.servico_frete_esperado),B(p.afiliada_real),B(p.ads_real),B(p.frete_real),B(p.custo_devolucao),B(p.settlement),B(p.taxa_efetiva_pct),B(p.div_comissao),B(p.div_servico_frete),B(p.impacto_1507),p.conciliacao]));
+    const h3=['Pedido','Período','Data','Produto','Qtd','Preço tabela','Desc vendedor','Desc %','Subsídio TikTok','Subsídio %','Receita líq','Comissão real','Comissão esp','Serv/frete real','Serv/frete esp','Afiliada','Ads','Frete','Custo devol','Repasse','Taxa %','Div comissão','Div serv/frete','Impacto 15/07','Status'];
+    const s3=[h3].concat(ped.map(p=>[p.order_id,p.periodo,p.data,p.produto,+p.qty||0,B(p.preco_tabela),B(p.desconto_vendedor),B(p.desconto_pct),B(p.desconto_plataforma),B(p.desconto_plataforma_pct),B(p.receita_liq),B(p.comissao_real),B(p.comissao_esperada),B(p.servico_frete_real),B(p.servico_frete_esperado),B(p.afiliada_real),B(p.ads_real),B(p.frete_real),B(p.custo_devolucao),B(p.settlement),B(p.taxa_efetiva_pct),B(p.div_comissao),B(p.div_servico_frete),B(p.impacto_1507),p.conciliacao]));
     const ws3=XLSX.utils.aoa_to_sheet(s3); ws3['!cols']=[{wch:20},{wch:9},{wch:11},{wch:34}].concat(h3.slice(4).map(()=>({wch:13}))); ws3['!autofilter']={ref:'A1:'+XLSX.utils.encode_col(h3.length-1)+'1'};
     XLSX.utils.book_append_sheet(wb,ws3,'Pedidos ('+ped.length+')');
     // 4) PRODUTOS

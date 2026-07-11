@@ -29,6 +29,7 @@ WITH tx AS (
            sum(shipping)                      AS fre_s,
            sum(gross_sales)                   AS gross_sales,
            sum(seller_discount)               AS seller_discount,
+           sum(platform_discount)             AS platform_discount,
            sum(revenue)                       AS revenue_col,
            sum(customer_refund)               AS customer_refund,
            sum(return_shipping)               AS return_shipping,
@@ -49,10 +50,13 @@ base AS (
 )
 SELECT
     order_id, periodo, data, produto, status, qty, pago, receita_liq, settlement,
-    -- ---- PROMOÇÃO (o que o vendedor banca) ----
+    -- ---- PROMOÇÃO (separar quem banca) ----
     round(abs(gross_sales)::numeric, 2)                              AS preco_tabela,
     round(abs(seller_discount)::numeric, 2)                          AS desconto_vendedor,
     round((abs(seller_discount)/nullif(abs(gross_sales),0)*100)::numeric, 1) AS desconto_pct,
+    -- subsídio da PLATAFORMA (TikTok banca; reembolsado ao vendedor) — não sai do seu bolso
+    round(abs(platform_discount)::numeric, 2)                        AS desconto_plataforma,
+    round((abs(platform_discount)/nullif(abs(gross_sales),0)*100)::numeric, 1) AS desconto_plataforma_pct,
     round((receita_liq / nullif(qty,0))::numeric, 2)                 AS preco_unit,
     -- ---- REAL ----
     comissao                                                         AS comissao_real,
@@ -104,6 +108,7 @@ SELECT periodo,
     round(sum(frete_real)             FILTER (WHERE settlement>0.01)::numeric,2) AS frete,
     round(sum(preco_tabela)           FILTER (WHERE settlement>0.01)::numeric,2) AS preco_tabela,
     round(sum(desconto_vendedor)      FILTER (WHERE settlement>0.01)::numeric,2) AS desconto_vendedor,
+    round(sum(desconto_plataforma)    FILTER (WHERE settlement>0.01)::numeric,2) AS desconto_plataforma,
     round(sum(div_servico_frete) FILTER (WHERE conciliacao='servico_revisar')::numeric,2) AS div_servico_revisar,
     round(sum(custo_devolucao)::numeric,2)                                       AS custo_devolucao,
     round(sum(pago) FILTER (WHERE conciliacao='repasse_faltante')::numeric,2)    AS valor_faltante,
