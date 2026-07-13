@@ -204,7 +204,7 @@ let TX_ICMS=parseFloat(localStorage.getItem('rhode_tx_icms'))||0;       // ICMS 
 function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{localStorage.setItem('rhode_tx_venda',n)}catch(e){}}else if(w==='icms'){TX_ICMS=n;try{localStorage.setItem('rhode_tx_icms',n)}catch(e){}}else{TX_IR=n;try{localStorage.setItem('rhode_tx_ir',n)}catch(e){}} render();}
 function setRegime(r){ if(r==='presumido'){TX_VENDA=6.4;TX_IR=0;} else if(r==='real'){TX_VENDA=9.25;TX_IR=34;} try{localStorage.setItem('rhode_tx_venda',TX_VENDA);localStorage.setItem('rhode_tx_ir',TX_IR);}catch(e){} render(); }
 
-const TABS=[['visao','Visão Geral'],['conciliacao','Conciliação'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['lucro','Lucro'],['ads','Ads'],['lives','Lives'],['pedidos','Pedidos']];
+const TABS=[['visao','Visão Geral'],['conciliacao','Conciliação'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['liquidacao','Liquidação SKU'],['lucro','Lucro'],['ads','Ads'],['lives','Lives'],['pedidos','Pedidos']];
 
 async function load(){
   const [fin, ped, cpv, ads, stx, div, ofi, conc, adc, adcamp, livs, livp, liva] = await Promise.all([
@@ -327,6 +327,7 @@ function render(){
   else if(TAB==='repasse') el.innerHTML=renderRepasse(D,ms);
   else if(TAB==='receber') el.innerHTML=renderReceber(D);
   else if(TAB==='produtos')el.innerHTML=renderProdutos(D);
+  else if(TAB==='liquidacao'){ el.innerHTML=renderLiqShell(); loadLiq(); }
   else if(TAB==='lucro')   el.innerHTML=renderLucro(D);
   else if(TAB==='ads')     el.innerHTML=renderAds(D);
   else if(TAB==='lives'){  el.innerHTML=renderLives(D); simLive(); }
@@ -835,6 +836,72 @@ function renderPedidosTable(){
     <td>${p.taxa_pct!=null?p.taxa_pct+'%':'—'}</td><td>${sit(p.situacao)}</td></tr>`).join('')}</tbody></table>`;
 }
 function filterPedidos(){ renderPedidosTable(); }
+
+// ===== LIQUIDAÇÃO por COR × CANAL (settlement real) =====
+function renderLiqShell(){
+  return `<div id="liq-body"><div class="sec"><div class="loading">Carregando liquidação…</div></div></div>`;
+}
+let LIQROWS=[];
+async function loadLiq(){
+  const ms=getMeses();
+  let path='liquidacao_cor_canal?select=periodo,corte,cor,canal,pecas,pecas_liq,settlement_real,gmv,cpv_total,is_hero&limit=3000';
+  if(ms.length===1) path+=`&periodo=eq.${ms[0]}`; else if(ms.length) path+=`&periodo=in.(${ms.join(',')})`;
+  try{ const r=await admProxy('GET',path); LIQROWS=r.data||[]; renderLiqBody(); }
+  catch(e){ const b=document.getElementById('liq-body'); if(b) b.innerHTML=`<div class="sec"><div class="empty">Rode <span class="mono">liquidacao_cor_canal.sql</span> no Supabase e <span class="mono">python3 liquidacao_cor_canal.py</span> pra ativar esta lente.<br><small>${e.message}</small></div></div>`; }
+}
+function renderLiqBody(){
+  const b=document.getElementById('liq-body'); if(!b) return;
+  if(!LIQROWS.length){ b.innerHTML='<div class="sec"><div class="empty">Sem dados no período.</div></div>'; return; }
+  // agrega por corte > cor > canal, somando os meses selecionados
+  const A={};
+  LIQROWS.forEach(r=>{
+    const C=A[r.corte]||(A[r.corte]={}); const cor=C[r.cor]||(C[r.cor]={hero:false,ch:{}});
+    const k=cor.ch[r.canal]||(cor.ch[r.canal]={pecas:0,liq:0,settle:0,gmv:0,cpv:0});
+    k.pecas+=+r.pecas||0; k.liq+=+r.pecas_liq||0; k.settle+=+r.settlement_real||0; k.gmv+=+r.gmv||0; k.cpv+=+r.cpv_total||0;
+    if(r.is_hero) cor.hero=true;
+  });
+  const CHS=[['video_afil','Vídeo afil.'],['live_afil','Live afil.'],['loja','Loja']];
+  const per=k=>k&&k.liq?k.settle/k.liq:null;   // liquidação/pç real (base = peças liquidadas)
+  const covBadge=c=>c>=0.7?`<span class="tag ok">${(c*100).toFixed(0)}%</span>`:c>=0.4?`<span class="tag warn">${(c*100).toFixed(0)}%</span>`:`<span class="tag mut">${(c*100).toFixed(0)}%</span>`;
+  // hero card (Wide Leg Marmorizada = REF516)
+  let hero='';
+  const wl=A['Wide Leg'];
+  if(wl && wl['Marmorizada'] && wl['Marmorizada'].ch['TOTAL']){
+    const t=wl['Marmorizada'].ch['TOTAL'], liq=per(t), cpv=t.cpv/t.pecas, cov=t.pecas?t.liq/t.pecas:0;
+    const wlTot=Object.values(wl).reduce((s,c)=>s+((c.ch['TOTAL']&&c.ch['TOTAL'].pecas)||0),0);
+    hero=`<div class="kpis k6" style="margin-top:14px">
+      ${kpi('⭐ Hero · Wide Leg Marmorizada',NUM.format(t.pecas)+' pç',pct(t.pecas,wlTot).toFixed(0)+'% da Wide Leg · REF516','k6 accent')}
+      ${kpi('Liquidação/pç real',liq!=null?fmt2(liq):'—','cobertura de settlement '+(cov*100).toFixed(0)+'%','k6')}
+      ${kpi('Margem/pç',liq!=null?fmt2(liq-cpv):'—','após CPV '+fmt2(cpv),'k6 accent')}
+    </div>`;
+  }
+  const head=`<div class="sec"><div class="sec-h"><h2>Liquidação por Cor × Canal <span class="pill">settlement real</span></h2>
+    <div class="meta">${periodoLabel()} · a cor/lavagem mora no SKU (REF), não no nome do anúncio · liquidação = repasse real por pedido (comissão de afiliada já embutida)</div></div>${hero}</div>`;
+  const secs=['Wide Leg','Mom','Baggy'].filter(c=>A[c]).map(cut=>{
+    const C=A[cut];
+    const cors=Object.keys(C).map(cor=>({cor,hero:C[cor].hero,ch:C[cor].ch,T:C[cor].ch['TOTAL']||{pecas:0,liq:0,settle:0,gmv:0,cpv:0}}))
+      .filter(x=>x.T.pecas>=8).sort((a,b)=>b.T.pecas-a.T.pecas);
+    const tot=cors.reduce((s,x)=>s+x.T.pecas,0)||1;
+    const rows=cors.map(x=>{
+      const t=x.T, preco=t.gmv/t.pecas, liq=per(t), cpv=t.cpv/t.pecas, cov=t.pecas?t.liq/t.pecas:0, marg=liq!=null?liq-cpv:null;
+      const chCells=CHS.map(([ck])=>{ const k=x.ch[ck], v=per(k), thin=k&&(k.pecas<20||(k.liq/Math.max(1,k.pecas))<0.5);
+        return `<td style="${thin?'color:var(--ink-48)':''}">${v!=null?fmt2(v):'—'}</td>`; }).join('');
+      const isHero=x.hero&&x.cor==='Marmorizada'&&cut==='Wide Leg';
+      return `<tr style="${isHero?'background:rgba(123,45,142,.06)':''}">
+        <td class="mp" style="${isHero?'font-weight:700':''}">${isHero?'⭐ ':''}${x.cor}</td>
+        <td>${NUM.format(t.pecas)}</td><td>${pct(t.pecas,tot).toFixed(0)}%</td><td>${fmt2(preco)}</td>
+        ${chCells}
+        <td style="font-weight:600">${liq!=null?fmt2(liq):'—'}</td><td>${covBadge(cov)}</td>
+        <td>${fmt2(cpv)}</td><td style="font-weight:600">${marg!=null?fmt2(marg):'—'}</td>
+        <td>${marg!=null?fmt2(marg*t.pecas):'—'}</td></tr>`;
+    }).join('');
+    return `<div class="sec"><div class="sec-h"><h2>${cut}</h2><div class="meta">${NUM.format(tot)} peças · cor × canal</div></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Cor (lavagem)</th><th>Peças</th><th>% mix</th><th>Preço/pç</th><th>Vídeo afil.</th><th>Live afil.</th><th>Loja</th><th>Liq/pç</th><th>Cob.</th><th>CPV</th><th>Margem/pç</th><th>Margem total</th></tr></thead>
+      <tbody>${rows}</tbody></table></div></div>`;
+  }).join('');
+  const note=`<div class="note"><span>🎯</span><div>A <b>hero (Marmorizada)</b> é motor de <b>volume</b>, não de margem — roda fino por ser a mais descontada. Cores premium (<b>Rosa Bebê, Chocolate</b>) liquidam ~2×, mas somam &lt;10% do volume. <b>Vídeo de afiliada</b> liquida mais que <b>live</b> (que ainda liquida devagar — mais devolução/pendência). Célula/cobertura clara = poucos pedidos liquidados, número frágil.</div></div>`;
+  b.innerHTML=head+secs+note;
+}
 
 // ===== EXPORTAR RELATÓRIO (XLSX multi-aba) =====
 function exportLivesHTML(){
