@@ -118,6 +118,11 @@ python3 atualizar_painel_lives.py || echo "  ⚠ painel dash-live falhou (não-c
 echo "[15g] Tracker meta 10k por canal..."
 python3 tracker_canais.py || echo "  ⚠ tracker meta falhou (não-crítico — segue)"
 
+# 15h) Liquidação por cor(lavagem)×canal na base settlement real (aba Liquidação SKU do console).
+#      Usa conciliacao_pedido + extrato_pedidos + pedidos_sku + custos_sku (já coletados acima).
+echo "[15h] Liquidação cor×canal (settlement real)..."
+python3 liquidacao_cor_canal.py || echo "  ⚠ liquidação cor×canal falhou (não-crítico — segue)"
+
 # 16) ETL sample_applications (free sample REAL — peças por creator × SKU + data do convite)
 echo "[16/17] ETL sample_applications (free sample real)..."
 python3 agente_rhode/etl_sample_applications.py || echo "  ⚠ ETL sample_applications falhou (não-crítico — segue)"
