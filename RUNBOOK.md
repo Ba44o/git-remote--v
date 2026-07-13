@@ -187,8 +187,8 @@ print(f'Com 55: {p if p.startswith(\"55\") else \"55\"+p}')
 "
 
 # Z-API conectado?
-curl -s "https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3/connection-status" \
-  -H "Client-Token: F92b6dc75c19f490188eea81fcc29b6aaS"
+curl -s "https://api.z-api.io/instances/<ZAPI_INSTANCE>/token/<ZAPI_TOKEN>/connection-status" \
+  -H "Client-Token: <ZAPI_CLIENT_TOKEN>"
 # Esperado: { "connected": true }
 ```
 

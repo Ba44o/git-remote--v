@@ -1,8 +1,8 @@
 const SB_URL = 'https://ivzpykuluxcxefhyzfsf.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2enB5a3VsdXhjeGVmaHl6ZnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3Mzc5MzYsImV4cCI6MjA5MTMxMzkzNn0.4_ZShB2t3yCg8ag7-LPWvzHXVrTmj0N4iKWp_tEZb9g';
 const SB_SERVICE = process.env.SUPABASE_SERVICE_KEY;
-const ZAPI    = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3';
-const CLIENT_TOKEN = 'F92b6dc75c19f490188eea81fcc29b6aaS';
+const ZAPI    = `https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE}/token/${process.env.ZAPI_TOKEN}`;
+const CLIENT_TOKEN = process.env.ZAPI_CLIENT_TOKEN;
 const HUB_URL = 'https://creators.rhodejeans.com.br/hub.html';
 
 const SBH  = { 'apikey': SB_KEY,     'Authorization': `Bearer ${SB_KEY}`,     'Content-Type': 'application/json' };

@@ -6,9 +6,9 @@
 const SB_URL = 'https://ivzpykuluxcxefhyzfsf.supabase.co';
 const SB_SVC = process.env.SUPABASE_SERVICE_KEY;
 
-const ZAPI_INSTANCE = '3F173410FA03D317C69AAAE399BC1248';
-const ZAPI_TOKEN    = '23F1D0021AF2CC2A39C7AFE3';
-const CLIENT_TOKEN  = 'F92b6dc75c19f490188eea81fcc29b6aaS';
+const ZAPI_INSTANCE = process.env.ZAPI_INSTANCE;
+const ZAPI_TOKEN    = process.env.ZAPI_TOKEN;
+const CLIENT_TOKEN  = process.env.ZAPI_CLIENT_TOKEN;
 const ZAPI = `https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN}`;
 
 const OPERATOR_PHONE = '5511952759126';

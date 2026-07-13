@@ -164,7 +164,7 @@ Os crons de evento já passaram (era 13-15/04), mantidos pra histórico. O únic
 ### Padrões internos
 
 - **Headers Supabase:** `apikey + Authorization: Bearer ${KEY}`. Endpoints server-side usam `SB_SVC` (service_role); endpoints chamados client-side usam `SB_KEY` (anon).
-- **Z-API:** instância `3F173410FA03D317C69AAAE399BC1248` + token + Client-Token header obrigatório.
+- **Z-API:** instância `<ZAPI_INSTANCE>` + token + Client-Token header obrigatório.
 - **Claude:** `api.anthropic.com/v1/messages`, modelo `claude-opus-4-7-1m` (default Opus mais recente).
 - **Tratamento de erro:** catch + log + retornar `{ error: msg }` com 4xx/5xx.
 

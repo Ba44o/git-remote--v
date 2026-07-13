@@ -413,8 +413,8 @@ async function handleData(body, res) {
 
 // ════════════ LOGIN MODE ════════════════════════════════════════════════════
 // ════════════ VITRINE OPT-IN (WhatsApp opt-in do estado BETWEEN do /live) ═══
-const ZAPI_URL = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3';
-const ZAPI_CLIENT = 'F92b6dc75c19f490188eea81fcc29b6aaS';
+const ZAPI_URL = `https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE}/token/${process.env.ZAPI_TOKEN}`;
+const ZAPI_CLIENT = process.env.ZAPI_CLIENT_TOKEN;
 const VITRINE_PHONE_RE = /^55(1[1-9]|2[12478]|3[1-578]|4[1-9]|5[13-5]|6[1-9]|7[13-9]|8[1-9]|9[1-9])(9\d{8}|[2-5]\d{7})$/;
 function vitrineNormalizePhone(raw) {
   const d = String(raw || '').replace(/\D/g, '');

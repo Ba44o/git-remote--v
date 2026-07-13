@@ -16,8 +16,8 @@ const SB_SVC_KEY = process.env.SUPABASE_SERVICE_KEY;
 const ADMIN_PASS = process.env.ADMIN_PASS || 'rhode2026';
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
 
-const ZAPI_URL     = 'https://api.z-api.io/instances/3F173410FA03D317C69AAAE399BC1248/token/23F1D0021AF2CC2A39C7AFE3';
-const ZAPI_CLIENT  = 'F92b6dc75c19f490188eea81fcc29b6aaS';
+const ZAPI_URL     = `https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE}/token/${process.env.ZAPI_TOKEN}`;
+const ZAPI_CLIENT  = process.env.ZAPI_CLIENT_TOKEN;
 const HUB_BASE     = 'https://creators.rhodejeans.com.br/hub.html';
 
 const SB_HEADERS = {
