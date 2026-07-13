@@ -109,6 +109,18 @@ _(nada no momento)_
 
 ---
 
+## 🧭 Framework de qualidade & rastreabilidade (jul/2026)
+
+Base rastreável por IDs pra entregar com mais qualidade — 4 docs em `docs/`:
+- [`docs/PRD.md`](docs/PRD.md) — requisitos funcionais (`RF-###`) e não-funcionais (`RNF-##`) por módulo (`MOD-##`).
+- [`docs/BACKLOG.md`](docs/BACKLOG.md) — histórias (`US-###`) ligadas a RF; inclui o **Épico QA** (harness + regressão dos incidentes).
+- [`docs/TEST-PLAN.md`](docs/TEST-PLAN.md) — casos de teste automatizados (`TC-###`); **1 teste de regressão por incidente do RUNBOOK** (`RB-#`).
+- [`docs/RASTREABILIDADE.md`](docs/RASTREABILIDADE.md) — matriz `MOD→RF/RNF→US→TC` + cobertura dos `RB` + GAPs.
+
+**Gap central que fecha:** 14 incidentes no RUNBOOK e quase nenhuma cobertura automatizada (só `size-finder.test.js`). **Próxima sprint sugerida** (~6.5 dias-dev): US-100 harness → US-101 regressão RUNBOOK → US-102/US-105 (audit + RLS no CI) → US-110 gate 1ª venda → US-104 guarda 12 funções Vercel. Regra nova: RF só é "done" com ≥1 TC verde (RNF-12).
+
+---
+
 ## 🔜 Próximos — priorizados
 
 ### ✅ 8. Hardening de Segurança e Escala — **CONCLUÍDO** (jun/2026)
@@ -181,7 +193,7 @@ _(nada no momento)_
 
 ### 🟢 10. Migrar dados por-creator pra API — **FORWARD-ONLY NO AR** (jun/2026)
 
-**✅ ENTREGUE (forward-only, jun/2026):** Jan–Mai continuam do **export** (congelados, intocados); **Jun+ vem da API** (Affiliate Orders) direto na `performance_periods`. Implementado em `coletar_extrato.py::build_performance_forward` (roda no daily local — não dispara o etl_sync). Guarda `periodo >= FORWARD_FROM (2026-06)` protege o passado. `gmv_liquido = liquidado + a_liquidar` (exclui reembolso/inelegível; mesma base dos meses passados, não encolhe). Validado: Jan–Mai inalterados, junho R$96,5k/85 creators, Hub hero e admin passam a mostrar junho. **Ressalvas:** (a) creators 100%-novas de junho ficam de fora até existirem na `affiliates` (FK) — pequenas; (b) `vídeos`/`lives` de junho vêm da API (content_id distinto ≈ conteúdo que gerou venda), não do export. Coleta diária às 8h mantém fresco.
+**✅ ENTREGUE (forward-only, jun/2026):** Jan–Mai continuam do **export** (congelados, intocados); **Jun+ vem da API** (Affiliate Orders) direto na `performance_periods`. Implementado em `coletar_extrato.py::build_performance_forward` (roda no daily local — não dispara o etl_sync). Guarda `periodo >= FORWARD_FROM (2026-06)` protege o passado. `gmv_liquido = liquidado + a_liquidar` (exclui reembolso/inelegível; mesma base dos meses passados, não encolhe). Validado: Jan–Mai inalterados, junho R$96,5k/85 creators, Hub hero e admin passam a mostrar junho. **Ressalvas:** (a) ~~creators 100%-novas de junho ficam de fora até existirem na `affiliates` (FK)~~ **RESOLVIDO (13/07/26):** o forward agora **auto-cadastra** a identidade mínima (`affiliate_id`+`tiktok_handle` real) de quem vende mas não está na `affiliates`, em vez de filtrar fora — senão sumiam do hub (ex.: @suzane.ganga, e ~40+ creators de jun/jul). merge-duplicates só cria o que falta; tier/pin/token de quem já existe ficam intactos; (b) `vídeos`/`lives` de junho vêm da API (content_id distinto ≈ conteúdo que gerou venda), não do export. Coleta diária às 8h mantém fresco. **⚠️ Aberto:** validação 13/07 mostrou `performance_periods` **subnotificado** (jun stored R$148k vs recompute full-window R$396k, batendo com `affiliate_creator_product`) — a janela `--dias 21` não cobre mês passado inteiro. Backfill full-window pendente de OK do dono (muda números que a creator vê).
 
 **Contexto histórico (a exploração que levou aqui):**
 **Hoje:** o per-creator (Hub + ranking/mensal do admin → `performance_periods`/`affiliates`) vem dos **exports manuais xlsx/Sheets via `etl_v2.py`**. Só o shop-wide diário (`performance_diario`) é API (ver 4.1). Granularidade do per-creator: **mensal** (decisão #5 — o export `Creator_List` não tem `transactionDate`).

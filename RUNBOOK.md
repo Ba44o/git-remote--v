@@ -566,6 +566,52 @@ nova em `KPIs (histórico)`) não apareceram no Google Sheet do projeto (`1hiyu1
 
 ---
 
+## 12. Creator VENDE mas não aparece no hub (nem no admin)
+
+### Sintoma
+- "A @fulana nem aparece no meu painel do hub" — mas ela está vendendo de verdade
+  (você vê no TikTok / na conciliação / no seeding).
+
+### Causa
+O hub lê **`affiliates`** (identidade/login) + **`performance_periods`** (números).
+Esses dois vêm do **Creator List export** (até maio) e do **forward-fill** da API
+(`coletar_extrato.py`, jun+). Creator **100%-nova** (só começou a vender de junho pra
+cá, nunca entrou num export) **não tem linha em `affiliates`**. O forward tinha uma
+trava de FK (`performance_periods.affiliate_id → affiliates`) que **filtrava fora**
+quem não estava em `affiliates` → invisível no hub. Ela existe só no pipeline da API
+de afiliadas (`affiliate_perf` / `affiliate_creator_product`), que usa o **handle**
+(ex.: `suzane.ganga`), não o id normalizado do export (ex.: `SUZANEDIAN`).
+
+### Diagnóstico
+```bash
+SB="https://ivzpykuluxcxefhyzfsf.supabase.co"; K="<service_key do .env>"
+H=(-H "apikey: $K" -H "Authorization: Bearer $K")   # SEM o Bearer, RLS devolve 0 linhas!
+HANDLE="suzane.ganga"; ID=$(echo "$HANDLE" | tr a-z A-Z)
+# Está na API (vende)?  → deve ter linhas
+curl -s "$SB/rest/v1/affiliate_creator_product?creator=eq.$HANDLE&select=data,gmv,pedidos" "${H[@]}"
+# Está no hub (affiliates + perf)?  → provavelmente VAZIO = a causa
+curl -s "$SB/rest/v1/affiliates?affiliate_id=ilike.$ID&select=affiliate_id" "${H[@]}"
+curl -s "$SB/rest/v1/performance_periods?affiliate_id=ilike.$ID&select=periodo,gmv_liquido" "${H[@]}"
+```
+
+### Fix (aplicado 13/07/26)
+- `coletar_extrato.py` agora **auto-cadastra** a identidade mínima da creator nova em
+  `affiliates` antes de escrever o `performance_periods` (não filtra mais fora). O
+  próximo daily resolve sozinho. Onboarding manual imediato (RUNBOOK cenário 2, Caso A):
+  ```bash
+  # 1) identidade (affiliate_id = HANDLE em UPPERCASE, casa com o forward .upper())
+  curl -X POST "$SB/rest/v1/affiliates?on_conflict=affiliate_id" "${H[@]}" \
+    -H "Content-Type: application/json" -H "Prefer: resolution=merge-duplicates,return=minimal" \
+    -d "[{\"affiliate_id\":\"$ID\",\"tiktok_handle\":\"$HANDLE\"}]"
+  # 2) números: rodar coletar_extrato.py --inicio <1º-do-mês-inicial> --fim <hoje>  (janela
+  #    FULL do mês — NUNCA janela curta, senão grava mês parcial e ENCOLHE o hub).
+  ```
+- **Lição:** `performance_periods` cobre menos creators que `affiliate_perf`/`extrato_resumo`
+  → provável FK-filter mordendo (ou perf subnotificado). Sempre validar recompute
+  full-window contra `affiliate_creator_product` (fonte independente) antes de gravar.
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:

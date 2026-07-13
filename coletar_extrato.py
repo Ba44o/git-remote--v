@@ -244,18 +244,27 @@ def main():
 
     # FORWARD-ONLY: performance_periods só pra meses >= FORWARD_FROM (Jan-Mai = export)
     perf_fwd = [] if a.no_forward else build_performance_forward(resumo_rows)
+    perf_fwd = [r for r in perf_fwd if r["affiliate_id"]]   # descarta handle vazio (FK)
+    novas_aff = []
     if perf_fwd:
-        # FK: performance_periods.affiliate_id → affiliates. Filtra creators que já existem
-        # (creators 100%-novas de junho entram quando registrarem/aparecerem no export).
+        # FK: performance_periods.affiliate_id → affiliates. Creators que VENDEM mas ainda
+        # não têm identidade em `affiliates` (100%-novas, sem export — ex.: @suzane.ganga)
+        # são AUTO-CADASTRADAS aqui em vez de sumirem do hub. Insere só a identidade mínima
+        # (affiliate_id + tiktok_handle real); os números vêm do perf logo abaixo, e o
+        # primeiro acesso (PIN/WhatsApp) elas mesmas completam. merge-duplicates só cria a
+        # linha que falta — tier/pin/token/phone de quem já existe ficam INTACTOS.
         existentes = affiliate_ids_existentes()
-        antes = len(perf_fwd)
-        perf_fwd = [r for r in perf_fwd if r["affiliate_id"] in existentes]
-        if antes != len(perf_fwd):
-            print(f"  forward: {antes - len(perf_fwd)} creators novas (ainda não na affiliates) ficaram de fora")
+        handle_por_id = {r["creator"].upper(): r["creator"] for r in resumo_rows}
+        faltantes = sorted({r["affiliate_id"] for r in perf_fwd} - existentes)
+        if faltantes:
+            novas_aff = [{"affiliate_id": aid, "tiktok_handle": handle_por_id.get(aid, aid.lower())}
+                         for aid in faltantes]
+            print(f"  forward: auto-cadastrando {len(novas_aff)} creators novas em affiliates "
+                  f"(vendem mas não tinham identidade): {', '.join(faltantes)[:240]}")
 
     if a.dry_run:
         print(f"  [DRY-RUN] extrato_resumo={len(extrato_rows)} · extrato_pedidos={len(pedido_rows)} · "
-              f"performance_periods(forward >= {FORWARD_FROM})={len(perf_fwd)} — NADA escrito")
+              f"affiliates_novas={len(novas_aff)} · performance_periods(forward >= {FORWARD_FROM})={len(perf_fwd)} — NADA escrito")
         if perf_fwd:
             tot = sum(x["gmv_liquido"] for x in perf_fwd)
             pers = sorted({x["periodo"] for x in perf_fwd})
@@ -263,11 +272,16 @@ def main():
             for x in sorted(perf_fwd, key=lambda r:-r["gmv_liquido"])[:5]:
                 print(f"      {x['affiliate_id']:<20} {x['periodo']} gmv_liq R${x['gmv_liquido']:,.0f} ped {x['pedidos']} tier {x['tier']}")
         return
+    # FK: cria as identidades novas ANTES do performance_periods (senão o upsert do perf falha)
+    if novas_aff:
+        upsert("affiliates", novas_aff, on_conflict="affiliate_id")
     upsert("extrato_resumo", extrato_rows)
     upsert("extrato_pedidos", pedido_rows)
     if perf_fwd:
         upsert("performance_periods", perf_fwd, on_conflict="affiliate_id,periodo")
-    print("✓ extrato atualizado" + (f" + performance_periods forward ({len(perf_fwd)})" if perf_fwd else ""))
+    print("✓ extrato atualizado"
+          + (f" + {len(novas_aff)} affiliates novas" if novas_aff else "")
+          + (f" + performance_periods forward ({len(perf_fwd)})" if perf_fwd else ""))
 
 if __name__ == "__main__":
     main()
