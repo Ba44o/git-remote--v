@@ -154,18 +154,26 @@ EXTRATO_COLS = ("id","creator","periodo","pedidos","gmv_estimado","gmv_liquidado
                 "gmv_a_liquidar","gmv_inelegivel","comissao_estimada","comissao_paga",
                 "comissao_a_receber","reembolsos_n","reembolsos_valor")
 
-def build_performance_forward(resumo_rows, forward_from=FORWARD_FROM):
+def build_performance_forward(resumo_rows, forward_from=FORWARD_FROM, window_start=None):
     """performance_periods rows pra meses >= forward_from (FORWARD-ONLY).
 
     Jan-Mai vêm do EXPORT e NUNCA são tocados (guarda `per < forward_from`).
     gmv_liquido = liquidado + a_liquidar (vendas atribuídas que vão pagar; exclui
     reembolso/inelegível). Mesma base dos meses passados e não encolhe conforme
-    liquida. affiliate_id em UPPERCASE (convenção do performance_periods)."""
+    liquida. affiliate_id em UPPERCASE (convenção do performance_periods).
+
+    window_start = 1º dia coletado. GUARDA DE COBERTURA: só escreve um mês que foi
+    coletado INTEIRO (janela começa <= dia 1 do mês). Senão o daily `--dias 21`
+    reagregaria o mês passado só parcialmente e ENCOLHERIA o hub no upsert. Mês
+    parcial (ex.: junho numa janela que começa 22/06) é PULADO — quem corrige o
+    passado é um backfill full-window (`--inicio <1º-do-mês>`)."""
     out = []
     for r in resumo_rows:
         per = r["periodo"]
         if per < forward_from:          # GUARDA: nunca escreve o passado do export
             continue
+        if window_start is not None and date.fromisoformat(f"{per}-01") < window_start:
+            continue                     # GUARDA: não sobrescreve mês coletado parcial
         gmv_liq = round(r["gmv_liquidado"] + r["gmv_a_liquidar"], 2)
         reemb = round(r["reembolsos_valor"], 2)
         gmv_bruto = round(gmv_liq + reemb, 2)
@@ -243,7 +251,7 @@ def main():
     extrato_rows = [{k: r[k] for k in EXTRATO_COLS if k in r} for r in resumo_rows]
 
     # FORWARD-ONLY: performance_periods só pra meses >= FORWARD_FROM (Jan-Mai = export)
-    perf_fwd = [] if a.no_forward else build_performance_forward(resumo_rows)
+    perf_fwd = [] if a.no_forward else build_performance_forward(resumo_rows, window_start=ini)
     perf_fwd = [r for r in perf_fwd if r["affiliate_id"]]   # descarta handle vazio (FK)
     novas_aff = []
     if perf_fwd:

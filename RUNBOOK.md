@@ -604,8 +604,12 @@ curl -s "$SB/rest/v1/performance_periods?affiliate_id=ilike.$ID&select=periodo,g
     -H "Content-Type: application/json" -H "Prefer: resolution=merge-duplicates,return=minimal" \
     -d "[{\"affiliate_id\":\"$ID\",\"tiktok_handle\":\"$HANDLE\"}]"
   # 2) números: rodar coletar_extrato.py --inicio <1º-do-mês-inicial> --fim <hoje>  (janela
-  #    FULL do mês — NUNCA janela curta, senão grava mês parcial e ENCOLHE o hub).
+  #    FULL do mês — corrige mês passado inteiro).
   ```
+- **Guarda de cobertura (13/07/26):** `build_performance_forward` só escreve um mês se a
+  janela o cobre INTEIRO (`window_start <= dia 1`). Assim o daily `--dias 21` NÃO encolhe
+  mais mês passado (pula junho, escreve só o mês corrente); mês passado só muda via backfill
+  full-window. Se o hub voltar a subnotificar um mês fechado: rodar o backfill daquele mês.
 - **Lição:** `performance_periods` cobre menos creators que `affiliate_perf`/`extrato_resumo`
   → provável FK-filter mordendo (ou perf subnotificado). Sempre validar recompute
   full-window contra `affiliate_creator_product` (fonte independente) antes de gravar.
