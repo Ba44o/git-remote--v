@@ -154,6 +154,16 @@
   .chip.on{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
   .angcount{margin:12px 0;font-size:12.5px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
   .angempty{text-align:center;padding:40px 20px;color:var(--muted)}
+  .aviso{background:var(--red-wash);border:1px solid var(--red);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.55;color:var(--ink);margin-bottom:16px}
+  .aviso b{color:var(--red)}
+  .metodo{display:grid;gap:10px;margin:4px 0 8px}
+  .mstep{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .mstep .mn{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;font-weight:700;font-size:13px;font-family:var(--mono);display:flex;align-items:center;justify-content:center}
+  .mstep b{font-size:14.5px}
+  .mstep small{color:var(--muted);font-size:13px;line-height:1.5}
+  .metcta{margin-top:14px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .metnote{font-size:12.5px;color:var(--muted);max-width:46ch}
+  .metnote b{color:var(--ink)}
   .ptab{font-family:var(--font);font-size:14px;font-weight:600;padding:9px 18px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:all .15s ease}
   .ptab.on{background:var(--red);color:#fff;border-color:var(--red)}
   .hook{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-top:1px solid var(--line)}
@@ -271,10 +281,11 @@
     <div class="trilha"><ul>
       <li>Poste seu <b>1º vídeo em 48h</b> depois da amostra chegar</li>
       <li>Comece por <b>unboxing + try-on</b> — os que mais convertem no início</li>
-      <li>Use <b>1 gancho pronto</b> do banco, não invente do zero</li>
+      <li>Pega <b>1 ângulo</b> do banco e <b>remodela na tua voz</b> — nunca copia igual</li>
       <li>Meta: <b>3 vídeos na 1ª semana</b></li>
     </ul></div>
-    <div style="margin-top:22px"><button class="btn" onclick="show('ganchos')">Pegar meu 1º gancho →</button></div>
+    <div class="aviso" style="margin-top:20px">🚫 <b>Não copia igual.</b> Muitas creators postam a mesma calça. Se você falar a mesma frase que as outras, ninguém para o dedo. Pega o <b>ângulo</b> do banco e conta com as <b>tuas palavras</b>, teu jeito.</div>
+    <div style="margin-top:16px"><button class="btn" onclick="show('ganchos')">Pegar e remodelar meu 1º gancho →</button></div>
   </div></div>
 
   <!-- ESCALANDO -->
@@ -302,8 +313,21 @@
       <div class="espinha" id="espinha"></div>
       <details class="estrut"><summary>Ver o arco 0–75s por dentro</summary><div class="steps" id="steps"></div></details>
     </div>
+    <div class="blk"><h3>🔁 Como remodelar e testar um hook</h3>
+      <div class="aviso"><b>⚠️ Somos muitas postando os mesmos produtos.</b> Se 50 creators falarem a <b>mesma frase</b>, o hook queima e ninguém para o dedo. A regra de ouro: o <b>ângulo é compartilhado, a frase é tua</b>. Nunca copia igual — <b>remodela</b>.</div>
+      <div class="metodo">
+        <div class="mstep"><div class="mn">1</div><div><b>Pega um campeão</b><br><small>Um <span class="fonte testado">✓ testado</span> do banco ou um vídeo que já vendeu. Copiar vencedor &gt; inventar do zero.</small></div></div>
+        <div class="mstep"><div class="mn">2</div><div><b>Isola o ângulo, não a frase</b><br><small>O que funciona é o gatilho (objeção? preço? prova?), não as palavras exatas.</small></div></div>
+        <div class="mstep"><div class="mn">3</div><div><b>Remodela na TUA voz</b><br><small>Mantém o ângulo + a espinha. Troca a frase de abertura, o texto na tela e põe um detalhe teu: tua altura, tua dor, tua história. Assim 50 creators viram 50 hooks diferentes.</small></div></div>
+        <div class="mstep"><div class="mn">4</div><div><b>Grava 1 corpo + 3 hooks</b><br><small>Filma a espinha uma vez e só os 3 inícios (0–3s). Junta na edição — 3 vídeos numa gravação.</small></div></div>
+        <div class="mstep"><div class="mn">5</div><div><b>Lê quem segurou</b><br><small>Compara a taxa de view aos 2s. O hook decide no scroll (GMV não se olha ainda). Dobra no vencedor.</small></div></div>
+        <div class="mstep"><div class="mn">6</div><div><b>Repete com o próximo ângulo</b><br><small>Cada ângulo = mais um teste. Você nunca fica sem ideia — nem repete a das outras.</small></div></div>
+      </div>
+      <div class="metcta"><button class="btn" onclick="show('plano')">Baixar o template de teste →</button><span class="metnote">💡 No Hub, o <b>Copy IA</b> gera a TUA versão automática a partir das tuas medidas — 50 creators, 50 hooks.</span></div>
+    </div>
     <div class="blk"><h3>🎣 Os ângulos — varia SÓ isso (0–3s)</h3>
       <p class="sub" style="margin-bottom:12px"><span class="fonte testado" style="vertical-align:middle">✓ testado</span> = veio do teste de jun/26 (Wide Leg, tem lastro). <span class="fonte novo" style="vertical-align:middle">novo</span> = expansão, ainda é aposta. Preço nos exemplos é chute — troca pelo do dia.</p>
+      <div class="aviso">🚫 <b>Não é pra copiar a frase igual.</b> Somos muitas na mesma calça — pega o <b>ângulo</b> e remodela na <b>tua voz</b> (<a href="#ganchos" onclick="show('ganchos')" style="color:var(--red);font-weight:600">como fazer ↑</a>). Frase repetida por 50 creators não para o dedo de ninguém.</div>
       <input class="search" id="angsearch" type="text" placeholder="Buscar por palavra, produto ou tipo de gancho…">
       <div class="chips" id="chips"></div>
       <div class="angcount" id="angcount"></div>
