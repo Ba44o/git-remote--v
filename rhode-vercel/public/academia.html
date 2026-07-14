@@ -104,6 +104,35 @@
   .step .tm{font-family:var(--mono);font-size:13px;color:var(--red);font-weight:700;min-width:64px;padding-top:2px}
   .step .st{font-weight:700;font-size:16px}.step .sd{color:var(--muted);font-size:14px}
   .prodtabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+  .why{display:grid;gap:10px;margin:0 0 22px}
+  .why .wy{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:12px;padding:12px 14px;font-size:13.5px;color:var(--muted);line-height:1.5}
+  .why .wy b{color:var(--ink)}
+  .espinha{background:var(--red-wash);border:1px solid var(--red);border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.6;color:var(--ink)}
+  .estrut{margin-top:12px}
+  .estrut summary{cursor:pointer;font-size:13px;color:var(--red);font-weight:600}
+  .funtabs{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 16px}
+  .ang{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .anghead{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}
+  .funpill{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .funpill.topo{color:#2e7d5b;border-color:#2e7d5b55}
+  .funpill.meio{color:#9a6b1f;border-color:#9a6b1f55}
+  .funpill.fundo{color:var(--red);border-color:var(--red)}
+  .forca{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .forca.seg{color:#2e6fd6;border-color:#2e6fd655}
+  .forca.fec{color:#2e7d5b;border-color:#2e7d5b55}
+  .forca.amb{color:var(--soft)}
+  .persona{margin-left:auto;font-size:12px;color:var(--soft)}
+  .angnome{font-size:17px;font-weight:800;letter-spacing:-.01em;margin-bottom:12px}
+  .anglayer{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}
+  .anglayer .lb{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:600;padding-top:3px}
+  .anglayer .lb i{color:var(--soft);font-style:normal}
+  .anglayer .lv{font-size:14px;color:var(--ink)}
+  .anglayer.mont{background:var(--paper);margin:6px -8px -4px;padding:10px 8px;border-radius:10px;border-top:none}
+  .anglayer.mont .lv{color:var(--muted)}
+  .hookline{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px}
+  .hookline .hk{flex:1;font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.45}
+  .hookline .ab{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:var(--red);color:#fff;font-size:10px;font-weight:700}
+  @media(max-width:520px){.anglayer{grid-template-columns:1fr;gap:3px}.anglayer .lb{padding-top:0}}
   .ptab{font-family:var(--font);font-size:14px;font-weight:600;padding:9px 18px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:all .15s ease}
   .ptab.on{background:var(--red);color:#fff;border-color:var(--red)}
   .hook{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-top:1px solid var(--line)}
@@ -241,10 +270,23 @@
 
   <!-- GANCHOS & ESTRUTURA -->
   <div class="view" id="v-ganchos"><div class="container">
-    <div class="vhead"><div class="eyebrow">Fundamentos de copy</div><h1>Ganchos & estrutura</h1><p class="sub">Ganchos reais dos vídeos que venderam + o arco que funciona.</p></div>
-    <div class="blk"><h3><span class="k">01</span> Banco de ganchos por produto</h3><div class="prodtabs" id="prodtabs"></div><div id="hooklist"></div></div>
-    <div class="blk"><h3><span class="k">02</span> A estrutura validada (0–75s)</h3><div class="steps" id="steps"></div></div>
-    <div class="blk"><h3><span class="k">03</span> Vocabulário — como você fala</h3><div class="vocab"><div><h4>✓ Usa</h4><div class="tags" id="vok"></div></div><div><h4>✗ Evita</h4><div class="tags" id="vno"></div></div></div></div>
+    <div class="vhead"><div class="eyebrow">Banco de ângulos</div><h1>O <span class="hl">0–3s</span> decide o vídeo</h1><p class="sub">O gancho de abertura é o maior preditor do resultado. Aqui estão os ângulos que seguram o scroll — por posição de funil, prontos pra testar.</p></div>
+    <div class="why">
+      <div class="wy"><b>🎣 Testar o hook é A alavanca.</b> No teste de jun/26, a taxa de view aos 2s previu o resultado (correlação 0,68). O que você muda no 0–3s decide o vídeo.</div>
+      <div class="wy"><b>🪝 Segurar ≠ fechar.</b> Objeção/caimento e estética <b>seguram o scroll</b>; prova social de volume <b>fecha a venda</b>. Escolhe o ângulo pelo teu objetivo.</div>
+      <div class="wy"><b>🦴 Método da espinha.</b> Congela o corpo + CTA, grava só os inícios diferentes, junta na edição. Teste limpo e barato.</div>
+    </div>
+    <div class="blk"><h3>🦴 A espinha — mantém FIXO em todo teste</h3>
+      <p class="sub" style="margin-bottom:12px">Corpo + CTA (com preço) iguais em todos os vídeos. Você varia <b>só o hook</b>.</p>
+      <div class="espinha" id="espinha"></div>
+      <details class="estrut"><summary>Ver o arco 0–75s por dentro</summary><div class="steps" id="steps"></div></details>
+    </div>
+    <div class="blk"><h3>🎣 Os ângulos — varia SÓ isso (0–3s)</h3>
+      <div class="funtabs" id="funtabs"></div>
+      <div id="angulos"></div>
+    </div>
+    <div class="blk"><h3>🗣️ Como você fala</h3><div class="vocab"><div><h4>✓ Usa</h4><div class="tags" id="vok"></div></div><div><h4>✗ Evita</h4><div class="tags" id="vno"></div></div></div></div>
+    <div style="margin-top:22px"><button class="btn" onclick="show('plano')">Testar do jeito certo (método da espinha) →</button></div>
   </div></div>
 
   <!-- BIBLIOTECA & CAMPEÕES -->
@@ -345,6 +387,20 @@ const DRIVE_URL="https://drive.google.com/drive/folders/10dSDZaXByc3EIER-GLImcPq
 const WINNERS=[{cr:'tacianecreator',url:'https://www.tiktok.com/@tacianecreator/video/7610417484289690901',ref:'REF516',cls:'HERO',tier:'Black'},{cr:'tacianecreator',url:'https://www.tiktok.com/@tacianecreator/video/7634644752893365525',ref:'REF516',cls:'HERO',tier:'Black'},{cr:'alinecavanellas',url:'https://www.tiktok.com/@alinecavanellas/video/7636896476005682453',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'pattylazzarotto',url:'https://www.tiktok.com/@pattylazzarotto/video/7534839834393824518',ref:'REF516',cls:'HERO',tier:'Gold'},{cr:'laianenovaisss',url:'https://www.tiktok.com/@laianenovaisss/video/7619374416828321044',ref:'REF516',cls:'HERO',tier:'Gold'},{cr:'escuta.amiga',url:'https://www.tiktok.com/@escuta.amiga/video/7633783249914858773',ref:'REF516',cls:'HERO',tier:'Bronze'},{cr:'someoneduda',url:'https://www.tiktok.com/@someoneduda/video/7622992807304760594',ref:'REF516',cls:'HERO',tier:'Iniciante'},{cr:'thainabeautyoficial',url:'https://www.tiktok.com/@thainabeautyoficial/video/7556309029161536824',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'ericamcabeluda',url:'https://www.tiktok.com/@ericamcabeluda/video/7598167224083287317',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'.familiapimentel',url:'https://www.tiktok.com/@.familiapimentel/video/7556757951927553292',ref:'REF516',cls:'HERO',tier:'Bronze'}];
 function tierColor(t){return {Black:'#c9a227',Diamond:'#7cc7ff',Gold:'#e3b23c',Silver:'#c0c4cc',Bronze:'#c98a4b',Iniciante:'#9aa0a6'}[t]||'#9aa0a6';}
 const MISSOES=[{i:'🎬',t:'5 vídeos na semana',d:'Constância destrava o algoritmo.',r:'pontos na Copa'},{i:'🎯',t:'Combo de formatos',d:'1 unboxing + 1 try-on + 1 review.',r:'briefing exclusivo'},{i:'⚡',t:'Estourou? avisa',d:'Passou de 10k views? A gente impulsiona.',r:'+alcance & comissão'}];
+const ESPINHA="Deixa eu te mostrar por quê. Esse tecido é grosso, jeans de verdade — não amassa, não perde a forma. O caimento sobe na cintura, desce reto e alonga a perna. Eu uso o dia todo, sento, agacho, lavo, e ela continua igual. E vai com tudo: tênis, salto, rasteira. Tá no carrinho amarelo aqui embaixo — vê a tabela de medidas e garante a sua antes de a cor esgotar.";
+const ANGULOS=[
+ {n:'Cético',fun:'topo',forca:'segura',persona:'1ª compra / desconfiada',hook:'Eu juro que não ia comprar calça pelo TikTok.',txt:'spoiler: virei refém',mostrar:'abre no teu rosto, cara de "não acreditei" → corta pra calça',montar:'troca "comprar calça pelo TikTok" pelo que TU duvidava'},
+ {n:'Prova social',fun:'topo',forca:'fecha',persona:'descobridora',hook:'Essa é a calça que esgotou três vezes e todo mundo me pergunta onde achei.',txt:'voltou o estoque',mostrar:'print dos comentários "onde achou?" → você vestindo',montar:'usa um número real (esgotou X vezes, Y perguntando)'},
+ {n:'Serve na baixinha',fun:'meio',forca:'segura',persona:'insegura com caimento',hook:'Wide leg sempre me cortava as pernas. Essa não — olha.',txt:'1,58m e ficou perfeita',mostrar:'corpo inteiro, foco na perna alongando',montar:'põe a TUA altura no texto da tela'},
+ {n:'Tipo de corpo',fun:'meio',forca:'segura',persona:'curvy',hook:'Se você sofre pra achar jeans que fecha no quadril, presta atenção.',txt:'fim da luta no provador',mostrar:'foco no fechamento do quadril + cintura sem gap',montar:'troca a dor específica pela do teu público'},
+ {n:'Substituiu tudo',fun:'meio',forca:'ambos',persona:'racional / custo-benefício',hook:'Faz três semanas que eu só uso essa calça.',txt:'as outras tão encostadas',mostrar:'abre o armário / pilha de calças encostadas → você nessa',montar:'troca "três semanas" pelo teu tempo real'},
+ {n:'Semana toda',fun:'meio',forca:'ambos',persona:'racional',hook:'Uma calça e a semana inteira resolvida.',txt:'seg a sex no mesmo jeans',mostrar:'montagem seg→sex, mesma calça, looks diferentes',montar:'mostra os teus 5 looks reais'},
+ {n:'Conforto',fun:'meio',forca:'segura',persona:'busca conforto',hook:'Parece pijama, mas é jeans de verdade.',txt:'esqueci que tava de jeans',mostrar:'você sentando, agachando, rodando à vontade',montar:'compara com a peça mais confortável que você tem'},
+ {n:'Tecido dura',fun:'fundo',forca:'fecha',persona:'justifica o preço',hookA:'Lavei essa calça dez vezes e ela continua igualzinha.',hookB:'Calça boa não é a mais barata. É a que dura.',txt:'por isso ela dura',mostrar:'close no tecido grosso + "já lavei X vezes"',montar:'usa o número real de lavagens/usos'},
+ {n:'Vale o preço',fun:'fundo',forca:'fecha',persona:'justifica o preço',hookA:'Eu sou mão de vaca e mesmo assim paguei nessa.',hookB:'Barato é o que você compra duas vezes.',txt:'valeu cada real',mostrar:'etiqueta / carrinho com o valor na tela',montar:'ancora no preço de uma de grife que você viu'},
+ {n:'Efeito no espelho',fun:'fundo',forca:'segura',persona:'decisão pelo visual',hookA:'Essa calça faz uma cintura que não é a minha. Sério.',hookB:'Eu me olho no espelho com essa calça e nem acredito.',txt:'o efeito é ilegal',mostrar:'frente pro espelho, foco na cintura marcada',montar:'grava a TUA reação real no espelho'},
+ {n:'Urgência',fun:'fundo',forca:'fecha',persona:'adiadora',hook:'Se você tava esperando pra comprar, é agora.',txt:'não sei quanto dura',mostrar:'close no estoque/cor + você garantindo no app',montar:'só usa se a escassez for real (não inventa)'}
+];
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 function fmtK(v){return v>=1000?('R$ '+(v/1000).toFixed(1).replace('.',',')+'k'):('R$ '+v)}
 // TRACKER (fire-and-forget → api/relay branch acad_track; falha em silêncio)
@@ -391,13 +447,16 @@ CORE.forEach(c=>{
 renderHome();refreshFooters();
 document.getElementById('aula-body').innerHTML=AULA;
 document.getElementById('steps').innerHTML=ACAD.estrutura.map(s=>`<div class="step"><div class="tm">${s[0]}</div><div><div class="st">${esc(s[1])}</div><div class="sd">${esc(s[2])}</div></div></div>`).join('');
-let _prod=Object.keys(ACAD.produtos)[0];
-function hooksHTML(p){return ACAD.produtos[p].map((h,i)=>`<div class="hook"><div class="b"><div class="tp">${esc(h.tp)}</div><div class="qt">“${esc(h.qt)}”</div></div><button class="cp" onclick="cpHook(${i})">copiar</button></div>`).join('')}
-function selProd(el,p){_prod=p;document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));el.classList.add('on');document.getElementById('hooklist').innerHTML=hooksHTML(p)}
-function cpHook(i){try{navigator.clipboard.writeText('“'+ACAD.produtos[_prod][i].qt+'”')}catch(e){}toast()}
+function forcaTag(f){return f==='segura'?'<span class="forca seg">🪝 segura o scroll</span>':f==='fecha'?'<span class="forca fec">💰 fecha a venda</span>':'<span class="forca amb">🪝💰 segura e fecha</span>';}
+function hookRow(i,w,h,label){return `<div class="hookline"><div class="hk">${label?`<span class="ab">${label}</span> `:''}“${esc(h)}”</div><button class="cp" onclick="cpAng(${i},'${w}')">copiar</button></div>`;}
+let _fun='all';
+function renderAngulos(){document.getElementById('angulos').innerHTML=ANGULOS.map((a,i)=>{if(_fun!=='all'&&a.fun!==_fun)return '';const hooks=a.hook?hookRow(i,'',a.hook,''):hookRow(i,'A',a.hookA,'A')+hookRow(i,'B',a.hookB,'B');return `<div class="ang"><div class="anghead"><span class="funpill ${a.fun}">${a.fun}</span>${forcaTag(a.forca)}<span class="persona">${esc(a.persona)}</span></div><div class="angnome">${esc(a.n)}</div><div class="anglayer"><span class="lb">🎣 Gancho <i>0–3s</i></span><div>${hooks}</div></div><div class="anglayer"><span class="lb">📝 Texto na tela</span><div class="lv">${esc(a.txt)}</div></div><div class="anglayer"><span class="lb">🎬 Mostrar junto</span><div class="lv">${esc(a.mostrar)}</div></div><div class="anglayer mont"><span class="lb">🧬 Monte o seu</span><div class="lv">${esc(a.montar)}</div></div></div>`;}).join('');}
+function setFun(el,f){_fun=f;document.querySelectorAll('#funtabs .ptab').forEach(t=>t.classList.remove('on'));el.classList.add('on');renderAngulos();}
+function cpAng(i,w){const a=ANGULOS[i];const t=w==='A'?a.hookA:(w==='B'?a.hookB:a.hook);try{navigator.clipboard.writeText('“'+t+'”')}catch(e){}toast('Copiado ✓');try{track('copiou_gancho',{modulo:'ganchos',ref:a.n})}catch(e){}}
 let _tt;function toast(msg){const t=document.getElementById('toast');t.textContent=msg||'Copiado ✓';t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),1500)}
-document.getElementById('prodtabs').innerHTML=Object.keys(ACAD.produtos).map((p,i)=>`<button class="ptab ${i===0?'on':''}" onclick="selProd(this,'${p}')">${p}</button>`).join('');
-document.getElementById('hooklist').innerHTML=hooksHTML(_prod);
+document.getElementById('espinha').innerHTML='“'+esc(ESPINHA)+'”';
+document.getElementById('funtabs').innerHTML=[['all','Todos'],['topo','Topo'],['meio','Meio'],['fundo','Fundo']].map((x,i)=>`<button class="ptab ${i===0?'on':''}" onclick="setFun(this,'${x[0]}')">${x[1]}</button>`).join('');
+renderAngulos();
 document.getElementById('vok').innerHTML=ACAD.usar.map(t=>`<span class="tag ok">${esc(t)}</span>`).join('');
 document.getElementById('vno').innerHTML=ACAD.evitar.map(t=>`<span class="tag no">${esc(t)}</span>`).join('');
 document.getElementById('fmts').innerHTML=ACAD.formatos.map(f=>`<div class="fmt"><div class="fn">${f[0]}</div><div class="ft">${esc(f[1])}</div><div class="fd">${esc(f[2])}</div></div>`).join('');
