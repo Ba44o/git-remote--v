@@ -14,13 +14,7 @@
     --font:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     --mono:'JetBrains Mono',ui-monospace,"SF Mono",Menlo,monospace;
   }
-  @media (prefers-color-scheme:dark){:root{
-    --paper:#0E0D12;--ink:#F3EFF2;--card:#17151D;--line:#272430;--muted:#9A93A0;--soft:#6C6675;
-    --red:#FF4E70;--red-hover:#ff6484;--red-wash:#25151C;--denim:#8FA3D0;
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 38px -16px rgba(0,0,0,.6);
-  }}
-  :root[data-theme="dark"]{--paper:#0E0D12;--ink:#F3EFF2;--card:#17151D;--line:#272430;--muted:#9A93A0;--soft:#6C6675;--red:#FF4E70;--red-hover:#ff6484;--red-wash:#25151C;--denim:#8FA3D0;--shadow:0 1px 2px rgba(0,0,0,.4),0 14px 38px -16px rgba(0,0,0,.6);}
-  :root[data-theme="light"]{--paper:#FBF8F6;--ink:#17151B;--card:#FFFFFF;--line:#ECE6E2;--muted:#6E6670;--soft:#948B93;--red:#FE2C55;--red-hover:#e8264c;--red-wash:#FFECF0;--denim:#2E3A59;--shadow:0 1px 2px rgba(20,16,24,.05),0 10px 30px -14px rgba(20,16,24,.15);}
+  /* light-only — dark mode removido a pedido (14/07) */
   *{margin:0;box-sizing:border-box}
   body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased}
   .container{max-width:940px;margin:0 auto;padding:0 22px}
@@ -188,8 +182,6 @@
   table{border-collapse:collapse;width:100%;min-width:560px;background:var(--card)}
   th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:top}
   thead th{background:var(--denim);color:#fff;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
-  @media (prefers-color-scheme:dark){thead th{color:#0E0D12}}
-  :root[data-theme="dark"] thead th{color:#0E0D12}
   tbody tr:last-child td{border-bottom:none}
   .wk{font-weight:800}.goal{font-family:var(--mono);font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:.06em}
   .chip{display:inline-block;font-size:12px;padding:3px 9px;border:1px solid var(--line);border-radius:20px;margin:2px 3px 2px 0;color:var(--muted)}
@@ -281,10 +273,10 @@
     <div class="trilha"><ul>
       <li>Poste seu <b>1º vídeo em 48h</b> depois da amostra chegar</li>
       <li>Comece por <b>unboxing + try-on</b> — os que mais convertem no início</li>
-      <li>Pega <b>1 ângulo</b> do banco e <b>remodela na tua voz</b> — nunca copia igual</li>
+      <li>Pega <b>1 ângulo</b> do banco e <b>remodela na sua voz</b> — nunca copia igual</li>
       <li>Meta: <b>3 vídeos na 1ª semana</b></li>
     </ul></div>
-    <div class="aviso" style="margin-top:20px">🚫 <b>Não copia igual.</b> Muitas creators postam a mesma calça. Se você falar a mesma frase que as outras, ninguém para o dedo. Pega o <b>ângulo</b> do banco e conta com as <b>tuas palavras</b>, teu jeito.</div>
+    <div class="aviso" style="margin-top:20px">🚫 <b>Não copia igual.</b> Muitas creators postam a mesma calça. Se você falar a mesma frase que as outras, ninguém para o dedo. Pega o <b>ângulo</b> do banco e conta com as <b>suas palavras</b>, seu jeito.</div>
     <div style="margin-top:16px"><button class="btn" onclick="show('ganchos')">Pegar e remodelar meu 1º gancho →</button></div>
   </div></div>
 
@@ -305,7 +297,7 @@
     <div class="vhead"><div class="eyebrow">Banco de ângulos</div><h1>O <span class="hl">0–3s</span> decide o vídeo</h1><p class="sub">O gancho de abertura é o maior preditor do resultado. Aqui estão os ângulos que seguram o scroll — por posição de funil, prontos pra testar.</p></div>
     <div class="why">
       <div class="wy"><b>🎣 Testar o hook é A alavanca.</b> No teste de jun/26, a taxa de view aos 2s previu o resultado (correlação 0,68). O que você muda no 0–3s decide o vídeo.</div>
-      <div class="wy"><b>🪝 Segurar ≠ fechar.</b> Objeção/caimento e estética <b>seguram o scroll</b>; prova social de volume <b>fecha a venda</b>. Escolhe o ângulo pelo teu objetivo.</div>
+      <div class="wy"><b>🪝 Segurar ≠ fechar.</b> Objeção/caimento e estética <b>seguram o scroll</b>; prova social de volume <b>fecha a venda</b>. Escolhe o ângulo pelo seu objetivo.</div>
       <div class="wy"><b>🦴 Método da espinha.</b> Congela o corpo + CTA, grava só os inícios diferentes, junta na edição. Teste limpo e barato.</div>
     </div>
     <div class="blk"><h3>🦴 A espinha — mantém FIXO em todo teste</h3>
@@ -314,20 +306,20 @@
       <details class="estrut"><summary>Ver o arco 0–75s por dentro</summary><div class="steps" id="steps"></div></details>
     </div>
     <div class="blk"><h3>🔁 Como remodelar e testar um hook</h3>
-      <div class="aviso"><b>⚠️ Somos muitas postando os mesmos produtos.</b> Se 50 creators falarem a <b>mesma frase</b>, o hook queima e ninguém para o dedo. A regra de ouro: o <b>ângulo é compartilhado, a frase é tua</b>. Nunca copia igual — <b>remodela</b>.</div>
+      <div class="aviso"><b>⚠️ Somos muitas postando os mesmos produtos.</b> Se 50 creators falarem a <b>mesma frase</b>, o hook queima e ninguém para o dedo. A regra de ouro: o <b>ângulo é compartilhado, a frase é sua</b>. Nunca copia igual — <b>remodela</b>.</div>
       <div class="metodo">
         <div class="mstep"><div class="mn">1</div><div><b>Pega um campeão</b><br><small>Um <span class="fonte testado">✓ testado</span> do banco ou um vídeo que já vendeu. Copiar vencedor &gt; inventar do zero.</small></div></div>
         <div class="mstep"><div class="mn">2</div><div><b>Isola o ângulo, não a frase</b><br><small>O que funciona é o gatilho (objeção? preço? prova?), não as palavras exatas.</small></div></div>
-        <div class="mstep"><div class="mn">3</div><div><b>Remodela na TUA voz</b><br><small>Mantém o ângulo + a espinha. Troca a frase de abertura, o texto na tela e põe um detalhe teu: tua altura, tua dor, tua história. Assim 50 creators viram 50 hooks diferentes.</small></div></div>
+        <div class="mstep"><div class="mn">3</div><div><b>Remodela na SUA voz</b><br><small>Mantém o ângulo + a espinha. Troca a frase de abertura, o texto na tela e põe um detalhe seu: sua altura, sua dor, sua história. Assim 50 creators viram 50 hooks diferentes.</small></div></div>
         <div class="mstep"><div class="mn">4</div><div><b>Grava 1 corpo + 3 hooks</b><br><small>Filma a espinha uma vez e só os 3 inícios (0–3s). Junta na edição — 3 vídeos numa gravação.</small></div></div>
         <div class="mstep"><div class="mn">5</div><div><b>Lê quem segurou</b><br><small>Compara a taxa de view aos 2s. O hook decide no scroll (GMV não se olha ainda). Dobra no vencedor.</small></div></div>
         <div class="mstep"><div class="mn">6</div><div><b>Repete com o próximo ângulo</b><br><small>Cada ângulo = mais um teste. Você nunca fica sem ideia — nem repete a das outras.</small></div></div>
       </div>
-      <div class="metcta"><button class="btn" onclick="show('plano')">Baixar o template de teste →</button><span class="metnote">💡 No Hub, o <b>Copy IA</b> gera a TUA versão automática a partir das tuas medidas — 50 creators, 50 hooks.</span></div>
+      <div class="metcta"><button class="btn" onclick="show('plano')">Baixar o template de teste →</button><span class="metnote">💡 No Hub, o <b>Copy IA</b> gera a SUA versão automática a partir das suas medidas — 50 creators, 50 hooks.</span></div>
     </div>
     <div class="blk"><h3>🎣 Os ângulos — varia SÓ isso (0–3s)</h3>
       <p class="sub" style="margin-bottom:12px"><span class="fonte testado" style="vertical-align:middle">✓ testado</span> = veio do teste de jun/26 (Wide Leg, tem lastro). <span class="fonte novo" style="vertical-align:middle">novo</span> = expansão, ainda é aposta. Preço nos exemplos é chute — troca pelo do dia.</p>
-      <div class="aviso">🚫 <b>Não é pra copiar a frase igual.</b> Somos muitas na mesma calça — pega o <b>ângulo</b> e remodela na <b>tua voz</b> (<a href="#ganchos" onclick="show('ganchos')" style="color:var(--red);font-weight:600">como fazer ↑</a>). Frase repetida por 50 creators não para o dedo de ninguém.</div>
+      <div class="aviso">🚫 <b>Não é pra copiar a frase igual.</b> Somos muitas na mesma calça — pega o <b>ângulo</b> e remodela na <b>sua voz</b> (<a href="#ganchos" onclick="show('ganchos')" style="color:var(--red);font-weight:600">como fazer ↑</a>). Frase repetida por 50 creators não para o dedo de ninguém.</div>
       <input class="search" id="angsearch" type="text" placeholder="Buscar por palavra, produto ou tipo de gancho…">
       <div class="chips" id="chips"></div>
       <div class="angcount" id="angcount"></div>
@@ -344,7 +336,7 @@
     <div class="remix">
       <div class="rstep"><div class="n">01</div><div><b>Escolhe um vencedor</b><br><small>Do Drive ou dos que mais venderam.</small></div></div>
       <div class="rstep"><div class="n">02</div><div><b>Mantém a estrutura</b><br><small>O arco 0–75s e o tipo de gancho.</small></div></div>
-      <div class="rstep"><div class="n">03</div><div><b>Troca o gancho + tua voz</b><br><small>Tua cara, teu jeito. Aí vira teu.</small></div></div>
+      <div class="rstep"><div class="n">03</div><div><b>Troca o gancho + sua voz</b><br><small>Sua cara, seu jeito. Aí vira seu.</small></div></div>
     </div>
     <div class="blk"><h3>🏆 Aprenda com os que venderam</h3><p class="sub" style="margin-bottom:14px">Os vídeos que mais venderam na Rhode (dado real, jun–jul). Assiste, sacou o padrão, remodela.</p><div id="winners"></div></div>
   </div></div>
@@ -407,7 +399,7 @@ const EXTRA=[
 const AULA_META={
   comecando:{p:'Sai daqui com seu 1º vídeo no ar em 48h.',                                m:'Grava e posta 1 unboxing ainda hoje.'},
   ganchos:{p:'Você vai montar um vídeo que prende nos 3 primeiros segundos.',             m:'Escolhe 1 gancho do banco e grava com ele.'},
-  biblioteca:{p:'Você vai transformar um vídeo campeão no seu — sem copiar igual.',       m:'Escolhe 1 campeão e remodela com a tua cara.'},
+  biblioteca:{p:'Você vai transformar um vídeo campeão no seu — sem copiar igual.',       m:'Escolhe 1 campeão e remodela com a sua cara.'},
   plano:{p:'Você sai com um plano de 3 semanas e 8 formatos pra nunca repetir.',          m:'Baixa o template e preenche a Semana 1.'},
   escalando:{p:'Você vai subir o volume de vídeo sem queimar.',                           m:'Agenda 1 dia de gravação em lote (4–6 vídeos).'},
   vendas:{p:'Você vai responder qualquer objeção e fechar a venda no comentário.',        m:'Responde 3 comentários usando as respostas prontas.'}
@@ -415,13 +407,13 @@ const AULA_META={
 const ARTIGOS=[
   {niv:'todas',tipo:'Framework',t:'O arco de 75s que vende',r:'A estrutura que todo top vídeo segue.',c:`<p>Hook (0–5s) → contexto (5–15s) → prova no corpo (15–30s) → seus dados (30–40s) → ancoragem de valor (40–55s) → benefícios (55–65s) → CTA (65–75s). O gancho nos 2 primeiros segundos decide tudo.</p>`},
   {niv:'todas',tipo:'Insight',t:'Por que 1 vídeo não basta',r:'Volume ganha — os dados provam.',c:`<p>Vídeo é quase metade do GMV de afiliação, e o resultado se concentra em quem <b>posta com constância</b> — não em quem tem mais seguidores. Uma amostra rende 6-8 vídeos em 3 semanas. Parar no primeiro é deixar a maior parte na mesa.</p>`},
-  {niv:'iniciante',tipo:'Trilha',t:'Da amostra ao 1º vídeo em 48h',r:'O passo a passo pra destravar.',c:`<p><b>Dia 1:</b> unboxing simples com 1 gancho de descoberta. <b>Dia 2:</b> try-on mostrando o caimento e teu tamanho. 2 vídeos em 48h, sem estúdio: luz natural, vertical, produto na tela nos 2 primeiros segundos.</p>`},
+  {niv:'iniciante',tipo:'Trilha',t:'Da amostra ao 1º vídeo em 48h',r:'O passo a passo pra destravar.',c:`<p><b>Dia 1:</b> unboxing simples com 1 gancho de descoberta. <b>Dia 2:</b> try-on mostrando o caimento e seu tamanho. 2 vídeos em 48h, sem estúdio: luz natural, vertical, produto na tela nos 2 primeiros segundos.</p>`},
   {niv:'avancada',tipo:'Framework',t:'De 5 a 20 vídeos/mês sem queimar',r:'Batch + reaproveitamento.',c:`<p>Grava <b>em lote</b>: 1 dia, 4-6 vídeos (mesma roupa, ângulos e ganchos diferentes). Reaproveita: um try-on vira "3 looks", vira "qual seu tamanho", vira "review". Ao chegar em 20+ você vira Video Creator e destrava spark ads.</p>`}
 ];
 const AULA=`<p>Se eu pudesse te ensinar <b>uma coisa só</b>, seria essa. Um vídeo campeão não é sorte — é uma fórmula que já <b>provou</b> que funciona. Em vez de inventar do zero e torcer, você replica o que fez ele ganhar e troca só a superfície. Assim <b>1 campeão vira infinitos</b>.</p>
 <p><b>1 · Ache o campeão (não chute).</b> Usa o que já vendeu de verdade — os vídeos em "Biblioteca & campeões" são dado real. O da @tacianecreator sozinho fez R$ 98 mil. Copiar um vencedor > criar um original não testado.</p>
 <p><b>2 · Disseca a estrutura invisível.</b> Isola: o <b>tipo de gancho</b> (paixão? preço? corpo?), o <b>arco 0–75s</b>, o <b>ângulo de oferta</b>, o <b>som</b>, a prova no corpo. Entende o <b>porquê</b> funcionou, não decore as palavras.</p>
-<p><b>3 · Mantém o que ganhou, troca a superfície.</b> Mantém a estrutura, o tipo de gancho, o ângulo, o som. Troca a tua cara e voz, as palavras exatas, o look, o cenário. Cada troca fiel à fórmula = um novo campeão em potencial.</p>
+<p><b>3 · Mantém o que ganhou, troca a superfície.</b> Mantém a estrutura, o tipo de gancho, o ângulo, o som. Troca a sua cara e voz, as palavras exatas, o look, o cenário. Cada troca fiel à fórmula = um novo campeão em potencial.</p>
 <p><b>4 · Multiplica por eixo.</b> Cada variável é um eixo: o mesmo formato com <b>outro gancho</b>, com <b>outro produto</b> (Mom, Baggy), com <b>outro ângulo</b>. Um campeão vira 5–8 variações.</p>
 <p><b>5 · Testa em lote, dobra no que repete.</b> Posta as variações, vê qual <b>reproduz o resultado</b>, dobra nela. O jogo não é o vídeo perfeito — é iterar rápido sobre o que já ganha. É por isso que você nunca mais fica sem ideia.</p>`;
 const ACAD={
@@ -429,7 +421,7 @@ const ACAD={
   produtos:{'Marmorizada':[{tp:'Paixão / obsessão',qt:'Eu sou simplesmente apaixonada por essa calça'},{tp:'Viralização',qt:'A calça mais viralizada do TikTok vale cada centavo — e custa menos de 100 reais'},{tp:'Problema corporal',qt:'Amigas do popotão grandão que sofrem pra achar calça boa na cintura e no bumbum: essa é a solução'},{tp:'Urgência / descoberta',qt:'Amigas, para tudo. Olha o que eu descobri — juro que nunca vi nada igual'},{tp:'Uso repetido',qt:'Tô usando essa calça pela quinta vez na semana e ela continua perfeita'}],'Rosa Bebê':[{tp:'Surpresa pessoal',qt:'Eu não imaginava que precisava de uma calça rosa até ter uma'},{tp:'Quebra de objeção',qt:'“Ah, eu só compro de grife.” Amiga, para — pega a referência aqui'},{tp:'Direto da fábrica',qt:'Só compro calça direto da fábrica depois que descobri essa loja no carrinho'},{tp:'Momento especial',qt:'Hoje é meu aniversário e vou estrear essa calça rosa do carrinho laranja'},{tp:'Validação social',qt:'Comprei a calça rosa viralizada do TikTok — vem comigo?'}]},
   usar:['amigas','apaixonada','para tudo','perfeita','carrinho laranja','viralizada','empina o bumbum','menos de 100 reais','direto da fábrica','qualidade de Zara','não desbota','garante a sua','vê se ainda tem seu tamanho','eu uso toda semana'],
   evitar:['baratinha','compre agora','oferta imperdível','link na bio','cupom de desconto','publi','fast fashion','básica demais'],
-  formatos:[['01','Unboxing / 1ª impressão','"Chegou a calça que tá bombando"'],['02','Try-on / provador','"Testando o caimento — será que serve?"'],['03','Como estilizar (3 looks)','"3 jeitos de usar a mesma calça"'],['04','Antes / depois','"Troquei minha calça velha por essa"'],['05','Qual seu tamanho','"Descobre teu número em 10s"'],['06','Rotina / day-in-life','"Um dia usando a calça mais confortável"'],['07','Trend / áudio do momento','áudio em alta + a peça'],['08','Review honesto','"A real depois de 1 semana"']]
+  formatos:[['01','Unboxing / 1ª impressão','"Chegou a calça que tá bombando"'],['02','Try-on / provador','"Testando o caimento — será que serve?"'],['03','Como estilizar (3 looks)','"3 jeitos de usar a mesma calça"'],['04','Antes / depois','"Troquei minha calça velha por essa"'],['05','Qual seu tamanho','"Descobre seu número em 10s"'],['06','Rotina / day-in-life','"Um dia usando a calça mais confortável"'],['07','Trend / áudio do momento','áudio em alta + a peça'],['08','Review honesto','"A real depois de 1 semana"']]
 };
 const DRIVE_URL="https://drive.google.com/drive/folders/10dSDZaXByc3EIER-GLImcPqBAOOcsOGw?hl=pt-br";
 const WINNERS=[{cr:'tacianecreator',url:'https://www.tiktok.com/@tacianecreator/video/7610417484289690901',ref:'REF516',cls:'HERO',tier:'Black'},{cr:'tacianecreator',url:'https://www.tiktok.com/@tacianecreator/video/7634644752893365525',ref:'REF516',cls:'HERO',tier:'Black'},{cr:'alinecavanellas',url:'https://www.tiktok.com/@alinecavanellas/video/7636896476005682453',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'pattylazzarotto',url:'https://www.tiktok.com/@pattylazzarotto/video/7534839834393824518',ref:'REF516',cls:'HERO',tier:'Gold'},{cr:'laianenovaisss',url:'https://www.tiktok.com/@laianenovaisss/video/7619374416828321044',ref:'REF516',cls:'HERO',tier:'Gold'},{cr:'escuta.amiga',url:'https://www.tiktok.com/@escuta.amiga/video/7633783249914858773',ref:'REF516',cls:'HERO',tier:'Bronze'},{cr:'someoneduda',url:'https://www.tiktok.com/@someoneduda/video/7622992807304760594',ref:'REF516',cls:'HERO',tier:'Iniciante'},{cr:'thainabeautyoficial',url:'https://www.tiktok.com/@thainabeautyoficial/video/7556309029161536824',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'ericamcabeluda',url:'https://www.tiktok.com/@ericamcabeluda/video/7598167224083287317',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'.familiapimentel',url:'https://www.tiktok.com/@.familiapimentel/video/7556757951927553292',ref:'REF516',cls:'HERO',tier:'Bronze'}];
@@ -437,7 +429,7 @@ function tierColor(t){return {Black:'#c9a227',Diamond:'#7cc7ff',Gold:'#e3b23c',S
 const MISSOES=[{i:'🎬',t:'5 vídeos na semana',d:'Constância destrava o algoritmo.',r:'pontos na Copa'},{i:'🎯',t:'Combo de formatos',d:'1 unboxing + 1 try-on + 1 review.',r:'briefing exclusivo'},{i:'⚡',t:'Estourou? avisa',d:'Passou de 10k views? A gente impulsiona.',r:'+alcance & comissão'}];
 const ESPINHA="Deixa eu te mostrar por quê. Esse tecido é grosso, jeans de verdade — não amassa, não perde a forma. O caimento sobe na cintura, desce reto e alonga a perna. Eu uso o dia todo, sento, agacho, lavo, e ela continua igual. E vai com tudo: tênis, salto, rasteira. Tá no carrinho amarelo aqui embaixo — vê a tabela de medidas e garante a sua antes de a cor esgotar.";
 const HOOKS=[
-{"arq": "Prova", "prod": "Wide Leg", "fun": "topo", "forca": "segura", "fonte": "testado", "gancho": "Eu juro que não ia comprar calça pelo TikTok.", "filma": "Abre no teu rosto, cara de 'não acreditei' → corta pra calça.", "tela": ["spoiler: virei refém"], "chamado": "Menos de R$100 no carrinho amarelo — vê a tabela de medidas e garante a sua.", "porque": "No teste de jun/26, ângulo de objeção/caimento/estética segurou mais o scroll (view-2s alto). Serve pra PARAR o dedo."},
+{"arq": "Prova", "prod": "Wide Leg", "fun": "topo", "forca": "segura", "fonte": "testado", "gancho": "Eu juro que não ia comprar calça pelo TikTok.", "filma": "Abre no seu rosto, cara de 'não acreditei' → corta pra calça.", "tela": ["spoiler: virei refém"], "chamado": "Menos de R$100 no carrinho amarelo — vê a tabela de medidas e garante a sua.", "porque": "No teste de jun/26, ângulo de objeção/caimento/estética segurou mais o scroll (view-2s alto). Serve pra PARAR o dedo."},
 {"arq": "Escassez", "prod": "Wide Leg", "fun": "topo", "forca": "fecha", "fonte": "testado", "gancho": "Essa é a calça que esgotou três vezes e todo mundo me pergunta onde achei.", "filma": "Print dos comentários 'onde achou?' → você vestindo.", "tela": ["voltou o estoque"], "chamado": "Menos de R$100 no carrinho amarelo — vê a tabela de medidas e garante a sua.", "porque": "Prova social de volume foi o que converteu no teste (conv. 4,6–6,0%). Serve pra FECHAR."},
 {"arq": "Objeção", "prod": "Wide Leg", "fun": "meio", "forca": "segura", "fonte": "testado", "gancho": "Wide leg sempre me cortava as pernas. Essa não — olha.", "filma": "Corpo inteiro, foco na perna alongando.", "tela": ["1,58m e ficou perfeita"], "chamado": "Menos de R$100 no carrinho amarelo — vê a tabela de medidas e garante a sua.", "porque": "No teste de jun/26, ângulo de objeção/caimento/estética segurou mais o scroll (view-2s alto). Serve pra PARAR o dedo."},
 {"arq": "Objeção", "prod": "Wide Leg", "fun": "meio", "forca": "segura", "fonte": "testado", "gancho": "Se você sofre pra achar jeans que fecha no quadril, presta atenção.", "filma": "Foco no fechamento do quadril + cintura sem gap.", "tela": ["fim da luta no provador"], "chamado": "Menos de R$100 no carrinho amarelo — vê a tabela de medidas e garante a sua.", "porque": "No teste de jun/26, ângulo de objeção/caimento/estética segurou mais o scroll (view-2s alto). Serve pra PARAR o dedo."},
