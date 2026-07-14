@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creators Rhode Academy</title>
+<meta name="theme-color" content="#FE2C55">
+<meta name="description" content="A escola de conteúdo da Rhode: módulos rápidos pra fazer vídeo que vende. Ganchos validados, o método dos campeões e trilhas por nível.">
+<style>
+  :root{
+    --paper:#FBF8F6;--ink:#17151B;--card:#FFFFFF;--line:#ECE6E2;--muted:#6E6670;--soft:#948B93;
+    --red:#FE2C55;--red-hover:#e8264c;--red-wash:#FFECF0;--denim:#2E3A59;--green:#00796b;
+    --shadow:0 1px 2px rgba(20,16,24,.05),0 10px 30px -14px rgba(20,16,24,.15);--radius:18px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#0E0D12;--ink:#F3EFF2;--card:#17151D;--line:#272430;--muted:#9A93A0;--soft:#6C6675;
+    --red:#FF4E70;--red-hover:#ff6484;--red-wash:#25151C;--denim:#8FA3D0;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 38px -16px rgba(0,0,0,.6);
+  }}
+  :root[data-theme="dark"]{--paper:#0E0D12;--ink:#F3EFF2;--card:#17151D;--line:#272430;--muted:#9A93A0;--soft:#6C6675;--red:#FF4E70;--red-hover:#ff6484;--red-wash:#25151C;--denim:#8FA3D0;--shadow:0 1px 2px rgba(0,0,0,.4),0 14px 38px -16px rgba(0,0,0,.6);}
+  :root[data-theme="light"]{--paper:#FBF8F6;--ink:#17151B;--card:#FFFFFF;--line:#ECE6E2;--muted:#6E6670;--soft:#948B93;--red:#FE2C55;--red-hover:#e8264c;--red-wash:#FFECF0;--denim:#2E3A59;--shadow:0 1px 2px rgba(20,16,24,.05),0 10px 30px -14px rgba(20,16,24,.15);}
+  *{margin:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased}
+  .container{max-width:940px;margin:0 auto;padding:0 22px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:600}
+  .mono{font-family:var(--mono)}
+  a{color:inherit}
+  h2{font-size:clamp(24px,4vw,32px);font-weight:800;letter-spacing:-0.03em;text-wrap:balance}
+  .sub{color:var(--muted);max-width:60ch}
+  /* TOPBAR */
+  .topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:940px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:14px}
+  .tb-brand{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-weight:700;font-size:13px;cursor:pointer}
+  .tb-brand .dot{width:9px;height:9px;border-radius:50%;background:var(--red)}
+  .tb-back{margin-left:auto;display:none;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--red);cursor:pointer;background:none;border:none;font-family:var(--font)}
+  body.inview .tb-back{display:inline-flex}
+  /* VIEWS */
+  .view{display:none;padding:30px 0 72px;animation:fade .28s ease}
+  .view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.view{animation:none}}
+  .vhead{margin-bottom:22px}
+  .vhead h1{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-0.03em;line-height:1.05;text-wrap:balance;margin-bottom:8px}
+  .vhead h1 .hl{color:var(--red)}
+  /* HOME */
+  .hero{padding:34px 0 26px}
+  .hero h1{font-size:clamp(32px,6vw,58px);line-height:1;font-weight:800;letter-spacing:-0.035em;text-wrap:balance;max-width:16ch;margin:12px 0 14px}
+  .hero h1 .hl{color:var(--red)}
+  .hero .lede{font-size:clamp(16px,2.1vw,19px);color:var(--muted);max-width:52ch}
+  .focus{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--red-wash);color:var(--red);border:1px solid var(--red);border-radius:99px;padding:7px 15px;font-size:13px;font-weight:600;font-family:var(--mono)}
+  .featured{margin:26px 0 16px;background:linear-gradient(135deg,var(--red),#c71b40);color:#fff;border-radius:22px;padding:26px;cursor:pointer;transition:transform .12s ease;box-shadow:0 18px 40px -18px rgba(254,44,85,.6)}
+  .featured:active{transform:scale(.99)}
+  .featured .fe{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.9;font-weight:600}
+  .featured h3{font-size:clamp(22px,3.4vw,30px);font-weight:800;letter-spacing:-0.02em;margin:8px 0 6px;text-wrap:balance}
+  .featured p{opacity:.92;font-size:15px;max-width:48ch}
+  .featured .go{margin-top:14px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:14px}
+  .sectitle{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
+  .sectitle .pmini{margin-left:auto;color:var(--red);font-weight:700;text-transform:none;letter-spacing:0;font-size:12px}
+  .nextcard{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:18px;padding:20px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s ease}
+  .nextcard:active{transform:scale(.99)}
+  .nextcard.alldone{cursor:default;border-left-color:var(--green)}
+  .nextcard .nch{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700}
+  .nextcard.alldone .nch{color:var(--green)}
+  .nextcard .nct{font-size:20px;font-weight:800;letter-spacing:-.02em;margin:7px 0 3px;display:flex;align-items:center;gap:9px}
+  .nextcard .ncn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;font-size:13px;font-weight:700;font-family:var(--mono)}
+  .nextcard .ncd{color:var(--muted);font-size:14px}
+  .nextcard .ncgo{margin-top:13px;font-weight:700;color:var(--red);font-size:14px}
+  .nextcard .ncbar{margin-top:13px;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+  .nextcard .ncbar span{display:block;height:100%;background:var(--red);border-radius:99px;transition:width .3s ease}
+  .steplist{display:flex;flex-direction:column;gap:8px}
+  .tstep{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 16px;cursor:pointer;transition:transform .1s ease,border-color .1s ease}
+  .tstep:active{transform:scale(.995)}
+  .tstep.now{border-color:var(--red)}
+  .tstep .tnum{flex:0 0 auto;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;font-family:var(--mono);background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+  .tstep.ok .tnum{background:var(--green);border-color:var(--green);color:#fff}
+  .tstep.now .tnum{background:var(--red);border-color:var(--red);color:#fff}
+  .tstep .ttl{font-weight:700;font-size:15px;letter-spacing:-.01em}
+  .tstep.ok .ttl{color:var(--muted)}
+  .tstep .tds{color:var(--muted);font-size:13px}
+  .tstep .tgo{margin-left:auto;color:var(--soft);font-size:24px;font-weight:400;line-height:1}
+  .extras{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .promessa{background:var(--red-wash);border:1px solid var(--red);border-radius:14px;padding:12px 16px;font-size:14px;margin-bottom:20px;color:var(--ink)}
+  .promessa b{color:var(--red)}
+  .aulafoot{margin-top:28px;border-top:1px solid var(--line);padding-top:22px}
+  .aula-missao{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:14px;margin-bottom:14px}
+  .aula-missao b{color:var(--red)}
+  .concluir-btn.is-done{background:var(--green);border-color:var(--green);color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+  .mod{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;cursor:pointer;transition:transform .12s ease,border-color .15s ease;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;min-height:132px}
+  .mod:hover{border-color:var(--red);transform:translateY(-2px)}
+  .mod .mi{font-size:26px}
+  .mod .mt{font-weight:800;font-size:16px;letter-spacing:-0.01em;margin-top:auto}
+  .mod .md{color:var(--muted);font-size:13px}
+  .mod.soon{cursor:default;opacity:.72}
+  .mod.soon:hover{border-color:var(--line);transform:none}
+  .mtag{align-self:flex-start;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border-radius:6px;background:var(--red-wash);color:var(--red)}
+  .mtag.g{background:transparent;border:1px solid var(--line);color:var(--soft)}
+  /* CONTENT PRIMITIVES */
+  .steps{display:flex;flex-direction:column}
+  .step{display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+  .step:first-child{border-top:none}
+  .step .tm{font-family:var(--mono);font-size:13px;color:var(--red);font-weight:700;min-width:64px;padding-top:2px}
+  .step .st{font-weight:700;font-size:16px}.step .sd{color:var(--muted);font-size:14px}
+  .prodtabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+  .ptab{font-family:var(--font);font-size:14px;font-weight:600;padding:9px 18px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:all .15s ease}
+  .ptab.on{background:var(--red);color:#fff;border-color:var(--red)}
+  .hook{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-top:1px solid var(--line)}
+  .hook:first-child{border-top:none}.hook .b{flex:1}
+  .hook .tp{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:5px}
+  .hook .qt{font-size:16px;line-height:1.45}
+  .cp{flex-shrink:0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 13px;font-family:var(--mono);font-size:12px;cursor:pointer;transition:all .15s ease}
+  .cp:hover{background:var(--red-wash)}.cp.done{background:var(--red);color:#fff;border-color:var(--red)}
+  .blk{margin-bottom:34px}
+  .blk h3{font-size:15px;font-weight:800;letter-spacing:-0.01em;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+  .blk h3 .k{font-family:var(--mono);font-size:11px;color:var(--red)}
+  .vocab{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .vocab h4{font-size:14px;font-weight:700;margin-bottom:12px}
+  .tags{display:flex;flex-wrap:wrap;gap:7px}
+  .tag{font-size:13px;padding:5px 11px;border-radius:99px;border:1px solid var(--line)}
+  .tag.ok{color:var(--green);border-color:rgba(0,121,107,.3)}.tag.no{color:var(--soft);text-decoration:line-through;opacity:.75}
+  .fmts{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+  .fmt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .fmt .fn{font-family:var(--mono);font-size:11px;color:var(--red);font-weight:700}
+  .fmt .ft{font-weight:700;font-size:15px;margin:5px 0 3px}.fmt .fd{color:var(--muted);font-size:13px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;min-width:560px;background:var(--card)}
+  th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:top}
+  thead th{background:var(--denim);color:#fff;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+  @media (prefers-color-scheme:dark){thead th{color:#0E0D12}}
+  :root[data-theme="dark"] thead th{color:#0E0D12}
+  tbody tr:last-child td{border-bottom:none}
+  .wk{font-weight:800}.goal{font-family:var(--mono);font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:.06em}
+  .chip{display:inline-block;font-size:12px;padding:3px 9px;border:1px solid var(--line);border-radius:20px;margin:2px 3px 2px 0;color:var(--muted)}
+  .trilha ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-top:8px}
+  .trilha li{font-size:15px;padding-left:26px;position:relative}
+  .trilha li::before{content:"→";position:absolute;left:0;color:var(--red);font-weight:700}
+  .prose p{font-size:15.5px;margin-top:15px;max-width:64ch;color:var(--ink)}
+  .prose p b{color:var(--ink)} .prose p:first-child{margin-top:0}
+  .lib-drive{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-bottom:8px}
+  .lib-drive .li{font-size:30px}.lib-drive .lt{flex:1;min-width:200px}.lib-drive .lt b{font-size:16px}.lib-drive .lt div{color:var(--muted);font-size:14px;margin-top:2px}
+  .lib-soon{font-family:var(--mono);font-size:13px;color:var(--soft);border:1px dashed var(--line);border-radius:99px;padding:9px 16px}
+  .remix{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 30px}
+  .rstep{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;display:flex;gap:11px}
+  .rstep .n{font-family:var(--mono);color:var(--red);font-weight:700;font-size:13px}.rstep b{font-size:14px}.rstep small{color:var(--muted);font-size:12.5px}
+  .winner{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);margin-bottom:9px}
+  .winner .rk{font-family:var(--mono);font-size:19px;font-weight:800;color:var(--red);min-width:30px}
+  .winner .wi{flex:1;min-width:0}.winner .wcr{font-weight:700;font-size:15px}.winner .wm{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:2px}
+  .winner .wa{flex-shrink:0;font-size:13px;font-weight:600;color:var(--red);text-decoration:none;white-space:nowrap}.winner .wa:hover{text-decoration:underline}
+  .faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:9px;overflow:hidden}
+  .faq summary{padding:15px 17px;font-weight:700;font-size:15px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--soft);font-size:20px}
+  .faq details[open] summary::after{content:"\2013"}
+  .faq details[open] summary{border-bottom:1px solid var(--line)}
+  .faq .fa{padding:13px 17px;font-size:14.5px;color:var(--muted);max-width:64ch}.faq .fa a{color:var(--red);font-weight:600}
+  .missoes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .missao{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:var(--shadow)}
+  .missao .mi2{font-size:23px}.missao .mt2{font-weight:800;font-size:15px;margin:7px 0 4px}.missao .md2{font-size:13px;color:var(--muted)}
+  .missao .mr{margin-top:11px;font-family:var(--mono);font-size:10px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+  .dl-card{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-top:8px}
+  .dl-card .di{font-size:28px}.dl-card .dt{flex:1;min-width:200px}.dl-card .dt b{font-size:16px}.dl-card .dt div{color:var(--muted);font-size:13.5px;margin-top:2px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;font-weight:600;font-size:15px;padding:12px 22px;border-radius:99px;border:none;text-decoration:none;cursor:pointer;transition:background .15s ease}
+  .btn:hover{background:var(--red-hover)}
+  .filterbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .fbtn{font-size:14px;font-weight:600;padding:8px 15px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+  .fbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .artigo{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:11px;overflow:hidden}
+  .artigo .h{display:flex;gap:12px;padding:16px 18px;cursor:pointer}.artigo .h:hover{background:var(--red-wash)}
+  .artigo .r1{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:4px}
+  .badge{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:var(--red-wash);color:var(--red)}
+  .badge.g{background:transparent;border:1px solid var(--line);color:var(--soft)}
+  .artigo .t{font-size:16px;font-weight:700}.artigo .rr{font-size:14px;color:var(--muted);margin-top:2px}
+  .artigo .ex{margin-left:auto;color:var(--soft);font-size:20px;transition:transform .2s}.artigo.open .ex{transform:rotate(45deg)}
+  .artigo .c{display:none;padding:0 18px 18px}.artigo.open .c{display:block}.artigo .c p{font-size:15px;margin-top:13px;max-width:62ch}
+  .soon-box{background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:26px;text-align:center;color:var(--muted);font-size:14px;max-width:60ch;margin-top:8px}
+  .soon-box .st{font-weight:800;color:var(--ink);font-size:17px;margin-bottom:5px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:99px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s ease;z-index:50}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (max-width:680px){.grid{grid-template-columns:1fr 1fr}.vocab,.fmts,.remix,.missoes{grid-template-columns:1fr}}
+  @media (max-width:430px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="topbar"><div class="in"><div class="tb-brand" onclick="goHome()"><span class="dot"></span> RHODE ACADEMY</div><button class="tb-back" onclick="goHome()">← todos os módulos</button></div></div>
+
+  <!-- HOME -->
+  <div class="view on" id="v-home">
+    <div class="container">
+      <div class="hero">
+        <div class="eyebrow">A escola de conteúdo da Rhode</div>
+        <h1>Vídeo que <span class="hl">vende</span> — em módulos rápidos.</h1>
+        <p class="lede">Escolhe um módulo, aprende em 2 minutos, grava. Sem parede de texto.</p>
+        <div class="focus">🎯 foco do mês: crescer seu volume de vídeo</div>
+      </div>
+      <div class="featured" onclick="show('aula')">
+        <div class="fe">A aula principal</div>
+        <h3>De 1 vídeo campeão a infinitos campeões</h3>
+        <p>O método pra multiplicar um viral — o seu ou o dos outros. Depois dessa, você nunca mais fica sem ideia.</p>
+        <div class="go">Começar a aula →</div>
+      </div>
+      <div class="sectitle">Sua trilha <span class="pmini" id="pmini"></span></div>
+      <div id="nextwrap"></div>
+      <div class="steplist" id="steplist"></div>
+      <div class="sectitle" style="margin-top:28px">Extras</div>
+      <div class="extras" id="extras"></div>
+    </div>
+  </div>
+
+  <!-- AULA -->
+  <div class="view" id="v-aula"><div class="container">
+    <div class="vhead"><div class="eyebrow">Aula principal</div><h1>De 1 vídeo campeão a <span class="hl">infinitos campeões</span></h1></div>
+    <div class="prose" id="aula-body"></div>
+    <div style="margin-top:26px"><button class="btn" onclick="show('biblioteca')">Ver os campeões pra remixar →</button></div>
+  </div></div>
+
+  <!-- COMEÇANDO -->
+  <div class="view" id="v-comecando"><div class="container">
+    <div class="vhead"><div class="eyebrow">Trilha · iniciante</div><h1>🌱 Começando</h1><p class="sub">Nunca vendeu ou tem poucos vídeos? Faz isso primeiro.</p></div>
+    <div class="trilha"><ul>
+      <li>Poste seu <b>1º vídeo em 48h</b> depois da amostra chegar</li>
+      <li>Comece por <b>unboxing + try-on</b> — os que mais convertem no início</li>
+      <li>Use <b>1 gancho pronto</b> do banco, não invente do zero</li>
+      <li>Meta: <b>3 vídeos na 1ª semana</b></li>
+    </ul></div>
+    <div style="margin-top:22px"><button class="btn" onclick="show('ganchos')">Pegar meu 1º gancho →</button></div>
+  </div></div>
+
+  <!-- ESCALANDO -->
+  <div class="view" id="v-escalando"><div class="container">
+    <div class="vhead"><div class="eyebrow">Trilha · avançada</div><h1>🚀 Escalando</h1><p class="sub">Já fatura e quer crescer sem queimar.</p></div>
+    <div class="trilha"><ul>
+      <li>Suba pra <b>2-3 vídeos/semana</b> com constância</li>
+      <li><b>Grave em lote</b> e reaproveite ângulos entre formatos</li>
+      <li>Rode a <b>esteira</b> (Mom / Baggy) além do hero pra diversificar</li>
+      <li>Meta: virar <b>Video Creator (20+ vídeos)</b> e destravar spark ads</li>
+    </ul></div>
+    <div style="margin-top:22px"><button class="btn" onclick="show('plano')">Montar meu plano de 3 semanas →</button></div>
+  </div></div>
+
+  <!-- GANCHOS & ESTRUTURA -->
+  <div class="view" id="v-ganchos"><div class="container">
+    <div class="vhead"><div class="eyebrow">Fundamentos de copy</div><h1>Ganchos & estrutura</h1><p class="sub">Ganchos reais dos vídeos que venderam + o arco que funciona.</p></div>
+    <div class="blk"><h3><span class="k">01</span> Banco de ganchos por produto</h3><div class="prodtabs" id="prodtabs"></div><div id="hooklist"></div></div>
+    <div class="blk"><h3><span class="k">02</span> A estrutura validada (0–75s)</h3><div class="steps" id="steps"></div></div>
+    <div class="blk"><h3><span class="k">03</span> Vocabulário — como você fala</h3><div class="vocab"><div><h4>✓ Usa</h4><div class="tags" id="vok"></div></div><div><h4>✗ Evita</h4><div class="tags" id="vno"></div></div></div></div>
+  </div></div>
+
+  <!-- BIBLIOTECA & CAMPEÕES -->
+  <div class="view" id="v-biblioteca"><div class="container">
+    <div class="vhead"><div class="eyebrow">Modelos & referência</div><h1>Biblioteca & campeões</h1><p class="sub">Pega um modelo, mantém a estrutura, <b>põe a sua cara</b>. Remodela — não copia igual.</p></div>
+    <div id="lib-drive"></div>
+    <div class="remix">
+      <div class="rstep"><div class="n">01</div><div><b>Escolhe um vencedor</b><br><small>Do Drive ou dos que mais venderam.</small></div></div>
+      <div class="rstep"><div class="n">02</div><div><b>Mantém a estrutura</b><br><small>O arco 0–75s e o tipo de gancho.</small></div></div>
+      <div class="rstep"><div class="n">03</div><div><b>Troca o gancho + tua voz</b><br><small>Tua cara, teu jeito. Aí vira teu.</small></div></div>
+    </div>
+    <div class="blk"><h3>🏆 Aprenda com os que venderam</h3><p class="sub" style="margin-bottom:14px">Os vídeos que mais venderam na Rhode (dado real, jun–jul). Assiste, sacou o padrão, remodela.</p><div id="winners"></div></div>
+  </div></div>
+
+  <!-- FORMATOS & PLANO -->
+  <div class="view" id="v-plano"><div class="container">
+    <div class="vhead"><div class="eyebrow">Ritmo & variedade</div><h1>Formatos & plano</h1><p class="sub">8 formatos pra não repetir + o plano de 3 semanas. Baixa o template e edita o seu.</p></div>
+    <div class="blk"><h3>📥 Template pra usar</h3><div class="dl-card"><div class="di">📅</div><div class="dt"><b>Calendário editorial + plano de teste</b><div>Planilha editável: o que postar por dia e como testar variações de vídeo.</div></div><a class="btn" href="/downloads/rhode-calendario-editorial.xlsx" download onclick="track('baixou_template')">Baixar template ↓</a></div></div>
+    <div class="blk"><h3>Os 8 formatos</h3><div class="fmts" id="fmts"></div></div>
+    <div class="blk"><h3>Plano de 3 semanas → 6-8 vídeos</h3>
+      <div class="tablewrap"><table><thead><tr><th>Semana</th><th>Objetivo</th><th>Formatos</th><th>Ganchos</th></tr></thead><tbody>
+        <tr><td><span class="wk">Semana 1</span><br><span class="goal">aquecer</span></td><td>Apresentar e gerar desejo.</td><td><span class="chip">Unboxing</span><span class="chip">Try-on</span></td><td><span class="chip">paixão</span><span class="chip">descoberta</span></td></tr>
+        <tr><td><span class="wk">Semana 2</span><br><span class="goal">converter</span></td><td>Resolver caimento/tamanho.</td><td><span class="chip">3 looks</span><span class="chip">Seu tamanho</span></td><td><span class="chip">corpo</span><span class="chip">dados</span></td></tr>
+        <tr><td><span class="wk">Semana 3</span><br><span class="goal">escalar</span></td><td>Surfar alcance e confiança.</td><td><span class="chip">Trend</span><span class="chip">Review</span></td><td><span class="chip">viralização</span><span class="chip">preço</span></td></tr>
+      </tbody></table></div>
+    </div>
+  </div></div>
+
+  <!-- FAQ & MISSÕES -->
+  <div class="view" id="v-vendas"><div class="container">
+    <div class="vhead"><div class="eyebrow">Fecha a venda</div><h1>FAQ de vendas & missões</h1><p class="sub">Responde rápido no comentário — e cumpre a missão da semana.</p></div>
+    <div class="blk"><h3>Dúvidas que mais aparecem</h3><div class="faq">
+      <details><summary>Qual tamanho eu peço?</summary><div class="fa">Veste do 36 ao 46, caimento soltinho — na dúvida entre dois, pega o maior. Manda no <a href="/tamanho">encontre seu tamanho</a>: descobre em 10s por altura e peso.</div></details>
+      <details><summary>É de qualidade por esse preço?</summary><div class="fa">Jeans premium direto da fábrica — caimento de grife por menos de R$100, não desbota, modela a cintura. Mostra no corpo que a dúvida some.</div></details>
+      <details><summary>Frete e prazo?</summary><div class="fa">Aparecem na hora da compra, no carrinho laranja (variam por região). Fala pra pessoa conferir ali.</div></details>
+      <details><summary>Tem cupom/promoção?</summary><div class="fa">Quase sempre tem promoção ativa no carrinho. Tom certo: “vê se ainda tem o seu tamanho e garante antes de acabar”.</div></details>
+      <details><summary>E se não servir?</summary><div class="fa">Troca/devolução pelo TikTok Shop, direto no app. Por isso o vídeo com <b>medidas reais</b> ajuda tanto: reduz devolução.</div></details>
+    </div></div>
+    <div class="blk"><h3>🏆 Missões da semana</h3><div class="missoes" id="missoes"></div></div>
+  </div></div>
+
+  <!-- ESTA SEMANA -->
+  <div class="view" id="v-semana"><div class="container">
+    <div class="vhead"><div class="eyebrow">Novo toda semana</div><h1>Esta semana</h1><p class="sub">Insights e frameworks curtos. Filtra pelo seu nível.</p></div>
+    <div class="filterbar" id="filterbar"></div>
+    <div id="artigos"></div>
+  </div></div>
+
+  <!-- TRENDS -->
+  <div class="view" id="v-trends"><div class="container">
+    <div class="vhead"><div class="eyebrow">Radar de tendências</div><h1>Trends da semana</h1></div>
+    <div class="soon-box"><div class="st">Em breve 🔜</div>Os áudios e formatos em alta no nicho jeans BR vão aparecer aqui toda semana — pra você surfar a trend com o produto certo.</div>
+  </div></div>
+
+  <div class="toast" id="toast">Copiado ✓</div>
+
+<script>
+const CORE=[
+  {id:'comecando', n:1, i:'🌱', t:'Começando',            d:'Seu 1º vídeo no ar em 48h'},
+  {id:'ganchos',   n:2, i:'✍️', t:'Ganchos & estrutura',   d:'Prender nos 3 primeiros segundos'},
+  {id:'biblioteca',n:3, i:'🎬', t:'Biblioteca & campeões', d:'1 campeão vira o seu'},
+  {id:'plano',     n:4, i:'📅', t:'Formatos & plano',      d:'Ritmo de 3 semanas + template'},
+  {id:'escalando', n:5, i:'🚀', t:'Escalando',             d:'Volume sem queimar'},
+  {id:'vendas',    n:6, i:'💬', t:'FAQ & missões',         d:'Fecha a venda'}
+];
+const EXTRA=[
+  {id:'semana',i:'📰',t:'Esta semana',d:'Novo toda semana'},
+  {id:'trends',i:'📈',t:'Trends',d:'Em breve',soon:true}
+];
+const AULA_META={
+  comecando:{p:'Sai daqui com seu 1º vídeo no ar em 48h.',                                m:'Grava e posta 1 unboxing ainda hoje.'},
+  ganchos:{p:'Você vai montar um vídeo que prende nos 3 primeiros segundos.',             m:'Escolhe 1 gancho do banco e grava com ele.'},
+  biblioteca:{p:'Você vai transformar um vídeo campeão no seu — sem copiar igual.',       m:'Escolhe 1 campeão e remodela com a tua cara.'},
+  plano:{p:'Você sai com um plano de 3 semanas e 8 formatos pra nunca repetir.',          m:'Baixa o template e preenche a Semana 1.'},
+  escalando:{p:'Você vai subir o volume de vídeo sem queimar.',                           m:'Agenda 1 dia de gravação em lote (4–6 vídeos).'},
+  vendas:{p:'Você vai responder qualquer objeção e fechar a venda no comentário.',        m:'Responde 3 comentários usando as respostas prontas.'}
+};
+const ARTIGOS=[
+  {niv:'todas',tipo:'Framework',t:'O arco de 75s que vende',r:'A estrutura que todo top vídeo segue.',c:`<p>Hook (0–5s) → contexto (5–15s) → prova no corpo (15–30s) → seus dados (30–40s) → ancoragem de valor (40–55s) → benefícios (55–65s) → CTA (65–75s). O gancho nos 2 primeiros segundos decide tudo.</p>`},
+  {niv:'todas',tipo:'Insight',t:'Por que 1 vídeo não basta',r:'Volume ganha — os dados provam.',c:`<p>Vídeo é quase metade do GMV de afiliação, e o resultado se concentra em quem <b>posta com constância</b> — não em quem tem mais seguidores. Uma amostra rende 6-8 vídeos em 3 semanas. Parar no primeiro é deixar a maior parte na mesa.</p>`},
+  {niv:'iniciante',tipo:'Trilha',t:'Da amostra ao 1º vídeo em 48h',r:'O passo a passo pra destravar.',c:`<p><b>Dia 1:</b> unboxing simples com 1 gancho de descoberta. <b>Dia 2:</b> try-on mostrando o caimento e teu tamanho. 2 vídeos em 48h, sem estúdio: luz natural, vertical, produto na tela nos 2 primeiros segundos.</p>`},
+  {niv:'avancada',tipo:'Framework',t:'De 5 a 20 vídeos/mês sem queimar',r:'Batch + reaproveitamento.',c:`<p>Grava <b>em lote</b>: 1 dia, 4-6 vídeos (mesma roupa, ângulos e ganchos diferentes). Reaproveita: um try-on vira "3 looks", vira "qual seu tamanho", vira "review". Ao chegar em 20+ você vira Video Creator e destrava spark ads.</p>`}
+];
+const AULA=`<p>Se eu pudesse te ensinar <b>uma coisa só</b>, seria essa. Um vídeo campeão não é sorte — é uma fórmula que já <b>provou</b> que funciona. Em vez de inventar do zero e torcer, você replica o que fez ele ganhar e troca só a superfície. Assim <b>1 campeão vira infinitos</b>.</p>
+<p><b>1 · Ache o campeão (não chute).</b> Usa o que já vendeu de verdade — os vídeos em "Biblioteca & campeões" são dado real. O da @tacianecreator sozinho fez R$ 98 mil. Copiar um vencedor > criar um original não testado.</p>
+<p><b>2 · Disseca a estrutura invisível.</b> Isola: o <b>tipo de gancho</b> (paixão? preço? corpo?), o <b>arco 0–75s</b>, o <b>ângulo de oferta</b>, o <b>som</b>, a prova no corpo. Entende o <b>porquê</b> funcionou, não decore as palavras.</p>
+<p><b>3 · Mantém o que ganhou, troca a superfície.</b> Mantém a estrutura, o tipo de gancho, o ângulo, o som. Troca a tua cara e voz, as palavras exatas, o look, o cenário. Cada troca fiel à fórmula = um novo campeão em potencial.</p>
+<p><b>4 · Multiplica por eixo.</b> Cada variável é um eixo: o mesmo formato com <b>outro gancho</b>, com <b>outro produto</b> (Mom, Baggy), com <b>outro ângulo</b>. Um campeão vira 5–8 variações.</p>
+<p><b>5 · Testa em lote, dobra no que repete.</b> Posta as variações, vê qual <b>reproduz o resultado</b>, dobra nela. O jogo não é o vídeo perfeito — é iterar rápido sobre o que já ganha. É por isso que você nunca mais fica sem ideia.</p>`;
+const ACAD={
+  estrutura:[['0–5s','Gancho','Chamada íntima ("amigas") + emoção forte'],['5–15s','Contexto','A peça em uso real'],['15–30s','Prova no corpo','Caimento, frente, costas, lavagem'],['30–40s','Seus dados','Tamanho, altura, peso — tira o medo de não servir'],['40–55s','Ancoragem','Marca cara + preço < R$100 + "direto da fábrica"'],['55–65s','Benefícios','Empina o bumbum, modela a cintura, versátil'],['65–75s','CTA','Urgência suave → carrinho laranja']],
+  produtos:{'Marmorizada':[{tp:'Paixão / obsessão',qt:'Eu sou simplesmente apaixonada por essa calça'},{tp:'Viralização',qt:'A calça mais viralizada do TikTok vale cada centavo — e custa menos de 100 reais'},{tp:'Problema corporal',qt:'Amigas do popotão grandão que sofrem pra achar calça boa na cintura e no bumbum: essa é a solução'},{tp:'Urgência / descoberta',qt:'Amigas, para tudo. Olha o que eu descobri — juro que nunca vi nada igual'},{tp:'Uso repetido',qt:'Tô usando essa calça pela quinta vez na semana e ela continua perfeita'}],'Rosa Bebê':[{tp:'Surpresa pessoal',qt:'Eu não imaginava que precisava de uma calça rosa até ter uma'},{tp:'Quebra de objeção',qt:'“Ah, eu só compro de grife.” Amiga, para — pega a referência aqui'},{tp:'Direto da fábrica',qt:'Só compro calça direto da fábrica depois que descobri essa loja no carrinho'},{tp:'Momento especial',qt:'Hoje é meu aniversário e vou estrear essa calça rosa do carrinho laranja'},{tp:'Validação social',qt:'Comprei a calça rosa viralizada do TikTok — vem comigo?'}]},
+  usar:['amigas','apaixonada','para tudo','perfeita','carrinho laranja','viralizada','empina o bumbum','menos de 100 reais','direto da fábrica','qualidade de Zara','não desbota','garante a sua','vê se ainda tem seu tamanho','eu uso toda semana'],
+  evitar:['baratinha','compre agora','oferta imperdível','link na bio','cupom de desconto','publi','fast fashion','básica demais'],
+  formatos:[['01','Unboxing / 1ª impressão','"Chegou a calça que tá bombando"'],['02','Try-on / provador','"Testando o caimento — será que serve?"'],['03','Como estilizar (3 looks)','"3 jeitos de usar a mesma calça"'],['04','Antes / depois','"Troquei minha calça velha por essa"'],['05','Qual seu tamanho','"Descobre teu número em 10s"'],['06','Rotina / day-in-life','"Um dia usando a calça mais confortável"'],['07','Trend / áudio do momento','áudio em alta + a peça'],['08','Review honesto','"A real depois de 1 semana"']]
+};
+const DRIVE_URL="https://drive.google.com/drive/folders/10dSDZaXByc3EIER-GLImcPqBAOOcsOGw?hl=pt-br";
+const WINNERS=[{cr:'tacianecreator',url:'https://www.tiktok.com/@tacianecreator/video/7610417484289690901',ref:'REF516',cls:'HERO',tier:'Black'},{cr:'tacianecreator',url:'https://www.tiktok.com/@tacianecreator/video/7634644752893365525',ref:'REF516',cls:'HERO',tier:'Black'},{cr:'alinecavanellas',url:'https://www.tiktok.com/@alinecavanellas/video/7636896476005682453',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'pattylazzarotto',url:'https://www.tiktok.com/@pattylazzarotto/video/7534839834393824518',ref:'REF516',cls:'HERO',tier:'Gold'},{cr:'laianenovaisss',url:'https://www.tiktok.com/@laianenovaisss/video/7619374416828321044',ref:'REF516',cls:'HERO',tier:'Gold'},{cr:'escuta.amiga',url:'https://www.tiktok.com/@escuta.amiga/video/7633783249914858773',ref:'REF516',cls:'HERO',tier:'Bronze'},{cr:'someoneduda',url:'https://www.tiktok.com/@someoneduda/video/7622992807304760594',ref:'REF516',cls:'HERO',tier:'Iniciante'},{cr:'thainabeautyoficial',url:'https://www.tiktok.com/@thainabeautyoficial/video/7556309029161536824',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'ericamcabeluda',url:'https://www.tiktok.com/@ericamcabeluda/video/7598167224083287317',ref:'REF516',cls:'HERO',tier:'Diamond'},{cr:'.familiapimentel',url:'https://www.tiktok.com/@.familiapimentel/video/7556757951927553292',ref:'REF516',cls:'HERO',tier:'Bronze'}];
+function tierColor(t){return {Black:'#c9a227',Diamond:'#7cc7ff',Gold:'#e3b23c',Silver:'#c0c4cc',Bronze:'#c98a4b',Iniciante:'#9aa0a6'}[t]||'#9aa0a6';}
+const MISSOES=[{i:'🎬',t:'5 vídeos na semana',d:'Constância destrava o algoritmo.',r:'pontos na Copa'},{i:'🎯',t:'Combo de formatos',d:'1 unboxing + 1 try-on + 1 review.',r:'briefing exclusivo'},{i:'⚡',t:'Estourou? avisa',d:'Passou de 10k views? A gente impulsiona.',r:'+alcance & comissão'}];
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function fmtK(v){return v>=1000?('R$ '+(v/1000).toFixed(1).replace('.',',')+'k'):('R$ '+v)}
+// TRACKER (fire-and-forget → api/relay branch acad_track; falha em silêncio)
+const SKEY_S='rhode_acad_sess';
+function sessId(){let s='anon';try{s=localStorage.getItem(SKEY_S);if(!s){s=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('s'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36));localStorage.setItem(SKEY_S,s)}}catch(e){}return s}
+const _qs=new URLSearchParams(location.search);
+const CREATOR=_qs.get('c')||_qs.get('handle')||_qs.get('creator')||null;
+function track(evento,extra){try{fetch('/api/relay',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify(Object.assign({action:'acad_track',evento:evento,sess:sessId(),creator:CREATOR},extra||{}))}).catch(function(){})}catch(e){}}
+// ROUTER
+function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));const el=document.getElementById('v-'+id);(el||document.getElementById('v-home')).classList.add('on');document.body.classList.toggle('inview',id!=='home');if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);window.scrollTo({top:0,behavior:'instant'});refreshFooters();if(id==='home'||!el)renderHome();if(id&&id!=='home')track('abriu_modulo',{modulo:id});}
+function goHome(){show('home')}
+window.addEventListener('hashchange',()=>show((location.hash||'#home').slice(1)));
+// RENDER
+// PROGRESSO (trilha guiada) — localStorage, sem backend
+const DKEY='rhode_acad_done_v1';
+function doneList(){try{return JSON.parse(localStorage.getItem(DKEY)||'[]')}catch(e){return[]}}
+function isDone(id){return doneList().indexOf(id)>=0}
+function markDone(id){const a=doneList();if(a.indexOf(id)<0){a.push(id);localStorage.setItem(DKEY,JSON.stringify(a))}}
+function nextStep(){for(let i=0;i<CORE.length;i++){if(!isDone(CORE[i].id))return CORE[i]}return null}
+function coreDoneCount(){return CORE.filter(c=>isDone(c.id)).length}
+function renderHome(){
+  const dc=coreDoneCount(),pct=Math.round(dc/CORE.length*100),nx=nextStep();
+  document.getElementById('pmini').textContent=dc+'/'+CORE.length+' concluídas';
+  const nw=document.getElementById('nextwrap');
+  if(nx){nw.innerHTML=`<div class="nextcard" onclick="show('${nx.id}')"><div class="nch">● seu próximo passo</div><div class="nct"><span class="ncn">${nx.n}</span> ${nx.i} ${esc(nx.t)}</div><div class="ncd">${esc(nx.d)}</div><div class="ncgo">${dc===0?'Começar':'Continuar'} →</div><div class="ncbar"><span style="width:${pct}%"></span></div></div>`;}
+  else{nw.innerHTML=`<div class="nextcard alldone"><div class="nch">🎉 trilha completa</div><div class="nct">Você concluiu as ${CORE.length} aulas</div><div class="ncd">Agora é volume: grava, testa e dobra no que repete. Volta em "Esta semana" pros próximos insights.</div><div class="ncbar"><span style="width:100%;background:var(--green)"></span></div></div>`;}
+  document.getElementById('steplist').innerHTML=CORE.map(c=>{
+    const st=isDone(c.id)?'ok':(nx&&nx.id===c.id?'now':'todo');
+    const mk=st==='ok'?'✓':(st==='now'?'●':c.n);
+    return `<div class="tstep ${st}" onclick="show('${c.id}')"><div class="tnum">${mk}</div><div><div class="ttl">${c.i} ${esc(c.t)}</div><div class="tds">${esc(c.d)}</div></div><div class="tgo">›</div></div>`;
+  }).join('');
+  document.getElementById('extras').innerHTML=EXTRA.map(m=>`<div class="mod ${m.soon?'soon':''}" ${m.soon?'':`onclick="show('${m.id}')"`}>${m.soon?'<span class="mtag">em breve</span>':''}<div class="mi">${m.i}</div><div class="mt">${esc(m.t)}</div><div class="md">${esc(m.d)}</div></div>`).join('');
+}
+function refreshFooters(){CORE.forEach(c=>{const b=document.querySelector('#v-'+c.id+' .concluir-btn');if(b){const d=isDone(c.id);b.textContent=d?'✓ Aula concluída — refazer quando quiser':'✓ Concluí esta aula';b.classList.toggle('is-done',d)}});}
+function concluir(id){const first=!isDone(id);markDone(id);if(first)track('concluiu_aula',{modulo:id});renderHome();refreshFooters();toast(first?'Aula concluída 🎉':'Feito ✓');show('home');}
+CORE.forEach(c=>{
+  const cont=document.querySelector('#v-'+c.id+' .container');if(!cont)return;const meta=AULA_META[c.id]||{};
+  const vh=cont.querySelector('.vhead');
+  if(vh&&meta.p){const p=document.createElement('div');p.className='promessa';p.innerHTML='<b>✅ O que você sai sabendo:</b> '+esc(meta.p);vh.insertAdjacentElement('afterend',p);}
+  const f=document.createElement('div');f.className='aulafoot';
+  f.innerHTML=(meta.m?'<div class="aula-missao"><b>🎯 Missão prática:</b> '+esc(meta.m)+'</div>':'')+'<button class="btn concluir-btn" onclick="concluir(\''+c.id+'\')">✓ Concluí esta aula</button>';
+  cont.appendChild(f);
+});
+renderHome();refreshFooters();
+document.getElementById('aula-body').innerHTML=AULA;
+document.getElementById('steps').innerHTML=ACAD.estrutura.map(s=>`<div class="step"><div class="tm">${s[0]}</div><div><div class="st">${esc(s[1])}</div><div class="sd">${esc(s[2])}</div></div></div>`).join('');
+let _prod=Object.keys(ACAD.produtos)[0];
+function hooksHTML(p){return ACAD.produtos[p].map((h,i)=>`<div class="hook"><div class="b"><div class="tp">${esc(h.tp)}</div><div class="qt">“${esc(h.qt)}”</div></div><button class="cp" onclick="cpHook(${i})">copiar</button></div>`).join('')}
+function selProd(el,p){_prod=p;document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));el.classList.add('on');document.getElementById('hooklist').innerHTML=hooksHTML(p)}
+function cpHook(i){try{navigator.clipboard.writeText('“'+ACAD.produtos[_prod][i].qt+'”')}catch(e){}toast()}
+let _tt;function toast(msg){const t=document.getElementById('toast');t.textContent=msg||'Copiado ✓';t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),1500)}
+document.getElementById('prodtabs').innerHTML=Object.keys(ACAD.produtos).map((p,i)=>`<button class="ptab ${i===0?'on':''}" onclick="selProd(this,'${p}')">${p}</button>`).join('');
+document.getElementById('hooklist').innerHTML=hooksHTML(_prod);
+document.getElementById('vok').innerHTML=ACAD.usar.map(t=>`<span class="tag ok">${esc(t)}</span>`).join('');
+document.getElementById('vno').innerHTML=ACAD.evitar.map(t=>`<span class="tag no">${esc(t)}</span>`).join('');
+document.getElementById('fmts').innerHTML=ACAD.formatos.map(f=>`<div class="fmt"><div class="fn">${f[0]}</div><div class="ft">${esc(f[1])}</div><div class="fd">${esc(f[2])}</div></div>`).join('');
+document.getElementById('lib-drive').innerHTML=DRIVE_URL?`<div class="li">📁</div><div class="lt"><b>Biblioteca de vídeos no Drive</b><div>Modelos e clipes prontos pra remixar. Baixa, adapta com a sua voz e posta.</div></div><a class="btn" href="${DRIVE_URL}" target="_blank" rel="noopener" onclick="track('abriu_drive')">Abrir biblioteca →</a>`:`<div class="li">📁</div><div class="lt"><b>Biblioteca de vídeos no Drive</b><div>Modelos e clipes prontos pra remixar.</div></div><span class="lib-soon">link em configuração 🔧</span>`;
+document.getElementById('winners').innerHTML=WINNERS.map((w,i)=>`<div class="winner"><div class="rk">${i+1}</div><div class="wi"><div class="wcr">@${esc(w.cr)}</div><div class="wm">${w.ref} · ${w.cls} · <span style="display:inline-block;padding:1px 8px;border:1px solid ${tierColor(w.tier)}66;border-radius:999px;color:${tierColor(w.tier)};font-size:11px;font-weight:600;letter-spacing:.02em;vertical-align:middle">${w.tier}</span></div></div><a class="wa" href="${w.url}" target="_blank" rel="noopener" onclick="track('clicou_campeao',{ref:'${w.cr}'})">assistir →</a></div>`).join('');
+document.getElementById('missoes').innerHTML=MISSOES.map(m=>`<div class="missao"><div class="mi2">${m.i}</div><div class="mt2">${esc(m.t)}</div><div class="md2">${esc(m.d)}</div><div class="mr">🏆 ${esc(m.r)}</div></div>`).join('');
+// artigos (esta semana)
+let _f='all';
+const NIV={iniciante:'Iniciante',avancada:'Já faturo'};
+function lvl(n){return n==='todas'?'todos os níveis':(n==='iniciante'?'iniciante':'avançada')}
+function renderArt(){document.getElementById('artigos').innerHTML=ARTIGOS.filter(a=>_f==='all'||a.niv===_f||a.niv==='todas').map((a)=>{const idx=ARTIGOS.indexOf(a);return `<div class="artigo" id="art-${idx}"><div class="h" onclick="document.getElementById('art-${idx}').classList.toggle('open')"><div style="flex:1"><div class="r1"><span class="badge">${esc(a.tipo)}</span><span class="badge g">${lvl(a.niv)}</span></div><div class="t">${esc(a.t)}</div><div class="rr">${esc(a.r)}</div></div><div class="ex">+</div></div><div class="c">${a.c}</div></div>`}).join('')}
+function setF(el,f){_f=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderArt()}
+document.getElementById('filterbar').innerHTML=`<button class="fbtn on" onclick="setF(this,'all')">Todos</button>`+Object.keys(NIV).map(k=>`<button class="fbtn" onclick="setF(this,'${k}')">${NIV[k]}</button>`).join('');
+renderArt();
+// deep-link inicial
+if(location.hash&&location.hash!=='#home')show(location.hash.slice(1));
+track('abriu_pagina',{ref:(document.referrer||location.hash||'')});
+</script>
+</body>
+</html>

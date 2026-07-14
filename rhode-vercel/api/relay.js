@@ -165,6 +165,27 @@ export default async function handler(req, res) {
 
   const body = req.body;
 
+  // ── Analytics da Academia (event sink server-side, service key — não expõe key no client) ──
+  if (body?.action === 'acad_track') {
+    try {
+      const ev = {
+        evento:  String(body.evento || '').slice(0, 60),
+        modulo:  body.modulo  ? String(body.modulo).slice(0, 40)  : null,
+        creator: body.creator ? String(body.creator).slice(0, 80) : null,
+        sess:    body.sess    ? String(body.sess).slice(0, 40)     : null,
+        ref:     body.ref     ? String(body.ref).slice(0, 240)     : null
+      };
+      if (ev.evento) {
+        await fetch(`${SB_URL}/rest/v1/academia_eventos`, {
+          method: 'POST',
+          headers: { ...SB_SH, 'Prefer': 'return=minimal' },
+          body: JSON.stringify(ev)
+        });
+      }
+    } catch (e) { /* analytics nunca quebra a resposta */ }
+    return res.status(200).json({ ok: true });
+  }
+
   // Ignora mensagens enviadas por nós
   if (body?.fromMe) return res.status(200).json({ ok: true });
 

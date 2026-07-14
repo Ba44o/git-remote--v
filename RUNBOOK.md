@@ -614,6 +614,16 @@ curl -s "$SB/rest/v1/performance_periods?affiliate_id=ilike.$ID&select=periodo,g
   → provável FK-filter mordendo (ou perf subnotificado). Sempre validar recompute
   full-window contra `affiliate_creator_product` (fonte independente) antes de gravar.
 
+### ⚠️ Handles fragmentados & falsos-aliases (tier/GMV acumulado)
+Uma mesma creator pode ter **várias linhas em `affiliates`** (handles diferentes), e o
+`current_tier` gravado é **stale/manual** (ex.: a #1 de vídeo, `@tacianecreator`, aparece
+como `bronze`). **Regra:** para tier/GMV acumulado, **derivar do GMV real** somado em
+`performance_periods` (todo o período, `gmv_bruto`) — NÃO confiar em `current_tier`.
+Régua: Black ≥500k · Diamond ≥150k · Gold ≥80k · Silver ≥50k · Bronze ≥20k · senão Iniciante.
+- **@tacianecreator** = fundir `TACIANECREATOR` + `TACIANETORRESS` (mesma pessoa, ~R$511k → **Black**).
+- **`TACIANE.COSTA220` NÃO é alias de @tacianecreator** — é **outra pessoa**, nunca somar/fundir.
+Usado nos winner cards do `/academia` (mostram tier, não GMV/un).
+
 ---
 
 ## 📞 Quando me chamar
