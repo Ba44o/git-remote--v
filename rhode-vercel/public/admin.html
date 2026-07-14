@@ -188,15 +188,15 @@ body{
 .theme-toggle:hover{border-color:var(--ink-48)}
 :root[data-theme="dark"] .theme-toggle::before{content:'☀'}
 :root:not([data-theme="dark"]) .theme-toggle::before{content:'☾'}
-/* Mobile: sidebar off-canvas */
+/* Backdrop mobile: escondido por default (SEMPRE, não só no media query — se não vira grid item no desktop e quebra layout) */
+.side-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:45}
+.side-backdrop.on{display:block}
 .side-open-btn{display:none;background:none;border:none;color:var(--ink);font-size:22px;cursor:pointer;padding:0 4px}
 @media(max-width:900px){
   .app{grid-template-columns:1fr}
-  .side{position:fixed;left:-100%;top:0;height:100vh;width:var(--side-w);box-shadow:var(--shadow-md);transition:left .2s}
+  .side{position:fixed;left:-100%;top:0;height:100vh;width:var(--side-w);box-shadow:var(--shadow-md);transition:left .2s;z-index:55}
   .side.open{left:0}
   .side-open-btn{display:inline-flex}
-  .side-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:45}
-  .side-backdrop.on{display:block}
 }
 /* Compat: mantém legado da tlogo/tdot no login */
 .tlogo{font-weight:700;font-size:18px;letter-spacing:-0.022em;color:var(--ink);flex-shrink:0}
