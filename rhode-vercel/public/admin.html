@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script>
+// Aplica tema antes de tudo renderizar (evita flash)
+(function(){try{var t=localStorage.getItem('rhode-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rhode Jeans · Admin</title>
@@ -33,6 +37,44 @@
   --gold:#9a7030;
   --orange:#c05e00;
   --cyan:#0369a1;
+
+  /* ── UI v2 (2026-07-13): tokens do shell dashboard ── */
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-6:24px;--sp-8:32px;--sp-12:48px;
+  --r-input:10px; --r-card:14px; --r-pill:99px;
+  --focus:0 0 0 3px rgba(254,44,85,.20);
+  --ease:all .16s ease;
+  --side-w:250px;
+  --side-bg:#ffffff;
+  --side-active:rgba(254,44,85,.08);
+  --divider:#eef0f3;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.06);
+  --shadow-md:0 6px 22px rgba(16,24,40,.08);
+  --chart-grid:rgba(16,24,40,.07);
+}
+
+/* Tema escuro (default do console interno) — sobrescreve tokens antigos */
+:root[data-theme="dark"]{
+  --canvas:#151922;
+  --parchment:#0b0d12;
+  --pearl:#1c212c;
+  --ink:#f2f4f7;
+  --on-dark:#f2f4f7;
+  --body-muted:#c3c9d4;
+  --ink-80:#c3c9d4;
+  --ink-48:#8a93a3;
+  --hairline:#242a35;
+  --divider-soft:#1e242e;
+  --side-bg:#0f131a;
+  --side-active:rgba(255,107,138,.14);
+  --rhode-red:#FE2C55;
+  --divider:#1e242e;
+  --green:#3ddc97;
+  --gold:#f5a524;
+  --orange:#f5a524;
+  --cyan:#38bdf8;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow-md:0 8px 26px rgba(0,0,0,.55);
+  --chart-grid:rgba(255,255,255,.07);
 }
 
 html{-webkit-text-size-adjust:100%}
@@ -79,40 +121,95 @@ body{
 /* ── App ── */
 #adm-app{display:none}
 
-.topbar{
-  background:rgba(255,255,255,0.85);backdrop-filter:saturate(180%) blur(20px);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);
-  border-bottom:1px solid rgba(0,0,0,0.06);
-  padding:0 24px;display:flex;align-items:center;justify-content:space-between;
-  height:56px;position:sticky;top:0;z-index:100;gap:16px;
+/* ── Shell v2: sidebar + topbar + content ── */
+.app{display:grid;grid-template-columns:var(--side-w) 1fr;min-height:100vh;background:var(--parchment)}
+.side{
+  position:sticky;top:0;height:100vh;background:var(--side-bg);
+  border-right:1px solid var(--hairline);
+  display:flex;flex-direction:column;padding:var(--sp-4) var(--sp-3);gap:2px;
+  overflow-y:auto;z-index:50;
 }
-.tlogo{font-weight:700;font-size:18px;letter-spacing:-0.022em;color:var(--ink);flex-shrink:0}
-.tdot{color:var(--rhode-red)}
-.tlogo small{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-left:8px}
-/* switcher de módulos do console do operador (Creators ⇄ Conciliação) */
-.modnav{display:flex;gap:3px;background:var(--parchment);border:1px solid var(--hairline);border-radius:99px;padding:3px}
-.modnav a{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;text-decoration:none;color:var(--ink-48);padding:6px 15px;border-radius:99px;transition:all .15s ease;white-space:nowrap}
-.modnav a:hover{color:var(--ink)}
-.modnav a.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.tright{display:flex;align-items:center;gap:12px}
+.side::-webkit-scrollbar{width:6px} .side::-webkit-scrollbar-thumb{background:var(--divider);border-radius:3px}
+.side-brand{font-weight:700;font-size:20px;letter-spacing:-.022em;color:var(--ink);padding:var(--sp-2) var(--sp-3) var(--sp-6);flex-shrink:0}
+.side-brand .adot{color:var(--rhode-red)}
+.side-brand small{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-left:6px;display:block;margin-top:2px}
+.side-nav{display:flex;flex-direction:column;gap:2px}
+.side-sec{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-48);font-weight:500;padding:var(--sp-4) var(--sp-3) var(--sp-1);
+}
+.side-item{
+  display:flex;align-items:center;gap:10px;padding:9px var(--sp-3);
+  border-radius:var(--r-input);color:var(--ink-48);text-decoration:none;
+  font-family:'Inter',sans-serif;font-size:13.5px;font-weight:500;cursor:pointer;
+  border:none;background:none;text-align:left;width:100%;
+  transition:var(--ease);
+}
+.side-item:hover{background:var(--divider);color:var(--ink)}
+.side-item.on{background:var(--side-active);color:var(--rhode-red);font-weight:600}
+.side-ico{width:18px;text-align:center;opacity:.9;flex-shrink:0;font-size:14px}
+.side-foot{margin-top:auto;padding-top:var(--sp-4);border-top:1px solid var(--hairline)}
+.side-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:8px var(--sp-3);border-radius:var(--r-input);
+  background:none;border:none;color:var(--ink-48);cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;
+  transition:var(--ease);
+}
+.side-btn:hover{background:var(--divider);color:var(--ink)}
+
+.content{display:flex;flex-direction:column;min-width:0}
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--sp-4);padding:0 var(--sp-6);height:56px;
+  background:var(--parchment);border-bottom:1px solid var(--hairline);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+}
+.crumbs{font-family:'Inter',sans-serif;font-size:13px;color:var(--ink-48);letter-spacing:-.011em}
+.crumbs b{color:var(--ink);font-weight:600}
+.crumbs .sep{margin:0 6px;opacity:.6}
+.tright{display:flex;align-items:center;gap:10px}
 .tstatus{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;color:var(--ink-48)}
 .tbtn{
   font-family:'Inter',sans-serif;font-size:13px;font-weight:500;letter-spacing:-0.011em;
-  padding:7px 14px;border:1px solid var(--hairline);border-radius:99px;
+  padding:7px 14px;border:1px solid var(--hairline);border-radius:var(--r-pill);
   background:var(--canvas);color:var(--ink);cursor:pointer;
-  transition:all .15s ease;
+  transition:var(--ease);
 }
-.tbtn:hover{border-color:var(--ink)}
+.tbtn:hover{border-color:var(--ink-48)}
 .tbtn:disabled{opacity:.4;cursor:not-allowed}
+.theme-toggle{
+  width:34px;height:34px;padding:0;border:1px solid var(--hairline);border-radius:var(--r-pill);
+  background:var(--canvas);color:var(--ink);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:15px;transition:var(--ease);
+}
+.theme-toggle:hover{border-color:var(--ink-48)}
+:root[data-theme="dark"] .theme-toggle::before{content:'☀'}
+:root:not([data-theme="dark"]) .theme-toggle::before{content:'☾'}
+/* Mobile: sidebar off-canvas */
+.side-open-btn{display:none;background:none;border:none;color:var(--ink);font-size:22px;cursor:pointer;padding:0 4px}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;left:-100%;top:0;height:100vh;width:var(--side-w);box-shadow:var(--shadow-md);transition:left .2s}
+  .side.open{left:0}
+  .side-open-btn{display:inline-flex}
+  .side-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:45}
+  .side-backdrop.on{display:block}
+}
+/* Compat: mantém legado da tlogo/tdot no login */
+.tlogo{font-weight:700;font-size:18px;letter-spacing:-0.022em;color:var(--ink);flex-shrink:0}
+.tdot{color:var(--rhode-red)}
+.tlogo small{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-left:8px}
 
 /* ── Period bar ── */
 .pbar-wrap{
-  background:rgba(255,255,255,0.65);backdrop-filter:saturate(180%) blur(16px);
-  -webkit-backdrop-filter:saturate(180%) blur(16px);
-  border-bottom:1px solid rgba(0,0,0,0.05);
+  background:var(--parchment);
+  border-bottom:1px solid var(--hairline);
   padding:12px 24px;display:flex;align-items:center;gap:8px;
   overflow-x:auto;scrollbar-width:none;
-  position:sticky;top:56px;z-index:99;
+  position:sticky;top:56px;z-index:39;
 }
 .pbar-wrap::-webkit-scrollbar{display:none}
 .pbar-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-48);flex-shrink:0;margin-right:6px;font-weight:500}
@@ -223,13 +320,8 @@ body{
   .sol-btn{font-size:10px;padding:5px 10px}
 }
 
-/* ── Tabs ── */
-.tabs-nav{
-  display:flex;border-bottom:1px solid rgba(0,0,0,0.05);
-  padding:0 24px;background:var(--canvas);
-  overflow-x:auto;scrollbar-width:none;
-}
-.tabs-nav::-webkit-scrollbar{display:none}
+/* ── Tabs (LEGADO — nav virou sidebar, .tabs-nav fica oculto) ── */
+.tabs-nav{display:none}
 .tab{
   font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:-0.011em;
   padding:14px 18px;color:var(--ink-48);cursor:pointer;
@@ -697,55 +789,85 @@ tr:hover td{background:rgba(254,44,85,0.015)}
 </div>
 
 <div id="adm-app">
-  <div class="topbar">
-    <div class="tlogo">Rhode<span class="tdot">.</span><small>Console</small></div>
-    <nav class="modnav">
-      <a href="admin.html" class="on">Creators</a>
-      <a href="conciliacao.html">Conciliação</a>
+<div class="app">
+  <div class="side-backdrop" id="sideBackdrop" onclick="closeSide()"></div>
+  <aside class="side" id="side">
+    <div class="side-brand">Rhode<span class="adot">.</span><small>Console</small></div>
+    <nav class="side-nav">
+      <div class="side-sec">Creators</div>
+      <button class="side-item on" data-sid="dashboard"   onclick="tab('dashboard',this)"><span class="side-ico">◧</span> Dashboard</button>
+      <button class="side-item"    data-sid="ranking"     onclick="tab('ranking',this)"><span class="side-ico">☰</span> Ranking</button>
+      <button class="side-item"    data-sid="alertas"     onclick="tab('alertas',this)"><span class="side-ico">⚠</span> Alertas</button>
+      <button class="side-item"    data-sid="evolucao"    onclick="tab('evolucao',this)"><span class="side-ico">↗</span> Evolução</button>
+      <button class="side-item"    data-sid="analista"    onclick="tab('analista',this)"><span class="side-ico">✦</span> Analista IA</button>
+      <button class="side-item"    data-sid="operacao"    onclick="tab('operacao',this)"><span class="side-ico">⚙</span> Operação</button>
+      <button class="side-item"    data-sid="comunicacao" onclick="tab('comunicacao',this)"><span class="side-ico">✉</span> Comunicação</button>
+      <button class="side-item"    data-sid="comportamento" onclick="tab('comportamento',this)"><span class="side-ico">○</span> Comportamento</button>
+      <button class="side-item"    data-sid="triagem"     onclick="tab('triagem',this)"><span class="side-ico">▤</span> Triagem</button>
+      <button class="side-item"    data-sid="evento"      onclick="tab('evento',this)"><span class="side-ico">●</span> Evento 13/04</button>
+
+      <div class="side-sec">Vendas &amp; GMV</div>
+      <a class="side-item" href="conciliacao.html"><span class="side-ico">▤</span> Conciliação</a>
+
+      <div class="side-sec">Lives</div>
+      <a class="side-item" href="dash-live.html"><span class="side-ico">◔</span> Dashboard Lives</a>
+
+      <div class="side-sec">Bio</div>
+      <a class="side-item" href="bio-admin.html"><span class="side-ico">✧</span> Bio Rhode</a>
     </nav>
-    <div class="tright">
-      <span class="tstatus" id="st"></span>
-      <button class="tbtn" id="btn-sync" onclick="syncAll()">↻ Sincronizar</button>
+    <div class="side-foot">
+      <button class="side-btn" onclick="admLogout()">Sair <span style="opacity:.5">↩</span></button>
     </div>
-  </div>
+  </aside>
 
-  <div class="pbar-wrap">
-    <span class="pbar-label">Período</span>
-    <div class="prange">
-      <select id="prange-bucket" class="prange-select" onchange="onRangeChange()">
-        <option value="mes_atual">Mês atual</option>
-        <option value="mes_anterior">Mês anterior</option>
-        <option value="last_3m">Últimos 3 meses</option>
-        <option value="last_6m">Últimos 6 meses</option>
-        <option value="trimestre">Trimestre atual</option>
-        <option value="ytd">YTD (ano até agora)</option>
-        <option value="custom">Personalizado…</option>
-      </select>
-      <div id="prange-custom" class="prange-custom" style="display:none">
-        <select id="prange-from" class="prange-from" onchange="onCustomChange()"></select>
-        <span class="prange-sep">→</span>
-        <select id="prange-to" class="prange-to" onchange="onCustomChange()"></select>
+  <main class="content">
+    <header class="topbar">
+      <button class="side-open-btn" onclick="openSide()" aria-label="Abrir menu">☰</button>
+      <div class="crumbs"><span>Creators</span><span class="sep">›</span><b id="crumbActive">Dashboard</b></div>
+      <div class="tright">
+        <span class="tstatus" id="st"></span>
+        <button class="tbtn" id="btn-sync" onclick="syncAll()">↻ Sincronizar</button>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema"></button>
       </div>
-      <span id="prange-meta" class="prange-meta"></span>
-    </div>
-    <label class="prange-toggle" id="prange-toggle-wrap">
-      <input type="checkbox" id="prange-compare" onchange="onCompareToggle()">
-      <span>vs anterior</span>
-    </label>
-  </div>
+    </header>
 
-  <div class="tabs-nav">
-    <button class="tab on" onclick="tab('dashboard',this)">Dashboard</button>
-    <button class="tab" onclick="tab('ranking',this)">Ranking</button>
-    <button class="tab" onclick="tab('alertas',this)">Alertas</button>
-    <button class="tab" onclick="tab('evolucao',this)">Evolução</button>
-    <button class="tab" onclick="tab('analista',this)">Analista IA</button>
-    <button class="tab" onclick="tab('operacao',this)">Operação</button>
-    <button class="tab" onclick="tab('comunicacao',this)">Comunicação</button>
-    <button class="tab" onclick="tab('comportamento',this)">Comportamento</button>
-    <button class="tab" onclick="tab('triagem',this)">Triagem</button>
-    <button class="tab" onclick="tab('evento',this)">Evento 13/04</button>
-  </div>
+    <div class="pbar-wrap">
+      <span class="pbar-label">Período</span>
+      <div class="prange">
+        <select id="prange-bucket" class="prange-select" onchange="onRangeChange()">
+          <option value="mes_atual">Mês atual</option>
+          <option value="mes_anterior">Mês anterior</option>
+          <option value="last_3m">Últimos 3 meses</option>
+          <option value="last_6m">Últimos 6 meses</option>
+          <option value="trimestre">Trimestre atual</option>
+          <option value="ytd">YTD (ano até agora)</option>
+          <option value="custom">Personalizado…</option>
+        </select>
+        <div id="prange-custom" class="prange-custom" style="display:none">
+          <select id="prange-from" class="prange-from" onchange="onCustomChange()"></select>
+          <span class="prange-sep">→</span>
+          <select id="prange-to" class="prange-to" onchange="onCustomChange()"></select>
+        </div>
+        <span id="prange-meta" class="prange-meta"></span>
+      </div>
+      <label class="prange-toggle" id="prange-toggle-wrap">
+        <input type="checkbox" id="prange-compare" onchange="onCompareToggle()">
+        <span>vs anterior</span>
+      </label>
+    </div>
+
+    <div class="tabs-nav">
+      <button class="tab on" onclick="tab('dashboard',this)">Dashboard</button>
+      <button class="tab" onclick="tab('ranking',this)">Ranking</button>
+      <button class="tab" onclick="tab('alertas',this)">Alertas</button>
+      <button class="tab" onclick="tab('evolucao',this)">Evolução</button>
+      <button class="tab" onclick="tab('analista',this)">Analista IA</button>
+      <button class="tab" onclick="tab('operacao',this)">Operação</button>
+      <button class="tab" onclick="tab('comunicacao',this)">Comunicação</button>
+      <button class="tab" onclick="tab('comportamento',this)">Comportamento</button>
+      <button class="tab" onclick="tab('triagem',this)">Triagem</button>
+      <button class="tab" onclick="tab('evento',this)">Evento 13/04</button>
+    </div>
 
   <div class="panel on" id="panel-dashboard">
     <div class="main">
@@ -1793,7 +1915,9 @@ tr:hover td{background:rgba(254,44,85,0.015)}
       </div>
     </div>
   </div>
-</div>
+  </main><!-- .content -->
+</div><!-- .app -->
+</div><!-- #adm-app -->
 
 <div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -1863,7 +1987,31 @@ function nextTier(gmv){const tiers=[['Black',500000],['Diamond',150000],['Gold',
 function refBadge(p){p=+p||0;if(p>50)return`<span class="badge b-red">${p.toFixed(1)}%</span>`;if(p>25)return`<span class="badge b-orange">${p.toFixed(1)}%</span>`;return`<span class="badge b-green">${p.toFixed(1)}%</span>`}
 function dlt(v){if(v===null||v===undefined||v==='')return'';v=+v;if(Math.abs(v)<0.1)return`<span class="delta d-nt">→</span>`;if(v>0)return`<span class="delta d-up">↑${Math.abs(v).toFixed(1)}%</span>`;return`<span class="delta d-dn">↓${Math.abs(v).toFixed(1)}%</span>`}
 async function sbGet(path){ const j=await admProxy('GET', path); return j.data; }
-function tab(id,el_){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));el_.classList.add('on');el(`panel-${id}`).classList.add('on');if(id==='ranking')renderRankingPage(1);if(id==='alertas')renderAlertas();if(id==='evolucao')renderEvolucao()}
+const TAB_LABELS={dashboard:'Dashboard',ranking:'Ranking',alertas:'Alertas',evolucao:'Evolução',analista:'Analista IA',operacao:'Operação',comunicacao:'Comunicação',comportamento:'Comportamento',triagem:'Triagem',evento:'Evento 13/04'};
+function tab(id,el_){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.side-item[data-sid]').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  // sincroniza sidebar + tabs-nav (invisível) + crumb
+  const sideBtn=document.querySelector(`.side-item[data-sid="${id}"]`);
+  if(sideBtn) sideBtn.classList.add('on');
+  const tabBtn=document.querySelector(`.tab[onclick*="'${id}'"]`);
+  if(tabBtn) tabBtn.classList.add('on');
+  el(`panel-${id}`).classList.add('on');
+  const crumb=el('crumbActive'); if(crumb) crumb.textContent=TAB_LABELS[id]||id;
+  closeSide();
+  if(id==='ranking')renderRankingPage(1);
+  if(id==='alertas')renderAlertas();
+  if(id==='evolucao')renderEvolucao();
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',cur);
+  try{localStorage.setItem('rhode-theme',cur)}catch(e){}
+}
+function openSide(){const s=el('side'),b=el('sideBackdrop');if(s)s.classList.add('open');if(b)b.classList.add('on');}
+function closeSide(){const s=el('side'),b=el('sideBackdrop');if(s)s.classList.remove('open');if(b)b.classList.remove('on');}
+function admLogout(){try{sessionStorage.removeItem(ADM_TOKEN_KEY)}catch(e){}location.reload();}
 // Pagina queries que podem passar do limite de 1000 do Supabase
 // Paginação feita SERVER-SIDE no proxy (1 round-trip do cliente, não N).
 async function sbGetPaged(path, pageSize=1000){
