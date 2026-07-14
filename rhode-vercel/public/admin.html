@@ -334,7 +334,8 @@ body{
 .tab:hover:not(.on){color:var(--ink)}
 
 .panel{display:none}.panel.on{display:block}
-.main{max-width:1400px;margin:0 auto;padding:32px 24px 80px}
+.main{max-width:none;margin:0;padding:32px 32px 80px}
+@media(min-width:1600px){.main{padding:32px 48px 80px}}
 
 /* ── KPI grid ── */
 .kgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
