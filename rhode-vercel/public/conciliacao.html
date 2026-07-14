@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script>
+(function(){try{var t=localStorage.getItem('rhode-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rhode · Conciliação</title>
@@ -13,6 +16,26 @@
     --ink:#1d1d1f; --ink-64:#5a5a5e; --ink-48:#85858a; --ink-24:#bcbcc0;
     --pearl:#fafafc; --parchment:#f5f5f7; --hairline:#e6e6ea; --card:#ffffff;
     --rhode-red:#FE2C55; --green:#1a8f5a; --orange:#c05e00; --blue:#2563eb; --amber:#b45309;
+
+    /* ── UI v2 (2026-07-13): tokens do shell dashboard ── */
+    --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-6:24px;--sp-8:32px;--sp-12:48px;
+    --r-input:10px; --r-card:14px; --r-pill:99px;
+    --focus:0 0 0 3px rgba(254,44,85,.20);
+    --ease:all .16s ease;
+    --side-w:250px;
+    --side-bg:#ffffff;
+    --side-active:rgba(254,44,85,.08);
+    --divider:#eef0f3;
+    --shadow-sm:0 1px 2px rgba(16,24,40,.06);
+    --shadow-md:0 6px 22px rgba(16,24,40,.08);
+  }
+  /* Tema escuro (default do console interno) */
+  :root[data-theme="dark"]{
+    --ink:#f2f4f7; --ink-64:#c3c9d4; --ink-48:#8a93a3; --ink-24:#5a6272;
+    --pearl:#0b0d12; --parchment:#0b0d12; --hairline:#242a35; --card:#151922;
+    --side-bg:#0f131a; --side-active:rgba(255,107,138,.14); --divider:#1e242e;
+    --rhode-red:#FE2C55; --green:#3ddc97; --orange:#f5a524; --blue:#38bdf8; --amber:#f5a524;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4); --shadow-md:0 8px 26px rgba(0,0,0,.55);
   }
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Inter',sans-serif;background:var(--pearl);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.45}
@@ -26,24 +49,54 @@
   .login-card p{font-size:13px;color:var(--ink-48);margin-bottom:24px}
   .login-card input{width:100%;padding:13px 15px;border:1px solid var(--hairline);border-radius:11px;font-family:'JetBrains Mono',monospace;font-size:14px;margin-bottom:14px;outline:none}
   .login-card input:focus{border-color:var(--ink)}
-  .login-card button{width:100%;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:11px;font-weight:600;font-size:14px;cursor:pointer}
+  .login-card button{width:100%;padding:13px;background:var(--rhode-red);color:#fff;border:none;border-radius:11px;font-weight:600;font-size:14px;cursor:pointer;transition:filter .12s}
+  .login-card button:hover{filter:brightness(1.08)}
   .login-err{color:var(--rhode-red);font-size:12px;margin-top:12px;min-height:16px;text-align:center}
 
-  /* topbar */
-  .topbar{background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
-    border-bottom:1px solid rgba(0,0,0,.06);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:30;gap:16px}
-  .tlogo{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:18px;letter-spacing:-.02em}
-  .tlogo b{color:var(--rhode-red)}
-  .tlogo small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;margin-left:8px}
+  /* ── Shell v2 ── */
+  .app{display:grid;grid-template-columns:var(--side-w) 1fr;min-height:100vh;background:var(--parchment)}
+  .side{position:sticky;top:0;height:100vh;background:var(--side-bg);border-right:1px solid var(--hairline);
+    display:flex;flex-direction:column;padding:var(--sp-4) var(--sp-3);gap:2px;overflow-y:auto;z-index:50}
+  .side::-webkit-scrollbar{width:6px}.side::-webkit-scrollbar-thumb{background:var(--divider);border-radius:3px}
+  .side-brand{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:18px;letter-spacing:-.02em;color:var(--ink);padding:var(--sp-2) var(--sp-3) var(--sp-6);flex-shrink:0}
+  .side-brand .adot{color:var(--rhode-red)}
+  .side-brand small{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;display:block;margin-top:2px}
+  .side-nav{display:flex;flex-direction:column;gap:2px}
+  .side-sec{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-48);font-weight:500;padding:var(--sp-4) var(--sp-3) var(--sp-1)}
+  .side-item{display:flex;align-items:center;gap:10px;padding:9px var(--sp-3);border-radius:var(--r-input);color:var(--ink-48);text-decoration:none;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:none;text-align:left;width:100%;transition:var(--ease)}
+  .side-item:hover{background:var(--divider);color:var(--ink)}
+  .side-item.on{background:var(--side-active);color:var(--rhode-red);font-weight:600}
+  .side-ico{width:18px;text-align:center;opacity:.9;flex-shrink:0;font-size:14px}
+  .side-foot{margin-top:auto;padding-top:var(--sp-4);border-top:1px solid var(--hairline)}
+  .side-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px var(--sp-3);border-radius:var(--r-input);background:none;border:none;color:var(--ink-48);cursor:pointer;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;transition:var(--ease)}
+  .side-btn:hover{background:var(--divider);color:var(--ink)}
+  .content{display:flex;flex-direction:column;min-width:0}
+  .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);padding:0 var(--sp-6);height:56px;background:var(--parchment);border-bottom:1px solid var(--hairline);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px)}
+  .crumbs{font-family:'Inter',sans-serif;font-size:13px;color:var(--ink-48);letter-spacing:-.011em}
+  .crumbs b{color:var(--ink);font-weight:600}
+  .crumbs .sep{margin:0 6px;opacity:.6}
   .tright{display:flex;align-items:center;gap:10px}
-  .modnav{display:flex;gap:3px;background:var(--parchment);border:1px solid var(--hairline);border-radius:99px;padding:3px}
-  .modnav a{font-size:13px;font-weight:500;text-decoration:none;color:var(--ink-48);padding:6px 15px;border-radius:99px;transition:all .15s;white-space:nowrap}
-  .modnav a:hover{color:var(--ink)}
-  .modnav a.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-  .lnk{font-size:12px;color:var(--ink-48);text-decoration:none;border:1px solid var(--hairline);padding:8px 12px;border-radius:9px;background:var(--card);cursor:pointer}
-  .lnk:hover{color:var(--ink);border-color:var(--ink-24)}
+  .theme-toggle{width:34px;height:34px;padding:0;border:1px solid var(--hairline);border-radius:var(--r-pill);background:var(--card);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;transition:var(--ease)}
+  .theme-toggle:hover{border-color:var(--ink-48)}
+  :root[data-theme="dark"] .theme-toggle::before{content:'☀'}
+  :root:not([data-theme="dark"]) .theme-toggle::before{content:'☾'}
+  .lnk{font-family:'Inter',sans-serif;font-size:12px;color:var(--ink-64);text-decoration:none;border:1px solid var(--hairline);padding:8px 12px;border-radius:var(--r-pill);background:var(--card);cursor:pointer;transition:var(--ease)}
+  .lnk:hover{color:var(--ink);border-color:var(--ink-48)}
 
-  #app{display:none;max-width:1180px;margin:0 auto;padding:24px 28px 90px}
+  /* Backdrop mobile — SEMPRE display:none no desktop (senão vira grid item) */
+  .side-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:45}
+  .side-backdrop.on{display:block}
+  .side-open-btn{display:none;background:none;border:none;color:var(--ink);font-size:22px;cursor:pointer;padding:0 4px}
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr}
+    .side{position:fixed;left:-100%;top:0;height:100vh;width:var(--side-w);box-shadow:var(--shadow-md);transition:left .2s;z-index:55}
+    .side.open{left:0}
+    .side-open-btn{display:inline-flex}
+  }
+
+  #app{display:none}
+  #app.on{display:block}
+  .work{padding:24px 28px 90px}
 
   /* filtro */
   .filterbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0 18px;margin-bottom:6px}
@@ -133,33 +186,55 @@
 </div>
 
 <div id="app">
-  <div class="topbar">
-    <div class="tlogo">Rhode<b>.</b><small>Console</small></div>
-    <div class="tright">
-      <nav class="modnav"><a href="admin.html">Creators</a><a href="conciliacao.html" class="on">Conciliação</a></nav>
-      <a class="lnk" onclick="logout()">Sair</a>
-    </div>
-  </div>
+<div class="app">
+  <div class="side-backdrop" id="sideBackdrop" onclick="closeSide()"></div>
+  <aside class="side" id="side">
+    <div class="side-brand">Rhode<span class="adot">.</span><small>Console</small></div>
+    <nav class="side-nav">
+      <div class="side-sec">Creators</div>
+      <a class="side-item" href="admin.html"><span class="side-ico">◧</span> Console Creators</a>
 
-  <div style="max-width:1180px;margin:0 auto;padding:0 28px">
-    <div class="filterbar">
-      <div class="seg" id="seg-janela">
-        <button data-j="tudo" class="on" onclick="setJanela('tudo')">Tudo</button>
-        <button data-j="3m" onclick="setJanela('3m')">3M</button>
-        <button data-j="6m" onclick="setJanela('6m')">6M</button>
-        <button data-j="ano" onclick="setJanela('ano')">Ano</button>
+      <div class="side-sec">Vendas &amp; GMV</div>
+      <button class="side-item on"><span class="side-ico">▤</span> Conciliação</button>
+
+      <div class="side-sec">Lives</div>
+      <a class="side-item" href="dash-live.html"><span class="side-ico">◔</span> Dashboard Lives</a>
+
+      <div class="side-sec">Bio</div>
+      <a class="side-item" href="bio-admin.html"><span class="side-ico">✧</span> Bio Rhode</a>
+    </nav>
+    <div class="side-foot">
+      <button class="side-btn" onclick="logout()">Sair <span style="opacity:.5">↩</span></button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <button class="side-open-btn" onclick="openSide()" aria-label="Abrir menu">☰</button>
+      <div class="crumbs"><span>Vendas &amp; GMV</span><span class="sep">›</span><b>Conciliação</b></div>
+      <div class="tright">
+        <a class="lnk" id="btn-export" onclick="exportRelatorio()" style="font-weight:600">⬇ Exportar</a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema"></button>
       </div>
-      <div class="fld">Mês <select id="f-mes" onchange="setMes(this.value)"></select></div>
-      <div class="fld">Data <input type="date" id="f-de" onchange="setRange()"> → <input type="date" id="f-ate" onchange="setRange()"></div>
-      <div class="fmeta" id="f-meta"></div>
-      <button class="lnk" id="btn-export" onclick="exportRelatorio()" style="margin-left:12px;font-weight:600">⬇ Exportar relatório</button>
-    </div>
-  </div>
+    </header>
 
-  <div style="max-width:1180px;margin:0 auto;padding:0 28px">
-    <div class="tabnav" id="tabnav"></div>
-    <div id="content"><div class="loading">Carregando dados…</div></div>
-  </div>
+    <div class="work">
+      <div class="filterbar">
+        <div class="seg" id="seg-janela">
+          <button data-j="tudo" class="on" onclick="setJanela('tudo')">Tudo</button>
+          <button data-j="3m" onclick="setJanela('3m')">3M</button>
+          <button data-j="6m" onclick="setJanela('6m')">6M</button>
+          <button data-j="ano" onclick="setJanela('ano')">Ano</button>
+        </div>
+        <div class="fld">Mês <select id="f-mes" onchange="setMes(this.value)"></select></div>
+        <div class="fld">Data <input type="date" id="f-de" onchange="setRange()"> → <input type="date" id="f-ate" onchange="setRange()"></div>
+        <div class="fmeta" id="f-meta"></div>
+      </div>
+      <div class="tabnav" id="tabnav"></div>
+      <div id="content"><div class="loading">Carregando dados…</div></div>
+    </div>
+  </main>
+</div>
 </div>
 
 <script>
@@ -1049,6 +1124,14 @@ async function exportRelatorio(){
   }catch(e){ alert('Erro ao gerar relatório: '+e.message); }
   finally{ if(btn){ btn.textContent=orig; btn.disabled=false; } }
 }
+
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',cur);
+  try{localStorage.setItem('rhode-theme',cur)}catch(e){}
+}
+function openSide(){const s=document.getElementById('side'),b=document.getElementById('sideBackdrop');if(s)s.classList.add('open');if(b)b.classList.add('on');}
+function closeSide(){const s=document.getElementById('side'),b=document.getElementById('sideBackdrop');if(s)s.classList.remove('open');if(b)b.classList.remove('on');}
 
 function enter(){
   document.getElementById('login').style.display='none';
