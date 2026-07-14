@@ -77,6 +77,50 @@
   --chart-grid:rgba(255,255,255,.07);
 }
 
+/* ── DARK OVERRIDES: painéis com CSS escopado (background:#fff hardcoded) ── */
+:root[data-theme="dark"] #sd-root .sd-kc,
+:root[data-theme="dark"] #sd-root .sd-bar,
+:root[data-theme="dark"] #sd-root .sd-pf,
+:root[data-theme="dark"] #sd-root select,
+:root[data-theme="dark"] #sd-root input[type=date],
+:root[data-theme="dark"] #sd-root input[type=text],
+:root[data-theme="dark"] #sd-root .sd-seg,
+:root[data-theme="dark"] #sd-root .sd-q,
+:root[data-theme="dark"] #sd-root .sd-card,
+:root[data-theme="dark"] #sd-root .sd-mc{background:var(--canvas)!important;color:var(--ink);border-color:var(--hairline)}
+:root[data-theme="dark"] #sd-root .sd-kc .l,
+:root[data-theme="dark"] #sd-root .sd-kc .v{color:var(--ink)}
+:root[data-theme="dark"] #sd-root .sd-pf:hover,
+:root[data-theme="dark"] #sd-root .sd-seg:hover{border-color:var(--ink-48)}
+:root[data-theme="dark"] #sd-root tbody tr:hover td{background:var(--pearl)}
+:root[data-theme="dark"] #sd-root .sd-mc:hover{background:var(--pearl)}
+:root[data-theme="dark"] #sd-root .sd-mc.on{background:rgba(245,165,36,.14);color:var(--gold)}
+/* Alert card do sd-root (fundo bege) */
+:root[data-theme="dark"] #sd-root .sd-kc.alert{background:rgba(245,165,36,.10)!important;border-color:rgba(245,165,36,.35)}
+:root[data-theme="dark"] #sd-root .sd-kc.alert .v{color:var(--gold)}
+/* Segments coloridas: dim para 22% opacity fica visível no dark */
+:root[data-theme="dark"] #sd-root .sd-seg.ativar.on{background:rgba(245,165,36,.22)!important;color:var(--gold)!important;border-color:transparent}
+:root[data-theme="dark"] #sd-root .sd-seg.reativar.on{background:rgba(56,189,248,.22)!important;color:var(--cyan)!important;border-color:transparent}
+:root[data-theme="dark"] #sd-root .sd-seg.vendeubem.on{background:rgba(61,220,151,.22)!important;color:var(--green)!important;border-color:transparent}
+:root[data-theme="dark"] #sd-root .sd-seg.aguardando.on{background:rgba(168,85,247,.22)!important;color:#c084fc!important;border-color:transparent}
+:root[data-theme="dark"] #sd-root .sd-seg.caminho.on{background:rgba(56,189,248,.22)!important;color:var(--cyan)!important;border-color:transparent}
+:root[data-theme="dark"] #sd-root .sd-seg.cancelada.on{background:rgba(254,44,85,.18)!important;color:var(--rhode-red)!important;border-color:transparent}
+:root[data-theme="dark"] #sd-root .sd-pf.on{background:var(--rhode-red)!important;color:#fff!important;border-color:var(--rhode-red)}
+/* Badges (status pills) */
+:root[data-theme="dark"] #sd-root .bd.rec{background:rgba(61,220,151,.14);color:var(--green)}
+:root[data-theme="dark"] #sd-root .bd.cam{background:rgba(56,189,248,.14);color:var(--cyan)}
+:root[data-theme="dark"] #sd-root .bd.agu{background:rgba(168,85,247,.14);color:#c084fc}
+:root[data-theme="dark"] #sd-root .bd.can{background:rgba(254,44,85,.14);color:var(--rhode-red)}
+:root[data-theme="dark"] #sd-root .bd.nul{background:var(--pearl);color:var(--ink-48)}
+/* Cabeçalho da tabela do sd-root (se houver background branco) */
+:root[data-theme="dark"] #sd-root thead th,
+:root[data-theme="dark"] #sd-root th{background:var(--canvas);color:var(--ink-48);border-color:var(--hairline)}
+:root[data-theme="dark"] #sd-root td{color:var(--ink);border-color:var(--divider-soft)}
+/* Bars genéricas (rgba(0,0,0) fica invisível no dark) */
+:root[data-theme="dark"] .bar,
+:root[data-theme="dark"] .dash-status .ds-progress .ds-bar,
+:root[data-theme="dark"] .cog-dim-bar{background:rgba(255,255,255,.08)}
+
 html{-webkit-text-size-adjust:100%}
 body{
   font-family:'Inter','SF Pro Text',system-ui,-apple-system,sans-serif;
