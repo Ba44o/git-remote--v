@@ -244,7 +244,7 @@ function screenRelacao(){
       <p class="help">Qual é a sua relação com a Rhode hoje?</p>
       <div class="opts">
         ${optBtn('💸','Já sou afiliada da Rhode no TikTok Shop','Tenho meu link de afiliada da Rhode — vendendo ou ainda começando',()=>{ST.relacao='afiliada_ativa';screenGmv();})}
-        ${optBtn('✨','Quero me tornar uma Creator Rhode','Preenche o formulário e manda teu perfil pra análise — entra na fila',()=>{ST.relacao='quero_ser_creator';ST.pedido='quero_ser_creator';screenIdentity();})}
+        ${optBtn('✨','Quero me tornar uma Creator Rhode','Preenche o formulário e manda seu perfil pra análise — entra na fila',()=>{ST.relacao='quero_ser_creator';ST.pedido='quero_ser_creator';screenIdentity();})}
       </div>
     </div>`);
 }
@@ -274,11 +274,11 @@ function screenPeca(){
     <div class="card-body">
       ${progressBar(n,t)}
       ${backBtn(ST.relacao==='afiliada_ativa'?screenGmv:screenRelacao)}
-      <p class="help">Pra te direcionar — e pra equipe avaliar teu pedido na hora certa.</p>
+      <p class="help">Pra te direcionar — e pra equipe avaliar seu pedido na hora certa.</p>
       <div class="opts">
         ${optBtn('👖','Ver meu lugar no programa','Tenho peça, já tô gravando — me mostra grupo, hub e benefícios',()=>{ST.temPeca='sim';ST.pedido='ver_lugar';screenIdentity();})}
-        ${optBtn('📦','Pedir uma amostra grátis','Não tenho peça — preenche o formulário e a equipe analisa teu perfil',()=>{ST.temPeca='nao';ST.pedido='amostra_gratis';screenIdentity();})}
-        ${optBtn('✨','Aplicar pra receber mais modelos','Sujeito ao teu desempenho e às metas',()=>{ST.temPeca='quer_mais';ST.pedido='mais_modelos';screenMaisModelos();})}
+        ${optBtn('📦','Pedir uma amostra grátis','Não tenho peça — preenche o formulário e a equipe analisa seu perfil',()=>{ST.temPeca='nao';ST.pedido='amostra_gratis';screenIdentity();})}
+        ${optBtn('✨','Aplicar pra receber mais modelos','Sujeito ao seu desempenho e às metas',()=>{ST.temPeca='quer_mais';ST.pedido='mais_modelos';screenMaisModelos();})}
         ${optBtn('⚡','Solicitar uma flash sale pra minha live','Vai direto pro WhatsApp do suporte',()=>{track('flash',{gmv:ST.gmvFaixa});location.href=waLink(CONFIG.flashSaleWhatsMsg);})}
       </div>
     </div>`);
@@ -290,7 +290,7 @@ function screenMaisModelos(){   // "Aplicar para receber mais modelos" → expli
     <div class="card-header"><div class="kicker">Receber mais modelos</div><div class="headline">Como funciona a análise</div></div>
     <div class="card-body">
       ${backBtn(screenPeca)}
-      <p class="help">Pra receber mais modelos da Rhode, a equipe avalia o teu desempenho como creator e se você está batendo as metas — não é automático, é uma análise. Se você acha que se encaixa, manda a aplicação aí embaixo que a gente analisa teu perfil.</p>
+      <p class="help">Pra receber mais modelos da Rhode, a equipe avalia o seu desempenho como creator e se você está batendo as metas — não é automático, é uma análise. Se você acha que se encaixa, manda a aplicação aí embaixo que a gente analisa seu perfil.</p>
       ${ctaHTML({label:'Aplicar — mandar meu perfil pra análise',fn:()=>screenIdentity(),cls:'cta-red'})}
     </div>`);
 }
@@ -370,16 +370,16 @@ function screenResult(){
       ctas:[grupoAcaoCTA(),{label:'Abrir Creator Hub',href:hubHref(),cls:'cta-dark'},semPeca?amostraCTA():null]},
     ativar: (ST.temPeca==='sim')
       ? {cor:'#FE2C55',badge:'🚀 Bora ativar',label:'Próximo passo: sua primeira venda',
-         desc:'Você já tem o link de afiliada da Rhode e uma peça pra gravar — falta a primeira venda. É ela que destrava o grupo Rhode em Ação e o painel completo. Grava marcando o produto e posta com o teu link.',
-         steps:['Grava um vídeo marcando o produto Rhode no TikTok','Posta com o teu link de afiliada','A primeira venda te coloca no grupo e libera o painel'],
+         desc:'Você já tem o link de afiliada da Rhode e uma peça pra gravar — falta a primeira venda. É ela que destrava o grupo Rhode em Ação e o painel completo. Grava marcando o produto e posta com o seu link.',
+         steps:['Grava um vídeo marcando o produto Rhode no TikTok','Posta com o seu link de afiliada','A primeira venda te coloca no grupo e libera o painel'],
          ctas:[{label:'Dúvidas? Falar com a equipe',href:waLink(`Oi! Sou afiliada Rhode (@${ST.handle}), já tenho peça mas ainda não fiz minha primeira venda — me ajuda? 🤍`),cls:'cta-outline',ext:true}]}
       : {cor:'#FE2C55',badge:'🚀 Bora ativar',label:'Próximo passo: conseguir uma peça',
          desc:'Você já tem o link de afiliada da Rhode, mas pra gravar precisa de uma peça Rhode. A gente envia amostra só pelas missões e campanhas — fica de olho. Ou compra uma peça na loja e já começa: a primeira venda destrava o grupo e o painel.',
-         steps:['Consiga uma peça Rhode — comprando na loja ou numa missão/campanha','Grava um vídeo marcando o produto no TikTok','Posta com o teu link de afiliada — a primeira venda te coloca no programa'],
+         steps:['Consiga uma peça Rhode — comprando na loja ou numa missão/campanha','Grava um vídeo marcando o produto no TikTok','Posta com o seu link de afiliada — a primeira venda te coloca no programa'],
          ctas:[{label:'Ver a loja Rhode',href:CONFIG.linkLojaRhode,cls:'cta-dark',ext:true},{label:'Falar com a equipe',href:waLink(`Oi! Sou afiliada Rhode (@${ST.handle}), quero começar a gravar mas ainda não tenho peça — como faço? 🤍`),cls:'cta-outline',ext:true}]},
     analise:{cor:'#222',badge:'🤍 Na fila de análise',label:'Como funciona',
-      desc:'Boa! Recebemos teu cadastro — você entrou na fila. A equipe Rhode vai analisar teu perfil no TikTok pra ver se faz sentido te chamar pra uma campanha. Fica de olho no WhatsApp.',
-      steps:['Você preencheu o formulário rápido ✓','A equipe analisa teu perfil no TikTok (audiência, conteúdo, fit com a marca)','Se fizer sentido, a gente te chama pra uma campanha — aí entram amostra, briefing e o link de afiliada','Suas primeiras vendas destravam o grupo e o painel completo'],
+      desc:'Boa! Recebemos seu cadastro — você entrou na fila. A equipe Rhode vai analisar seu perfil no TikTok pra ver se faz sentido te chamar pra uma campanha. Fica de olho no WhatsApp.',
+      steps:['Você preencheu o formulário rápido ✓','A equipe analisa seu perfil no TikTok (audiência, conteúdo, fit com a marca)','Se fizer sentido, a gente te chama pra uma campanha — aí entram amostra, briefing e o link de afiliada','Suas primeiras vendas destravam o grupo e o painel completo'],
       ctas:[{label:'Enquanto isso, conhece as peças da Rhode',href:CONFIG.linkLojaRhode,cls:'cta-outline',ext:true}]},
     onboarding:{cor:'#222',badge:'🤍 Bem-vinda',label:'Vamos te direcionar',
       desc:'Completa seu cadastro abaixo ou fala direto com a nossa equipe que a gente te encaixa no caminho certo.',

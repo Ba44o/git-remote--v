@@ -1,0 +1,308 @@
+<style>
+  :root{
+    --paper:#FBF8F6; --ink:#17151B; --card:#FFFFFF; --line:#EAE3DE;
+    --muted:#6E6670; --soft:#938A93;
+    --red:#FE2C55; --red-ink:#C71B40; --red-wash:#FFECF0;
+    --denim:#2E3A59; --denim-soft:#5B6B8F;
+    --shadow:0 1px 2px rgba(20,16,24,.05),0 8px 24px -12px rgba(20,16,24,.14);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#0E0D12; --ink:#F3EFF2; --card:#17151D; --line:#272430;
+      --muted:#9A93A0; --soft:#6C6675;
+      --red:#FF4E70; --red-ink:#FF7E97; --red-wash:#25151C;
+      --denim:#8FA3D0; --denim-soft:#6C7FAE;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 34px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#FBF8F6; --ink:#17151B; --card:#FFFFFF; --line:#EAE3DE;
+    --muted:#6E6670; --soft:#938A93;
+    --red:#FE2C55; --red-ink:#C71B40; --red-wash:#FFECF0;
+    --denim:#2E3A59; --denim-soft:#5B6B8F;
+    --shadow:0 1px 2px rgba(20,16,24,.05),0 8px 24px -12px rgba(20,16,24,.14);
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E0D12; --ink:#F3EFF2; --card:#17151D; --line:#272430;
+    --muted:#9A93A0; --soft:#6C6675;
+    --red:#FF4E70; --red-ink:#FF7E97; --red-wash:#25151C;
+    --denim:#8FA3D0; --denim-soft:#6C7FAE;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 34px -14px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box}
+  .wrap{
+    --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Menlo",monospace;
+    background:var(--paper); color:var(--ink); font-family:var(--font);
+    -webkit-font-smoothing:antialiased; line-height:1.5; letter-spacing:-0.01em;
+    padding:0; margin:0;
+  }
+  .wrap *{margin:0}
+  .container{max-width:1000px; margin:0 auto; padding:0 24px}
+  .eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--red); font-weight:600}
+  .mono{font-family:var(--mono)}
+
+  /* HERO */
+  .hero{padding:72px 0 48px; border-bottom:1px solid var(--line)}
+  .hero-grid{display:flex; flex-direction:column; gap:20px}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-weight:700; letter-spacing:.02em; font-size:14px}
+  .brand .dot{width:10px; height:10px; border-radius:50%; background:var(--red)}
+  h1{font-size:clamp(38px,7vw,74px); line-height:.98; font-weight:850; letter-spacing:-0.035em; text-wrap:balance; max-width:14ch}
+  h1 .hl{color:var(--red)}
+  .lede{font-size:clamp(17px,2.3vw,21px); color:var(--muted); max-width:52ch; text-wrap:balance}
+  .stats{display:flex; flex-wrap:wrap; gap:28px; margin-top:8px}
+  .stat .n{font-size:30px; font-weight:800; letter-spacing:-0.03em; font-variant-numeric:tabular-nums}
+  .stat .l{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--soft)}
+
+  /* SECTIONS */
+  section{padding:56px 0; border-bottom:1px solid var(--line)}
+  .sec-head{display:flex; flex-direction:column; gap:8px; margin-bottom:28px}
+  h2{font-size:clamp(24px,3.6vw,34px); font-weight:800; letter-spacing:-0.03em; text-wrap:balance}
+  .sec-sub{color:var(--muted); max-width:56ch}
+
+  /* FORMULA */
+  .formula{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+  .step{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); position:relative; overflow:hidden}
+  .step .t{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--soft)}
+  .step .big{font-size:19px; font-weight:800; margin:6px 0 4px; letter-spacing:-0.02em}
+  .step .d{font-size:14px; color:var(--muted)}
+  .step .sec-badge{position:absolute; top:14px; right:14px; font-family:var(--mono); font-size:11px; font-weight:700; color:var(--red)}
+
+  /* HOOK BANK */
+  .banks{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .bank{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px 20px 8px; box-shadow:var(--shadow)}
+  .bank-h{display:flex; align-items:center; gap:10px; margin-bottom:12px}
+  .tag{font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--denim); background:var(--red-wash); padding:4px 8px; border-radius:6px}
+  .bank h3{font-size:15px; font-weight:750; letter-spacing:-0.01em}
+  .hooks{list-style:none; padding:0}
+  .hooks li{padding:10px 0; border-top:1px dashed var(--line); font-size:15px; display:flex; gap:10px; align-items:flex-start}
+  .hooks li:first-child{border-top:none}
+  .hooks li::before{content:"“"; color:var(--red); font-weight:800; font-size:20px; line-height:.9; font-family:Georgia,serif}
+
+  /* PLAN TABLE */
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+  table{border-collapse:collapse; width:100%; min-width:640px; background:var(--card)}
+  th,td{text-align:left; padding:14px 16px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top}
+  thead th{background:var(--denim); color:#fff; font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700}
+  @media (prefers-color-scheme: dark){ thead th{color:#0E0D12} }
+  :root[data-theme="dark"] thead th{color:#0E0D12}
+  tbody tr:last-child td{border-bottom:none}
+  td .wk{font-weight:800; letter-spacing:-0.02em}
+  td .goal{font-family:var(--mono); font-size:11px; color:var(--red); text-transform:uppercase; letter-spacing:.06em}
+  .chip{display:inline-block; font-size:12.5px; padding:3px 9px; border:1px solid var(--line); border-radius:20px; margin:2px 3px 2px 0; color:var(--muted)}
+
+  /* TWO-COL blocks */
+  .cols{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow)}
+  .card h3{font-size:16px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:8px}
+  .check{list-style:none; padding:0; display:flex; flex-direction:column; gap:10px}
+  .check li{font-size:14.5px; padding-left:26px; position:relative; color:var(--ink)}
+  .check li::before{content:"✓"; position:absolute; left:0; top:0; color:var(--red); font-weight:800}
+  .freq{display:flex; flex-direction:column; gap:14px}
+  .freq .row{display:flex; align-items:baseline; gap:14px}
+  .freq .k{font-size:34px; font-weight:850; color:var(--red); letter-spacing:-0.03em; font-variant-numeric:tabular-nums; min-width:2.4ch}
+  .freq .v{font-size:14.5px; color:var(--muted)}
+  .give{list-style:none; padding:0; display:flex; flex-direction:column; gap:12px}
+  .give li{display:flex; gap:12px; font-size:14.5px; align-items:flex-start}
+  .give li b{color:var(--ink)}
+  .give .ic{font-family:var(--mono); color:var(--red); font-weight:800; font-size:13px; margin-top:1px}
+
+  footer{padding:40px 0 64px; color:var(--soft); font-size:13px}
+  footer .cta{background:var(--red); color:#fff; border-radius:var(--radius); padding:22px 26px; display:flex; flex-wrap:wrap; gap:8px 24px; align-items:center; justify-content:space-between; margin-bottom:24px}
+  footer .cta .big{font-size:20px; font-weight:850; letter-spacing:-0.02em; color:#fff}
+  footer .cta .sm{color:rgba(255,255,255,.85); font-size:14px}
+
+  @media (max-width:720px){
+    .formula{grid-template-columns:1fr 1fr}
+    .banks{grid-template-columns:1fr}
+    .cols{grid-template-columns:1fr}
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="container hero-grid">
+      <div class="brand"><span class="dot"></span> RHODE JEANS · CREATORS</div>
+      <div class="eyebrow">Kit de conteúdo</div>
+      <h1>Transforme <span class="hl">1 peça</span> em <span class="hl">8 vídeos</span>.</h1>
+      <p class="lede">Recebeu a amostra? Este é o seu atalho: banco de ganchos prontos, a fórmula do vídeo que vende e um plano de 3 semanas. Menos "o que eu posto?", mais views e comissão.</p>
+      <div class="stats">
+        <div class="stat"><div class="n">8</div><div class="l">formatos</div></div>
+        <div class="stat"><div class="n">20+</div><div class="l">ganchos prontos</div></div>
+        <div class="stat"><div class="n">3</div><div class="l">semanas de plano</div></div>
+        <div class="stat"><div class="n">+3–5%</div><div class="l">comissão em ads</div></div>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="container">
+      <div class="sec-head">
+        <div class="eyebrow">A base</div>
+        <h2>A fórmula do vídeo que vende</h2>
+        <p class="sec-sub">Todo vídeo bom segue esta estrutura. São 15–25 segundos. O primeiro deles decide tudo.</p>
+      </div>
+      <div class="formula">
+        <div class="step"><span class="sec-badge">0–2s</span><div class="t">Gancho</div><div class="big">Prende no 1º segundo</div><div class="d">Mostra a calça já + uma frase do banco de ganchos.</div></div>
+        <div class="step"><span class="sec-badge">2–8s</span><div class="t">Contexto</div><div class="big">A dúvida real</div><div class="d">Tamanho, preço, caimento — o que a pessoa pensa antes de comprar.</div></div>
+        <div class="step"><span class="sec-badge">8–20s</span><div class="t">Prova</div><div class="big">Você usando</div><div class="d">Try-on, caimento, movimento. Mostra, não fala.</div></div>
+        <div class="step"><span class="sec-badge">final</span><div class="t">CTA</div><div class="big">Diz o que fazer</div><div class="d">"Cupom na bio", "link fixado", "corre que esgota".</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="sec-head">
+        <div class="eyebrow">O coração do kit</div>
+        <h2>Banco de ganchos</h2>
+        <p class="sec-sub">Copia, adapta com a sua voz e grava. Cada categoria resolve uma objeção de compra diferente — varia entre elas pra não repetir.</p>
+      </div>
+      <div class="banks">
+        <div class="bank">
+          <div class="bank-h"><span class="tag">01 · curiosidade</span><h3>Faz parar o dedo</h3></div>
+          <ul class="hooks">
+            <li>A calça que tá esgotando no TikTok Shop 👀</li>
+            <li>Comprei achando que ia devolver… e não larguei mais</li>
+            <li>Ninguém tá falando dessa calça e devia</li>
+            <li>Testei a Wide Leg que tá em todo lugar — real ou hype?</li>
+          </ul>
+        </div>
+        <div class="bank">
+          <div class="bank-h"><span class="tag">02 · tamanho</span><h3>A dúvida nº 1</h3></div>
+          <ul class="hooks">
+            <li>Descobre seu tamanho em 10 segundos</li>
+            <li>Tenho quadril largo — será que serve? te mostro</li>
+            <li>A calça que veste a barriga e não marca</li>
+            <li>Qual número pedir na Wide Leg? guia rápido</li>
+          </ul>
+        </div>
+        <div class="bank">
+          <div class="bank-h"><span class="tag">03 · prova social</span><h3>Todo mundo tá usando</h3></div>
+          <ul class="hooks">
+            <li>POV: geral perguntando de onde é minha calça</li>
+            <li>A mais vendida da minha vitrine essa semana</li>
+            <li>Testei porque vi 3 mil comentários pedindo</li>
+          </ul>
+        </div>
+        <div class="bank">
+          <div class="bank-h"><span class="tag">04 · antes/depois</span><h3>Transformação</h3></div>
+          <ul class="hooks">
+            <li>Troquei minha calça velha por essa 🔥</li>
+            <li>De look básico pra arrumada com 1 peça</li>
+            <li>Meu antes e depois com a Wide Leg</li>
+          </ul>
+        </div>
+        <div class="bank">
+          <div class="bank-h"><span class="tag">05 · preço</span><h3>Custo-benefício</h3></div>
+          <ul class="hooks">
+            <li>R$ 99,90 nessa qualidade? testei pra provar</li>
+            <li>O cupom que ninguém te conta</li>
+            <li>Calça boa e barata existe? achei uma</li>
+          </ul>
+        </div>
+        <div class="bank">
+          <div class="bank-h"><span class="tag">06 · estilo</span><h3>Como usar</h3></div>
+          <ul class="hooks">
+            <li>3 jeitos de usar a mesma calça</li>
+            <li>Como usar Wide Leg sem parecer pijama</li>
+            <li>1 calça, 3 looks da semana</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="sec-head">
+        <div class="eyebrow">Planejamento</div>
+        <h2>Plano de 3 semanas → 6 a 8 vídeos</h2>
+        <p class="sec-sub">Uma peça rende conteúdo por semanas. Segue a sequência: aquece, converte, escala.</p>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>Semana</th><th>Objetivo</th><th>Formatos</th><th>Ganchos (categoria)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="wk">Semana 1</span><br><span class="goal">aquecer</span></td>
+              <td>Apresentar a peça e gerar desejo.</td>
+              <td><span class="chip">Unboxing</span><span class="chip">Try-on / provador</span></td>
+              <td><span class="chip">01 curiosidade</span><span class="chip">02 tamanho</span></td>
+            </tr>
+            <tr>
+              <td><span class="wk">Semana 2</span><br><span class="goal">converter</span></td>
+              <td>Resolver a dúvida de caimento e mostrar versatilidade.</td>
+              <td><span class="chip">3 looks</span><span class="chip">Qual seu tamanho</span></td>
+              <td><span class="chip">06 estilo</span><span class="chip">02 tamanho</span></td>
+            </tr>
+            <tr>
+              <td><span class="wk">Semana 3</span><br><span class="goal">escalar</span></td>
+              <td>Surfar alcance com trend e reforçar confiança.</td>
+              <td><span class="chip">Trend / áudio</span><span class="chip">Review honesto</span></td>
+              <td><span class="chip">03 prova social</span><span class="chip">05 preço</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="cols">
+        <div class="card">
+          <h3>Frequência</h3>
+          <div class="freq">
+            <div class="row"><span class="k">2–3</span><span class="v">vídeos por semana. Constância &gt; perfeição — o algoritmo premia quem posta.</span></div>
+            <div class="row"><span class="k">6–8</span><span class="v">vídeos por peça, ao longo das 3 semanas.</span></div>
+            <div class="row"><span class="k">19h+</span><span class="v">melhor horário: noite e fim de semana, quando tem mais gente comprando.</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Checklist do vídeo que vende</h3>
+          <ul class="check">
+            <li>Produto <b>nos 2 primeiros segundos</b></li>
+            <li>Fala o preço-âncora (<b>R$ 99,90</b>) e que dá pra comprar pelo link/vitrine</li>
+            <li>Menciona <b>caimento e tamanho</b> (a maior dúvida)</li>
+            <li>CTA claro: cupom na bio · link fixado · "corre que esgota"</li>
+            <li>Vertical, boa luz, áudio em alta, legenda com "Rhode"</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-bottom:none">
+    <div class="container">
+      <div class="sec-head">
+        <div class="eyebrow">Parceria</div>
+        <h2>O que a Rhode te dá em troca do volume</h2>
+      </div>
+      <div class="card">
+        <ul class="give">
+          <li><span class="ic">↑</span><div><b>Repost oficial</b> — seus melhores vídeos no perfil da Rhode, mais alcance pra você.</div></li>
+          <li><span class="ic">⚡</span><div><b>Spark Ads</b> — impulsionamos os vídeos que performam. Mais views pra você e mais venda pra todos.</div></li>
+          <li><span class="ic">%</span><div><b>Comissão de ads (+3–5%)</b> — quando seu vídeo vende via impulsionamento, você ganha a mais.</div></li>
+          <li><span class="ic">★</span><div><b>Subida de tier</b> — mais volume e GMV = mais % de comissão. O caminho é claro.</div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="cta">
+        <div>
+          <div class="big">Recebeu a peça? Começa hoje.</div>
+          <div class="sm">Escolhe 1 gancho, grava um try-on de 15s e posta. O resto vem.</div>
+        </div>
+        <div class="mono" style="font-size:13px; font-weight:700">#RhodeCreators</div>
+      </div>
+      <div>Kit de conteúdo Rhode Jeans · uso interno das afiliadas. Dúvidas? fala com o time no WhatsApp.</div>
+    </div>
+  </footer>
+</div>
