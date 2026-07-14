@@ -84,6 +84,8 @@
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
   .mod{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;cursor:pointer;transition:transform .12s ease,border-color .15s ease;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;min-height:132px}
   .mod:hover{border-color:var(--red);transform:translateY(-2px)}
+  .mod:not(.soon)::after{content:'abrir →';margin-top:auto;font-size:12px;font-weight:700;color:var(--red);font-family:var(--mono)}
+  .mod.soon::after{content:'em breve';margin-top:auto;font-size:12px;font-weight:600;color:var(--soft);font-family:var(--mono)}
   .mod .mi{font-size:26px}
   .mod .mt{font-weight:800;font-size:16px;letter-spacing:-0.01em;margin-top:auto}
   .mod .md{color:var(--muted);font-size:13px}
@@ -214,7 +216,19 @@
   .dl-card{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-top:8px}
   .dl-card .di{font-size:28px}.dl-card .dt{flex:1;min-width:200px}.dl-card .dt b{font-size:16px}.dl-card .dt div{color:var(--muted);font-size:13.5px;margin-top:2px}
   .btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;font-weight:600;font-size:15px;padding:12px 22px;border-radius:99px;border:none;text-decoration:none;cursor:pointer;transition:background .15s ease}
-  .btn:hover{background:var(--red-hover)}
+  .btn:hover{background:var(--red-hover);transform:translateY(-1px);box-shadow:0 8px 20px -8px rgba(254,44,85,.55)}
+  /* ── affordance: deixar clicável óbvio (botões, cards e palavras) ── */
+  .featured:hover{transform:translateY(-2px);box-shadow:0 22px 46px -18px rgba(254,44,85,.7)}
+  .nextcard:hover:not(.alldone){border-color:var(--red);transform:translateY(-1px)}
+  .tstep:hover{border-color:var(--red);transform:translateY(-1px)}
+  .cp:hover{border-color:var(--red);color:var(--red)}
+  .ptab:hover,.fbtn:hover{border-color:var(--red);color:var(--red)}
+  .estrut summary::after{content:'▾';color:var(--red);margin-left:6px;font-size:11px}
+  .estrut[open] summary::after{content:'▴'}
+  .faq summary::after{content:'+';color:var(--red);font-weight:700;font-size:20px;line-height:1}
+  .faq details[open] summary::after{content:'–'}
+  a.lnk,.blk a:not(.btn):not(.wa),.aviso a,.prose a:not(.btn){color:var(--red);font-weight:600;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1.5px;cursor:pointer}
+  a.lnk:hover,.blk a:not(.btn):not(.wa):hover,.aviso a:hover,.prose a:not(.btn):hover{text-decoration-thickness:2.5px}
   .filterbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
   .fbtn{font-size:14px;font-weight:600;padding:8px 15px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
   .fbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
