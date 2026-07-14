@@ -3206,9 +3206,17 @@ function stopVIPRefresh(){
 const _tabOrig=tab;
 function tab(id,elBtn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.side-item[data-sid]').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
-  elBtn.classList.add('on');
+  // sincroniza .on em sidebar E tab-nav (invisível) baseado no id, independente do elemento clicado
+  const sideBtn=document.querySelector(`.side-item[data-sid="${id}"]`);
+  if(sideBtn) sideBtn.classList.add('on');
+  const tabBtn=document.querySelector(`.tab[onclick*="'${id}'"]`);
+  if(tabBtn) tabBtn.classList.add('on');
   el(`panel-${id}`).classList.add('on');
+  // crumb + fecha sidebar no mobile
+  const crumb=el('crumbActive'); if(crumb) crumb.textContent=(typeof TAB_LABELS!=='undefined'&&TAB_LABELS[id])||id;
+  closeSide();
   if(id==='ranking')renderRankingPage(1);
   else if(id==='alertas')renderAlertas();
   else if(id==='evolucao')renderEvolucao();
