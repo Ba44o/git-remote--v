@@ -1,0 +1,38 @@
+name: Rhode — Relatório geral do mês (dia 05)
+
+# Todo dia 05, 12:00 UTC (09:00 BRT): fechamento do mês ANTERIOR — KPIs meta 10k,
+# realizado (tracker_canais), % da meta, por canal realizado vs meta, projetado vs
+# realizado (lê projecao_<mês>.json do dia 25) + top SKUs. Commita o xlsx datado.
+on:
+  schedule:
+    - cron: "0 12 5 * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: rhode-monthly-general
+  cancel-in-progress: false
+
+jobs:
+  relatorio:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Instalar dependências
+        run: pip install requests openpyxl python-dotenv
+      - name: Gerar relatório geral (mês anterior)
+        run: python3 gerar_relatorio_geral_mensal.py
+      - name: Publicar relatório (artifact baixável)
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-geral-mes
+          path: relatorios/**/Relatorio Geral*.xlsx
+          retention-days: 90
+          if-no-files-found: warn

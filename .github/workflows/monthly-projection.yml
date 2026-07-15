@@ -1,0 +1,40 @@
+name: Rhode — Projeção do próximo mês (dia 25)
+
+# Todo dia 25, 12:00 UTC (09:00 BRT): projeta o mês seguinte a partir do run-rate
+# do mês atual (tracker_canais) + crescimento editável. Commita o xlsx + o
+# snapshot projecao_<mês>.json (usado pelo relatório geral do dia 05).
+on:
+  schedule:
+    - cron: "0 12 25 * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: rhode-monthly-projection
+  cancel-in-progress: false
+
+jobs:
+  projetar:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Instalar dependências
+        run: pip install requests openpyxl python-dotenv
+      - name: Gerar projeção do próximo mês
+        run: python3 gerar_projecao_mensal.py
+      - name: Publicar relatório (artifact baixável)
+        uses: actions/upload-artifact@v4
+        with:
+          name: projecao-proximo-mes
+          path: |
+            relatorios/**/Relatorio Projecao*.xlsx
+            relatorios/**/projecao_*.json
+          retention-days: 90
+          if-no-files-found: warn

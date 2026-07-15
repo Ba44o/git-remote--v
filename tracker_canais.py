@@ -26,7 +26,10 @@ def pageall(base):
 META={"video_afiliada":3600,"live_afiliada":2800,"loja_propria":3600}
 META_NET=10000; META_PROPRIA_REF=2830
 CHANS=["video_afiliada","live_afiliada","loja_propria"]
-MESES=["2026-06","2026-07"]
+import datetime as _dt
+_t=_dt.date.today()
+MESES=[(_t.replace(day=1)-_dt.timedelta(days=1)).strftime("%Y-%m"), _t.strftime("%Y-%m")]  # mês anterior + atual (dinâmico)
+NOW=_dt.datetime.utcnow().isoformat()
 def wk(d):
     try: return min(5,(int(d[8:10])-1)//7+1)
     except: return 1
@@ -59,9 +62,9 @@ for mes in MESES:
         "canais":{c:{"pecas":ch[c]["pecas"],"meta":META[c],"sem":{str(s):ch[c]["sem"][s] for s in sorted(ch[c]["sem"])},"top":topskus(ch[c])} for c in CHANS}}
     for c in CHANS:
         rows_db.append({"id":f"{mes}:{c}","mes":mes,"canal":c,"pecas":ch[c]["pecas"],"meta_pecas":META[c],
-            "semanas":{str(s):ch[c]["sem"][s] for s in sorted(ch[c]["sem"])},"top_skus":topskus(ch[c])})
-    rows_db.append({"id":f"{mes}:net","mes":mes,"canal":"net","pecas":net,"meta_pecas":META_NET,"semanas":{str(k):net_sem[k] for k in sorted(net_sem)},"top_skus":None})
-    rows_db.append({"id":f"{mes}:live_propria_ref","mes":mes,"canal":"live_propria_ref","pecas":propria_ref,"meta_pecas":META_PROPRIA_REF,"semanas":None,"top_skus":None})
+            "semanas":{str(s):ch[c]["sem"][s] for s in sorted(ch[c]["sem"])},"top_skus":topskus(ch[c]),"updated_at":NOW})
+    rows_db.append({"id":f"{mes}:net","mes":mes,"canal":"net","pecas":net,"meta_pecas":META_NET,"semanas":{str(k):net_sem[k] for k in sorted(net_sem)},"top_skus":None,"updated_at":NOW})
+    rows_db.append({"id":f"{mes}:live_propria_ref","mes":mes,"canal":"live_propria_ref","pecas":propria_ref,"meta_pecas":META_PROPRIA_REF,"semanas":None,"top_skus":None,"updated_at":NOW})
 
 json.dump(out,open(os.path.join(BASE,"_tracker_data.json"),"w"))
 try:
