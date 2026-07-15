@@ -16,13 +16,13 @@
   }
   /* light-only — dark mode removido a pedido (14/07) */
   *{margin:0;box-sizing:border-box}
-  body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.58;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased}
   .container{max-width:940px;margin:0 auto;padding:0 22px}
   .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:600}
   .mono{font-family:var(--mono)}
   a{color:inherit}
   h2{font-size:clamp(24px,4vw,32px);font-weight:800;letter-spacing:-0.03em;text-wrap:balance}
-  .sub{color:var(--muted);max-width:60ch}
+  .sub{color:var(--muted);max-width:62ch;line-height:1.55}
   /* TOPBAR */
   .topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--line)}
   .topbar .in{max-width:940px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:14px}
@@ -31,9 +31,9 @@
   .tb-back{margin-left:auto;display:none;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--red);cursor:pointer;background:none;border:none;font-family:var(--font)}
   body.inview .tb-back{display:inline-flex}
   /* VIEWS */
-  .view{display:none;padding:30px 0 72px;animation:fade .28s ease}
+  .view{display:none;padding:30px 0 72px;animation:fade .36s cubic-bezier(.2,.7,.2,1)}
   .view.on{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
   @media(prefers-reduced-motion:reduce){.view{animation:none}}
   .vhead{margin-bottom:22px}
   .vhead h1{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-0.03em;line-height:1.05;text-wrap:balance;margin-bottom:8px}
@@ -81,6 +81,10 @@
   .aula-missao{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:14px;margin-bottom:14px}
   .aula-missao b{color:var(--red)}
   .concluir-btn.is-done{background:var(--green);border-color:var(--green);color:#fff}
+  .foot-actions{display:flex;flex-wrap:wrap;gap:10px}
+  .btn.ghost{background:transparent;color:var(--red);border:1px solid var(--red);box-shadow:none}
+  .btn.ghost:hover{background:var(--red-wash);box-shadow:none;transform:translateY(-1px)}
+  .stepbadge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);background:var(--paper);border:1px solid var(--line);padding:3px 11px;border-radius:999px;margin-bottom:14px}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
   .mod{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;cursor:pointer;transition:transform .12s ease,border-color .15s ease;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;min-height:132px}
   .mod:hover{border-color:var(--red);transform:translateY(-2px)}
@@ -169,7 +173,7 @@
   .cp{flex-shrink:0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 13px;font-family:var(--mono);font-size:12px;cursor:pointer;transition:all .15s ease}
   .cp:hover{background:var(--red-wash)}.cp.done{background:var(--red);color:#fff;border-color:var(--red)}
   .blk{margin-bottom:34px}
-  .blk h3{font-size:15px;font-weight:800;letter-spacing:-0.01em;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+  .blk h3{font-size:17.5px;font-weight:800;letter-spacing:-0.015em;margin-bottom:15px;display:flex;gap:8px;align-items:center}
   .blk h3 .k{font-family:var(--mono);font-size:11px;color:var(--red)}
   .vocab{display:grid;grid-template-columns:1fr 1fr;gap:22px}
   .vocab h4{font-size:14px;font-weight:700;margin-bottom:12px}
@@ -190,7 +194,7 @@
   .trilha ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-top:8px}
   .trilha li{font-size:15px;padding-left:26px;position:relative}
   .trilha li::before{content:"→";position:absolute;left:0;color:var(--red);font-weight:700}
-  .prose p{font-size:15.5px;margin-top:15px;max-width:64ch;color:var(--ink)}
+  .prose p{font-size:16px;line-height:1.72;margin-top:18px;max-width:64ch;color:var(--ink)}
   .prose p b{color:var(--ink)} .prose p:first-child{margin-top:0}
   .lib-drive{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-bottom:8px}
   .lib-drive .li{font-size:30px}.lib-drive .lt{flex:1;min-width:200px}.lib-drive .lt b{font-size:16px}.lib-drive .lt div{color:var(--muted);font-size:14px;margin-top:2px}
@@ -525,12 +529,14 @@ function renderHome(){
 }
 function refreshFooters(){CORE.forEach(c=>{const b=document.querySelector('#v-'+c.id+' .concluir-btn');if(b){const d=isDone(c.id);b.textContent=d?'✓ Aula concluída — refazer quando quiser':'✓ Concluí esta aula';b.classList.toggle('is-done',d)}});}
 function concluir(id){const first=!isDone(id);markDone(id);if(first)track('concluiu_aula',{modulo:id});renderHome();refreshFooters();toast(first?'Aula concluída 🎉':'Feito ✓');show('home');}
-CORE.forEach(c=>{
+CORE.forEach((c,idx)=>{
   const cont=document.querySelector('#v-'+c.id+' .container');if(!cont)return;const meta=AULA_META[c.id]||{};
   const vh=cont.querySelector('.vhead');
+  if(vh){const sb=document.createElement('div');sb.className='stepbadge';sb.textContent='Passo '+(idx+1)+' de '+CORE.length+' · trilha';vh.insertAdjacentElement('afterbegin',sb);}
   if(vh&&meta.p){const p=document.createElement('div');p.className='promessa';p.innerHTML='<b>✅ O que você sai sabendo:</b> '+esc(meta.p);vh.insertAdjacentElement('afterend',p);}
+  const nx=CORE[idx+1];
   const f=document.createElement('div');f.className='aulafoot';
-  f.innerHTML=(meta.m?'<div class="aula-missao"><b>🎯 Missão prática:</b> '+esc(meta.m)+'</div>':'')+'<button class="btn concluir-btn" onclick="concluir(\''+c.id+'\')">✓ Concluí esta aula</button>';
+  f.innerHTML=(meta.m?'<div class="aula-missao"><b>🎯 Missão prática:</b> '+esc(meta.m)+'</div>':'')+'<div class="foot-actions"><button class="btn concluir-btn" onclick="concluir(\''+c.id+'\')">✓ Concluí esta aula</button>'+(nx?'<button class="btn ghost" onclick="show(\''+nx.id+'\')">Próxima: '+esc(nx.t)+' →</button>':'<button class="btn ghost" onclick="show(\'home\')">Voltar pra trilha →</button>')+'</div>';
   cont.appendChild(f);
 });
 renderHome();refreshFooters();
