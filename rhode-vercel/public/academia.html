@@ -237,6 +237,15 @@
   .cliplb-inner{position:relative;max-width:min(420px,92vw)}
   .cliplb-v{width:100%;max-height:86vh;border-radius:16px;background:#000;display:block}
   .cliplb-x{position:absolute;top:-16px;right:-16px;width:42px;height:42px;border-radius:50%;background:#fff;color:var(--ink);border:none;font-size:19px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  .anggrid{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:640px){.anggrid{grid-template-columns:1fr 1fr}}
+  .anggrid .ang{margin-bottom:0;cursor:pointer;align-self:start;transition:border-color .12s}
+  .anggrid .ang:hover{border-color:var(--red)}
+  .ang.open{border-color:var(--red)}
+  .ang .angmore{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--red);margin-top:10px;display:flex;align-items:center;gap:5px}
+  .ang.open .angmore{display:none}
+  .angdetail{display:none;margin-top:6px}
+  .ang.open .angdetail{display:block}
   .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
   table{border-collapse:collapse;width:100%;min-width:560px;background:var(--card)}
   th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:top}
@@ -395,7 +404,7 @@
       <input class="search" id="angsearch" type="text" placeholder="Buscar por palavra, produto ou tipo de gancho…">
       <div class="chips" id="chips"></div>
       <div class="angcount" id="angcount"></div>
-      <div id="angulos"></div>
+      <div id="angulos" class="anggrid"></div>
     </div>
     <div class="blk"><h3>🗣️ Como você fala</h3><div class="vocab"><div><h4>✓ Usa</h4><div class="tags" id="vok"></div></div><div><h4>✗ Evita</h4><div class="tags" id="vno"></div></div></div></div>
     <div style="margin-top:22px"><button class="btn" onclick="show('plano')">Testar do jeito certo (método da espinha) →</button></div>
@@ -622,7 +631,8 @@ document.getElementById('steps').innerHTML=ACAD.estrutura.map(s=>`<div class="st
 function forcaTag(f){return f==='segura'?'<span class="forca seg">🪝 segura</span>':f==='fecha'?'<span class="forca fec">💰 fecha</span>':'<span class="forca amb">🪝💰 ambos</span>';}
 let _arq='Todos',_q='';
 function scriptText(h){return 'HOOK (0-3s): '+h.gancho+'\n\nFILMA: '+h.filma+'\n\nTEXTO NA TELA:\n'+h.tela.map(function(t){return '• '+t}).join('\n')+'\n\nCHAMADO: '+h.chamado;}
-function cardHTML(h,i){return `<div class="ang"><div class="anghead"><span class="funpill ${h.fun}">${h.fun}</span>${forcaTag(h.forca)}<span class="arqtag">${esc(h.arq)}</span><span class="prodtag">${esc(h.prod)}</span><span class="fonte ${h.fonte}">${h.fonte==='testado'?'✓ testado':'novo'}</span></div><div class="anglayer"><span class="lb">🎣 Gancho <i>0–3s</i></span><div class="gancho">“${esc(h.gancho)}”</div></div><div class="anglayer"><span class="lb">🎬 Filma isso</span><div class="lv">${esc(h.filma)}</div></div><div class="anglayer"><span class="lb">📝 Texto na tela</span><ul class="beats">${h.tela.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')}</ul></div><div class="anglayer"><span class="lb">🛒 Chamado</span><div class="lv chamado">${esc(h.chamado)}</div></div><div class="anglayer mont"><span class="lb">💡 Por que</span><div class="lv">${esc(h.porque)}</div></div><button class="btn copybtn" onclick="cpRot(${i},this)">📋 Copiar roteiro</button></div>`;}
+function cardHTML(h,i){return `<div class="ang" onclick="toggleAng(this)"><div class="anghead"><span class="funpill ${h.fun}">${h.fun}</span>${forcaTag(h.forca)}<span class="arqtag">${esc(h.arq)}</span><span class="prodtag">${esc(h.prod)}</span><span class="fonte ${h.fonte}">${h.fonte==='testado'?'✓ testado':'novo'}</span></div><div class="gancho">“${esc(h.gancho)}”</div><div class="angmore">ver roteiro ▾</div><div class="angdetail"><div class="anglayer"><span class="lb">🎬 Filma</span><div class="lv">${esc(h.filma)}</div></div><div class="anglayer"><span class="lb">📝 Texto na tela</span><ul class="beats">${h.tela.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')}</ul></div><div class="anglayer"><span class="lb">🛒 Chamado</span><div class="lv chamado">${esc(h.chamado)}</div></div><div class="anglayer mont"><span class="lb">💡 Por que</span><div class="lv">${esc(h.porque)}</div></div><button class="btn copybtn" onclick="event.stopPropagation();cpRot(${i},this)">📋 Copiar roteiro</button></div></div>`;}
+function toggleAng(el){el.classList.toggle('open');}
 function render(){var list=[];HOOKS.forEach(function(h,i){var okA=_arq==='Todos'||h.arq===_arq;var blob=(h.gancho+' '+h.arq+' '+h.prod+' '+h.filma+' '+h.chamado).toLowerCase();if(okA&&(!_q||blob.indexOf(_q)>=0))list.push([h,i]);});document.getElementById('angcount').textContent=list.length+(list.length===1?' gancho':' ganchos')+(_arq!=='Todos'?' · '+_arq:'');document.getElementById('angulos').innerHTML=list.length?list.map(function(x){return cardHTML(x[0],x[1])}).join(''):'<div class="angempty">Nenhum gancho com esse filtro. Tenta outra palavra.</div>';}
 function setArq(el,a){_arq=a;document.querySelectorAll('#chips .chip').forEach(function(c){c.classList.remove('on')});el.classList.add('on');render();}
 function cpRot(i,btn){var h=HOOKS[i];var t=scriptText(h);try{navigator.clipboard.writeText(t)}catch(e){try{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta)}catch(e2){}}btn.classList.add('is-done');btn.textContent='✓ Copiado';toast('Roteiro copiado ✓');setTimeout(function(){btn.classList.remove('is-done');btn.textContent='📋 Copiar roteiro'},1600);try{track('copiou_roteiro',{modulo:'ganchos',ref:h.arq+'/'+h.prod})}catch(e){}}
