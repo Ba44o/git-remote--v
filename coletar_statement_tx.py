@@ -85,15 +85,30 @@ def retry(method, path, params=None):
 def upsert(table, rows, chunk=500, on_conflict="id"):
     if not rows:
         print(f"  [SKIP] {table} sem linhas"); return
+    import re as _re
     url = f"{SB_URL}/rest/v1/{table}?on_conflict={on_conflict}"
+    dropped = set()
     for i in range(0, len(rows), chunk):
-        body = json.dumps(rows[i:i + chunk]).encode()
-        req = urllib.request.Request(url, data=body,
-            headers={**SBH, "Prefer": "resolution=merge-duplicates,return=minimal"}, method="POST")
-        try:
-            urllib.request.urlopen(req, timeout=120)
-        except urllib.error.HTTPError as e:
-            print(f"  [ERRO upsert {table}] {e.code}: {e.read()[:300]}"); raise
+        # SELF-HEALING: se a tabela não tem uma coluna que o coletor escreve (migração não
+        # aplicada — ex: statement_tx_frete.sql), PGRST204 diz qual é. Em vez de crashar e
+        # PERDER a coleta inteira, dropa a coluna e reenvia. Nunca mais um schema-drift zera tudo.
+        while True:
+            batch = [{k: v for k, v in r.items() if k not in dropped} for r in rows[i:i + chunk]]
+            body = json.dumps(batch).encode()
+            req = urllib.request.Request(url, data=body,
+                headers={**SBH, "Prefer": "resolution=merge-duplicates,return=minimal"}, method="POST")
+            try:
+                urllib.request.urlopen(req, timeout=120); break
+            except urllib.error.HTTPError as e:
+                msg = e.read()[:400].decode(errors="replace")
+                m = _re.search(r"Could not find the '([^']+)' column", msg)
+                if e.code == 400 and m and m.group(1) not in dropped:
+                    dropped.add(m.group(1))
+                    print(f"  [SCHEMA-DRIFT] coluna '{m.group(1)}' não existe na tabela — dropando e reenviando. RODAR A MIGRAÇÃO.")
+                    continue
+                print(f"  [ERRO upsert {table}] {e.code}: {msg}"); raise
+    if dropped:
+        print(f"  ⚠ colunas ignoradas (migração pendente): {sorted(dropped)} — rodar o .sql correspondente.")
     print(f"  ✓ {table}: {len(rows)} linhas upsertadas")
 
 

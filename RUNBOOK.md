@@ -626,6 +626,50 @@ Usado nos winner cards do `/academia` (mostram tier, não GMV/un).
 
 ---
 
+## 13. Conciliação/statement_tx desatualizada (settlement "para" num dia · cobertura de mês cai)
+
+### Sintoma
+- `statement_tx` com `max(updated_at)` velho (ex: parado em 04/07); cobertura de um mês
+  fechado bem abaixo de 100% (ex: maio 29% liquidado) sem ser lag de settlement.
+- Divergência/conciliação de um mês dá número irreal porque falta a maior parte dos pedidos.
+
+### Diagnóstico (rodar nesta ordem — descarta sintoma antes de culpar a API)
+```bash
+# 1. O token/Finance API está OK? (quase sempre está)
+python3 -c "from coletar_dados import chamar; print(chamar('GET','/finance/202309/statements',params={'page_size':3}).get('code'))"  # 0 = OK
+# 2. statement_tx está em algum cron/automação?
+grep -rl coletar_statement_tx *.sh .github/    # se vazio → É ISSO (ver Causa)
+# 3. cobertura por mês (pedidos_sku vs statement_tx settled)
+#    ver motor_conciliacao_divergencia.py (imprime cobertura por período)
+```
+
+### Causa RAIZ (confirmada 15/07/2026 — corrigida; a 1ª hipótese "não estava em cron" era secundária)
+**SCHEMA DRIFT: migração commitada mas não aplicada.** O commit `469e583` (2026-07-06)
+fez `coletar_statement_tx.py` **escrever** as colunas `actual_shipping_fee` /
+`fbm_shipping_cost` / `platform_shipping_subsidy`, mas a migração `statement_tx_frete.sql`
+(ADD COLUMN dessas 3) **nunca foi rodada no Supabase**. Resultado: desde 07-06, TODA execução
+coleta tudo (rate-limited, demora) e **crasha no upsert final** com
+`PGRST204: Could not find the 'actual_shipping_fee' column` → **zero linha gravada**.
+`statement_tx.max(updated_at)` ficou em **04-07** (a última run ANTES do commit). Bate ao dia.
+**NÃO foi** token / rate limit / mudança de API (todos verificados OK). O fato de não estar em
+cron é agravante (ninguém percebeu por 10 dias), mas a causa do zero-gravado é o schema drift.
+
+### Fix
+1. **Coletor blindado (feito):** `upsert()` agora é self-healing — se a tabela não tem uma
+   coluna (PGRST204), dropa a coluna e reenvia em vez de crashar e perder a coleta inteira.
+   Um schema-drift nunca mais zera tudo (loga a coluna pendente).
+2. **Aplicar a migração (você, uma vez):** rodar `rhode-vercel/sql/statement_tx_frete.sql`
+   no Supabase → SQL Editor pra ativar de fato as colunas de frete detalhado.
+3. **Backfill:** `python3 coletar_statement_tx.py --inicio AAAA-MM-01 --fim <hoje>`
+   (janela por `statement_time`; pega settlements atrasados). Idempotente. ⚠️ grava só no FIM.
+4. **Anti-envelhecimento:** automatizado no `refresh_performance_diario.sh` (passo 5b,
+   semanal/segunda, `--dias 45`) pra a base não ficar velha de novo.
+
+> **Lição:** commit que adiciona coluna que um coletor ESCREVE = deploy de schema. Rodar o
+> `.sql` no mesmo PR/sessão, senão o coletor quebra silencioso. (Ver também [[CONCILIACAO.md §7.2]].)
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:

@@ -36,6 +36,14 @@ echo "[5/13] Sync → finance_statements..."
 python3 -c "from dotenv import load_dotenv; load_dotenv(); import sys,runpy; sys.argv=['sync','--only','finance']; runpy.run_path('agente_rhode/sync_supabase.py', run_name='__main__')" \
     || { echo "  ❌ SYNC finance FALHOU"; exit 1; }
 
+# 5b) Settlement ITEMIZADO por pedido (statement_tx) — SEMANAL (segunda), janela 45d.
+#     Root-cause fix (RUNBOOK #13): antes era manual e envelhecia; agora roda sozinho toda
+#     segunda p/ pegar settlements atrasados (lag ~2-4 sem). Idempotente, não-crítico, pesado.
+if [ "$(date +%u)" = "1" ]; then
+  echo "[5b] statement_tx itemizado (semanal · 45d)..."
+  python3 coletar_statement_tx.py --dias 45 || echo "  ⚠ statement_tx falhou (não-crítico — segue)"
+fi
+
 # 6) ETL devoluções via API — janela de 14 dias
 echo "[6/13] ETL devoluções via API (--dias 14)..."
 python3 agente_rhode/etl_devolucoes.py --dias 14 || { echo "  ❌ ETL devoluções FALHOU"; exit 1; }
