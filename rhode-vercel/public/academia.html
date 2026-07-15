@@ -75,6 +75,34 @@
   .tstep .tds{color:var(--muted);font-size:13px}
   .tstep .tgo{margin-left:auto;color:var(--soft);font-size:24px;font-weight:400;line-height:1}
   .extras{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  /* ── biblioteca de materiais (cards-capa), mobile-first ── */
+  .matgrid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:640px){.matgrid{grid-template-columns:1fr 1fr;gap:18px}}
+  .matcard{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:var(--shadow);transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;display:flex;flex-direction:column}
+  .matcard:hover{transform:translateY(-3px);border-color:var(--red);box-shadow:0 16px 34px -16px rgba(20,16,24,.22)}
+  .matcard:active{transform:translateY(-1px)}
+  .matcard.st-soon{cursor:default;opacity:.72}
+  .matcard.st-soon:hover{transform:none;border-color:var(--line);box-shadow:var(--shadow)}
+  .matcard.st-now{border-color:var(--red);box-shadow:0 12px 32px -12px rgba(254,44,85,.42)}
+  .matcover{position:relative;aspect-ratio:5/2;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .maticon{font-size:clamp(46px,12vw,56px);line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.12))}
+  .matnum{position:absolute;top:12px;left:12px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.9);color:var(--ink);font-family:var(--mono);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+  .matcard.st-ok .matnum{background:var(--green);color:#fff}
+  .matnow{position:absolute;top:12px;right:12px;background:var(--red);color:#fff;font-size:11px;font-weight:700;font-family:var(--mono);padding:4px 10px;border-radius:999px;letter-spacing:.02em}
+  .matnow.soon{background:rgba(20,16,24,.4);color:#fff}
+  .matbody{padding:15px 17px 17px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .mattags{display:flex;flex-wrap:wrap;gap:6px}
+  .mattag{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--paper);border:1px solid var(--line);padding:2px 8px;border-radius:999px}
+  .mattitle{font-size:18px;font-weight:800;letter-spacing:-.015em;line-height:1.2;margin:2px 0 0}
+  .matdesc{font-size:14px;color:var(--muted);line-height:1.5;flex:1;margin:0}
+  .matcta{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--red);margin-top:4px}
+  .cov-green{background:linear-gradient(135deg,#e7f4ec,#cfe9db)}
+  .cov-red{background:linear-gradient(135deg,#ffe9ee,#ffd0dc)}
+  .cov-purple{background:linear-gradient(135deg,#efe9fb,#ddd0f4)}
+  .cov-blue{background:linear-gradient(135deg,#e6f0fb,#cfe0f6)}
+  .cov-orange{background:linear-gradient(135deg,#fdeede,#fadcc0)}
+  .cov-teal{background:linear-gradient(135deg,#e2f4f2,#c7e9e5)}
+  .cov-gray{background:linear-gradient(135deg,#eef0f3,#e0e4ea)}
   .promessa{background:var(--red-wash);border:1px solid var(--red);border-radius:14px;padding:12px 16px;font-size:14px;margin-bottom:20px;color:var(--ink)}
   .promessa b{color:var(--red)}
   .aulafoot{margin-top:28px;border-top:1px solid var(--line);padding-top:22px}
@@ -271,10 +299,9 @@
         <div class="go">Começar a aula →</div>
       </div>
       <div class="sectitle">Sua trilha <span class="pmini" id="pmini"></span></div>
-      <div id="nextwrap"></div>
-      <div class="steplist" id="steplist"></div>
-      <div class="sectitle" style="margin-top:28px">Extras</div>
-      <div class="extras" id="extras"></div>
+      <div class="matgrid" id="steplist"></div>
+      <div class="sectitle" style="margin-top:30px">Extras</div>
+      <div class="matgrid" id="extras"></div>
     </div>
   </div>
 
@@ -403,16 +430,16 @@
 
 <script>
 const CORE=[
-  {id:'comecando', n:1, i:'🌱', t:'Começando',            d:'Seu 1º vídeo no ar em 48h'},
-  {id:'ganchos',   n:2, i:'✍️', t:'Ganchos & estrutura',   d:'Prender nos 3 primeiros segundos'},
-  {id:'biblioteca',n:3, i:'🎬', t:'Biblioteca & campeões', d:'1 campeão vira o seu'},
-  {id:'plano',     n:4, i:'📅', t:'Formatos & plano',      d:'Ritmo de 3 semanas + template'},
-  {id:'escalando', n:5, i:'🚀', t:'Escalando',             d:'Volume sem queimar'},
-  {id:'vendas',    n:6, i:'💬', t:'FAQ & missões',         d:'Fecha a venda'}
+  {id:'comecando', n:1, i:'🌱', t:'Começando',            d:'Seu 1º vídeo no ar em 48h, sem travar.',        tags:['iniciante','vídeo'],  cov:'green'},
+  {id:'ganchos',   n:2, i:'✍️', t:'Ganchos & estrutura',   d:'Prende nos 3 primeiros segundos.',              tags:['copy','hooks'],       cov:'red'},
+  {id:'biblioteca',n:3, i:'🎬', t:'Biblioteca & campeões', d:'Transforma 1 vídeo campeão no seu.',            tags:['modelos','remix'],    cov:'purple'},
+  {id:'plano',     n:4, i:'📅', t:'Formatos & plano',      d:'Ritmo de 3 semanas + template pra baixar.',     tags:['ritmo','template'],   cov:'blue'},
+  {id:'escalando', n:5, i:'🚀', t:'Escalando',             d:'Sobe o volume de vídeo sem queimar.',           tags:['avançado','volume'],  cov:'orange'},
+  {id:'vendas',    n:6, i:'💬', t:'FAQ & missões',         d:'Responde objeções e fecha a venda.',            tags:['objeções','fechar'],  cov:'teal'}
 ];
 const EXTRA=[
-  {id:'semana',i:'📰',t:'Esta semana',d:'Novo toda semana'},
-  {id:'trends',i:'📈',t:'Trends',d:'Em breve',soon:true}
+  {id:'semana',i:'📰',t:'Esta semana',d:'Um insight novo toda semana.',              tags:['novidades'], cov:'gray'},
+  {id:'trends',i:'📈',t:'Trends',d:'Áudios e formatos em alta — em breve.',           tags:['em breve'],  cov:'gray', soon:true}
 ];
 const AULA_META={
   comecando:{p:'Sai daqui com seu 1º vídeo no ar em 48h.',                                m:'Grava e posta 1 unboxing ainda hoje.'},
@@ -515,17 +542,13 @@ function markDone(id){const a=doneList();if(a.indexOf(id)<0){a.push(id);localSto
 function nextStep(){for(let i=0;i<CORE.length;i++){if(!isDone(CORE[i].id))return CORE[i]}return null}
 function coreDoneCount(){return CORE.filter(c=>isDone(c.id)).length}
 function renderHome(){
-  const dc=coreDoneCount(),pct=Math.round(dc/CORE.length*100),nx=nextStep();
-  document.getElementById('pmini').textContent=dc+'/'+CORE.length+' concluídas';
-  const nw=document.getElementById('nextwrap');
-  if(nx){nw.innerHTML=`<div class="nextcard" onclick="show('${nx.id}')"><div class="nch">● seu próximo passo</div><div class="nct"><span class="ncn">${nx.n}</span> ${nx.i} ${esc(nx.t)}</div><div class="ncd">${esc(nx.d)}</div><div class="ncgo">${dc===0?'Começar':'Continuar'} →</div><div class="ncbar"><span style="width:${pct}%"></span></div></div>`;}
-  else{nw.innerHTML=`<div class="nextcard alldone"><div class="nch">🎉 trilha completa</div><div class="nct">Você concluiu as ${CORE.length} aulas</div><div class="ncd">Agora é volume: grava, testa e dobra no que repete. Volta em "Esta semana" pros próximos insights.</div><div class="ncbar"><span style="width:100%;background:var(--green)"></span></div></div>`;}
+  const dc=coreDoneCount(),nx=nextStep();
+  document.getElementById('pmini').textContent=(dc>=CORE.length?'🎉 ':'')+dc+'/'+CORE.length+(dc>=CORE.length?' · completa':' concluídas');
   document.getElementById('steplist').innerHTML=CORE.map(c=>{
     const st=isDone(c.id)?'ok':(nx&&nx.id===c.id?'now':'todo');
-    const mk=st==='ok'?'✓':(st==='now'?'●':c.n);
-    return `<div class="tstep ${st}" onclick="show('${c.id}')"><div class="tnum">${mk}</div><div><div class="ttl">${c.i} ${esc(c.t)}</div><div class="tds">${esc(c.d)}</div></div><div class="tgo">›</div></div>`;
+    return `<article class="matcard st-${st}" onclick="show('${c.id}')"><div class="matcover cov-${c.cov}"><span class="matnum">${st==='ok'?'✓':c.n}</span><span class="maticon">${c.i}</span>${st==='now'?'<span class="matnow">▶ próximo passo</span>':''}</div><div class="matbody"><div class="mattags">${c.tags.map(t=>'<span class="mattag">'+esc(t)+'</span>').join('')}</div><h3 class="mattitle">${esc(c.t)}</h3><p class="matdesc">${esc(c.d)}</p><span class="matcta">${st==='ok'?'revisar':'abrir'} →</span></div></article>`;
   }).join('');
-  document.getElementById('extras').innerHTML=EXTRA.map(m=>`<div class="mod ${m.soon?'soon':''}" ${m.soon?'':`onclick="show('${m.id}')"`}>${m.soon?'<span class="mtag">em breve</span>':''}<div class="mi">${m.i}</div><div class="mt">${esc(m.t)}</div><div class="md">${esc(m.d)}</div></div>`).join('');
+  document.getElementById('extras').innerHTML=EXTRA.map(m=>`<article class="matcard ${m.soon?'st-soon':''}" ${m.soon?'':`onclick="show('${m.id}')"`}><div class="matcover cov-${m.cov}"><span class="maticon">${m.i}</span>${m.soon?'<span class="matnow soon">em breve</span>':''}</div><div class="matbody"><div class="mattags">${m.tags.map(t=>'<span class="mattag">'+esc(t)+'</span>').join('')}</div><h3 class="mattitle">${esc(m.t)}</h3><p class="matdesc">${esc(m.d)}</p>${m.soon?'':'<span class="matcta">abrir →</span>'}</div></article>`).join('');
 }
 function refreshFooters(){CORE.forEach(c=>{const b=document.querySelector('#v-'+c.id+' .concluir-btn');if(b){const d=isDone(c.id);b.textContent=d?'✓ Aula concluída — refazer quando quiser':'✓ Concluí esta aula';b.classList.toggle('is-done',d)}});}
 function concluir(id){const first=!isDone(id);markDone(id);if(first)track('concluiu_aula',{modulo:id});renderHome();refreshFooters();toast(first?'Aula concluída 🎉':'Feito ✓');show('home');}
