@@ -208,10 +208,20 @@
   .tags{display:flex;flex-wrap:wrap;gap:7px}
   .tag{font-size:13px;padding:5px 11px;border-radius:99px;border:1px solid var(--line)}
   .tag.ok{color:var(--green);border-color:rgba(0,121,107,.3)}.tag.no{color:var(--soft);text-decoration:line-through;opacity:.75}
-  .fmts{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
-  .fmt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
-  .fmt .fn{font-family:var(--mono);font-size:11px;color:var(--red);font-weight:700}
-  .fmt .ft{font-weight:700;font-size:15px;margin:5px 0 3px}.fmt .fd{color:var(--muted);font-size:13px}
+  .fmts{display:grid;grid-template-columns:1fr;gap:13px}
+  @media(min-width:560px){.fmts{grid-template-columns:1fr 1fr}}
+  .fmt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px}
+  .fmt.rapido{border-left:3px solid var(--red)}
+  .fmthead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .fmt .fn{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:700}
+  .esf{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+  .esf.rapido{color:var(--red);border-color:var(--red);background:var(--red-wash)}
+  .esf.prod{color:var(--muted)}
+  .fmt .ft{font-weight:800;font-size:15.5px;letter-spacing:-.01em;margin:2px 0 8px}
+  .fmtline{font-size:13px;color:var(--ink);margin:3px 0;display:flex;gap:7px}
+  .fmtline .fl{font-family:var(--mono);font-size:10px;color:var(--muted);font-weight:700;flex:0 0 44px;padding-top:1px;text-transform:uppercase}
+  .fmtwhy{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+  .covimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
   .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
   table{border-collapse:collapse;width:100%;min-width:560px;background:var(--card)}
   th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:top}
@@ -319,7 +329,7 @@
       <li>Poste seu <b>1º vídeo em 48h</b> depois da amostra chegar</li>
       <li>Comece por <b>unboxing + try-on</b> — os que mais convertem no início</li>
       <li>Pega <b>1 ângulo</b> do banco e <b>remodela na sua voz</b> — nunca copia igual</li>
-      <li>Meta: <b>3 vídeos na 1ª semana</b></li>
+      <li>Meta: <b>5 vídeos na 1ª semana</b> — começa pelos formatos ⚡ rápidos</li>
     </ul></div>
     <div class="aviso" style="margin-top:20px">🚫 <b>Não copia igual.</b> Muitas creators postam a mesma calça. Se você falar a mesma frase que as outras, ninguém para o dedo. Pega o <b>ângulo</b> do banco e conta com as <b>suas palavras</b>, seu jeito.</div>
     <div style="margin-top:16px"><button class="btn" onclick="show('ganchos')">Pegar e remodelar meu 1º gancho →</button></div>
@@ -329,7 +339,7 @@
   <div class="view" id="v-escalando"><div class="container">
     <div class="vhead"><div class="eyebrow">Trilha · avançada</div><h1>🚀 Escalando</h1><p class="sub">Já fatura e quer crescer sem queimar.</p></div>
     <div class="trilha"><ul>
-      <li>Suba pra <b>2-3 vídeos/semana</b> com constância</li>
+      <li>Trave <b>5+ vídeos/semana</b> — quem posta 5+ faz ~3x mais GMV</li>
       <li><b>Grave em lote</b> e reaproveite ângulos entre formatos</li>
       <li>Rode a <b>esteira</b> (Mom / Baggy) além do hero pra diversificar</li>
       <li>Meta: virar <b>Video Creator (20+ vídeos)</b> e destravar spark ads</li>
@@ -388,14 +398,15 @@
 
   <!-- FORMATOS & PLANO -->
   <div class="view" id="v-plano"><div class="container">
-    <div class="vhead"><div class="eyebrow">Ritmo & variedade</div><h1>Formatos & plano</h1><p class="sub">8 formatos pra não repetir + o plano de 3 semanas. Baixa o template e edita o seu.</p></div>
+    <div class="vhead"><div class="eyebrow">Ritmo & volume</div><h1>Formatos & plano</h1><p class="sub">12 formatos pra não repetir + o plano de 5 vídeos por semana. Baixa o template e edita o seu.</p></div>
+    <div class="blk"><h3>🎯 A meta: 5 vídeos por semana</h3><div class="aviso"><b>Por que 5 (e não 3)?</b> Quem posta <b>5+ por semana faz ~3,2x mais GMV</b> que quem posta 2 — não é só frequência, é testar mais ângulos ao mesmo tempo. Pra não queimar: <b>3 formatos ⚡ rápidos + 2 de 🎬 produção</b>. Os rápidos (POV texto, photo mode) você grava 5 numa tarde só.</div></div>
     <div class="blk"><h3>📥 Template pra usar</h3><div class="dl-card"><div class="di">📅</div><div class="dt"><b>Calendário editorial + plano de teste</b><div>Planilha editável: o que postar por dia e como testar variações de vídeo.</div></div><a class="btn" href="/downloads/rhode-calendario-editorial.xlsx" download onclick="track('baixou_template')">Baixar template ↓</a></div></div>
-    <div class="blk"><h3>Os 8 formatos</h3><div class="fmts" id="fmts"></div></div>
-    <div class="blk"><h3>Plano de 3 semanas → 6-8 vídeos</h3>
-      <div class="tablewrap"><table><thead><tr><th>Semana</th><th>Objetivo</th><th>Formatos</th><th>Ganchos</th></tr></thead><tbody>
-        <tr><td><span class="wk">Semana 1</span><br><span class="goal">aquecer</span></td><td>Apresentar e gerar desejo.</td><td><span class="chip">Unboxing</span><span class="chip">Try-on</span></td><td><span class="chip">paixão</span><span class="chip">descoberta</span></td></tr>
-        <tr><td><span class="wk">Semana 2</span><br><span class="goal">converter</span></td><td>Resolver caimento/tamanho.</td><td><span class="chip">3 looks</span><span class="chip">Seu tamanho</span></td><td><span class="chip">corpo</span><span class="chip">dados</span></td></tr>
-        <tr><td><span class="wk">Semana 3</span><br><span class="goal">escalar</span></td><td>Surfar alcance e confiança.</td><td><span class="chip">Trend</span><span class="chip">Review</span></td><td><span class="chip">viralização</span><span class="chip">preço</span></td></tr>
+    <div class="blk"><h3>Os 12 formatos <span style="font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:600">· ⚡ rápido = motor do volume</span></h3><div class="fmts" id="fmts"></div></div>
+    <div class="blk"><h3>Plano de 3 semanas → 15 vídeos (5/semana)</h3>
+      <div class="tablewrap"><table><thead><tr><th>Semana</th><th>Objetivo</th><th>Os 5 formatos da semana</th></tr></thead><tbody>
+        <tr><td><span class="wk">Semana 1</span><br><span class="goal">aquecer</span></td><td>Apresentar e gerar desejo.</td><td><span class="chip">POV texto ⚡</span><span class="chip">Photo mode ⚡</span><span class="chip">Contraste ⚡</span><span class="chip">Unboxing</span><span class="chip">Try-on</span></td></tr>
+        <tr><td><span class="wk">Semana 2</span><br><span class="goal">converter</span></td><td>Resolver caimento/tamanho.</td><td><span class="chip">3 looks ⚡</span><span class="chip">POV texto ⚡</span><span class="chip">Try-on/tamanho</span><span class="chip">Antes/depois</span><span class="chip">Conforto</span></td></tr>
+        <tr><td><span class="wk">Semana 3</span><br><span class="goal">escalar</span></td><td>Surfar alcance e confiança.</td><td><span class="chip">Transição ⚡</span><span class="chip">Photo mode ⚡</span><span class="chip">Contraste ⚡</span><span class="chip">Review</span><span class="chip">Restock</span></td></tr>
       </tbody></table></div>
     </div>
   </div></div>
@@ -449,9 +460,23 @@ const AULA_META={
   escalando:{p:'Você vai subir o volume de vídeo sem queimar.',                           m:'Agenda 1 dia de gravação em lote (4–6 vídeos).'},
   vendas:{p:'Você vai responder qualquer objeção e fechar a venda no comentário.',        m:'Responde 3 comentários usando as respostas prontas.'}
 };
+const FORMATOS=[
+  {n:'01',esf:'rapido',nome:'POV texto na tela',txt:'POV: a calça mais viralizada do TikTok',broll:'você no espelho girando (b-roll de fundo)',why:'Para o dedo por identidade — e você nem precisa falar.'},
+  {n:'02',esf:'rapido',nome:'Photo mode / carrossel',txt:'3 looks que eu faria com essa calça',broll:'3–5 fotos suas com a peça + música',why:'Nem grava vídeo. O jeito mais rápido de bater volume.'},
+  {n:'03',esf:'rapido',nome:'Contraste (básico → estiloso)',txt:'de básica a arrumada num corte',broll:'abre no look sem graça → corta na Rhode em 0,5s',why:'O corte-surpresa sinaliza conteúdo bom pro algoritmo.'},
+  {n:'04',esf:'rapido',nome:'3 jeitos de usar',txt:'1 calça, 3 looks',broll:'cortes rápidos trocando a parte de cima',why:'Variedade num vídeo só, super rápido de montar.'},
+  {n:'05',esf:'rapido',nome:'Transição no beat',txt:'espera o look final',broll:'troca de roupa no drop da música',why:'Satisfatório, segura o vídeo até o fim.'},
+  {n:'06',esf:'prod',nome:'GRWM narrativo',txt:'se arruma comigo pra [ocasião]',broll:'você se arrumando, a calça no meio do vídeo',why:'Premissa emocional prende mais que descrição.'},
+  {n:'07',esf:'prod',nome:'Try-on / provador',txt:'1,60m, veste 38 — olha o caimento',broll:'veste, gira, frente/lado/costas',why:'Mata a objeção de "será que serve em mim?".'},
+  {n:'08',esf:'prod',nome:'Unboxing / chegou',txt:'chegou a calça que tá bombando',broll:'abre a sacola, reação, veste na hora',why:'Surpresa + autenticidade geram confiança.'},
+  {n:'09',esf:'prod',nome:'Antes / depois',txt:'troquei minha calça velha por essa',broll:'calça sem caimento × a Rhode, mesmo corpo',why:'Transformação tangível convence.'},
+  {n:'10',esf:'prod',nome:'Conforto (testei)',txt:'senta, levanta, agacha — não marca',broll:'você sentando/agachando/andando',why:'Mostrar o teste é mais forte que afirmar.'},
+  {n:'11',esf:'prod',nome:'Review honesto',txt:'a real depois de 1 semana',broll:'você falando + a peça em uso',why:'Prova social remove a última dúvida.'},
+  {n:'12',esf:'prod',nome:'Restock / urgência',txt:'voltou o estoque, corre',broll:'b-roll da peça + você garantindo no app',why:'Escassez fecha quem tava adiando.'}
+];
 const ARTIGOS=[
   {niv:'todas',tipo:'Framework',t:'O arco de 75s que vende',r:'A estrutura que todo top vídeo segue.',c:`<p>Hook (0–5s) → contexto (5–15s) → prova no corpo (15–30s) → seus dados (30–40s) → ancoragem de valor (40–55s) → benefícios (55–65s) → CTA (65–75s). O gancho nos 2 primeiros segundos decide tudo.</p>`},
-  {niv:'todas',tipo:'Insight',t:'Por que 1 vídeo não basta',r:'Volume ganha — os dados provam.',c:`<p>Vídeo é quase metade do GMV de afiliação, e o resultado se concentra em quem <b>posta com constância</b> — não em quem tem mais seguidores. Uma amostra rende 6-8 vídeos em 3 semanas. Parar no primeiro é deixar a maior parte na mesa.</p>`},
+  {niv:'todas',tipo:'Insight',t:'Por que 1 vídeo não basta',r:'Volume ganha — os dados provam.',c:`<p>Vídeo é quase metade do GMV de afiliação, e o resultado se concentra em quem <b>posta com constância</b> — não em quem tem mais seguidores. Quem posta <b>5+ vídeos/semana faz ~3,2x mais GMV</b> que quem posta 2. Uma amostra rende 15 vídeos em 3 semanas. Parar no primeiro é deixar quase tudo na mesa.</p>`},
   {niv:'iniciante',tipo:'Trilha',t:'Da amostra ao 1º vídeo em 48h',r:'O passo a passo pra destravar.',c:`<p><b>Dia 1:</b> unboxing simples com 1 gancho de descoberta. <b>Dia 2:</b> try-on mostrando o caimento e seu tamanho. 2 vídeos em 48h, sem estúdio: luz natural, vertical, produto na tela nos 2 primeiros segundos.</p>`},
   {niv:'avancada',tipo:'Framework',t:'De 5 a 20 vídeos/mês sem queimar',r:'Batch + reaproveitamento.',c:`<p>Grava <b>em lote</b>: 1 dia, 4-6 vídeos (mesma roupa, ângulos e ganchos diferentes). Reaproveita: um try-on vira "3 looks", vira "qual seu tamanho", vira "review". Ao chegar em 20+ você vira Video Creator e destrava spark ads.</p>`}
 ];
@@ -546,9 +571,9 @@ function renderHome(){
   document.getElementById('pmini').textContent=(dc>=CORE.length?'🎉 ':'')+dc+'/'+CORE.length+(dc>=CORE.length?' · completa':' concluídas');
   document.getElementById('steplist').innerHTML=CORE.map(c=>{
     const st=isDone(c.id)?'ok':(nx&&nx.id===c.id?'now':'todo');
-    return `<article class="matcard st-${st}" onclick="show('${c.id}')"><div class="matcover cov-${c.cov}"><span class="matnum">${st==='ok'?'✓':c.n}</span><span class="maticon">${c.i}</span>${st==='now'?'<span class="matnow">▶ próximo passo</span>':''}</div><div class="matbody"><div class="mattags">${c.tags.map(t=>'<span class="mattag">'+esc(t)+'</span>').join('')}</div><h3 class="mattitle">${esc(c.t)}</h3><p class="matdesc">${esc(c.d)}</p><span class="matcta">${st==='ok'?'revisar':'abrir'} →</span></div></article>`;
+    return `<article class="matcard st-${st}" onclick="show('${c.id}')"><div class="matcover cov-${c.cov}">${c.img?`<img class="covimg" src="${c.img}" alt="" loading="lazy">`:`<span class="maticon">${c.i}</span>`}<span class="matnum">${st==='ok'?'✓':c.n}</span>${st==='now'?'<span class="matnow">▶ próximo passo</span>':''}</div><div class="matbody"><div class="mattags">${c.tags.map(t=>'<span class="mattag">'+esc(t)+'</span>').join('')}</div><h3 class="mattitle">${esc(c.t)}</h3><p class="matdesc">${esc(c.d)}</p><span class="matcta">${st==='ok'?'revisar':'abrir'} →</span></div></article>`;
   }).join('');
-  document.getElementById('extras').innerHTML=EXTRA.map(m=>`<article class="matcard ${m.soon?'st-soon':''}" ${m.soon?'':`onclick="show('${m.id}')"`}><div class="matcover cov-${m.cov}"><span class="maticon">${m.i}</span>${m.soon?'<span class="matnow soon">em breve</span>':''}</div><div class="matbody"><div class="mattags">${m.tags.map(t=>'<span class="mattag">'+esc(t)+'</span>').join('')}</div><h3 class="mattitle">${esc(m.t)}</h3><p class="matdesc">${esc(m.d)}</p>${m.soon?'':'<span class="matcta">abrir →</span>'}</div></article>`).join('');
+  document.getElementById('extras').innerHTML=EXTRA.map(m=>`<article class="matcard ${m.soon?'st-soon':''}" ${m.soon?'':`onclick="show('${m.id}')"`}><div class="matcover cov-${m.cov}">${m.img?`<img class="covimg" src="${m.img}" alt="" loading="lazy">`:`<span class="maticon">${m.i}</span>`}${m.soon?'<span class="matnow soon">em breve</span>':''}</div><div class="matbody"><div class="mattags">${m.tags.map(t=>'<span class="mattag">'+esc(t)+'</span>').join('')}</div><h3 class="mattitle">${esc(m.t)}</h3><p class="matdesc">${esc(m.d)}</p>${m.soon?'':'<span class="matcta">abrir →</span>'}</div></article>`).join('');
 }
 function refreshFooters(){CORE.forEach(c=>{const b=document.querySelector('#v-'+c.id+' .concluir-btn');if(b){const d=isDone(c.id);b.textContent=d?'✓ Aula concluída — refazer quando quiser':'✓ Concluí esta aula';b.classList.toggle('is-done',d)}});}
 function concluir(id){const first=!isDone(id);markDone(id);if(first)track('concluiu_aula',{modulo:id});renderHome();refreshFooters();toast(first?'Aula concluída 🎉':'Feito ✓');show('home');}
@@ -579,7 +604,7 @@ document.getElementById('angsearch').addEventListener('input',function(e){_q=e.t
 render();
 document.getElementById('vok').innerHTML=ACAD.usar.map(t=>`<span class="tag ok">${esc(t)}</span>`).join('');
 document.getElementById('vno').innerHTML=ACAD.evitar.map(t=>`<span class="tag no">${esc(t)}</span>`).join('');
-document.getElementById('fmts').innerHTML=ACAD.formatos.map(f=>`<div class="fmt"><div class="fn">${f[0]}</div><div class="ft">${esc(f[1])}</div><div class="fd">${esc(f[2])}</div></div>`).join('');
+document.getElementById('fmts').innerHTML=FORMATOS.map(f=>`<div class="fmt ${f.esf}"><div class="fmthead"><span class="fn">${f.n}</span><span class="esf ${f.esf}">${f.esf==='rapido'?'⚡ rápido':'🎬 produção'}</span></div><div class="ft">${esc(f.nome)}</div><div class="fmtline"><span class="fl">📝 tela</span> "${esc(f.txt)}"</div><div class="fmtline"><span class="fl">🎬 b-roll</span> ${esc(f.broll)}</div><div class="fmtwhy">${esc(f.why)}</div></div>`).join('');
 document.getElementById('lib-drive').innerHTML=DRIVE_URL?`<div class="li">📁</div><div class="lt"><b>Biblioteca de vídeos no Drive</b><div>Modelos e clipes prontos pra remixar. Baixa, adapta com a sua voz e posta.</div></div><a class="btn" href="${DRIVE_URL}" target="_blank" rel="noopener" onclick="track('abriu_drive')">Abrir biblioteca →</a>`:`<div class="li">📁</div><div class="lt"><b>Biblioteca de vídeos no Drive</b><div>Modelos e clipes prontos pra remixar.</div></div><span class="lib-soon">link em configuração 🔧</span>`;
 document.getElementById('winners').innerHTML=WINNERS.map((w,i)=>`<div class="winner"><div class="rk">${i+1}</div><div class="wi"><div class="wcr">@${esc(w.cr)}</div><div class="wm">${w.ref} · ${w.cls} · <span style="display:inline-block;padding:1px 8px;border:1px solid ${tierColor(w.tier)}66;border-radius:999px;color:${tierColor(w.tier)};font-size:11px;font-weight:600;letter-spacing:.02em;vertical-align:middle">${w.tier}</span></div></div><a class="wa" href="${w.url}" target="_blank" rel="noopener" onclick="track('clicou_campeao',{ref:'${w.cr}'})">assistir →</a></div>`).join('');
 document.getElementById('missoes').innerHTML=MISSOES.map(m=>`<div class="missao"><div class="mi2">${m.i}</div><div class="mt2">${esc(m.t)}</div><div class="md2">${esc(m.d)}</div><div class="mr">🏆 ${esc(m.r)}</div></div>`).join('');
