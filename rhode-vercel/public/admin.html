@@ -96,8 +96,11 @@
 :root[data-theme="dark"] #sd-root .sd-mc:hover{background:var(--pearl)}
 :root[data-theme="dark"] #sd-root .sd-mc.on{background:rgba(245,165,36,.14);color:var(--gold)}
 /* Alert card do sd-root (fundo bege) */
-:root[data-theme="dark"] #sd-root .sd-kc.alert{background:rgba(245,165,36,.10)!important;border-color:rgba(245,165,36,.35)}
+:root[data-theme="dark"] #sd-root .sd-kc.alert{background:rgba(245,165,36,.06)!important;border-color:rgba(245,165,36,.30)}
+:root[data-theme="dark"] #sd-root .sd-kc.alert:hover{border-color:rgba(245,165,36,.55)}
 :root[data-theme="dark"] #sd-root .sd-kc.alert .v{color:var(--gold)}
+:root[data-theme="dark"] #sd-root .sd-kc.alert .l{color:var(--gold);opacity:.85}
+:root[data-theme="dark"] #sd-root .sd-kc.good .v{color:var(--green)}
 /* Segments coloridas: dim para 22% opacity fica visível no dark */
 :root[data-theme="dark"] #sd-root .sd-seg.ativar.on{background:rgba(245,165,36,.22)!important;color:var(--gold)!important;border-color:transparent}
 :root[data-theme="dark"] #sd-root .sd-seg.reativar.on{background:rgba(56,189,248,.22)!important;color:var(--cyan)!important;border-color:transparent}
@@ -1111,11 +1114,12 @@ tr:hover td{background:rgba(254,44,85,0.015)}
       <style>
         #sd-root{font-size:13px;color:var(--ink)}
         #sd-root .mono{font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace}
-        #sd-root .sd-kpis{display:flex;gap:12px;flex-wrap:wrap;margin:2px 0 16px}
-        #sd-root .sd-kc{background:#fff;border:1px solid var(--hairline);border-radius:12px;padding:14px 16px;min-width:150px;flex:1}
-        #sd-root .sd-kc .l{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-48)}
-        #sd-root .sd-kc .v{font-size:23px;font-weight:680;margin-top:5px;letter-spacing:-.02em}
-        #sd-root .sd-kc .s{font-size:11px;color:var(--body-muted);margin-top:3px}
+        #sd-root .sd-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:2px 0 16px}
+        #sd-root .sd-kc{background:#fff;border:1px solid var(--hairline);border-radius:14px;padding:18px 20px;min-width:0;display:flex;flex-direction:column;gap:6px;overflow:hidden;transition:border-color .12s,transform .12s}
+        #sd-root .sd-kc:hover{border-color:var(--ink-48)}
+        #sd-root .sd-kc .l{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-48);font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        #sd-root .sd-kc .v{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
+        #sd-root .sd-kc .s{font-size:11px;color:var(--ink-48);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         #sd-root .sd-kc.alert{border-color:#f3d3a0;background:#fffaf2}#sd-root .sd-kc.alert .v{color:#b45309}
         #sd-root .sd-kc.good .v{color:#0a8a4f}
         #sd-root .sd-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--hairline);border-radius:11px;padding:10px 14px;margin-bottom:12px}
@@ -2911,7 +2915,7 @@ function sdBase(){const de=(document.getElementById('sd-de')||{}).value||'',ate=
 function sdRender(){
   if(!SD.loaded)return;const base=sdBase();
   const env=base.reduce((s,x)=>s+x.env,0),gmv=base.reduce((s,x)=>s+sdV(x,'gmv'),0),custo=base.reduce((s,x)=>s+x.custo,0),lucro=base.reduce((s,x)=>s+sdV(x,'lucro'),0),an=base.filter(x=>x.flags.some(f=>SD_ACT.includes(f))).length;
-  document.getElementById('sd-kpis').innerHTML=[['Peças enviadas',env.toLocaleString('pt-BR'),base.length+' creators',''],['GMV atribuído',sdK(gmv),'janela '+(SD.win==='0'?'tudo':SD.win+'d'),'good'],['ROAS',(custo?(gmv/custo).toFixed(1):'0')+'x','custo '+sdK(custo),''],['Lucro líquido',sdK(lucro),'margem 55% − com. − custo',''],['⚡ Precisam de ação',an,'ativar+reativar+aguard.+cancel.','alert']].map(a=>'<div class="sd-kc '+a[3]+'"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div><div class="s">'+a[2]+'</div></div>').join('');
+  document.getElementById('sd-kpis').innerHTML=[['Peças enviadas',env.toLocaleString('pt-BR'),base.length+' creators',''],['GMV atribuído',sdK(gmv),'janela '+(SD.win==='0'?'tudo':SD.win+'d'),'good'],['ROAS',(custo?(gmv/custo).toFixed(1):'0')+'x','custo '+sdK(custo),''],['Lucro líquido',sdK(lucro),'margem 55% − com. − custo',''],['⚡ Precisam de ação',an,'ativar · reativar · aguard.','alert']].map(a=>'<div class="sd-kc '+a[3]+'"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div><div class="s">'+a[2]+'</div></div>').join('');
   const cnt=f=>f==='todas'?base.length:f==='acao'?base.filter(x=>x.flags.some(g=>SD_ACT.includes(g))).length:base.filter(x=>x.flags.includes(f)).length;
   document.getElementById('sd-segbar').innerHTML=SD_SEG.map(s=>'<div class="sd-seg '+s[0]+' '+(SD.seg===s[0]?'on':'')+'" onclick="SD.seg=\''+s[0]+'\';sdRender()">'+s[1]+' <span class="n">'+cnt(s[0])+'</span></div>').join('');
   document.getElementById('sd-hr').innerHTML=SD_COLS.map(c=>'<th class="'+(c[2]==='num'?'num ':'')+(SD.sort===c[0]?'on':'')+'" onclick="sdSort(\''+c[0]+'\')">'+c[1]+(SD.sort===c[0]?(SD.dir<0?' ↓':' ↑'):'')+'</th>').join('');
