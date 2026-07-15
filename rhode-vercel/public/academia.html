@@ -225,6 +225,18 @@
   .clipwrap{max-width:300px;margin:4px 0 2px}
   .clip{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:18px;border:1px solid var(--line);background:var(--paper);display:block;box-shadow:var(--shadow)}
   .clipcap{font-size:13px;color:var(--muted);margin-top:9px;line-height:1.5}
+  .clipthumb{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;border:1px solid var(--line);background:var(--paper);box-shadow:var(--shadow);aspect-ratio:9/16;transition:border-color .12s,transform .12s}
+  .clipthumb:hover{border-color:var(--red);transform:translateY(-2px)}
+  .clipthumb .clipv{width:100%;height:100%;object-fit:cover;display:block}
+  .clipsingle{max-width:280px}
+  .playbadge{position:absolute;bottom:8px;left:8px;right:8px;text-align:center;background:rgba(20,16,24,.6);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;padding:5px 8px;border-radius:999px;backdrop-filter:blur(4px)}
+  .clipgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:520px){.clipgrid{grid-template-columns:repeat(2,1fr)}}
+  .cliplb{position:fixed;inset:0;z-index:100;background:rgba(10,8,12,.86);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:22px}
+  .cliplb.on{display:flex}
+  .cliplb-inner{position:relative;max-width:min(420px,92vw)}
+  .cliplb-v{width:100%;max-height:86vh;border-radius:16px;background:#000;display:block}
+  .cliplb-x{position:absolute;top:-16px;right:-16px;width:42px;height:42px;border-radius:50%;background:#fff;color:var(--ink);border:none;font-size:19px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35)}
   .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
   table{border-collapse:collapse;width:100%;min-width:560px;background:var(--card)}
   th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:top}
@@ -328,7 +340,7 @@
   <!-- COMEÇANDO -->
   <div class="view" id="v-comecando"><div class="container">
     <div class="vhead"><div class="eyebrow">Trilha · iniciante</div><h1>🌱 Começando</h1><p class="sub">Nunca vendeu ou tem poucos vídeos? Faz isso primeiro.</p></div>
-    <div class="blk"><h3>👀 Na prática</h3><div class="clipwrap"><video class="clip" muted loop playsinline webkit-playsinline autoplay preload="none" poster="/rhodemap/posters/taci01.jpg"><source src="/rhodemap/videos/taci01.mp4" type="video/mp4"></video><p class="clipcap">Assim que um vídeo simples fica: a @tacianecreator mostrando a calça no corpo, natural, sem produção. É esse o nível pra começar.</p></div></div>
+    <div class="blk"><h3>👀 Na prática</h3><div class="clipwrap"><div class="clipthumb clipsingle" onclick="openClip('/rhodemap/videos/taci01.mp4','/rhodemap/posters/taci01.jpg')"><video class="clipv" muted loop playsinline webkit-playsinline autoplay preload="none" poster="/rhodemap/posters/taci01.jpg"><source src="/rhodemap/videos/taci01.mp4" type="video/mp4"></video><span class="playbadge">▶ toca pra ver com som</span></div><p class="clipcap">Assim que um vídeo simples fica: a @tacianecreator mostrando a calça no corpo, natural, sem produção. É esse o nível pra começar.</p></div></div>
     <div class="trilha"><ul>
       <li>Poste seu <b>1º vídeo em 48h</b> depois da amostra chegar</li>
       <li>Comece por <b>unboxing + try-on</b> — os que mais convertem no início</li>
@@ -354,7 +366,7 @@
   <!-- GANCHOS & ESTRUTURA -->
   <div class="view" id="v-ganchos"><div class="container">
     <div class="vhead"><div class="eyebrow">Banco de ângulos</div><h1>O <span class="hl">0–3s</span> decide o vídeo</h1><p class="sub">O gancho de abertura é o maior preditor do resultado. Aqui estão os ângulos que seguram o scroll — por posição de funil, prontos pra testar.</p></div>
-    <div class="blk"><h3>👀 Um gancho na prática</h3><div class="clipwrap"><video class="clip" muted loop playsinline webkit-playsinline autoplay preload="none" poster="/rhodemap/posters/taci02.jpg"><source src="/rhodemap/videos/taci02.mp4" type="video/mp4"></video><p class="clipcap">Repare como a @tacianecreator abre o vídeo e já mostra o caimento — o gancho e a prova no corpo nos primeiros segundos.</p></div></div>
+    <div class="blk"><h3>👀 Um gancho na prática</h3><div class="clipwrap"><div class="clipthumb clipsingle" onclick="openClip('/rhodemap/videos/taci02.mp4','/rhodemap/posters/taci02.jpg')"><video class="clipv" muted loop playsinline webkit-playsinline autoplay preload="none" poster="/rhodemap/posters/taci02.jpg"><source src="/rhodemap/videos/taci02.mp4" type="video/mp4"></video><span class="playbadge">▶ toca pra ver com som</span></div><p class="clipcap">Repare como a @tacianecreator abre o vídeo e já mostra o caimento — o gancho e a prova no corpo nos primeiros segundos.</p></div></div>
     <div class="why">
       <div class="wy"><b>🎣 Testar o hook é A alavanca.</b> No teste de jun/26, a taxa de view aos 2s previu o resultado (correlação 0,68). O que você muda no 0–3s decide o vídeo.</div>
       <div class="wy"><b>🪝 Segurar ≠ fechar.</b> Objeção/caimento e estética <b>seguram o scroll</b>; prova social de volume <b>fecha a venda</b>. Escolhe o ângulo pelo seu objetivo.</div>
@@ -398,6 +410,11 @@
       <div class="rstep"><div class="n">02</div><div><b>Mantém a estrutura</b><br><small>O arco 0–75s e o tipo de gancho.</small></div></div>
       <div class="rstep"><div class="n">03</div><div><b>Troca o gancho + sua voz</b><br><small>Sua cara, seu jeito. Aí vira seu.</small></div></div>
     </div>
+    <div class="blk"><h3>🎬 Creators reais na prática</h3><p class="sub" style="margin-bottom:12px">Toca pra assistir com som. Repara na naturalidade e no caimento no corpo — é o que converte.</p><div class="clipgrid">
+      <div class="clipthumb" onclick="openClip('/rhodemap/videos/taci03.mp4','/rhodemap/posters/taci03.jpg')"><video class="clipv" muted loop playsinline autoplay preload="none" poster="/rhodemap/posters/taci03.jpg"><source src="/rhodemap/videos/taci03.mp4" type="video/mp4"></video><span class="playbadge">▶ com som</span></div>
+      <div class="clipthumb" onclick="openClip('/rhodemap/videos/dayane01.mp4','/rhodemap/posters/dayane01.jpg')"><video class="clipv" muted loop playsinline autoplay preload="none" poster="/rhodemap/posters/dayane01.jpg"><source src="/rhodemap/videos/dayane01.mp4" type="video/mp4"></video><span class="playbadge">▶ com som</span></div>
+      <div class="clipthumb" onclick="openClip('/rhodemap/videos/dayane02.mp4','/rhodemap/posters/dayane02.jpg')"><video class="clipv" muted loop playsinline autoplay preload="none" poster="/rhodemap/posters/dayane02.jpg"><source src="/rhodemap/videos/dayane02.mp4" type="video/mp4"></video><span class="playbadge">▶ com som</span></div>
+    </div></div>
     <div class="blk"><h3>🏆 Aprenda com os que venderam</h3><p class="sub" style="margin-bottom:14px">Os vídeos que mais venderam na Rhode (dado real, jun–jul). Assiste, sacou o padrão, remodela.</p><div id="winners"></div></div>
   </div></div>
 
@@ -407,6 +424,12 @@
     <div class="blk"><h3>🎯 A meta: 5 vídeos por semana</h3><div class="aviso"><b>Por que 5 (e não 3)?</b> Quem posta <b>5+ por semana faz ~3,2x mais GMV</b> que quem posta 2 — não é só frequência, é testar mais ângulos ao mesmo tempo. Pra não queimar: <b>3 formatos ⚡ rápidos + 2 de 🎬 produção</b>. Os rápidos (POV texto, slideshow em vídeo) você grava 5 numa tarde só.<br><br>⚠️ <b>Só VÍDEO vira shop (tem sacolinha).</b> Carrossel de fotos NÃO leva a sacolinha — se for usar fotos, monta como <b>vídeo</b> (slideshow no CapCut).</div></div>
     <div class="blk"><h3>📥 Template pra usar</h3><div class="dl-card"><div class="di">📅</div><div class="dt"><b>Calendário editorial + plano de teste</b><div>Planilha editável: o que postar por dia e como testar variações de vídeo.</div></div><a class="btn" href="/downloads/rhode-calendario-editorial.xlsx" download onclick="track('baixou_template')">Baixar template ↓</a></div></div>
     <div class="blk"><h3>Os 12 formatos <span style="font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:600">· ⚡ rápido = motor do volume</span></h3><div class="fmts" id="fmts"></div></div>
+    <div class="blk"><h3>🎬 Exemplos reais na prática</h3><p class="sub" style="margin-bottom:12px">Creators reais gravando a calça — toca pra ver com som. <span style="color:var(--soft)">(quer um exemplo pra CADA formato? me manda o vídeo certo e eu rotulo aqui 1:1.)</span></p><div class="clipgrid">
+      <div class="clipthumb" onclick="openClip('/rhodemap/videos/taci04.mp4','/rhodemap/posters/taci04.jpg')"><video class="clipv" muted loop playsinline autoplay preload="none" poster="/rhodemap/posters/taci04.jpg"><source src="/rhodemap/videos/taci04.mp4" type="video/mp4"></video><span class="playbadge">▶ com som</span></div>
+      <div class="clipthumb" onclick="openClip('/rhodemap/videos/taci05.mp4','/rhodemap/posters/taci05.jpg')"><video class="clipv" muted loop playsinline autoplay preload="none" poster="/rhodemap/posters/taci05.jpg"><source src="/rhodemap/videos/taci05.mp4" type="video/mp4"></video><span class="playbadge">▶ com som</span></div>
+      <div class="clipthumb" onclick="openClip('/rhodemap/videos/dayane03.mp4','/rhodemap/posters/dayane03.jpg')"><video class="clipv" muted loop playsinline autoplay preload="none" poster="/rhodemap/posters/dayane03.jpg"><source src="/rhodemap/videos/dayane03.mp4" type="video/mp4"></video><span class="playbadge">▶ com som</span></div>
+      <div class="clipthumb" onclick="openClip('/rhodemap/videos/dayane04.mp4','/rhodemap/posters/dayane04.jpg')"><video class="clipv" muted loop playsinline autoplay preload="none" poster="/rhodemap/posters/dayane04.jpg"><source src="/rhodemap/videos/dayane04.mp4" type="video/mp4"></video><span class="playbadge">▶ com som</span></div>
+    </div></div>
     <div class="blk"><h3>Plano de 3 semanas → 15 vídeos (5/semana)</h3>
       <div class="tablewrap"><table><thead><tr><th>Semana</th><th>Objetivo</th><th>Os 5 formatos da semana</th></tr></thead><tbody>
         <tr><td><span class="wk">Semana 1</span><br><span class="goal">aquecer</span></td><td>Apresentar e gerar desejo.</td><td><span class="chip">POV texto ⚡</span><span class="chip">Slideshow vídeo ⚡</span><span class="chip">Contraste ⚡</span><span class="chip">Unboxing</span><span class="chip">Try-on</span></td></tr>
@@ -443,6 +466,7 @@
   </div></div>
 
   <div class="toast" id="toast">Copiado ✓</div>
+  <div class="cliplb" id="cliplb" onclick="closeClip(event)"><div class="cliplb-inner"><button class="cliplb-x" onclick="closeClip(event,true)">✕</button><video class="cliplb-v" id="cliplb-v" playsinline controls></video></div></div>
 
 <script>
 const CORE=[
@@ -602,6 +626,9 @@ function cardHTML(h,i){return `<div class="ang"><div class="anghead"><span class
 function render(){var list=[];HOOKS.forEach(function(h,i){var okA=_arq==='Todos'||h.arq===_arq;var blob=(h.gancho+' '+h.arq+' '+h.prod+' '+h.filma+' '+h.chamado).toLowerCase();if(okA&&(!_q||blob.indexOf(_q)>=0))list.push([h,i]);});document.getElementById('angcount').textContent=list.length+(list.length===1?' gancho':' ganchos')+(_arq!=='Todos'?' · '+_arq:'');document.getElementById('angulos').innerHTML=list.length?list.map(function(x){return cardHTML(x[0],x[1])}).join(''):'<div class="angempty">Nenhum gancho com esse filtro. Tenta outra palavra.</div>';}
 function setArq(el,a){_arq=a;document.querySelectorAll('#chips .chip').forEach(function(c){c.classList.remove('on')});el.classList.add('on');render();}
 function cpRot(i,btn){var h=HOOKS[i];var t=scriptText(h);try{navigator.clipboard.writeText(t)}catch(e){try{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta)}catch(e2){}}btn.classList.add('is-done');btn.textContent='✓ Copiado';toast('Roteiro copiado ✓');setTimeout(function(){btn.classList.remove('is-done');btn.textContent='📋 Copiar roteiro'},1600);try{track('copiou_roteiro',{modulo:'ganchos',ref:h.arq+'/'+h.prod})}catch(e){}}
+function openClip(src,poster){var lb=document.getElementById('cliplb'),v=document.getElementById('cliplb-v');v.src=src;if(poster)v.poster=poster;v.muted=false;v.currentTime=0;lb.classList.add('on');document.body.style.overflow='hidden';var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});try{track('assistiu_clip',{ref:src})}catch(e){}}
+function closeClip(e,force){if(!force&&e&&e.target&&e.target.id!=='cliplb')return;var lb=document.getElementById('cliplb'),v=document.getElementById('cliplb-v');try{v.pause();v.removeAttribute('src');v.load();}catch(e2){}lb.classList.remove('on');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeClip(null,true);});
 let _tt;function toast(msg){const t=document.getElementById('toast');t.textContent=msg||'Copiado ✓';t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),1500)}
 document.getElementById('espinha').innerHTML='“'+esc(ESPINHA)+'”';
 document.getElementById('chips').innerHTML=['Todos'].concat(ARQ_ORDER).map(function(a,i){return '<button class="chip '+(i===0?'on':'')+'" onclick="setArq(this,\''+a+'\')">'+a+'</button>'}).join('');
