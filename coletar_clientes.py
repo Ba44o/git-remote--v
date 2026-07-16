@@ -68,30 +68,55 @@ def main():
     GE, LT = ep(ini), ep(fim)
 
     cust = defaultdict(lambda: {"n":0,"gmv":0.0,"first":"9999-99-99","last":"0000-00-00","uf":None,"cid":None,"o1":None})
-    tok = None; page = 0; n = 0
-    while True:
-        p = {"page_size":100,"sort_field":"create_time","sort_order":"ASC"}
-        if tok: p["page_token"] = tok
-        r = chamar("POST", "/order/202309/orders/search", params=p, body={"create_time_ge":GE,"create_time_lt":LT})
-        if r.get("code") != 0:
-            print(f"  [API {r.get('code')}] {str(r.get('message'))[:70]}"); break
-        d = r.get("data", {}); orders = d.get("orders", [])
-        for o in orders:
-            if "CANCEL" in (o.get("status") or "").upper(): continue
-            cpf = o.get("cpf")
-            if not cpf: continue
-            c = cust[h16(cpf)]; n += 1
-            c["n"] += 1; c["gmv"] += f((o.get("payment") or {}).get("total_amount"))
-            dt = datetime.fromtimestamp(int(o.get("create_time") or 0), timezone.utc).strftime("%Y-%m-%d")
-            if dt < c["first"]: c["first"] = dt; c["o1"] = str(o.get("id"))
-            if dt > c["last"]: c["last"] = dt
-            ra = o.get("recipient_address") or {}; di = ra.get("district_info") or []
-            if not c["uf"]:
-                c["uf"] = next((x.get("address_name") for x in di if x.get("address_level")=="L1"), None)
-                c["cid"] = next((x.get("address_name") for x in di if x.get("address_level")=="L2"), None)
-        tok = d.get("next_page_token"); page += 1
-        if page % 25 == 0: print(f"  …{page}p · {n} pedidos · {len(cust)} clientes", flush=True)
-        if not tok or not orders: break
+
+    def absorve(o):
+        if "CANCEL" in (o.get("status") or "").upper(): return 0
+        cpf = o.get("cpf")
+        if not cpf: return 0
+        c = cust[h16(cpf)]
+        c["n"] += 1; c["gmv"] += f((o.get("payment") or {}).get("total_amount"))
+        dt = datetime.fromtimestamp(int(o.get("create_time") or 0), timezone.utc).strftime("%Y-%m-%d")
+        if dt < c["first"]: c["first"] = dt; c["o1"] = str(o.get("id"))
+        if dt > c["last"]: c["last"] = dt
+        ra = o.get("recipient_address") or {}; di = ra.get("district_info") or []
+        if not c["uf"]:
+            c["uf"] = next((x.get("address_name") for x in di if x.get("address_level")=="L1"), None)
+            c["cid"] = next((x.get("address_name") for x in di if x.get("address_level")=="L2"), None)
+        return 1
+
+    def fatia(ge, lt, rot):
+        """Um token-loop CURTO por fatia. Paginar 3+ meses num loop só faz o page_token
+        morrer no meio e o loop encerrar SEM erro → gravava parcial em silêncio (bug 16/07)."""
+        tok = None; page = 0; n = 0
+        while True:
+            p = {"page_size":100,"sort_field":"create_time","sort_order":"ASC"}
+            if tok: p["page_token"] = tok
+            r = chamar("POST", "/order/202309/orders/search", params=p, body={"create_time_ge":ge,"create_time_lt":lt})
+            if r.get("code") != 0:
+                raise RuntimeError(f"API code={r.get('code')} em {rot}: {str(r.get('message'))[:70]}")
+            d = r.get("data", {}); orders = d.get("orders", [])
+            for o in orders: n += absorve(o)
+            tok = d.get("next_page_token"); page += 1
+            if not tok or not orders: break
+        print(f"  {rot}: {n} pedidos válidos ({page}p)", flush=True)
+        return n
+
+    # fatia por MÊS (token curto = robusto). Falha numa fatia = erro, não silêncio.
+    n = 0; cur = date.fromisoformat(ini); fim_d = date.fromisoformat(fim)
+    while cur < fim_d:
+        nx = (cur.replace(day=1) + timedelta(days=32)).replace(day=1)
+        if nx > fim_d: nx = fim_d
+        n += fatia(ep(cur.isoformat()), ep(nx.isoformat()), cur.strftime("%Y-%m"))
+        cur = nx
+
+    # GUARDA DE COMPLETUDE: se o pedido mais novo está muito longe do fim da janela,
+    # a coleta truncou → aborta em vez de gravar dado parcial que parece completo.
+    if cust:
+        mx = max(c["last"] for c in cust.values())
+        gap = (fim_d - date.fromisoformat(mx)).days
+        if gap > 3:
+            raise SystemExit(f"\n🛑 ABORTADO: pedido mais recente = {mx}, mas a janela vai até {fim} "
+                             f"({gap}d de buraco). A coleta truncou — NADA foi gravado. Rode de novo.")
 
     # creator de origem (1º pedido) via extrato de afiliada
     pers = sorted({ini[:7], fim[:7]} | {d[:7] for c in cust.values() for d in (c["first"], c["last"]) if d[0] == "2"})

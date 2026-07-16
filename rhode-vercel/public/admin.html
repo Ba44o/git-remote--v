@@ -195,6 +195,57 @@ body{
 .side-item:hover{background:var(--divider);color:var(--ink)}
 .side-item.on{background:var(--side-active);color:var(--rhode-red);font-weight:600}
 .side-ico{width:18px;text-align:center;opacity:.9;flex-shrink:0;font-size:14px}
+/* ── sidebar em MÓDULOS (acordeão) — as 9 seções viram 4 módulos + Clientes ── */
+.side-mod{
+  display:flex;align-items:center;gap:10px;padding:9px var(--sp-3);width:100%;
+  border-radius:var(--r-input);color:var(--ink-48);font-family:'Inter',sans-serif;
+  font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:none;
+  text-align:left;transition:var(--ease);
+}
+.side-mod:hover{background:var(--divider);color:var(--ink)}
+.side-mod.has-active{color:var(--ink);font-weight:600}
+.side-chev{margin-left:auto;font-size:9px;opacity:.55;transition:transform .18s}
+.side-mod.open .side-chev{transform:rotate(90deg)}
+.side-subs{display:flex;flex-direction:column;gap:2px;overflow:hidden;max-height:0;transition:max-height .2s ease}
+.side-subs.open{max-height:160px}
+.side-item.sub{padding-left:calc(var(--sp-3) + 28px);font-size:13px}
+.side-item.sub::before{content:'–';margin-right:7px;opacity:.5}
+/* ── MÓDULO CLIENTES (CRM) ── */
+.cli-inline{display:flex;gap:var(--sp-6);align-items:center;flex-wrap:wrap;margin-bottom:var(--sp-4);
+  font-size:13px;color:var(--ink-48)}
+.cli-inline b{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--ink);font-weight:600;margin-left:7px;letter-spacing:-.02em}
+.cli-hint{font-size:11px;opacity:.75}
+.cli-segs{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-3)}
+.cli-sg{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-card);overflow:hidden}
+.cli-sg .h{display:flex;align-items:center;gap:8px;padding:11px 14px;color:#fff;font-weight:700;font-size:12px;letter-spacing:.04em}
+.cli-sg .h b{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;letter-spacing:-.02em}
+.cli-sg.vip .h{background:#3fb984} .cli-sg.recorrente .h{background:#4aa8d8}
+.cli-sg.unico_recente .h{background:#f0a45e} .cli-sg.unico_frio .h{background:#ef7d78}
+.cli-sg .b{display:flex;justify-content:space-between;padding:13px 14px}
+.cli-sg .b span{display:block;font-size:10px;color:var(--ink-48);font-weight:600}
+.cli-sg .b i{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;font-style:normal;letter-spacing:-.02em}
+.cli-sg .f{padding:0 14px 12px;font-size:10.5px;color:var(--ink-48)}
+.cli-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--sp-3);margin-top:var(--sp-4)}
+.cli-map{position:relative;padding:12px 14px 4px}
+#cli-brmap{width:100%;height:auto;display:block;max-height:320px}
+#cli-brmap path{stroke:var(--canvas);stroke-width:.5}
+#cli-brmap path:hover{opacity:.72}
+.cli-tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--canvas);
+  font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 8px;border-radius:6px;opacity:0;
+  transform:translate(-50%,-135%);white-space:nowrap;z-index:5;transition:opacity .1s}
+.cli-scale{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--ink-48);padding:0 14px 12px}
+.cli-scale i{height:6px;flex:1;border-radius:99px;background:linear-gradient(90deg,var(--divider),var(--rhode-red))}
+.pill-hot{font-size:9.5px;font-weight:700;background:var(--side-active);color:var(--rhode-red);
+  border-radius:99px;padding:2px 8px;margin-left:8px;letter-spacing:.03em;text-transform:none}
+.cli-call{margin:0 14px 14px;background:var(--side-active);border-left:3px solid var(--rhode-red);
+  border-radius:8px;padding:12px 14px;font-size:12px;color:var(--ink-80);line-height:1.5}
+.cli-call b{color:var(--ink)}
+.cli-bdg{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;color:#fff}
+.cli-bdg.vip{background:#3fb984} .cli-bdg.recorrente{background:#4aa8d8}
+.cli-bdg.unico_recente{background:#f0a45e} .cli-bdg.unico_frio{background:#ef7d78}
+#panel-clientes th.r,#panel-clientes td.r{text-align:right}
+.cli-bar{height:4px;border-radius:9px;background:var(--rhode-red);display:block;margin-top:3px}
+@media(max-width:900px){.cli-segs{grid-template-columns:1fr 1fr}.cli-grid{grid-template-columns:1fr}}
 .side-foot{margin-top:auto;padding-top:var(--sp-4);border-top:1px solid var(--hairline)}
 .side-btn{
   display:flex;align-items:center;justify-content:space-between;
@@ -842,16 +893,28 @@ tr:hover td{background:rgba(254,44,85,0.015)}
   <aside class="side" id="side">
     <div class="side-brand">Rhode<span class="adot">.</span><small>Console</small></div>
     <nav class="side-nav">
-      <div class="side-sec">Creators</div>
-      <button class="side-item on" data-sid="dashboard"   onclick="tab('dashboard',this)"><span class="side-ico">◧</span> Dashboard</button>
-      <button class="side-item"    data-sid="ranking"     onclick="tab('ranking',this)"><span class="side-ico">☰</span> Ranking</button>
-      <button class="side-item"    data-sid="alertas"     onclick="tab('alertas',this)"><span class="side-ico">⚠</span> Alertas</button>
-      <button class="side-item"    data-sid="evolucao"    onclick="tab('evolucao',this)"><span class="side-ico">↗</span> Evolução</button>
-      <button class="side-item"    data-sid="analista"    onclick="tab('analista',this)"><span class="side-ico">✦</span> Analista IA</button>
-      <button class="side-item"    data-sid="operacao"    onclick="tab('operacao',this)"><span class="side-ico">⚙</span> Operação</button>
-      <button class="side-item"    data-sid="comunicacao" onclick="tab('comunicacao',this)"><span class="side-ico">✉</span> Comunicação</button>
-      <button class="side-item"    data-sid="comportamento" onclick="tab('comportamento',this)"><span class="side-ico">○</span> Comportamento</button>
-      <button class="side-item"    data-sid="triagem"     onclick="tab('triagem',this)"><span class="side-ico">▤</span> Triagem</button>
+      <button class="side-item on" data-sid="dashboard" onclick="tab('dashboard',this)"><span class="side-ico">◧</span> Dashboard</button>
+      <button class="side-item"    data-sid="clientes"  onclick="tab('clientes',this)"><span class="side-ico">◕</span> Clientes</button>
+
+      <button class="side-mod" data-mod="creators" onclick="toggleMod('creators')"><span class="side-ico">☰</span> Creators<span class="side-chev">▸</span></button>
+      <div class="side-subs" id="mod-creators">
+        <button class="side-item sub" data-sid="ranking" onclick="tab('ranking',this)">Ranking</button>
+        <button class="side-item sub" data-sid="alertas" onclick="tab('alertas',this)">Alertas</button>
+        <button class="side-item sub" data-sid="triagem" onclick="tab('triagem',this)">Triagem</button>
+      </div>
+
+      <button class="side-mod" data-mod="operacao" onclick="toggleMod('operacao')"><span class="side-ico">⚙</span> Operação<span class="side-chev">▸</span></button>
+      <div class="side-subs" id="mod-operacao">
+        <button class="side-item sub" data-sid="operacao" onclick="tab('operacao',this)">Operação</button>
+        <button class="side-item sub" data-sid="comunicacao" onclick="tab('comunicacao',this)">Comunicação</button>
+      </div>
+
+      <button class="side-mod" data-mod="intel" onclick="toggleMod('intel')"><span class="side-ico">✦</span> Inteligência<span class="side-chev">▸</span></button>
+      <div class="side-subs" id="mod-intel">
+        <button class="side-item sub" data-sid="evolucao" onclick="tab('evolucao',this)">Evolução</button>
+        <button class="side-item sub" data-sid="analista" onclick="tab('analista',this)">Analista IA</button>
+        <button class="side-item sub" data-sid="comportamento" onclick="tab('comportamento',this)">Comportamento</button>
+      </div>
 
       <div class="side-sec">Vendas &amp; GMV</div>
       <a class="side-item" href="conciliacao.html"><span class="side-ico">▤</span> Conciliação</a>
@@ -957,6 +1020,50 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           </table></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══ CLIENTES (CRM) — segmentos · LTV por creator · geo · base ═══ -->
+  <div class="panel" id="panel-clientes">
+    <div class="cli-inline">
+      <span>Total de clientes <b id="cli-tot">—</b></span>
+      <span>Receita total <b id="cli-gmv">—</b></span>
+      <span>LTV médio <b id="cli-ltv">—</b></span>
+      <span class="cli-hint">identidade por CPF (hash) · atualizado pelo coletor</span>
+    </div>
+    <div class="cli-segs" id="cli-segs"></div>
+
+    <div class="card" style="margin-top:var(--sp-4)">
+      <div class="card-h"><h3>LTV por creator <span class="pill-hot">quem traz cliente que volta</span></h3>
+        <span class="meta">atribuição pelo 1º pedido do cliente</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Origem do cliente</th><th class="r">Clientes</th>
+        <th class="r">LTV médio</th><th class="r">% que volta</th><th class="r">Receita</th></tr></thead>
+        <tbody id="cli-cre"><tr><td colspan="5" class="spin">Carregando…</td></tr></tbody></table></div>
+      <div id="cli-call"></div>
+    </div>
+
+    <div class="cli-grid">
+      <div class="card">
+        <div class="card-h"><h3>Clientes por estado</h3><span class="meta" id="cli-uf-meta"></span></div>
+        <div class="cli-map"><svg id="cli-brmap" role="img" aria-label="Clientes por estado"></svg>
+          <div class="cli-tip" id="cli-tip"></div></div>
+        <div class="cli-scale"><span>menos</span><i></i><span>mais clientes</span></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Top estados</h3></div>
+        <div class="tbl-wrap"><table><thead><tr><th>UF</th><th class="r">Clientes</th><th class="r">Receita</th>
+          <th class="r">LTV</th></tr></thead><tbody id="cli-ufs"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:var(--sp-4)">
+      <div class="card-h"><h3>Base de clientes</h3>
+        <input class="search" id="cli-q" placeholder="buscar por ID, cidade ou UF…" oninput="renderCliTable()">
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Cliente</th><th>Cidade / UF</th><th>Segmento</th>
+        <th class="r">Pedidos</th><th class="r">LTV</th><th class="r">AOV</th><th class="r">1º</th><th class="r">Último</th>
+        </tr></thead><tbody id="cli-tb"><tr><td colspan="8" class="spin">Carregando…</td></tr></tbody></table></div>
+      <div class="pag" id="cli-pag"></div>
     </div>
   </div>
 
@@ -1973,6 +2080,8 @@ tr:hover td{background:rgba(254,44,85,0.015)}
   </div>
 </div>
 
+<!-- Mapa do Brasil por UF (contorno real) — usado pelo módulo Clientes. Arquivo à parte p/ não inchar o admin. -->
+<script src="br-map.js" defer></script>
 <script>
 // Auth do admin via servidor: a senha é verificada em /api/get-hub (env, fora do
 // source) e devolve o ADMIN_TOKEN. O token é o que libera as queries (sbGet/sbWrite)
@@ -2034,7 +2143,7 @@ function nextTier(gmv){const tiers=[['Black',500000],['Diamond',150000],['Gold',
 function refBadge(p){p=+p||0;if(p>50)return`<span class="badge b-red">${p.toFixed(1)}%</span>`;if(p>25)return`<span class="badge b-orange">${p.toFixed(1)}%</span>`;return`<span class="badge b-green">${p.toFixed(1)}%</span>`}
 function dlt(v){if(v===null||v===undefined||v==='')return'';v=+v;if(Math.abs(v)<0.1)return`<span class="delta d-nt">→</span>`;if(v>0)return`<span class="delta d-up">↑${Math.abs(v).toFixed(1)}%</span>`;return`<span class="delta d-dn">↓${Math.abs(v).toFixed(1)}%</span>`}
 async function sbGet(path){ const j=await admProxy('GET', path); return j.data; }
-const TAB_LABELS={dashboard:'Dashboard',ranking:'Ranking',alertas:'Alertas',evolucao:'Evolução',analista:'Analista IA',operacao:'Operação',comunicacao:'Comunicação',comportamento:'Comportamento',triagem:'Triagem',evento:'Evento 13/04'};
+const TAB_LABELS={dashboard:'Dashboard',clientes:'Clientes',ranking:'Ranking',alertas:'Alertas',evolucao:'Evolução',analista:'Analista IA',operacao:'Operação',comunicacao:'Comunicação',comportamento:'Comportamento',triagem:'Triagem',evento:'Evento 13/04'};
 function tab(id,el_){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.side-item[data-sid]').forEach(t=>t.classList.remove('on'));
@@ -3259,6 +3368,10 @@ function tab(id,elBtn){
   // sincroniza .on em sidebar E tab-nav (invisível) baseado no id, independente do elemento clicado
   const sideBtn=document.querySelector(`.side-item[data-sid="${id}"]`);
   if(sideBtn) sideBtn.classList.add('on');
+  // abre o MÓDULO dono da seção (sidebar em módulos) e marca-o como ativo
+  document.querySelectorAll('.side-mod').forEach(m=>m.classList.remove('has-active'));
+  const parent=MOD_OF[id];
+  if(parent){ openMod(parent,true); const mb=document.querySelector(`.side-mod[data-mod="${parent}"]`); if(mb) mb.classList.add('has-active'); }
   const tabBtn=document.querySelector(`.tab[onclick*="'${id}'"]`);
   if(tabBtn) tabBtn.classList.add('on');
   el(`panel-${id}`).classList.add('on');
@@ -3272,9 +3385,22 @@ function tab(id,elBtn){
   else if(id==='comunicacao'){loadComunicacaoInit();}
   else if(id==='comportamento'){loadComportamento();}
   else if(id==='triagem'){loadTriagem();}
+  else if(id==='clientes'){loadClientes();}
   else if(id==='evento'){loadEvento().then(()=>renderVIP());startVIPRefresh();}
   if(id!=='evento')stopVIPRefresh();
 }
+
+// ── Sidebar em MÓDULOS: mapa seção→módulo + acordeão ──
+const MOD_OF={ranking:'creators',alertas:'creators',triagem:'creators',
+  operacao:'operacao',comunicacao:'operacao',
+  evolucao:'intel',analista:'intel',comportamento:'intel'};
+function openMod(k,force){
+  const box=el(`mod-${k}`), btn=document.querySelector(`.side-mod[data-mod="${k}"]`);
+  if(!box||!btn) return;
+  const open=force===true?true:!box.classList.contains('open');
+  box.classList.toggle('open',open); btn.classList.toggle('open',open);
+}
+function toggleMod(k){ openMod(k); }
 
 // ═════════════════════════════════════════════════════════════
 //   TRIAGEM  (submissões do bem-vinda.html → tabela `triagem`)
@@ -5095,6 +5221,100 @@ tab=function(id,elBtn){
   _tabBeforeAmostras(id,elBtn);
   if(id==='operacao')loadAmostrasInit();
 };
+
+// ═════════════════════════════════════════════════════════════
+//   MÓDULO CLIENTES (CRM) — segmentos · LTV por creator · geo · base
+//   Fonte: tabela `cliente` (CPF hasheado) + views cliente_resumo/creator/uf.
+//   Popular com: python3 coletar_clientes.py --dias 180   (SQL: rhode-vercel/sql/cliente.sql)
+// ═════════════════════════════════════════════════════════════
+const CLI={seg:[],cre:[],uf:[],rows:[]}; let CLI_LOADED=false, CLI_PG=1; const CLI_PG_SIZE=25;
+const SEG_META={vip:['VIP','★','3+ pedidos'],recorrente:['Recorrente','⟳','2 pedidos'],
+  unico_recente:['Único recente','◔','1 pedido · ≤60d'],unico_frio:['Único frio','✕','1 pedido · >60d · churn']};
+const SEG_ORD=['vip','recorrente','unico_recente','unico_frio'];
+
+async function loadClientes(){
+  if(CLI_LOADED){renderClientes();return}
+  try{
+    const [seg,cre,uf]=await Promise.all([
+      sbGetPaged('cliente_resumo?select=*'),
+      sbGetPaged('cliente_creator?select=*'),
+      sbGetPaged('cliente_uf?select=*')]);
+    CLI.seg=seg; CLI.cre=cre; CLI.uf=uf;
+    CLI.rows=await sbGetPaged('cliente_segmentado?select=id,n_pedidos,gmv_total,primeiro_pedido,ultimo_pedido,uf,cidade,segmento&order=gmv_total.desc&limit=500');
+    CLI_LOADED=true; renderClientes();
+  }catch(e){
+    htm('cli-cre',`<tr><td colspan="5" class="empty">Sem dados de cliente.<br><small>Rode <code>rhode-vercel/sql/cliente.sql</code> e <code>python3 coletar_clientes.py</code>. (${e.message})</small></td></tr>`);
+    htm('cli-tb','<tr><td colspan="8" class="empty">—</td></tr>');
+  }
+}
+
+function renderClientes(){
+  const tot=CLI.seg.reduce((s,r)=>s+(+r.clientes||0),0);
+  const gmv=CLI.seg.reduce((s,r)=>s+(+r.receita||0),0);
+  set('cli-tot',tot.toLocaleString('pt-BR')); set('cli-gmv',fmtK(gmv));
+  set('cli-ltv',tot?fmtR(gmv/tot):'—');
+  // cards de segmento
+  const byseg={}; CLI.seg.forEach(r=>byseg[r.segmento]=r);
+  htm('cli-segs',SEG_ORD.map(k=>{const r=byseg[k]||{clientes:0,receita:0,ltv:0};const[n,ic,d]=SEG_META[k];
+    return `<div class="cli-sg ${k}"><div class="h">${ic} ${n.toUpperCase()}<b>${(+r.clientes).toLocaleString('pt-BR')}</b></div>
+      <div class="b"><div><span>Avg LTV</span><i>${fmtR(+r.ltv||0)}</i></div>
+        <div style="text-align:right"><span>Receita</span><i>${fmtK(+r.receita||0)}</i></div></div>
+      <div class="f">${tot?(r.clientes/tot*100).toFixed(1):0}% da base · ${gmv?(r.receita/gmv*100).toFixed(1):0}% da receita · ${d}</div></div>`}).join(''));
+  // LTV por creator — o diferencial
+  const mxn=Math.max(...CLI.cre.map(r=>+r.clientes||0),1);
+  htm('cli-cre',CLI.cre.map(r=>{const loja=(r.creator||'').startsWith('(');const v=+r.volta_pct||0;
+    return `<tr><td><b style="${loja?'color:var(--cyan)':''}">${r.creator}</b></td>
+      <td class="r mono">${(+r.clientes).toLocaleString('pt-BR')}<span class="cli-bar" style="width:${((+r.clientes)/mxn*100).toFixed(0)}%;background:${loja?'var(--cyan)':'var(--rhode-red)'}"></span></td>
+      <td class="r mono">${fmtR(+r.ltv||0)}</td>
+      <td class="r mono" style="font-weight:700;color:${v>=16?'var(--green)':v>=13?'var(--ink)':'var(--rhode-red)'}">${v.toFixed(1)}%</td>
+      <td class="r mono">${fmtK(+r.receita||0)}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">—</td></tr>');
+  const loja=CLI.cre.find(r=>(r.creator||'').startsWith('(')), top=CLI.cre.filter(r=>!(r.creator||'').startsWith('('))[0];
+  if(loja&&top) htm('cli-call',`<div class="cli-call"><b>Leitura:</b> cliente vindo da <b>loja</b> tem LTV ${fmtR(+loja.ltv)} e volta <b>${(+loja.volta_pct).toFixed(1)}%</b> — mais que qualquer creator.
+    <b>${top.creator}</b> traz ${(+top.clientes).toLocaleString('pt-BR')} clientes mas recompra <b>${(+top.volta_pct).toFixed(1)}%</b>.
+    Creator é canal de <b>aquisição</b>, não de fidelidade — a retenção é trabalho da marca depois da 1ª compra.</div>`);
+  // mapa
+  renderCliMapa();
+  set('cli-uf-meta',`${CLI.uf.length} estados`);
+  htm('cli-ufs',CLI.uf.slice(0,9).map(r=>`<tr><td><b>${r.uf}</b></td><td class="r mono">${(+r.clientes).toLocaleString('pt-BR')}</td>
+    <td class="r mono">${fmtK(+r.receita||0)}</td><td class="r mono">${fmtR(+r.ltv||0)}</td></tr>`).join(''));
+  CLI_PG=1; renderCliTable();
+}
+
+function renderCliMapa(){
+  const svg=el('cli-brmap'); if(!svg||!window.BR_MAP) return;
+  const tip=el('cli-tip'), box=svg.parentElement, byuf={};
+  CLI.uf.forEach(r=>byuf[r.uf]=r);
+  const mx=Math.max(...CLI.uf.map(r=>+r.clientes||0),1);
+  svg.setAttribute('viewBox',BR_MAP.vb);
+  svg.innerHTML=Object.entries(BR_MAP.paths).map(([uf,d])=>{const g=byuf[uf];const t=g?(+g.clientes)/mx:0;
+    const fill=g?`color-mix(in srgb, var(--rhode-red) ${Math.round(Math.pow(t,.6)*100)}%, var(--divider))`:'var(--divider)';
+    return `<path d="${d}" style="fill:${fill}" data-uf="${uf}"/>`}).join('');
+  svg.querySelectorAll('path').forEach(p=>{
+    p.addEventListener('mousemove',e=>{const u=p.dataset.uf,g=byuf[u],r=box.getBoundingClientRect();
+      tip.style.left=(e.clientX-r.left)+'px'; tip.style.top=(e.clientY-r.top)+'px'; tip.style.opacity=1;
+      tip.textContent=u+(g?` · ${(+g.clientes).toLocaleString('pt-BR')} clientes · ${fmtK(+g.receita)}`:' · —')});
+    p.addEventListener('mouseleave',()=>tip.style.opacity=0)});
+}
+
+function renderCliTable(){
+  const q=(el('cli-q')?.value||'').trim().toLowerCase();
+  const list=q?CLI.rows.filter(r=>((r.id||'')+' '+(r.cidade||'')+' '+(r.uf||'')).toLowerCase().includes(q)):CLI.rows;
+  const pages=Math.max(1,Math.ceil(list.length/CLI_PG_SIZE)); if(CLI_PG>pages)CLI_PG=1;
+  const st=(CLI_PG-1)*CLI_PG_SIZE, slice=list.slice(st,st+CLI_PG_SIZE);
+  htm('cli-tb',slice.map(r=>{const[n]=SEG_META[r.segmento]||['—'];const np=+r.n_pedidos||0,g=+r.gmv_total||0;
+    return `<tr><td class="mono" style="color:var(--ink-48)">${r.id.slice(0,10)}</td>
+      <td>${r.cidade?r.cidade+' / '+r.uf:'—'}</td>
+      <td><span class="cli-bdg ${r.segmento}">${n}</span></td>
+      <td class="r mono">${np}</td><td class="r mono" style="font-weight:600;color:var(--rhode-red)">${fmtR(g)}</td>
+      <td class="r mono">${fmtR(np?g/np:0)}</td>
+      <td class="r mono" style="color:var(--ink-48)">${(r.primeiro_pedido||'').slice(5)}</td>
+      <td class="r mono" style="color:var(--ink-48)">${(r.ultimo_pedido||'').slice(5)}</td></tr>`}).join('')
+    ||'<tr><td colspan="8" class="empty">Nenhum cliente</td></tr>');
+  htm('cli-pag',`<button onclick="cliPg(${CLI_PG-1})" ${CLI_PG<=1?'disabled':''}>← Ant</button>
+    <span class="pag-info">${list.length?st+1:0}–${Math.min(st+CLI_PG_SIZE,list.length)} de ${list.length.toLocaleString('pt-BR')}${q?' (filtrado)':''} · top por LTV</span>
+    <button onclick="cliPg(${CLI_PG+1})" ${CLI_PG>=pages?'disabled':''}>Próx →</button>`);
+}
+function cliPg(p){CLI_PG=p;renderCliTable()}
 
 if(admToken())syncAll();
 </script>
