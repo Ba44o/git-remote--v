@@ -215,6 +215,14 @@ body{
   font-size:13px;color:var(--ink-48)}
 .cli-inline b{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--ink);font-weight:600;margin-left:7px;letter-spacing:-.02em}
 .cli-hint{font-size:11px;opacity:.75}
+/* seletor de COORTE — o período define quem ENTROU (1º pedido), não recorta o LTV */
+.cli-cohort{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-4)}
+.cli-cohort-l{font-size:12px;color:var(--ink-48)} .cli-cohort-l b{color:var(--ink)}
+.cli-seg{display:flex;gap:2px;background:var(--divider);border-radius:var(--r-input);padding:3px}
+.cli-seg button{border:none;background:none;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  color:var(--ink-48);padding:5px 12px;border-radius:6px;cursor:pointer;transition:var(--ease)}
+.cli-seg button:hover{color:var(--ink)}
+.cli-seg button.on{background:var(--canvas);color:var(--rhode-red);font-weight:700}
 .cli-segs{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-3)}
 .cli-sg{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-card);overflow:hidden}
 .cli-sg .h{display:flex;align-items:center;gap:8px;padding:11px 14px;color:#fff;font-weight:700;font-size:12px;letter-spacing:.04em}
@@ -1025,45 +1033,54 @@ tr:hover td{background:rgba(254,44,85,0.015)}
 
   <!-- ═══ CLIENTES (CRM) — segmentos · LTV por creator · geo · base ═══ -->
   <div class="panel" id="panel-clientes">
-    <div class="cli-inline">
-      <span>Total de clientes <b id="cli-tot">—</b></span>
-      <span>Receita total <b id="cli-gmv">—</b></span>
-      <span>LTV médio <b id="cli-ltv">—</b></span>
-      <span class="cli-hint">identidade por CPF (hash) · atualizado pelo coletor</span>
-    </div>
-    <div class="cli-segs" id="cli-segs"></div>
-
-    <div class="card" style="margin-top:var(--sp-4)">
-      <div class="card-h"><h3>LTV por creator <span class="pill-hot">quem traz cliente que volta</span></h3>
-        <span class="meta">atribuição pelo 1º pedido do cliente</span></div>
-      <div class="tbl-wrap"><table><thead><tr><th>Origem do cliente</th><th class="r">Clientes</th>
-        <th class="r">LTV médio</th><th class="r">% que volta</th><th class="r">Receita</th></tr></thead>
-        <tbody id="cli-cre"><tr><td colspan="5" class="spin">Carregando…</td></tr></tbody></table></div>
-      <div id="cli-call"></div>
-    </div>
-
-    <div class="cli-grid">
-      <div class="card">
-        <div class="card-h"><h3>Clientes por estado</h3><span class="meta" id="cli-uf-meta"></span></div>
-        <div class="cli-map"><svg id="cli-brmap" role="img" aria-label="Clientes por estado"></svg>
-          <div class="cli-tip" id="cli-tip"></div></div>
-        <div class="cli-scale"><span>menos</span><i></i><span>mais clientes</span></div>
+    <div class="main">
+      <div class="cli-inline">
+        <span>Clientes na coorte <b id="cli-tot">—</b></span>
+        <span>GMV vitalício <b id="cli-gmv">—</b></span>
+        <span>LTV médio <b id="cli-ltv">—</b></span>
+        <span class="cli-hint">identidade por CPF (hash) · LTV é vitalício, não do período</span>
       </div>
-      <div class="card">
-        <div class="card-h"><h3>Top estados</h3></div>
-        <div class="tbl-wrap"><table><thead><tr><th>UF</th><th class="r">Clientes</th><th class="r">Receita</th>
-          <th class="r">LTV</th></tr></thead><tbody id="cli-ufs"></tbody></table></div>
-      </div>
-    </div>
 
-    <div class="card" style="margin-top:var(--sp-4)">
-      <div class="card-h"><h3>Base de clientes</h3>
-        <input class="search" id="cli-q" placeholder="buscar por ID, cidade ou UF…" oninput="renderCliTable()">
+      <!-- COORTE: o período define QUEM ENTROU (1º pedido); o LTV/recompra segue vitalício -->
+      <div class="cli-cohort">
+        <span class="cli-cohort-l">Coorte — clientes <b>adquiridos em</b></span>
+        <div class="cli-seg" id="cli-coh"></div>
+        <span class="cli-hint" id="cli-coh-meta"></span>
       </div>
-      <div class="tbl-wrap"><table><thead><tr><th>Cliente</th><th>Cidade / UF</th><th>Segmento</th>
-        <th class="r">Pedidos</th><th class="r">LTV</th><th class="r">AOV</th><th class="r">1º</th><th class="r">Último</th>
-        </tr></thead><tbody id="cli-tb"><tr><td colspan="8" class="spin">Carregando…</td></tr></tbody></table></div>
-      <div class="pag" id="cli-pag"></div>
+
+      <div class="cli-segs" id="cli-segs"></div>
+
+      <div class="tbl-card" style="margin-top:var(--sp-4)">
+        <div class="tbl-head"><div class="tbl-title">LTV por creator <span class="pill-hot">quem traz cliente que volta</span></div>
+          <div class="tbl-meta">origem = creator do 1º pedido</div></div>
+        <div class="tw"><table><thead><tr><th>Origem do cliente</th><th class="r">Clientes</th>
+          <th class="r">LTV médio</th><th class="r">% que volta</th><th class="r">Receita da coorte</th></tr></thead>
+          <tbody id="cli-cre"><tr><td colspan="5" class="spin">Carregando…</td></tr></tbody></table></div>
+        <div id="cli-call"></div>
+      </div>
+
+      <div class="cli-grid">
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Clientes por estado</div><div class="tbl-meta" id="cli-uf-meta"></div></div>
+          <div class="cli-map"><svg id="cli-brmap" role="img" aria-label="Clientes por estado"></svg>
+            <div class="cli-tip" id="cli-tip"></div></div>
+          <div class="cli-scale"><span>menos</span><i></i><span>mais clientes</span></div>
+        </div>
+        <div class="tbl-card">
+          <div class="tbl-head"><div class="tbl-title">Top estados</div></div>
+          <div class="tw"><table><thead><tr><th>UF</th><th class="r">Clientes</th><th class="r">Receita</th>
+            <th class="r">LTV</th></tr></thead><tbody id="cli-ufs"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="tbl-card" style="margin-top:var(--sp-4)">
+        <div class="tbl-head"><div class="tbl-title">Base de clientes</div><div class="tbl-meta" id="cli-base-meta"></div></div>
+        <div class="search-wrap"><input class="search-input" id="cli-q" type="text" placeholder="Buscar por ID, cidade ou UF…" oninput="renderCliTable()"></div>
+        <div class="tw"><table><thead><tr><th>Cliente</th><th>Cidade / UF</th><th>Segmento</th>
+          <th class="r">Pedidos</th><th class="r">LTV</th><th class="r">AOV</th><th class="r">1º pedido</th><th class="r">Último</th>
+          </tr></thead><tbody id="cli-tb"><tr><td colspan="8" class="spin">Carregando…</td></tr></tbody></table></div>
+        <div class="pag" id="cli-pag"></div>
+      </div>
     </div>
   </div>
 
@@ -5227,56 +5244,72 @@ tab=function(id,elBtn){
 //   Fonte: tabela `cliente` (CPF hasheado) + views cliente_resumo/creator/uf.
 //   Popular com: python3 coletar_clientes.py --dias 180   (SQL: rhode-vercel/sql/cliente.sql)
 // ═════════════════════════════════════════════════════════════
-const CLI={seg:[],cre:[],uf:[],rows:[]}; let CLI_LOADED=false, CLI_PG=1; const CLI_PG_SIZE=25;
+const CLI={all:[],view:[],uf:[],cre:[]}; let CLI_LOADED=false, CLI_PG=1, CLI_COH='all'; const CLI_PG_SIZE=25;
 const SEG_META={vip:['VIP','★','3+ pedidos'],recorrente:['Recorrente','⟳','2 pedidos'],
   unico_recente:['Único recente','◔','1 pedido · ≤60d'],unico_frio:['Único frio','✕','1 pedido · >60d · churn']};
 const SEG_ORD=['vip','recorrente','unico_recente','unico_frio'];
+const MES_L={'01':'jan','02':'fev','03':'mar','04':'abr','05':'mai','06':'jun','07':'jul','08':'ago','09':'set','10':'out','11':'nov','12':'dez'};
 
 async function loadClientes(){
   if(CLI_LOADED){renderClientes();return}
   try{
-    const [seg,cre,uf]=await Promise.all([
-      sbGetPaged('cliente_resumo?select=*'),
-      sbGetPaged('cliente_creator?select=*'),
-      sbGetPaged('cliente_uf?select=*')]);
-    CLI.seg=seg; CLI.cre=cre; CLI.uf=uf;
-    CLI.rows=await sbGetPaged('cliente_segmentado?select=id,n_pedidos,gmv_total,primeiro_pedido,ultimo_pedido,uf,cidade,segmento&order=gmv_total.desc&limit=500');
-    CLI_LOADED=true; renderClientes();
+    htm('cli-cre','<tr><td colspan="5" class="spin">Carregando base de clientes…</td></tr>');
+    // a base inteira de uma vez (o proxy pagina no servidor) → coorte/segmento/geo viram filtro local e instantâneo
+    CLI.all=await sbGetPaged('cliente_segmentado?select=id,n_pedidos,gmv_total,primeiro_pedido,ultimo_pedido,uf,cidade,segmento,creator_origem&order=gmv_total.desc');
+    CLI_LOADED=true; buildCohorts(); renderClientes();
   }catch(e){
-    htm('cli-cre',`<tr><td colspan="5" class="empty">Sem dados de cliente.<br><small>Rode <code>rhode-vercel/sql/cliente.sql</code> e <code>python3 coletar_clientes.py</code>. (${e.message})</small></td></tr>`);
+    htm('cli-cre',`<tr><td colspan="5" class="empty">Sem dados de cliente.<br><small>Rode <code>rhode-vercel/sql/cliente.sql</code> + <code>python3 coletar_clientes.py</code>. (${e.message})</small></td></tr>`);
     htm('cli-tb','<tr><td colspan="8" class="empty">—</td></tr>');
   }
 }
+// ── COORTE: o período define QUEM ENTROU (1º pedido). LTV/recompra seguem VITALÍCIOS. ──
+function buildCohorts(){
+  const ms=[...new Set(CLI.all.map(r=>(r.primeiro_pedido||'').slice(0,7)).filter(Boolean))].sort();
+  htm('cli-coh',`<button class="${CLI_COH==='all'?'on':''}" onclick="setCoh('all')">Tudo</button>`+
+    ms.map(m=>`<button class="${CLI_COH===m?'on':''}" onclick="setCoh('${m}')">${MES_L[m.slice(5)]||m}</button>`).join(''));
+}
+function setCoh(m){CLI_COH=m;buildCohorts();CLI_PG=1;renderClientes()}
+const cohRows=()=>CLI_COH==='all'?CLI.all:CLI.all.filter(r=>(r.primeiro_pedido||'').startsWith(CLI_COH));
 
 function renderClientes(){
-  const tot=CLI.seg.reduce((s,r)=>s+(+r.clientes||0),0);
-  const gmv=CLI.seg.reduce((s,r)=>s+(+r.receita||0),0);
-  set('cli-tot',tot.toLocaleString('pt-BR')); set('cli-gmv',fmtK(gmv));
-  set('cli-ltv',tot?fmtR(gmv/tot):'—');
-  // cards de segmento
-  const byseg={}; CLI.seg.forEach(r=>byseg[r.segmento]=r);
-  htm('cli-segs',SEG_ORD.map(k=>{const r=byseg[k]||{clientes:0,receita:0,ltv:0};const[n,ic,d]=SEG_META[k];
-    return `<div class="cli-sg ${k}"><div class="h">${ic} ${n.toUpperCase()}<b>${(+r.clientes).toLocaleString('pt-BR')}</b></div>
-      <div class="b"><div><span>Avg LTV</span><i>${fmtR(+r.ltv||0)}</i></div>
-        <div style="text-align:right"><span>Receita</span><i>${fmtK(+r.receita||0)}</i></div></div>
-      <div class="f">${tot?(r.clientes/tot*100).toFixed(1):0}% da base · ${gmv?(r.receita/gmv*100).toFixed(1):0}% da receita · ${d}</div></div>`}).join(''));
-  // LTV por creator — o diferencial
-  const mxn=Math.max(...CLI.cre.map(r=>+r.clientes||0),1);
-  htm('cli-cre',CLI.cre.map(r=>{const loja=(r.creator||'').startsWith('(');const v=+r.volta_pct||0;
+  const rows=cohRows(); CLI.view=rows;
+  const tot=rows.length, gmv=rows.reduce((s,r)=>s+(+r.gmv_total||0),0);
+  set('cli-tot',tot.toLocaleString('pt-BR')); set('cli-gmv',fmtK(gmv)); set('cli-ltv',tot?fmtR(gmv/tot):'—');
+  set('cli-coh-meta',CLI_COH==='all'?'base acumulada — todos os clientes coletados'
+    :`safra de ${MES_L[CLI_COH.slice(5)]||CLI_COH} · LTV e recompra medidos até hoje (vitalício)`);
+  // segmentos (client-side, respeita a coorte)
+  const ag={}; SEG_ORD.forEach(k=>ag[k]={n:0,gmv:0});
+  rows.forEach(r=>{const a=ag[r.segmento]; if(a){a.n++;a.gmv+=(+r.gmv_total||0)}});
+  htm('cli-segs',SEG_ORD.map(k=>{const a=ag[k],[n,ic,d]=SEG_META[k];
+    return `<div class="cli-sg ${k}"><div class="h">${ic} ${n.toUpperCase()}<b>${a.n.toLocaleString('pt-BR')}</b></div>
+      <div class="b"><div><span>Avg LTV</span><i>${fmtR(a.n?a.gmv/a.n:0)}</i></div>
+        <div style="text-align:right"><span>Receita</span><i>${fmtK(a.gmv)}</i></div></div>
+      <div class="f">${tot?(a.n/tot*100).toFixed(1):0}% da coorte · ${gmv?(a.gmv/gmv*100).toFixed(1):0}% da receita · ${d}</div></div>`}).join(''));
+  // LTV por creator de ORIGEM (o diferencial) — agregado na coorte
+  const cm={};
+  rows.forEach(r=>{const k=r.creator_origem||''; const key=k||'(loja / sem afiliada)';
+    const a=cm[key]||(cm[key]={n:0,gmv:0,volta:0}); a.n++; a.gmv+=(+r.gmv_total||0); if((+r.n_pedidos||0)>=2)a.volta++});
+  CLI.cre=Object.entries(cm).filter(([,v])=>v.n>=20)
+    .map(([c,v])=>({creator:c,clientes:v.n,receita:v.gmv,ltv:v.gmv/v.n,volta_pct:v.volta/v.n*100}))
+    .sort((a,b)=>b.clientes-a.clientes);
+  const mxn=Math.max(...CLI.cre.map(r=>r.clientes),1);
+  htm('cli-cre',CLI.cre.map(r=>{const loja=r.creator.startsWith('('),v=r.volta_pct;
     return `<tr><td><b style="${loja?'color:var(--cyan)':''}">${r.creator}</b></td>
-      <td class="r mono">${(+r.clientes).toLocaleString('pt-BR')}<span class="cli-bar" style="width:${((+r.clientes)/mxn*100).toFixed(0)}%;background:${loja?'var(--cyan)':'var(--rhode-red)'}"></span></td>
-      <td class="r mono">${fmtR(+r.ltv||0)}</td>
+      <td class="r mono">${r.clientes.toLocaleString('pt-BR')}<span class="cli-bar" style="width:${(r.clientes/mxn*100).toFixed(0)}%;background:${loja?'var(--cyan)':'var(--rhode-red)'}"></span></td>
+      <td class="r mono">${fmtR(r.ltv)}</td>
       <td class="r mono" style="font-weight:700;color:${v>=16?'var(--green)':v>=13?'var(--ink)':'var(--rhode-red)'}">${v.toFixed(1)}%</td>
-      <td class="r mono">${fmtK(+r.receita||0)}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">—</td></tr>');
-  const loja=CLI.cre.find(r=>(r.creator||'').startsWith('(')), top=CLI.cre.filter(r=>!(r.creator||'').startsWith('('))[0];
-  if(loja&&top) htm('cli-call',`<div class="cli-call"><b>Leitura:</b> cliente vindo da <b>loja</b> tem LTV ${fmtR(+loja.ltv)} e volta <b>${(+loja.volta_pct).toFixed(1)}%</b> — mais que qualquer creator.
-    <b>${top.creator}</b> traz ${(+top.clientes).toLocaleString('pt-BR')} clientes mas recompra <b>${(+top.volta_pct).toFixed(1)}%</b>.
-    Creator é canal de <b>aquisição</b>, não de fidelidade — a retenção é trabalho da marca depois da 1ª compra.</div>`);
-  // mapa
-  renderCliMapa();
-  set('cli-uf-meta',`${CLI.uf.length} estados`);
-  htm('cli-ufs',CLI.uf.slice(0,9).map(r=>`<tr><td><b>${r.uf}</b></td><td class="r mono">${(+r.clientes).toLocaleString('pt-BR')}</td>
-    <td class="r mono">${fmtK(+r.receita||0)}</td><td class="r mono">${fmtR(+r.ltv||0)}</td></tr>`).join(''));
+      <td class="r mono">${fmtK(r.receita)}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Coorte sem creator com 20+ clientes</td></tr>');
+  const loja=CLI.cre.find(r=>r.creator.startsWith('(')), top=CLI.cre.filter(r=>!r.creator.startsWith('('))[0];
+  htm('cli-call',(loja&&top)?`<div class="cli-call"><b>Leitura:</b> cliente vindo da <b>loja</b> tem LTV ${fmtR(loja.ltv)} e volta <b>${loja.volta_pct.toFixed(1)}%</b> — mais que qualquer creator.
+    <b>${top.creator}</b> traz ${top.clientes.toLocaleString('pt-BR')} clientes mas recompra <b>${top.volta_pct.toFixed(1)}%</b>.
+    Creator é canal de <b>aquisição</b>, não de fidelidade — reter é trabalho da marca depois da 1ª compra.<br>
+    <span style="opacity:.75">“Receita da coorte” = tudo que esses clientes gastaram na vida, <b>inclusive compras que aquele creator não gerou</b>. Não é venda dele.</span></div>`:'');
+  // geo (client-side)
+  const um={}; rows.forEach(r=>{if(!r.uf)return; const a=um[r.uf]||(um[r.uf]={n:0,gmv:0}); a.n++; a.gmv+=(+r.gmv_total||0)});
+  CLI.uf=Object.entries(um).map(([uf,v])=>({uf,clientes:v.n,receita:v.gmv,ltv:v.gmv/v.n})).sort((a,b)=>b.clientes-a.clientes);
+  renderCliMapa(); set('cli-uf-meta',`${CLI.uf.length} estados`);
+  htm('cli-ufs',CLI.uf.slice(0,9).map(r=>`<tr><td><b>${r.uf}</b></td><td class="r mono">${r.clientes.toLocaleString('pt-BR')}</td>
+    <td class="r mono">${fmtK(r.receita)}</td><td class="r mono">${fmtR(r.ltv)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">—</td></tr>');
   CLI_PG=1; renderCliTable();
 }
 
@@ -5298,7 +5331,8 @@ function renderCliMapa(){
 
 function renderCliTable(){
   const q=(el('cli-q')?.value||'').trim().toLowerCase();
-  const list=q?CLI.rows.filter(r=>((r.id||'')+' '+(r.cidade||'')+' '+(r.uf||'')).toLowerCase().includes(q)):CLI.rows;
+  const list=q?CLI.view.filter(r=>((r.id||'')+' '+(r.cidade||'')+' '+(r.uf||'')).toLowerCase().includes(q)):CLI.view;
+  set('cli-base-meta',`${CLI.view.length.toLocaleString('pt-BR')} clientes na coorte · ordenado por LTV`);
   const pages=Math.max(1,Math.ceil(list.length/CLI_PG_SIZE)); if(CLI_PG>pages)CLI_PG=1;
   const st=(CLI_PG-1)*CLI_PG_SIZE, slice=list.slice(st,st+CLI_PG_SIZE);
   htm('cli-tb',slice.map(r=>{const[n]=SEG_META[r.segmento]||['—'];const np=+r.n_pedidos||0,g=+r.gmv_total||0;
