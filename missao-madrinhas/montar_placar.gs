@@ -97,8 +97,15 @@ function montarPlacarTab_(ss, dados) {
 
 /** Instala o gatilho onFormSubmit uma única vez. */
 function instalarGatilho_(form) {
-  var jaTem = ScriptApp.getProjectTriggers().some(function (t) {
-    return t.getHandlerFunction() === 'onNovaConvidada';
+  var trigs = ScriptApp.getProjectTriggers();
+  var temSubmit = trigs.some(function (t) {
+    return t.getHandlerFunction() === 'onNovaConvidada' && t.getEventType() === ScriptApp.EventType.ON_FORM_SUBMIT;
   });
-  if (!jaTem) ScriptApp.newTrigger('onNovaConvidada').forForm(form).onFormSubmit().create();
+  var temTempo = trigs.some(function (t) {
+    return t.getHandlerFunction() === 'onNovaConvidada' && t.getEventType() === ScriptApp.EventType.CLOCK;
+  });
+  // dispara a cada novo cadastro...
+  if (!temSubmit) ScriptApp.newTrigger('onNovaConvidada').forForm(form).onFormSubmit().create();
+  // ...e a cada 10 min (assim apagar/editar resposta também reflete, sem re-rodar na mão)
+  if (!temTempo) ScriptApp.newTrigger('onNovaConvidada').timeBased().everyMinutes(10).create();
 }
