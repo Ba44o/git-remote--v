@@ -670,6 +670,55 @@ cron é agravante (ninguém percebeu por 10 dias), mas a causa do zero-gravado �
 
 ---
 
+## 14. Coleta diária (daily-collect.yml) falhou em ~35s — "API não retornou nenhum intervalo finalizado"
+
+### Sintoma
+- Workflow **"Rhode — Coleta diária via API (fora do Mac)"** (`daily-collect.yml`) com status
+  **Failure** e duração curtíssima (~35-40s vs. ~16min de um run saudável).
+- Log do passo `[2/13] ETL diário via API` cheio de:
+  `⚠  Analytics: Internal error. Please try again... (code 36009003)` (ou `36009007`),
+  terminando em `[ERRO] API não retornou nenhum intervalo finalizado.` → `exit code 1`.
+- Só o passo 2 roda; os outros 12 (finance, devoluções, afiliadas, seeding…) nem começam
+  porque o `refresh_performance_diario.sh` aborta no primeiro `exit 1`.
+
+### Causa
+Erro **transiente do servidor TikTok** na Shop Performance API (`/analytics/202405/shop/performance`).
+Códigos `36009003` (internal error) e `36009007` (timeout) são hiccups do lado deles — a própria
+mensagem pede *"Please try again"*. Não é token, não é a nossa base, não é mudança de schema.
+
+> Bug histórico (corrigido 2026-07-18): o retry de `buscar_analytics` só cobria `36009007`, então
+> `36009003` quebrava o loop na 1ª tentativa e derrubava a coleta inteira. Agora ambos são
+> retentáveis com backoff (6 tentativas, até 10s). Ver [coletar_dados.py](coletar_dados.py) `buscar_analytics`.
+
+### Diagnóstico
+```bash
+cd "/Users/user/Documents/VS Claude Teste"
+export GH_TOKEN=$(sed -n 's/^GH_TOKEN=//p' .env)
+# 1. Ver o log da última run que falhou
+gh run list --workflow=daily-collect.yml --limit 3
+gh run view <RUN_ID> --log-failed | grep -E "code 3600|intervalo finalizado"
+# 2. A API já voltou? (0 = OK; 36009003/07 = ainda com hiccup)
+python3 -c "from coletar_dados import buscar_analytics; buscar_analytics('2026-07-01','2026-07-05','1D')"
+```
+
+### Fix
+1. **É idempotente (UPSERT) e a janela é de 14 dias** → simplesmente **re-disparar** que o dia
+   perdido é preenchido no próximo run. Nada a reprocessar à mão.
+   ```bash
+   export GH_TOKEN=$(sed -n 's/^GH_TOKEN=//p' .env)
+   gh workflow run daily-collect.yml            # ou: gh run rerun <RUN_ID>
+   gh run watch <NOVO_RUN_ID> --exit-status      # espera terminar (0 = OK)
+   ```
+2. Se **persistir após múltiplos re-runs** (raro), é outage sustentada da TikTok → esperar e
+   re-disparar mais tarde. O backoff atual já aguenta hiccups de dezenas de segundos.
+3. Se o code for **≠ 36009003/07** (ex: `105002` auth / `36004xxx` param), NÃO é este cenário —
+   olhar token (passo 1 do refresh) ou o payload da chamada.
+
+> **Lição:** cron externo que depende de API de terceiro tem que tratar erro transiente como
+> retentável (backoff), não como fatal. Um hiccup de 30s da TikTok não pode zerar 13 passos de ETL.
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:
@@ -677,7 +726,7 @@ Diga:
 
 Eu vou:
 1. Ler RUNBOOK.md
-2. Identificar o cenário (1-8 acima)
+2. Identificar o cenário (1-14 acima)
 3. Rodar a bateria de diagnóstico do cenário
 4. Reportar o que encontrei
 5. Aplicar fix conhecido (ou abrir investigação se for novo)

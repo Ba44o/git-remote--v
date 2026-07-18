@@ -251,14 +251,20 @@ def buscar_analytics(inicio, fim, granularidade="1D"):
         "end_date_lt":   fim_excl,
         "granularity":   granularidade,   # "1D" (por dia) ou "ALL" (agregado)
     }
-    MAX_TENT = 4
-    for tentativa in range(MAX_TENT):     # 36009007 = timeout de servidor, transiente
+    # Códigos transientes do servidor TikTok (a própria mensagem pede "try again"):
+    #   36009007 = timeout de servidor · 36009003 = internal error
+    # Ambos são retentáveis. Backoff progressivo pra aguentar hiccup sustentado
+    # (antes 36009003 quebrava o loop na 1ª tentativa e derrubava a coleta diária).
+    TRANSIENTES = {36009007, 36009003}
+    MAX_TENT = 6
+    for tentativa in range(MAX_TENT):
         resp = chamar("GET", "/analytics/202405/shop/performance", params=params)
-        if resp.get("code") != 36009007:
+        if resp.get("code") not in TRANSIENTES:
             break
         if tentativa < MAX_TENT - 1:
-            print(f"  ⏳ Analytics timeout do servidor, tentando de novo ({tentativa+2}/{MAX_TENT})...")
-            time.sleep(2)
+            espera = 2 * (tentativa + 1)   # 2s, 4s, 6s, 8s, 10s
+            print(f"  ⏳ Analytics code {resp.get('code')} (transiente), retry {tentativa+2}/{MAX_TENT} em {espera}s...")
+            time.sleep(espera)
     if resp.get("code") == 0:
         data = resp.get("data", {})
         intervalos = data.get("performance", {}).get("intervals", [])
