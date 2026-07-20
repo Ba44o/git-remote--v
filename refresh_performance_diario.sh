@@ -42,6 +42,12 @@ python3 -c "from dotenv import load_dotenv; load_dotenv(); import sys,runpy; sys
 if [ "$(date +%u)" = "1" ]; then
   echo "[5b] statement_tx itemizado (semanal · 45d)..."
   python3 coletar_statement_tx.py --dias 45 || echo "  ⚠ statement_tx falhou (não-crítico — segue)"
+
+  # 5c) Radar de potencial: performance por vídeo × creator (video_perf). SEMANAL (segunda), 120d.
+  #     Alimenta a aba "Radar de potencial" do admin (creators que postam mas ainda não vendem).
+  #     Recompute completo com guarda de total_count — aborta sem gravar se truncar. Pesado (~16k vídeos).
+  echo "[5c] shop_videos → radar de potencial (semanal · 120d)..."
+  python3 coletar_shop_videos.py --dias 120 || echo "  ⚠ shop_videos falhou (não-crítico — segue)"
 fi
 
 # 6) ETL devoluções via API — janela de 14 dias

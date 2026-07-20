@@ -614,6 +614,24 @@ curl -s "$SB/rest/v1/performance_periods?affiliate_id=ilike.$ID&select=periodo,g
   → provável FK-filter mordendo (ou perf subnotificado). Sempre validar recompute
   full-window contra `affiliate_creator_product` (fonte independente) antes de gravar.
 
+### ⚠️ Antes de aplicar o fix: ela VENDE mesmo? (3 casos distintos — não confundir)
+Este cenário (#12) pressupõe que a creator **está vendendo**. Se ela não aparece no hub,
+distinga PRIMEIRO qual dos 3 casos é — o fix acima só vale pro caso 1:
+1. **Vende mas não aparece** → é o #12. `affiliate_creator_product?creator=eq.<handle>` tem linhas,
+   mas `affiliates`/`performance_periods` estão vazios. Aplicar o fix (auto-cadastro + full-window).
+2. **Posta mas não vende** → NÃO é bug. Não está em nenhuma fonte de venda porque nunca vendeu.
+   Confirme que ela existe como creator de conteúdo:
+   ```bash
+   python3 -c "from coletar_dados import chamar; r=chamar('GET','/analytics/202409/shop_videos/performance',params={'start_date_ge':'2026-04-01','end_date_lt':'2026-07-18','granularity':'ALL','page_size':100}); import sys; [print(v['username'],v['views'],'views',v['sku_orders'],'ord') for pg in [r] for v in pg['data']['videos'] if 'SEU_HANDLE' in v['username'].lower()]"
+   ```
+   Se tem vídeos com 0 pedidos → ela é **creator de potencial**, aparece na aba
+   **`Radar de potencial`** do admin (não no hub, que é só quem vende). Caso esperado — ex.: `josecleia.dos.san86`
+   (jul/26: 10 vídeos, 515 views, 0 venda → radar, não hub).
+3. **Não existe em fonte nenhuma** (nem venda, nem vídeo, nem seeding, nem cadastro) → é **handle errado**
+   ou creator que nunca interagiu. Busca fuzzy pelo sufixo distintivo do handle (`*san86*`, não `*jose*`)
+   em `affiliates`/`affiliate_creator_product`/`shop_videos`; se der 0 em tudo, o handle está errado.
+   Cai no **Cenário 2, Caso A** (cadastro manual só se o handle for confirmado).
+
 ### ⚠️ Handles fragmentados & falsos-aliases (tier/GMV acumulado)
 Uma mesma creator pode ter **várias linhas em `affiliates`** (handles diferentes), e o
 `current_tier` gravado é **stale/manual** (ex.: a #1 de vídeo, `@tacianecreator`, aparece

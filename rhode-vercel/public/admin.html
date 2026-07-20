@@ -251,7 +251,8 @@ body{
 .cli-bdg{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;color:#fff}
 .cli-bdg.vip{background:#3fb984} .cli-bdg.recorrente{background:#4aa8d8}
 .cli-bdg.unico_recente{background:#f0a45e} .cli-bdg.unico_frio{background:#ef7d78}
-#panel-clientes th.r,#panel-clientes td.r{text-align:right}
+#panel-clientes th.r,#panel-clientes td.r,#panel-radar th.r,#panel-radar td.r{text-align:right}
+.rad-warm{background:#fdecea;color:#c0392b} :root[data-theme="dark"] .rad-warm{background:#3a2321;color:#ef9a94}
 .cli-bar{height:4px;border-radius:9px;background:var(--rhode-red);display:block;margin-top:3px}
 @media(max-width:900px){.cli-segs{grid-template-columns:1fr 1fr}.cli-grid{grid-template-columns:1fr}}
 .side-foot{margin-top:auto;padding-top:var(--sp-4);border-top:1px solid var(--hairline)}
@@ -907,6 +908,7 @@ tr:hover td{background:rgba(254,44,85,0.015)}
       <button class="side-mod" data-mod="creators" onclick="toggleMod('creators')"><span class="side-ico">☰</span> Creators<span class="side-chev">▸</span></button>
       <div class="side-subs" id="mod-creators">
         <button class="side-item sub" data-sid="ranking" onclick="tab('ranking',this)">Ranking</button>
+        <button class="side-item sub" data-sid="radar" onclick="tab('radar',this)">Radar de potencial</button>
         <button class="side-item sub" data-sid="alertas" onclick="tab('alertas',this)">Alertas</button>
         <button class="side-item sub" data-sid="triagem" onclick="tab('triagem',this)">Triagem</button>
       </div>
@@ -1080,6 +1082,45 @@ tr:hover td{background:rgba(254,44,85,0.015)}
           <th class="r">Pedidos</th><th class="r">LTV</th><th class="r">AOV</th><th class="r">1º pedido</th><th class="r">Último</th>
           </tr></thead><tbody id="cli-tb"><tr><td colspan="8" class="spin">Carregando…</td></tr></tbody></table></div>
         <div class="pag" id="cli-pag"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-radar">
+    <div class="main">
+      <div class="cli-inline">
+        <span>Creators com vídeo <b id="rad-tot">—</b></span>
+        <span>Potencial ativo <b id="rad-ativo-n">—</b></span>
+        <span>Esfriaram <b id="rad-frio-n">—</b></span>
+        <span class="cli-hint">alcance sem conversão · consistência sustentada · frequência — fonte: vídeos do Shop (não é quem vende)</span>
+      </div>
+
+      <div class="cli-cohort">
+        <span class="cli-cohort-l">Janela de <b>esforço</b> — vídeos postados nos últimos</span>
+        <div class="cli-seg" id="rad-win"></div>
+        <span class="cli-hint" id="rad-win-meta"></span>
+      </div>
+
+      <!-- LISTA 1 — prospectar: alcance sem conversão, consistente E ainda postando -->
+      <div class="tbl-card" style="margin-top:var(--sp-4)">
+        <div class="tbl-head"><div class="tbl-title">Potencial ativo <span class="pill-hot">prospectar</span></div>
+          <div class="tbl-meta" id="rad-ativo-meta"></div></div>
+        <div class="search-wrap"><input class="search-input" id="rad-q1" type="text" placeholder="Buscar creator…" oninput="renderRadList('ativo')"></div>
+        <div class="tw"><table><thead><tr><th>Creator</th><th class="r">Score</th><th class="r">Vídeos</th>
+          <th class="r">Semanas</th><th class="r">Views</th><th class="r">Vídeos/sem</th><th class="r">Últ. post</th></tr></thead>
+          <tbody id="rad-ativo-tb"><tr><td colspan="7" class="spin">Carregando…</td></tr></tbody></table></div>
+        <div class="pag" id="rad-ativo-pag"></div>
+      </div>
+
+      <!-- LISTA 2 — reativar: foram consistentes, tinham alcance, e pararam -->
+      <div class="tbl-card" style="margin-top:var(--sp-4)">
+        <div class="tbl-head"><div class="tbl-title">Esfriaram <span class="pill-hot rad-warm">reativar</span></div>
+          <div class="tbl-meta" id="rad-frio-meta"></div></div>
+        <div class="search-wrap"><input class="search-input" id="rad-q2" type="text" placeholder="Buscar creator…" oninput="renderRadList('frio')"></div>
+        <div class="tw"><table><thead><tr><th>Creator</th><th class="r">Score</th><th class="r">Vídeos</th>
+          <th class="r">Semanas</th><th class="r">Views</th><th class="r">Vídeos/sem</th><th class="r">Parou há</th></tr></thead>
+          <tbody id="rad-frio-tb"><tr><td colspan="7" class="spin">Carregando…</td></tr></tbody></table></div>
+        <div class="pag" id="rad-frio-pag"></div>
       </div>
     </div>
   </div>
@@ -2160,7 +2201,7 @@ function nextTier(gmv){const tiers=[['Black',500000],['Diamond',150000],['Gold',
 function refBadge(p){p=+p||0;if(p>50)return`<span class="badge b-red">${p.toFixed(1)}%</span>`;if(p>25)return`<span class="badge b-orange">${p.toFixed(1)}%</span>`;return`<span class="badge b-green">${p.toFixed(1)}%</span>`}
 function dlt(v){if(v===null||v===undefined||v==='')return'';v=+v;if(Math.abs(v)<0.1)return`<span class="delta d-nt">→</span>`;if(v>0)return`<span class="delta d-up">↑${Math.abs(v).toFixed(1)}%</span>`;return`<span class="delta d-dn">↓${Math.abs(v).toFixed(1)}%</span>`}
 async function sbGet(path){ const j=await admProxy('GET', path); return j.data; }
-const TAB_LABELS={dashboard:'Dashboard',clientes:'Clientes',ranking:'Ranking',alertas:'Alertas',evolucao:'Evolução',analista:'Analista IA',operacao:'Operação',comunicacao:'Comunicação',comportamento:'Comportamento',triagem:'Triagem',evento:'Evento 13/04'};
+const TAB_LABELS={dashboard:'Dashboard',clientes:'Clientes',ranking:'Ranking',radar:'Radar de potencial',alertas:'Alertas',evolucao:'Evolução',analista:'Analista IA',operacao:'Operação',comunicacao:'Comunicação',comportamento:'Comportamento',triagem:'Triagem',evento:'Evento 13/04'};
 function tab(id,el_){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.side-item[data-sid]').forEach(t=>t.classList.remove('on'));
@@ -3403,12 +3444,13 @@ function tab(id,elBtn){
   else if(id==='comportamento'){loadComportamento();}
   else if(id==='triagem'){loadTriagem();}
   else if(id==='clientes'){loadClientes();}
+  else if(id==='radar'){loadRadar();}
   else if(id==='evento'){loadEvento().then(()=>renderVIP());startVIPRefresh();}
   if(id!=='evento')stopVIPRefresh();
 }
 
 // ── Sidebar em MÓDULOS: mapa seção→módulo + acordeão ──
-const MOD_OF={ranking:'creators',alertas:'creators',triagem:'creators',
+const MOD_OF={ranking:'creators',radar:'creators',alertas:'creators',triagem:'creators',
   operacao:'operacao',comunicacao:'operacao',
   evolucao:'intel',analista:'intel',comportamento:'intel'};
 function openMod(k,force){
@@ -5349,6 +5391,77 @@ function renderCliTable(){
     <button onclick="cliPg(${CLI_PG+1})" ${CLI_PG>=pages?'disabled':''}>Próx →</button>`);
 }
 function cliPg(p){CLI_PG=p;renderCliTable()}
+
+// ═════════════════════════════════════════════════════════════
+//   RADAR DE POTENCIAL  (video_perf → creators que postam mas ainda não vendem)
+//   3 réguas do dono: alcance sem conversão · consistência sustentada · frequência.
+//   Duas listas: POTENCIAL ATIVO (prospectar) · ESFRIARAM (reativar).
+// ═════════════════════════════════════════════════════════════
+const RAD={rows:[],ativo:[],frio:[]}; let RAD_LOADED=false, RAD_WIN=120; const RAD_PG={ativo:1,frio:1}; const RAD_PG_SIZE=25;
+const RAD_WINS=[[30,'30d'],[60,'60d'],[90,'90d'],[120,'120d']];
+
+async function loadRadar(){
+  if(RAD_LOADED){renderRadar();return}
+  try{
+    htm('rad-ativo-tb','<tr><td colspan="7" class="spin">Carregando vídeos do Shop…</td></tr>');
+    // base inteira de uma vez (proxy pagina no servidor) → janela/listas viram filtro local e instantâneo
+    RAD.rows=await sbGetPaged('video_perf?select=username,post_time,views,gmv,sku_orders&order=post_time.desc');
+    RAD_LOADED=true; buildRadWin(); renderRadar();
+  }catch(e){
+    htm('rad-ativo-tb',`<tr><td colspan="7" class="empty">Sem dados de vídeo.<br><small>Rode <code>rhode-vercel/sql/video_perf.sql</code> + <code>python3 coletar_shop_videos.py</code>. (${e.message})</small></td></tr>`);
+    htm('rad-frio-tb','<tr><td colspan="7" class="empty">—</td></tr>');
+  }
+}
+function buildRadWin(){
+  htm('rad-win',RAD_WINS.map(([d,l])=>`<button class="${RAD_WIN===d?'on':''}" onclick="setRadWin(${d})">${l}</button>`).join(''));
+}
+function setRadWin(d){RAD_WIN=d;buildRadWin();RAD_PG.ativo=1;RAD_PG.frio=1;renderRadar()}
+// semana ISO (só pra contar semanas DISTINTAS = consistência sustentada)
+function radWeek(pt){const d=new Date(pt+'T00:00:00Z');const day=d.getUTCDay()||7;
+  d.setUTCDate(d.getUTCDate()+4-day);const ys=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return d.getUTCFullYear()+'-'+Math.ceil(((d-ys)/864e5+1)/7)}
+
+function renderRadar(){
+  const now=Date.now(), cut=now-RAD_WIN*864e5, cre={};
+  RAD.rows.forEach(r=>{
+    const pt=(r.post_time||'').slice(0,10); if(!pt||pt[0]!=='2')return;
+    const ts=new Date(pt+'T00:00:00Z').getTime(); if(ts<cut)return;
+    const a=cre[r.username]||(cre[r.username]={n:0,views:0,gmv:0,ord:0,wk:new Set(),last:''});
+    a.n++; a.views+=(+r.views||0); a.gmv+=(+r.gmv||0); a.ord+=(+r.sku_orders||0); a.wk.add(radWeek(pt)); if(pt>a.last)a.last=pt;
+  });
+  const list=Object.entries(cre).map(([u,a])=>{const sem=a.wk.size,vsem=a.n/(sem||1);
+    const dias=Math.floor((now-new Date(a.last+'T00:00:00Z').getTime())/864e5);
+    return {creator:u,n:a.n,sem,views:a.views,gmv:a.gmv,ord:a.ord,vsem,dias,last:a.last,
+      score:Math.round(sem*12+Math.min(vsem,5)*4+a.views/1000)};});
+  const base=list.filter(x=>x.ord===0 && x.views>=500);
+  RAD.ativo=base.filter(x=>x.dias<=30).sort((a,b)=>b.score-a.score);
+  RAD.frio =base.filter(x=>x.dias>30 && x.sem>=3).sort((a,b)=>b.score-a.score);
+  set('rad-tot',list.length.toLocaleString('pt-BR'));
+  set('rad-ativo-n',RAD.ativo.length.toLocaleString('pt-BR')); set('rad-frio-n',RAD.frio.length.toLocaleString('pt-BR'));
+  set('rad-win-meta',`piso de alcance 500 views · sem conversão (0 pedidos) · consistência = semanas distintas com post`);
+  renderRadList('ativo'); renderRadList('frio');
+}
+function renderRadList(which){
+  const isA=which==='ativo', tb=isA?'rad-ativo-tb':'rad-frio-tb', pgId=isA?'rad-ativo-pag':'rad-frio-pag';
+  const q=(el(isA?'rad-q1':'rad-q2')?.value||'').trim().toLowerCase();
+  let data=isA?RAD.ativo:RAD.frio; if(q)data=data.filter(x=>x.creator.toLowerCase().includes(q));
+  set(isA?'rad-ativo-meta':'rad-frio-meta',`${data.length.toLocaleString('pt-BR')} creators${q?' (filtrado)':''} · ordenado por score`);
+  const pages=Math.max(1,Math.ceil(data.length/RAD_PG_SIZE)); if(RAD_PG[which]>pages)RAD_PG[which]=1;
+  const p=RAD_PG[which], st=(p-1)*RAD_PG_SIZE, slice=data.slice(st,st+RAD_PG_SIZE);
+  htm(tb,slice.map(x=>{
+    const dc=isA?(x.dias<=7?'var(--green)':'var(--ink-48)'):'var(--rhode-red)';
+    return `<tr><td><a href="https://www.tiktok.com/@${encodeURIComponent(x.creator)}" target="_blank" rel="noopener" style="color:var(--rhode-red);font-weight:600">@${x.creator}</a></td>
+      <td class="r mono" style="font-weight:700">${x.score}</td>
+      <td class="r mono">${x.n}</td><td class="r mono">${x.sem}</td>
+      <td class="r mono">${x.views.toLocaleString('pt-BR')}</td>
+      <td class="r mono">${x.vsem.toFixed(1)}</td>
+      <td class="r mono" style="color:${dc}">${x.dias}d</td></tr>`;
+  }).join('')||`<tr><td colspan="7" class="empty">Nenhum creator nesta janela</td></tr>`);
+  htm(pgId,`<button onclick="radPg('${which}',${p-1})" ${p<=1?'disabled':''}>← Ant</button>
+    <span class="pag-info">${data.length?st+1:0}–${Math.min(st+RAD_PG_SIZE,data.length)} de ${data.length.toLocaleString('pt-BR')}${q?' (filtrado)':''}</span>
+    <button onclick="radPg('${which}',${p+1})" ${p>=pages?'disabled':''}>Próx →</button>`);
+}
+function radPg(which,p){RAD_PG[which]=p;renderRadList(which)}
 
 if(admToken())syncAll();
 </script>

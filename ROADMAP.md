@@ -105,7 +105,12 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 
 ## 🚧 Em desenvolvimento
 
-_(nada no momento)_
+### Radar de creators de potencial (aba `Radar de potencial` no admin) — jul/2026
+Rastreia creator que **posta mas ainda não vende** — invisível pro pipeline atual (que só rastreia venda via `extrato_pedidos`/`affiliate_creator_product`). Fonte nova: Shop Partner API `GET /analytics/202409/shop_videos/performance` (métricas lifetime por vídeo × creator), que **nunca tinha sido coletada**.
+- **Régua do dono:** alcance sem conversão + esforço consistente + frequência. `score = semanas_ativas*12 + LEAST(vídeos/sem, 5)*4 + views/1000` (cadência sustentada > pico; rajada não fura fila).
+- **Duas listas:** `Potencial ativo` (0 pedidos, ≥500 views, ainda postando ≤30d → prospectar) e `Esfriaram` (foram consistentes 3+ semanas, tinham alcance, pararam >30d → reativar). Base jul/26: 223 ativos + 178 frios de 4.286 creators / 16.579 vídeos.
+- **Peças:** `coletar_shop_videos.py` (ROOT — 1 janela, dedup por id, **guarda de completude via `total_count` da API**, upsert self-healing) · `rhode-vercel/sql/video_perf.sql` (tabela `video_perf` + views `creator_radar`/`creator_potencial_ativo`/`creator_esfriou`) · aba `panel-radar` no admin (agrega client-side, filtro de janela 30/60/90/120d, busca, paginação). Cron: `refresh_performance_diario.sh` step 5c (semanal, segunda).
+- **⏳ Pendente:** rodar `video_perf.sql` (DDL) → rodar coletor real → deploy admin. **Performance → admin.html, não conciliacao.**
 
 ---
 
