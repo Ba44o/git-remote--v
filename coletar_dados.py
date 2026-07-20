@@ -27,6 +27,15 @@ SHOP_CIPHER  = os.getenv("TIKTOK_SHOP_CIPHER")
 BASE_URL     = "https://api.tiktok-shops.com"
 PASTA        = "dados/marketplace/tiktokshop"
 
+# Códigos de erro TRANSIENTES do servidor TikTok — hiccup do lado deles, retentáveis.
+# A própria API costuma pedir "please try again" / sinaliza "remote or network error".
+# Tratar como fatal derruba a coleta inteira por um soluço de segundos (ver RUNBOOK #14).
+#   36009007   = timeout de servidor (analytics)
+#   36009003   = internal error (analytics)
+#   2000011008 = "failed to get base profile by dal engine" / remote or network error
+#                (affiliate orders — camada de dados da TikTok instável)
+TIKTOK_TRANSIENT_CODES = {36009007, 36009003, 2000011008}
+
 # ── ASSINATURA ──────────────────────────────────────────────────
 def assinar(path, params, body_str=""):
     exclude = {"sign", "access_token", "x-tts-access-token"}
@@ -251,15 +260,12 @@ def buscar_analytics(inicio, fim, granularidade="1D"):
         "end_date_lt":   fim_excl,
         "granularity":   granularidade,   # "1D" (por dia) ou "ALL" (agregado)
     }
-    # Códigos transientes do servidor TikTok (a própria mensagem pede "try again"):
-    #   36009007 = timeout de servidor · 36009003 = internal error
-    # Ambos são retentáveis. Backoff progressivo pra aguentar hiccup sustentado
-    # (antes 36009003 quebrava o loop na 1ª tentativa e derrubava a coleta diária).
-    TRANSIENTES = {36009007, 36009003}
+    # Erro transiente do servidor TikTok → retry com backoff (ver TIKTOK_TRANSIENT_CODES).
+    # Antes só 36009007 era retentado; 36009003 quebrava o loop e derrubava a coleta diária.
     MAX_TENT = 6
     for tentativa in range(MAX_TENT):
         resp = chamar("GET", "/analytics/202405/shop/performance", params=params)
-        if resp.get("code") not in TRANSIENTES:
+        if resp.get("code") not in TIKTOK_TRANSIENT_CODES:
             break
         if tentativa < MAX_TENT - 1:
             espera = 2 * (tentativa + 1)   # 2s, 4s, 6s, 8s, 10s
@@ -351,14 +357,17 @@ def buscar_affiliate_orders(inicio, fim):
         params = {"page_size": 100}
         if cursor:
             params["page_token"] = cursor
-        # retry em timeout de servidor (36009007) — antes quebrava e TRUNCAVA a coleta
+        # Retry em erro transiente do servidor TikTok (timeout/internal/dal engine) com
+        # backoff progressivo. Antes só 36009007 era retentado, então 2000011008 ("failed
+        # to get base profile by dal engine") quebrava e TRUNCAVA a coleta na 1ª falha.
         resp = None
-        for tent in range(5):
+        for tent in range(6):
             resp = chamar("POST", "/affiliate_seller/202410/orders/search", params=params, body=body)
-            if resp.get("code") != 36009007:
+            if resp.get("code") not in TIKTOK_TRANSIENT_CODES:
                 break
-            print(f"    ⏳ timeout pág {pagina}, retry {tent+2}/5...")
-            time.sleep(2)
+            espera = 2 * (tent + 1)   # 2s, 4s, 6s, 8s, 10s
+            print(f"    ⏳ pág {pagina} code {resp.get('code')} (transiente), retry {tent+2}/6 em {espera}s...")
+            time.sleep(espera)
         if resp.get("code") != 0:
             # NÃO truncar em silêncio: aborta pra não gerar dado parcial inconsistente
             raise RuntimeError(f"affiliate_orders falhou na página {pagina} (após {len(out)} pedidos): "

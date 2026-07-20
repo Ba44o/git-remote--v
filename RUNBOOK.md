@@ -670,52 +670,62 @@ cron é agravante (ninguém percebeu por 10 dias), mas a causa do zero-gravado �
 
 ---
 
-## 14. Coleta diária (daily-collect.yml) falhou em ~35s — "API não retornou nenhum intervalo finalizado"
+## 14. Coleta diária (daily-collect.yml) falhou por erro TRANSIENTE da API TikTok
 
 ### Sintoma
-- Workflow **"Rhode — Coleta diária via API (fora do Mac)"** (`daily-collect.yml`) com status
-  **Failure** e duração curtíssima (~35-40s vs. ~16min de um run saudável).
-- Log do passo `[2/13] ETL diário via API` cheio de:
-  `⚠  Analytics: Internal error. Please try again... (code 36009003)` (ou `36009007`),
-  terminando em `[ERRO] API não retornou nenhum intervalo finalizado.` → `exit code 1`.
-- Só o passo 2 roda; os outros 12 (finance, devoluções, afiliadas, seeding…) nem começam
-  porque o `refresh_performance_diario.sh` aborta no primeiro `exit 1`.
+Workflow **"Rhode — Coleta diária via API (fora do Mac)"** (`daily-collect.yml`) com status
+**Failure**. Duas assinaturas conhecidas, MESMA causa-raiz (hiccup do servidor TikTok):
+
+- **(A) Falha rápida (~35-40s), passo `[2/13] ETL diário`:** log com
+  `⚠  Analytics: Internal error. Please try again... (code 36009003)` (ou `36009007`) →
+  `[ERRO] API não retornou nenhum intervalo finalizado.` → `exit 1`. Nenhum outro passo roda.
+- **(B) Falha tardia (~4-5min), passo `[12/13] creator×produto` (ou 8/10):**
+  `RuntimeError: affiliate_orders falhou na página N (após X pedidos): ... failed to get
+  base profile by dal engine (code 2000011008)`. Passos 1-11 passam; quebra no meio da paginação.
+
+Como o `refresh_performance_diario.sh` aborta no primeiro `exit 1`, qualquer passo que estoure
+derruba o run inteiro.
 
 ### Causa
-Erro **transiente do servidor TikTok** na Shop Performance API (`/analytics/202405/shop/performance`).
-Códigos `36009003` (internal error) e `36009007` (timeout) são hiccups do lado deles — a própria
-mensagem pede *"Please try again"*. Não é token, não é a nossa base, não é mudança de schema.
+Erro **transiente do servidor TikTok** — hiccup do lado deles, a própria mensagem pede
+*"try again"* / sinaliza *"remote or network error"*. **Não** é token, base, nem schema.
+Códigos transientes já vistos (centralizados em `TIKTOK_TRANSIENT_CODES` no `coletar_dados.py`):
+`36009007` (timeout), `36009003` (internal error), `2000011008` (dal engine / rede).
 
-> Bug histórico (corrigido 2026-07-18): o retry de `buscar_analytics` só cobria `36009007`, então
-> `36009003` quebrava o loop na 1ª tentativa e derrubava a coleta inteira. Agora ambos são
-> retentáveis com backoff (6 tentativas, até 10s). Ver [coletar_dados.py](coletar_dados.py) `buscar_analytics`.
+> Bug histórico (corrigido 2026-07-18/19): os retries eram estreitos (só `36009007`), então
+> `36009003` (analytics) e `2000011008` (affiliate orders) quebravam na 1ª tentativa e derrubavam
+> a coleta. Agora `buscar_analytics` E `buscar_affiliate_orders` re-tentam qualquer código do
+> conjunto com backoff progressivo (6 tentativas, até 10s). Ver [coletar_dados.py](coletar_dados.py).
 
 ### Diagnóstico
 ```bash
 cd "/Users/user/Documents/VS Claude Teste"
 export GH_TOKEN=$(sed -n 's/^GH_TOKEN=//p' .env)
-# 1. Ver o log da última run que falhou
+# 1. Qual passo/código quebrou?
 gh run list --workflow=daily-collect.yml --limit 3
-gh run view <RUN_ID> --log-failed | grep -E "code 3600|intervalo finalizado"
-# 2. A API já voltou? (0 = OK; 36009003/07 = ainda com hiccup)
+gh run view <RUN_ID> --log-failed | grep -E "code [0-9]{6,}|FALHOU|RuntimeError"
+# 2. A API já voltou? (0/dados = OK; código transiente no log = ainda com hiccup)
 python3 -c "from coletar_dados import buscar_analytics; buscar_analytics('2026-07-01','2026-07-05','1D')"
 ```
 
 ### Fix
-1. **É idempotente (UPSERT) e a janela é de 14 dias** → simplesmente **re-disparar** que o dia
-   perdido é preenchido no próximo run. Nada a reprocessar à mão.
+1. **Idempotente (UPSERT), janelas de 14-90 dias** → **re-disparar** que o dia perdido é
+   preenchido. Nada a reprocessar à mão.
    ```bash
    export GH_TOKEN=$(sed -n 's/^GH_TOKEN=//p' .env)
    gh workflow run daily-collect.yml            # ou: gh run rerun <RUN_ID>
-   gh run watch <NOVO_RUN_ID> --exit-status      # espera terminar (0 = OK)
+   gh run view <NOVO_RUN_ID> --json status,conclusion -q '.status+" / "+.conclusion'
    ```
 2. Se **persistir após múltiplos re-runs** (raro), é outage sustentada da TikTok → esperar e
-   re-disparar mais tarde. O backoff atual já aguenta hiccups de dezenas de segundos.
-3. Se o code for **≠ 36009003/07** (ex: `105002` auth / `36004xxx` param), NÃO é este cenário —
-   olhar token (passo 1 do refresh) ou o payload da chamada.
+   re-disparar. O backoff atual já aguenta hiccups de dezenas de segundos.
+3. **Código NOVO transiente** (mensagem pede "try again" / "remote error" mas o code não está na
+   lista)? Adicionar ao conjunto `TIKTOK_TRANSIENT_CODES` no topo do `coletar_dados.py`.
+4. Se o code for de **auth/param** (`105002`, `36004xxx`), NÃO é este cenário → olhar token
+   (passo 1 do refresh) ou o payload.
 
-> **Lição:** cron externo que depende de API de terceiro tem que tratar erro transiente como
-> retentável (backoff), não como fatal. Um hiccup de 30s da TikTok não pode zerar 13 passos de ETL.
+> **Lição:** cron que depende de API de terceiro trata erro transiente como retentável (backoff),
+> nunca como fatal. Um soluço de segundos da TikTok não pode zerar 13 passos de ETL. Retry estreito
+> por código específico é armadilha — usar o conjunto central `TIKTOK_TRANSIENT_CODES`.
 
 ---
 
