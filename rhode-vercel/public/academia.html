@@ -50,6 +50,8 @@
   .featured h3{font-size:clamp(22px,3.4vw,30px);font-weight:800;letter-spacing:-0.02em;margin:8px 0 6px;text-wrap:balance}
   .featured p{opacity:.92;font-size:15px;max-width:48ch}
   .featured .go{margin-top:14px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:14px}
+  .aulao-more{margin:0 0 16px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--soft);font-size:13px;font-weight:600;font-family:var(--mono);transition:color .12s ease}
+  .aulao-more:hover{color:var(--red)}
   .sectitle{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
   .sectitle .pmini{margin-left:auto;color:var(--red);font-weight:700;text-transform:none;letter-spacing:0;font-size:12px}
   .nextcard{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:18px;padding:20px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s ease}
@@ -326,12 +328,7 @@
         <p class="lede">Escolhe um módulo, aprende em 2 minutos, grava. Sem parede de texto.</p>
         <div class="focus">🎯 foco do mês: crescer seu volume de vídeo</div>
       </div>
-      <div class="featured" onclick="show('aula')">
-        <div class="fe">A aula principal</div>
-        <h3>De 1 vídeo campeão a infinitos campeões</h3>
-        <p>O método pra multiplicar um viral — o seu ou o dos outros. Depois dessa, você nunca mais fica sem ideia.</p>
-        <div class="go">Começar a aula →</div>
-      </div>
+      <div id="aulao-hero"></div>
       <div class="sectitle">Sua trilha <span class="pmini" id="pmini"></span></div>
       <div class="matgrid" id="steplist"></div>
       <div class="sectitle" style="margin-top:30px">Extras</div>
@@ -339,12 +336,8 @@
     </div>
   </div>
 
-  <!-- AULA -->
-  <div class="view" id="v-aula"><div class="container">
-    <div class="vhead"><div class="eyebrow">Aula principal</div><h1>De 1 vídeo campeão a <span class="hl">infinitos campeões</span></h1></div>
-    <div class="prose" id="aula-body"></div>
-    <div style="margin-top:26px"><button class="btn" onclick="show('biblioteca')">Ver os campeões pra remixar →</button></div>
-  </div></div>
+  <!-- AULÃO (detalhe dinâmico) -->
+  <div class="view" id="v-aulao"><div class="container" id="aulao-detail"></div></div>
 
   <!-- COMEÇANDO -->
   <div class="view" id="v-comecando"><div class="container">
@@ -461,9 +454,15 @@
     <div class="blk"><h3>🏆 Missões da semana</h3><div class="missoes" id="missoes"></div></div>
   </div></div>
 
-  <!-- ESTA SEMANA -->
-  <div class="view" id="v-semana"><div class="container">
-    <div class="vhead"><div class="eyebrow">Novo toda semana</div><h1>Esta semana</h1><p class="sub">Insights e frameworks curtos. Filtra pelo seu nível.</p></div>
+  <!-- CONTEÚDO (acervo de aulões + leituras) -->
+  <div class="view" id="v-conteudo"><div class="container">
+    <div class="vhead"><div class="eyebrow">Biblioteca</div><h1>Conteúdo</h1><p class="sub">Todo aulão da semana fica guardado aqui. Reveja quando quiser.</p></div>
+    <div class="sectitle">🔥 Aulão desta semana</div>
+    <div class="matgrid" id="aulao-current"></div>
+    <div class="sectitle" style="margin-top:30px">Aulões anteriores</div>
+    <div class="matgrid" id="aulao-arquivo"></div>
+    <div class="sectitle" style="margin-top:34px">Leituras rápidas</div>
+    <p class="sub" style="margin:2px 0 14px">Frameworks curtos pra consultar. Filtra pelo seu nível.</p>
     <div class="filterbar" id="filterbar"></div>
     <div id="artigos"></div>
   </div></div>
@@ -487,7 +486,7 @@ const CORE=[
   {id:'vendas',    n:6, i:'💬', t:'FAQ & missões',         d:'Responde objeções e fecha a venda.',            tags:['objeções','fechar'],  cov:'teal',   img:'/img/cover-vendas.webp'}
 ];
 const EXTRA=[
-  {id:'semana',i:'📰',t:'Esta semana',d:'Um insight novo toda semana.',              tags:['novidades'], cov:'gray', img:'/img/cover-semana.webp'},
+  {id:'conteudo',i:'📚',t:'Conteúdo',d:'Todos os aulões + leituras rápidas.',         tags:['aulões','biblioteca'], cov:'gray', img:'/img/cover-semana.webp'},
   {id:'trends',i:'📈',t:'Trends',d:'Áudios e formatos em alta — em breve.',           tags:['em breve'],  cov:'gray', img:'/img/cover-trends.webp', soon:true}
 ];
 const AULA_META={
@@ -518,12 +517,71 @@ const ARTIGOS=[
   {niv:'iniciante',tipo:'Trilha',t:'Da amostra ao 1º vídeo em 48h',r:'O passo a passo pra destravar.',c:`<p><b>Dia 1:</b> unboxing simples com 1 gancho de descoberta. <b>Dia 2:</b> try-on mostrando o caimento e seu tamanho. 2 vídeos em 48h, sem estúdio: luz natural, vertical, produto na tela nos 2 primeiros segundos.</p>`},
   {niv:'avancada',tipo:'Framework',t:'De 5 a 20 vídeos/mês sem queimar',r:'Batch + reaproveitamento.',c:`<p>Grava <b>em lote</b>: 1 dia, 4-6 vídeos (mesma roupa, ângulos e ganchos diferentes). Reaproveita: um try-on vira "3 looks", vira "qual seu tamanho", vira "review". Ao chegar em 20+ você vira Video Creator e destrava spark ads.</p>`}
 ];
-const AULA=`<p>Se eu pudesse te ensinar <b>uma coisa só</b>, seria essa. Um vídeo campeão não é sorte — é uma fórmula que já <b>provou</b> que funciona. Em vez de inventar do zero e torcer, você replica o que fez ele ganhar e troca só a superfície. Assim <b>1 campeão vira infinitos</b>.</p>
+// ═══════════════════════════════════════════════════════════════════════════
+// AULÕES — o "aulão da semana". Publicado por DATA: aparece sozinho quando a
+// data chega. O mais recente já publicado = aulão da semana (herói da home);
+// os anteriores caem no acervo (aba Conteúdo). Dá pra AGENDAR: é só pôr uma
+// data futura — ele abre sozinho naquele dia, sem novo deploy.
+//   Pra publicar um novo: copie um objeto, incremente `n`, ponha a próxima
+//   segunda em `data` (AAAA-MM-DD), preencha t/promessa/corpo/missao. `video`
+//   e `poster` são OPCIONAIS (sem eles, o aulão vira só-texto, sem quebrar).
+// ═══════════════════════════════════════════════════════════════════════════
+const AULOES=[
+  {n:1, data:'2026-07-06', niv:'todas', tags:['método','multiplicar'], dur:'5 min',
+   t:'De 1 vídeo campeão a infinitos campeões',
+   promessa:'Transformar 1 vídeo que já deu certo em 5–8 novos — sem nunca mais ficar sem ideia.',
+   video:'/rhodemap/videos/taci01.mp4', poster:'/rhodemap/posters/taci01.jpg',
+   cap:'@tacianecreator — o vídeo simples, no corpo, sem produção, que virou referência.',
+   missao:'Pega o seu vídeo que mais rendeu e escreve 3 variações trocando só o gancho.',
+   corpo:`<p>Se eu pudesse te ensinar <b>uma coisa só</b>, seria essa. Um vídeo campeão não é sorte — é uma fórmula que já <b>provou</b> que funciona. Em vez de inventar do zero e torcer, você replica o que fez ele ganhar e troca só a superfície. Assim <b>1 campeão vira infinitos</b>.</p>
 <p><b>1 · Ache o campeão (não chute).</b> Usa o que já vendeu de verdade — os vídeos em "Biblioteca & campeões" são dado real. O da @tacianecreator sozinho fez R$ 98 mil. Copiar um vencedor > criar um original não testado.</p>
 <p><b>2 · Disseca a estrutura invisível.</b> Isola: o <b>tipo de gancho</b> (paixão? preço? corpo?), o <b>arco 0–75s</b>, o <b>ângulo de oferta</b>, o <b>som</b>, a prova no corpo. Entende o <b>porquê</b> funcionou, não decore as palavras.</p>
 <p><b>3 · Mantém o que ganhou, troca a superfície.</b> Mantém a estrutura, o tipo de gancho, o ângulo, o som. Troca a sua cara e voz, as palavras exatas, o look, o cenário. Cada troca fiel à fórmula = um novo campeão em potencial.</p>
 <p><b>4 · Multiplica por eixo.</b> Cada variável é um eixo: o mesmo formato com <b>outro gancho</b>, com <b>outro produto</b> (Mom, Baggy), com <b>outro ângulo</b>. Um campeão vira 5–8 variações.</p>
-<p><b>5 · Testa em lote, dobra no que repete.</b> Posta as variações, vê qual <b>reproduz o resultado</b>, dobra nela. O jogo não é o vídeo perfeito — é iterar rápido sobre o que já ganha. É por isso que você nunca mais fica sem ideia.</p>`;
+<p><b>5 · Testa em lote, dobra no que repete.</b> Posta as variações, vê qual <b>reproduz o resultado</b>, dobra nela. O jogo não é o vídeo perfeito — é iterar rápido sobre o que já ganha. É por isso que você nunca mais fica sem ideia.</p>`},
+
+  {n:2, data:'2026-07-13', niv:'todas', tags:['ganchos','teste','copy'], dur:'5 min',
+   t:'O gancho decide tudo — e como testar sem queimar',
+   promessa:'Montar e TESTAR ganchos do jeito certo, isolando a variável que decide 68% do resultado.',
+   video:'/rhodemap/videos/taci02.mp4', poster:'/rhodemap/posters/taci02.jpg',
+   cap:'@tacianecreator — repare como ela abre já mostrando o caimento: gancho + prova nos 2 primeiros segundos.',
+   missao:'Escolhe 1 corpo de vídeo (a espinha) e grava 3 aberturas diferentes pra ele. Posta e vê qual segura mais nos 2 primeiros segundos.',
+   corpo:`<p>O vídeo inteiro pode ser perfeito — mas se os <b>2 primeiros segundos</b> não seguram, ninguém vê o resto. No nosso teste de junho, o tipo de gancho sozinho <b>previu 68% do resultado</b> do vídeo. É a variável que mais mexe no ponteiro.</p>
+<p><b>1 · Segura ≠ fecha.</b> Tem gancho que PARA o dedo (curiosidade, objeção, choque) e tem gancho que FECHA a venda (prova, escassez, preço). Os dois importam, mas em momentos diferentes — não confunde. Vídeo de alcance abre com "segura"; vídeo de conversão abre com "fecha".</p>
+<p><b>2 · Testa isolando a variável.</b> Aqui tá o segredo que quase ninguém faz: mantém o <b>corpo e o CTA do vídeo IGUAIS</b> (a "espinha") e troca <b>só a abertura</b>. Se um rende mais, você sabe que foi o gancho — não a roupa, não o áudio, não a hora do post. É teste de verdade, não achismo.</p>
+<p><b>3 · Nunca copie a frase exata.</b> Somos 50 a 80 creators no mesmo produto. Se todo mundo abre com a MESMA frase, o gancho queima e o algoritmo lê como repetição. Pega o <b>ângulo</b> (ex: "objeção de caimento") e escreve <b>com a sua voz</b>. O ângulo é compartilhado; a frase é sua.</p>
+<p><b>4 · Puxa do banco e remodela.</b> No módulo <b>Ganchos &amp; estrutura</b> tem 45 ângulos prontos, marcados por funil e por "testado × novo". Escolhe 1, remodela, testa. Simples assim.</p>`},
+
+  {n:3, data:'2026-07-20', niv:'todas', tags:['volume','batch','ritmo'], dur:'6 min',
+   t:'5 vídeos numa tarde: o batch que triplica seu GMV',
+   promessa:'Montar os 5 vídeos da semana numa gravação só — e entender por que volume (não sorte) multiplica GMV.',
+   video:'/rhodemap/videos/dayane01.mp4', poster:'/rhodemap/posters/dayane01.jpg',
+   cap:'@dayane — mesma peça, ângulos diferentes: é assim que uma gravação vira vários vídeos.',
+   missao:'Bloqueia 1 tarde essa semana e grava 5 vídeos seguidos: 3 formatos ⚡ rápidos + 2 de produção. Mesma roupa, ganchos diferentes.',
+   corpo:`<p>Vídeo é quase <b>metade do GMV de afiliação</b> — e o resultado não vai pra quem tem mais seguidor, vai pra quem <b>posta com constância</b>. Quem sobe <b>5+ vídeos por semana faz ~3,2x mais GMV</b> que quem posta 2. Não é sorte, não é viralizar de vez em quando: é volume testando mais ângulos ao mesmo tempo.</p>
+<p><b>1 · Grava em lote, não avulso.</b> A parte cara não é gravar — é montar o cenário, se arrumar, achar a luz. Faz isso UMA vez e aproveita: num dia só você grava <b>4 a 6 vídeos</b>. Mesma roupa, mesma luz, ganchos e ângulos diferentes.</p>
+<p><b>2 · Começa pelos rápidos ⚡.</b> 3 dos 5 saem dos formatos rápidos: <b>POV com texto na tela</b>, <b>slideshow em vídeo</b>, <b>contraste (básico→estiloso)</b>. Esses você grava em minutos, sem precisar falar. Os outros 2 são de produção (try-on, review).</p>
+<p><b>3 · Reaproveita um vídeo em vários.</b> Um try-on vira "3 looks", vira "qual seu tamanho", vira "review de 1 semana". Um material, 4 vídeos. É assim que 1 tarde vira 15 vídeos em 3 semanas.</p>
+<p><b>⚠️ Só VÍDEO leva a sacolinha.</b> Carrossel de foto NÃO vira shop. Se for usar fotos, monta como <b>slideshow em vídeo</b> no CapCut — aí sim entra na loja.</p>
+<p>O jogo não é o vídeo perfeito. É <b>iterar rápido</b> sobre o que já funciona. Bloqueia a tarde e grava os 5.</p>`},
+
+  {n:4, data:'2026-07-27', niv:'todas', tags:['caimento','objeção','conversão'], dur:'5 min',
+   t:'Prova no corpo: mata o "será que serve em mim?"',
+   promessa:'Resolver no vídeo a maior barreira de vender roupa online — e converter no último segundo.',
+   missao:'Grava 1 try-on dizendo em voz alta seu tamanho, altura e peso — e mostra o caimento sentando e andando.',
+   corpo:`<p>A maior barreira pra vender roupa na internet não é preço — é o medo de <b>"será que serve em mim?"</b>. Quem resolve isso no vídeo, vende. Quem deixa a dúvida no ar, perde a compradora no último segundo.</p>
+<p><b>1 · Dá os seus dados sem vergonha.</b> "1,60m, 68kg, quadril 100, vesti o 40." Parece detalhe, mas é o que faz a pessoa se projetar no seu corpo e pensar "então em mim vai ficar assim". É o dado que mais tira o medo.</p>
+<p><b>2 · Mostra o caimento de verdade.</b> Frente, lado, costas. Sentando, andando. A câmera parada no espelho mostrando a peça em movimento vale mais que dez adjetivos.</p>
+<p><b>3 · Encaixa no arco de 75s.</b> A prova no corpo entra entre 15 e 40 segundos: contexto → prova no corpo → seus dados. Depois vem a ancoragem de preço e o CTA. Sem a prova no corpo, o resto não sustenta.</p>
+<p><b>4 · Antecipa a objeção, não espera ela vir.</b> "Ah, mas em quem é magra fica bom" — mostra em você. "Será que marca?" — senta e mostra. Cada objeção respondida no vídeo é uma venda que não trava.</p>`}
+];
+// ── mecânica de publicação por data ──────────────────────────────────────────
+function _hojeISO(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function auloesPub(){var t=_hojeISO();return AULOES.filter(function(a){return a.data<=t;}).sort(function(a,b){return a.data<b.data?1:a.data>b.data?-1:b.n-a.n;});}
+function aulaoAtual(){return auloesPub()[0]||null;}
+function aulaoPorN(n){for(var i=0;i<AULOES.length;i++){if(AULOES[i].n===n)return AULOES[i];}return null;}
+var _MES_PT=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+function fmtData(s){var p=(s||'').split('-');return p.length===3?(parseInt(p[2],10)+' '+_MES_PT[parseInt(p[1],10)-1]):s;}
 const ACAD={
   estrutura:[['0–5s','Gancho','Chamada íntima ("amigas") + emoção forte'],['5–15s','Contexto','A peça em uso real'],['15–30s','Prova no corpo','Caimento, frente, costas, lavagem'],['30–40s','Seus dados','Tamanho, altura, peso — tira o medo de não servir'],['40–55s','Ancoragem','Marca cara + preço < R$100 + "direto da fábrica"'],['55–65s','Benefícios','Empina o bumbum, modela a cintura, versátil'],['65–75s','CTA','Urgência suave → carrinho laranja']],
   produtos:{'Marmorizada':[{tp:'Paixão / obsessão',qt:'Eu sou simplesmente apaixonada por essa calça'},{tp:'Viralização',qt:'A calça mais viralizada do TikTok vale cada centavo — e custa menos de 100 reais'},{tp:'Problema corporal',qt:'Amigas do popotão grandão que sofrem pra achar calça boa na cintura e no bumbum: essa é a solução'},{tp:'Urgência / descoberta',qt:'Amigas, para tudo. Olha o que eu descobri — juro que nunca vi nada igual'},{tp:'Uso repetido',qt:'Tô usando essa calça pela quinta vez na semana e ela continua perfeita'}],'Rosa Bebê':[{tp:'Surpresa pessoal',qt:'Eu não imaginava que precisava de uma calça rosa até ter uma'},{tp:'Quebra de objeção',qt:'“Ah, eu só compro de grife.” Amiga, para — pega a referência aqui'},{tp:'Direto da fábrica',qt:'Só compro calça direto da fábrica depois que descobri essa loja no carrinho'},{tp:'Momento especial',qt:'Hoje é meu aniversário e vou estrear essa calça rosa do carrinho laranja'},{tp:'Validação social',qt:'Comprei a calça rosa viralizada do TikTok — vem comigo?'}]},
@@ -593,7 +651,7 @@ const _qs=new URLSearchParams(location.search);
 const CREATOR=_qs.get('c')||_qs.get('handle')||_qs.get('creator')||null;
 function track(evento,extra){try{fetch('/api/relay',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify(Object.assign({action:'acad_track',evento:evento,sess:sessId(),creator:CREATOR},extra||{}))}).catch(function(){})}catch(e){}}
 // ROUTER
-function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));const el=document.getElementById('v-'+id);(el||document.getElementById('v-home')).classList.add('on');document.body.classList.toggle('inview',id!=='home');if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);window.scrollTo({top:0,behavior:'instant'});refreshFooters();if(id==='home'||!el)renderHome();if(id&&id!=='home')track('abriu_modulo',{modulo:id});}
+function show(id){if(id==='aula')return openAulao((aulaoAtual()||{}).n);if(id==='semana')id='conteudo';if(id==='aulao'){var _dt=document.getElementById('aulao-detail');if(_dt&&!_dt.innerHTML.trim())return openAulao((aulaoAtual()||{}).n);}document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));const el=document.getElementById('v-'+id);(el||document.getElementById('v-home')).classList.add('on');document.body.classList.toggle('inview',id!=='home');if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);window.scrollTo({top:0,behavior:'instant'});refreshFooters();if(id==='home'||!el)renderHome();if(id==='conteudo')renderConteudo();if(id&&id!=='home')track('abriu_modulo',{modulo:id});}
 function goHome(){show('home')}
 window.addEventListener('hashchange',()=>show((location.hash||'#home').slice(1)));
 // RENDER
@@ -612,6 +670,61 @@ function renderHome(){
     return `<article class="matcard st-${st}" onclick="show('${c.id}')"><div class="matcover cov-${c.cov}">${c.img?`<img class="covimg" src="${c.img}" alt="" loading="lazy">`:`<span class="maticon">${c.i}</span>`}<span class="matnum">${st==='ok'?'✓':c.n}</span>${st==='now'?'<span class="matnow">▶ próximo passo</span>':''}</div><div class="matbody"><div class="mattags">${c.tags.map(t=>'<span class="mattag">'+esc(t)+'</span>').join('')}</div><h3 class="mattitle">${esc(c.t)}</h3><p class="matdesc">${esc(c.d)}</p><span class="matcta">${st==='ok'?'revisar':'abrir'} →</span></div></article>`;
   }).join('');
   document.getElementById('extras').innerHTML=EXTRA.map(m=>`<article class="matcard ${m.soon?'st-soon':''}" ${m.soon?'':`onclick="show('${m.id}')"`}><div class="matcover cov-${m.cov}">${m.img?`<img class="covimg" src="${m.img}" alt="" loading="lazy">`:`<span class="maticon">${m.i}</span>`}${m.soon?'<span class="matnow soon">em breve</span>':''}</div><div class="matbody"><div class="mattags">${m.tags.map(t=>'<span class="mattag">'+esc(t)+'</span>').join('')}</div><h3 class="mattitle">${esc(m.t)}</h3><p class="matdesc">${esc(m.d)}</p>${m.soon?'':'<span class="matcta">abrir →</span>'}</div></article>`).join('');
+  renderAulaoHero();
+}
+// ── AULÃO: hero da home, detalhe e acervo ────────────────────────────────────
+function renderAulaoHero(){
+  var el=document.getElementById('aulao-hero');if(!el)return;var a=aulaoAtual();
+  if(!a){el.innerHTML='';return;}
+  var qtd=auloesPub().length;
+  el.innerHTML='<div class="featured" onclick="openAulao('+a.n+')">'
+    +'<div class="fe">🔥 Aulão da semana · Semana '+a.n+'</div>'
+    +'<h3>'+esc(a.t)+'</h3>'
+    +'<p>'+esc(a.promessa)+'</p>'
+    +'<div class="go">'+(a.video?'▶ Assistir o aulão':'Abrir o aulão')+(a.dur?' · '+esc(a.dur):'')+' →</div>'
+    +'</div>'
+    +(qtd>1?'<div class="aulao-more" onclick="show(\'conteudo\')">📚 +'+(qtd-1)+' '+(qtd-1===1?'aulão':'aulões')+' no acervo →</div>':'');
+}
+function aulaoVideoHTML(a){
+  if(!a.video)return '';
+  return '<div class="clipwrap"><div class="clipthumb clipsingle" onclick="openClip(\''+a.video+'\',\''+(a.poster||'')+'\')">'
+    +'<video class="clipv" muted loop playsinline webkit-playsinline autoplay preload="none"'+(a.poster?' poster="'+a.poster+'"':'')+'><source src="'+a.video+'" type="video/mp4"></video>'
+    +'<span class="playbadge">▶ toca pra ver com som</span></div>'
+    +(a.cap?'<p class="clipcap">'+esc(a.cap)+'</p>':'')+'</div>';
+}
+function openAulao(n){
+  var a=aulaoPorN(n);if(!a){show('conteudo');return;}
+  var cont=document.getElementById('aulao-detail');
+  var atual=aulaoAtual();var ehAtual=atual&&atual.n===a.n;
+  var html='<div class="vhead"><div class="stepbadge">'+(ehAtual?'🔥 Aulão desta semana':'Aulão · Semana '+a.n)+' · '+fmtData(a.data)+'</div>'
+    +'<h1>'+esc(a.t)+'</h1></div>'
+    +'<div class="promessa"><b>✅ O que você sai sabendo:</b> '+esc(a.promessa)+'</div>'
+    +aulaoVideoHTML(a)
+    +'<div class="prose">'+a.corpo+'</div>'
+    +'<div class="aulafoot">'
+    +(a.missao?'<div class="aula-missao"><b>🎯 Missão prática:</b> '+esc(a.missao)+'</div>':'')
+    +'<div class="foot-actions">'
+    +'<button class="btn" onclick="show(\'ganchos\')">Puxar um gancho pra gravar →</button>'
+    +'<button class="btn ghost" onclick="show(\'conteudo\')">📚 Ver todos os aulões</button>'
+    +'</div></div>';
+  cont.innerHTML=html;
+  show('aulao');track('abriu_aulao',{n:a.n});
+}
+function aulaoCardHTML(a,destaque){
+  var atual=aulaoAtual();var ehAtual=atual&&atual.n===a.n;
+  return '<article class="matcard" onclick="openAulao('+a.n+')"><div class="matcover cov-'+(ehAtual?'red':'purple')+'">'
+    +(a.poster?'<img class="covimg" src="'+a.poster+'" alt="" loading="lazy">':'<span class="maticon">🎓</span>')
+    +'<span class="matnum">'+a.n+'</span>'+(a.video?'<span class="matnow soon">▶ vídeo</span>':'')+'</div>'
+    +'<div class="matbody"><div class="mattags"><span class="mattag">Semana '+a.n+'</span><span class="mattag">'+fmtData(a.data)+'</span>'+(a.dur?'<span class="mattag">'+esc(a.dur)+'</span>':'')+'</div>'
+    +'<h3 class="mattitle">'+esc(a.t)+'</h3><p class="matdesc">'+esc(a.promessa)+'</p>'
+    +'<span class="matcta">'+(ehAtual?'assistir agora':'rever')+' →</span></div></article>';
+}
+function renderConteudo(){
+  var atual=aulaoAtual();var pub=auloesPub();
+  var ec=document.getElementById('aulao-current');
+  if(ec)ec.innerHTML=atual?aulaoCardHTML(atual,true):'<p class="sub">Nenhum aulão publicado ainda.</p>';
+  var ar=document.getElementById('aulao-arquivo');
+  if(ar){var ant=pub.slice(1);ar.innerHTML=ant.length?ant.map(function(a){return aulaoCardHTML(a,false);}).join(''):'<p class="sub">Os aulões anteriores vão aparecer aqui conforme forem saindo.</p>';}
 }
 function refreshFooters(){CORE.forEach(c=>{const b=document.querySelector('#v-'+c.id+' .concluir-btn');if(b){const d=isDone(c.id);b.textContent=d?'✓ Aula concluída — refazer quando quiser':'✓ Concluí esta aula';b.classList.toggle('is-done',d)}});}
 function concluir(id){const first=!isDone(id);markDone(id);if(first)track('concluiu_aula',{modulo:id});renderHome();refreshFooters();toast(first?'Aula concluída 🎉':'Feito ✓');show('home');}
@@ -625,8 +738,7 @@ CORE.forEach((c,idx)=>{
   f.innerHTML=(meta.m?'<div class="aula-missao"><b>🎯 Missão prática:</b> '+esc(meta.m)+'</div>':'')+'<div class="foot-actions"><button class="btn concluir-btn" onclick="concluir(\''+c.id+'\')">✓ Concluí esta aula</button>'+(nx?'<button class="btn ghost" onclick="show(\''+nx.id+'\')">Próxima: '+esc(nx.t)+' →</button>':'<button class="btn ghost" onclick="show(\'home\')">Voltar pra trilha →</button>')+'</div>';
   cont.appendChild(f);
 });
-renderHome();refreshFooters();
-document.getElementById('aula-body').innerHTML=AULA;
+renderHome();refreshFooters();renderConteudo();
 document.getElementById('steps').innerHTML=ACAD.estrutura.map(s=>`<div class="step"><div class="tm">${s[0]}</div><div><div class="st">${esc(s[1])}</div><div class="sd">${esc(s[2])}</div></div></div>`).join('');
 function forcaTag(f){return f==='segura'?'<span class="forca seg">🪝 segura</span>':f==='fecha'?'<span class="forca fec">💰 fecha</span>':'<span class="forca amb">🪝💰 ambos</span>';}
 let _arq='Todos',_q='';
