@@ -260,6 +260,9 @@
   .trilha li::before{content:"→";position:absolute;left:0;color:var(--red);font-weight:700}
   .prose p{font-size:16px;line-height:1.72;margin-top:18px;max-width:64ch;color:var(--ink)}
   .prose p b{color:var(--ink)} .prose p:first-child{margin-top:0}
+  .prose ul{margin:12px 0 0;padding:0;list-style:none;max-width:64ch}
+  .prose ul li{position:relative;font-size:16px;line-height:1.62;color:var(--ink);padding-left:24px;margin-top:11px}
+  .prose ul li::before{content:'';position:absolute;left:5px;top:10px;width:6px;height:6px;border-radius:50%;background:var(--red)}
   .lib-drive{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-bottom:8px}
   .lib-drive .li{font-size:30px}.lib-drive .lt{flex:1;min-width:200px}.lib-drive .lt b{font-size:16px}.lib-drive .lt div{color:var(--muted);font-size:14px;margin-top:2px}
   .lib-soon{font-family:var(--mono);font-size:13px;color:var(--soft);border:1px dashed var(--line);border-radius:99px;padding:9px 16px}
@@ -461,6 +464,9 @@
     <div class="matgrid" id="aulao-current"></div>
     <div class="sectitle" style="margin-top:30px">Aulões anteriores</div>
     <div class="matgrid" id="aulao-arquivo"></div>
+    <div class="sectitle" style="margin-top:34px">📌 Fundamentos</div>
+    <p class="sub" style="margin:2px 0 14px">Como o jogo funciona por trás dos vídeos. Não muda toda semana — volta aqui quando precisar.</p>
+    <div class="matgrid" id="fundamentos-list"></div>
     <div class="sectitle" style="margin-top:34px">Leituras rápidas</div>
     <p class="sub" style="margin:2px 0 14px">Frameworks curtos pra consultar. Filtra pelo seu nível.</p>
     <div class="filterbar" id="filterbar"></div>
@@ -529,51 +535,111 @@ const ARTIGOS=[
 const AULOES=[
   {n:1, data:'2026-07-06', niv:'todas', tags:['método','multiplicar'], dur:'5 min',
    t:'De 1 vídeo campeão a infinitos campeões',
-   promessa:'Transformar 1 vídeo que já deu certo em 5–8 novos — sem nunca mais ficar sem ideia.',
+   promessa:'Transformar 1 vídeo que já deu certo em vários — sem nunca mais ficar sem ideia.',
    video:'/rhodemap/videos/taci01.mp4', poster:'/rhodemap/posters/taci01.jpg',
    cap:'@tacianecreator — o vídeo simples, no corpo, sem produção, que virou referência.',
-   missao:'Pega o seu vídeo que mais rendeu e escreve 3 variações trocando só o gancho.',
-   corpo:`<p>Se eu pudesse te ensinar <b>uma coisa só</b>, seria essa. Um vídeo campeão não é sorte — é uma fórmula que já <b>provou</b> que funciona. Em vez de inventar do zero e torcer, você replica o que fez ele ganhar e troca só a superfície. Assim <b>1 campeão vira infinitos</b>.</p>
-<p><b>1 · Ache o campeão (não chute).</b> Usa o que já vendeu de verdade — os vídeos em "Biblioteca & campeões" são dado real. O da @tacianecreator sozinho fez R$ 98 mil. Copiar um vencedor > criar um original não testado.</p>
-<p><b>2 · Disseca a estrutura invisível.</b> Isola: o <b>tipo de gancho</b> (paixão? preço? corpo?), o <b>arco 0–75s</b>, o <b>ângulo de oferta</b>, o <b>som</b>, a prova no corpo. Entende o <b>porquê</b> funcionou, não decore as palavras.</p>
-<p><b>3 · Mantém o que ganhou, troca a superfície.</b> Mantém a estrutura, o tipo de gancho, o ângulo, o som. Troca a sua cara e voz, as palavras exatas, o look, o cenário. Cada troca fiel à fórmula = um novo campeão em potencial.</p>
-<p><b>4 · Multiplica por eixo.</b> Cada variável é um eixo: o mesmo formato com <b>outro gancho</b>, com <b>outro produto</b> (Mom, Baggy), com <b>outro ângulo</b>. Um campeão vira 5–8 variações.</p>
-<p><b>5 · Testa em lote, dobra no que repete.</b> Posta as variações, vê qual <b>reproduz o resultado</b>, dobra nela. O jogo não é o vídeo perfeito — é iterar rápido sobre o que já ganha. É por isso que você nunca mais fica sem ideia.</p>`},
+   missao:'Pega o seu vídeo que mais vendeu e faz 3 versões dele: mesma estrutura, aberturas diferentes. Posta e vê qual repete o resultado.',
+   corpo:`<p><b>A ideia.</b> Um vídeo que vendeu não foi sorte — ele acertou alguma coisa. Se você entende o que ele acertou, você repete de propósito. É assim que 1 vídeo bom vira 5, 8, 10 — sem ter que inventar do zero toda vez.</p>
+<p><b>Por que funciona.</b> Criar um vídeo original toda vez é apostar no escuro. Copiar a receita de um que já deu certo é jogar com carta marcada. A parte que fez ele vender — a abertura, a ordem das coisas, a prova no corpo — continua funcionando quando você troca só a superfície.</p>
+<p><b>Como multiplicar um campeão:</b></p>
+<ul>
+<li><b>Acha o campeão de verdade</b> — não o que você achou bonito, o que <b>vendeu</b>. Os vídeos em "Biblioteca &amp; campeões" são dado real: o da @tacianecreator sozinho fez R$ 98 mil.</li>
+<li><b>Descobre o que ele acertou</b> — a abertura foi de preço? de um problema no corpo? de surpresa? A prova apareceu rápido? Entende o porquê, não decora as palavras.</li>
+<li><b>Mantém o que funcionou, troca o resto</b> — mantém a estrutura e o tipo de abertura; troca a sua cara, as suas palavras, o look, o cenário.</li>
+<li><b>Muda uma coisa de cada vez</b> — o mesmo vídeo com outra abertura, com outra calça, com outro ângulo. Cada troca é uma versão nova pra testar.</li>
+</ul>
+<p>Você não fica sem ideia porque não depende de inspiração — depende de um campeão pra copiar de você mesma.</p>`},
 
   {n:2, data:'2026-07-13', niv:'todas', tags:['ganchos','teste','copy'], dur:'5 min',
-   t:'O gancho decide tudo — e como testar sem queimar',
-   promessa:'Montar e TESTAR ganchos do jeito certo, isolando a variável que decide 68% do resultado.',
+   t:'O gancho decide tudo (e como testar o seu do jeito certo)',
+   promessa:'Montar aberturas que prendem — e um jeito simples de descobrir qual funciona melhor.',
    video:'/rhodemap/videos/taci02.mp4', poster:'/rhodemap/posters/taci02.jpg',
-   cap:'@tacianecreator — repare como ela abre já mostrando o caimento: gancho + prova nos 2 primeiros segundos.',
-   missao:'Escolhe 1 corpo de vídeo (a espinha) e grava 3 aberturas diferentes pra ele. Posta e vê qual segura mais nos 2 primeiros segundos.',
-   corpo:`<p>O vídeo inteiro pode ser perfeito — mas se os <b>2 primeiros segundos</b> não seguram, ninguém vê o resto. No nosso teste de junho, o tipo de gancho sozinho <b>previu 68% do resultado</b> do vídeo. É a variável que mais mexe no ponteiro.</p>
-<p><b>1 · Segura ≠ fecha.</b> Tem gancho que PARA o dedo (curiosidade, objeção, choque) e tem gancho que FECHA a venda (prova, escassez, preço). Os dois importam, mas em momentos diferentes — não confunde. Vídeo de alcance abre com "segura"; vídeo de conversão abre com "fecha".</p>
-<p><b>2 · Testa isolando a variável.</b> Aqui tá o segredo que quase ninguém faz: mantém o <b>corpo e o CTA do vídeo IGUAIS</b> (a "espinha") e troca <b>só a abertura</b>. Se um rende mais, você sabe que foi o gancho — não a roupa, não o áudio, não a hora do post. É teste de verdade, não achismo.</p>
-<p><b>3 · Nunca copie a frase exata.</b> Somos 50 a 80 creators no mesmo produto. Se todo mundo abre com a MESMA frase, o gancho queima e o algoritmo lê como repetição. Pega o <b>ângulo</b> (ex: "objeção de caimento") e escreve <b>com a sua voz</b>. O ângulo é compartilhado; a frase é sua.</p>
-<p><b>4 · Puxa do banco e remodela.</b> No módulo <b>Ganchos &amp; estrutura</b> tem 45 ângulos prontos, marcados por funil e por "testado × novo". Escolhe 1, remodela, testa. Simples assim.</p>`},
+   cap:'@tacianecreator — repare como ela abre já mostrando o caimento: prende e prova nos 2 primeiros segundos.',
+   missao:'Escolhe 1 vídeo seu e grava a mesma coisa com 3 aberturas diferentes. Posta e vê qual segurou mais gente no comecinho.',
+   corpo:`<p><b>A ideia.</b> O vídeo inteiro pode ser ótimo, mas se os 2 primeiros segundos não prendem, ninguém vê o resto. A abertura — o gancho — é a parte que mais decide se o vídeo vai bem. É onde vale gastar a maior parte da sua atenção.</p>
+<p><b>Prender é diferente de vender.</b> Tem abertura que serve pra <b>parar o dedo</b> (uma curiosidade, um problema que a pessoa tem, uma surpresa) e tem abertura que serve pra <b>fazer comprar</b> (uma prova, "esgotou 3 vezes", o preço). As duas importam — só não confunde qual usar. Um vídeo pra alcançar gente nova abre prendendo; um pra converter abre vendendo.</p>
+<p><b>Como testar sem se enganar.</b> Aqui está o pulo do gato: mantém o <b>miolo do vídeo igual</b> — a mesma calça, a mesma prova, o mesmo final — e grava só a <b>abertura diferente</b>. Se uma versão foi melhor, você sabe que foi a abertura, não a roupa nem o horário. É teste de verdade, não achismo.</p>
+<p><b>Não copie a frase exata de ninguém.</b> Somos dezenas de creators no mesmo produto. Se todo mundo abre com a mesma frase, ela perde a graça e o TikTok entende como repetição. Pega a <b>ideia</b> da abertura (ex: "eu não ia comprar calça pela internet") e escreve <b>com a sua voz</b>. A ideia é de todo mundo; a frase é sua.</p>
+<p><b>Onde achar aberturas prontas.</b> No módulo <b>Ganchos &amp; estrutura</b> tem 45 ideias de abertura, separadas por objetivo e marcadas com o que já foi testado. Escolhe uma, adapta pra sua voz, testa.</p>`},
 
-  {n:3, data:'2026-07-20', niv:'todas', tags:['volume','batch','ritmo'], dur:'6 min',
-   t:'5 vídeos numa tarde: o batch que triplica seu GMV',
-   promessa:'Montar os 5 vídeos da semana numa gravação só — e entender por que volume (não sorte) multiplica GMV.',
+  {n:3, data:'2026-07-20', niv:'todas', tags:['volume','constância','ritmo'], dur:'5 min',
+   t:'5 vídeos numa tarde: por que volume vende mais que sorte',
+   promessa:'Entender por que postar mais vende mais — e sair com uma tarde de gravação que rende a semana toda.',
    video:'/rhodemap/videos/dayane01.mp4', poster:'/rhodemap/posters/dayane01.jpg',
    cap:'@dayane — mesma peça, ângulos diferentes: é assim que uma gravação vira vários vídeos.',
-   missao:'Bloqueia 1 tarde essa semana e grava 5 vídeos seguidos: 3 formatos ⚡ rápidos + 2 de produção. Mesma roupa, ganchos diferentes.',
-   corpo:`<p>Vídeo é quase <b>metade do GMV de afiliação</b> — e o resultado não vai pra quem tem mais seguidor, vai pra quem <b>posta com constância</b>. Quem sobe <b>5+ vídeos por semana faz ~3,2x mais GMV</b> que quem posta 2. Não é sorte, não é viralizar de vez em quando: é volume testando mais ângulos ao mesmo tempo.</p>
-<p><b>1 · Grava em lote, não avulso.</b> A parte cara não é gravar — é montar o cenário, se arrumar, achar a luz. Faz isso UMA vez e aproveita: num dia só você grava <b>4 a 6 vídeos</b>. Mesma roupa, mesma luz, ganchos e ângulos diferentes.</p>
-<p><b>2 · Começa pelos rápidos ⚡.</b> 3 dos 5 saem dos formatos rápidos: <b>POV com texto na tela</b>, <b>slideshow em vídeo</b>, <b>contraste (básico→estiloso)</b>. Esses você grava em minutos, sem precisar falar. Os outros 2 são de produção (try-on, review).</p>
-<p><b>3 · Reaproveita um vídeo em vários.</b> Um try-on vira "3 looks", vira "qual seu tamanho", vira "review de 1 semana". Um material, 4 vídeos. É assim que 1 tarde vira 15 vídeos em 3 semanas.</p>
-<p><b>⚠️ Só VÍDEO leva a sacolinha.</b> Carrossel de foto NÃO vira shop. Se for usar fotos, monta como <b>slideshow em vídeo</b> no CapCut — aí sim entra na loja.</p>
-<p>O jogo não é o vídeo perfeito. É <b>iterar rápido</b> sobre o que já funciona. Bloqueia a tarde e grava os 5.</p>`},
+   missao:'Bloqueia uma tarde e grava 5 vídeos. Posta um por dia. No domingo, olha qual teve mais visualizações e mais comentários — esse é o seu campeão da semana. Guarda ele.',
+   corpo:`<p><b>A ideia.</b> Você não precisa de um vídeo perfeito. Precisa de vários vídeos bons o suficiente. Quem posta 5 ou mais por semana costuma vender cerca de 3 vezes mais do que quem posta 2 — e não é porque trabalha o triplo. É porque testa o triplo.</p>
+<p><b>Por que funciona assim.</b> Ninguém acerta de primeira o vídeo que vai vender — nem quem tem milhão de seguidor. O que acontece é simples: você posta vários e um pega. Postou 2 na semana? Foram 2 tentativas. Postou 5? Foram 5. Cada vídeo é uma pergunta que você faz pra sua audiência: "é disso que você gosta?". Quanto mais perguntas, mais rápido você descobre a resposta — e aí é só repetir o que deu certo.</p>
+<p><b>O que cansa não é gravar.</b> É se arrumar, achar a luz, escolher a roupa, montar o cenário. Isso você faz uma vez só. Depois é só variar o que está na frente da câmera. Por isso gravar tudo de uma vez rende tanto: um esforço de preparação, vários vídeos.</p>
+<p><b>Como montar a sua tarde:</b></p>
+<ul>
+<li>Separa uma tarde e se arruma uma vez só.</li>
+<li>Grava de 4 a 6 vídeos seguidos com a mesma roupa — muda só a abertura e o ângulo.</li>
+<li>Começa pelos fáceis, onde você nem precisa falar: um vídeo com uma frase na tela, um "3 jeitos de usar a mesma calça", um corte de você básica pra você arrumada.</li>
+<li>Depois faz 1 ou 2 que pedem mais: um provador mostrando o caimento, uma opinião honesta depois de usar.</li>
+<li>Aproveita cada vídeo em vários: um provador vira "qual é o seu tamanho", vira "usei uma semana, o que achei". Um material vira quatro posts.</li>
+</ul>
+<p><b>Um detalhe que muda tudo:</b> só vídeo leva a sacolinha. Foto em carrossel não vira loja. Se quiser usar fotos, monta como um vídeo (slideshow no CapCut) — aí sim entra na sacolinha.</p>`},
 
   {n:4, data:'2026-07-27', niv:'todas', tags:['caimento','objeção','conversão'], dur:'5 min',
    t:'Prova no corpo: mata o "será que serve em mim?"',
-   promessa:'Resolver no vídeo a maior barreira de vender roupa online — e converter no último segundo.',
-   missao:'Grava 1 try-on dizendo em voz alta seu tamanho, altura e peso — e mostra o caimento sentando e andando.',
-   corpo:`<p>A maior barreira pra vender roupa na internet não é preço — é o medo de <b>"será que serve em mim?"</b>. Quem resolve isso no vídeo, vende. Quem deixa a dúvida no ar, perde a compradora no último segundo.</p>
-<p><b>1 · Dá os seus dados sem vergonha.</b> "1,60m, 68kg, quadril 100, vesti o 40." Parece detalhe, mas é o que faz a pessoa se projetar no seu corpo e pensar "então em mim vai ficar assim". É o dado que mais tira o medo.</p>
-<p><b>2 · Mostra o caimento de verdade.</b> Frente, lado, costas. Sentando, andando. A câmera parada no espelho mostrando a peça em movimento vale mais que dez adjetivos.</p>
-<p><b>3 · Encaixa no arco de 75s.</b> A prova no corpo entra entre 15 e 40 segundos: contexto → prova no corpo → seus dados. Depois vem a ancoragem de preço e o CTA. Sem a prova no corpo, o resto não sustenta.</p>
-<p><b>4 · Antecipa a objeção, não espera ela vir.</b> "Ah, mas em quem é magra fica bom" — mostra em você. "Será que marca?" — senta e mostra. Cada objeção respondida no vídeo é uma venda que não trava.</p>`}
+   promessa:'Resolver no vídeo a maior dúvida de quem compra roupa online — e não perder a venda no fim.',
+   missao:'Grava um provador dizendo em voz alta seu tamanho, altura e peso — e mostra o caimento sentando e andando. É o vídeo que mais tira a dúvida de comprar.',
+   corpo:`<p><b>A ideia.</b> A maior barreira pra vender roupa pela internet não é preço — é a dúvida "será que fica bom em <b>mim</b>?". O vídeo que responde isso vende. O que deixa a dúvida no ar perde a pessoa no último segundo.</p>
+<p><b>Por que os seus dados vendem.</b> Quando você diz "1,60m, 68kg, vesti o 40", a pessoa se compara com você e pensa "então em mim vai ficar assim". Parece detalhe, mas é o que mais tira o medo de errar o tamanho — que é o motivo nº1 de a pessoa não comprar roupa online.</p>
+<p><b>O que mostrar:</b></p>
+<ul>
+<li><b>Os seus números</b> — altura, peso, o tamanho que você vestiu. Sem vergonha: é o que ajuda a pessoa a se decidir.</li>
+<li><b>O caimento de verdade</b> — frente, lado, costas. Sentando, andando. Mostrar a peça em movimento vale mais que dez adjetivos.</li>
+<li><b>A objeção antes dela vir</b> — "ah, mas em quem é magra fica bom" → mostra em você. "será que marca?" → senta e mostra. Cada dúvida respondida no vídeo é uma venda que não trava.</li>
+</ul>
+<p><b>Onde isso entra.</b> Depois de prender a atenção e mostrar a calça em uso, vem a prova no corpo e os seus dados — e só então o preço e o "corre garantir". Sem a prova no corpo, o resto não se sustenta.</p>`}
+];
+// ═══════════════════════════════════════════════════════════════════════════
+// FUNDAMENTOS — aulas PERENES (não giram). "Como o jogo funciona por trás dos
+// vídeos". Ficam sempre no acervo (aba Conteúdo). Mesmo molde dos aulões.
+// ═══════════════════════════════════════════════════════════════════════════
+const FUNDAMENTOS=[
+  {id:'metricas', i:'📊', niv:'todas', tags:['métricas','decisão'], dur:'5 min',
+   t:'Análise de métricas: leia o resultado e escolha o próximo vídeo',
+   promessa:'Saber o que cada número quer dizer — e usar isso pra decidir o que gravar depois.',
+   missao:'Pega os seus 3 últimos vídeos e responde: qual segurou mais gente no começo? Qual teve mais clique na sacolinha? Qual vendeu mais? O vencedor de cada pergunta te diz o que repetir.',
+   corpo:`<p><b>A ideia.</b> Métrica não é pra você se cobrar — é pra descobrir o que a sua audiência gosta <b>antes</b> de gravar o próximo vídeo. Um número sozinho não diz nada; o que ensina é comparar os seus vídeos entre si.</p>
+<p><b>Os 3 números que importam (nessa ordem):</b></p>
+<ul>
+<li><b>Quantas pessoas passaram do começo</b> — de quem começou a ver, quantas continuaram depois dos primeiros segundos. É o que mais decide se o vídeo vai longe. Se cai muito no início, o problema é a abertura, não o resto.</li>
+<li><b>Cliques na sacolinha</b> — de quem assistiu, quantas tocaram no produto. Mostra se você despertou desejo. Muita visualização e pouco clique = você entreteve, mas não deu vontade de comprar.</li>
+<li><b>Vendas e comissão</b> — quantas pessoas compraram de verdade. É o placar final. Um vídeo com menos visualizações mas mais vendas vale mais que um viral que não converteu.</li>
+</ul>
+<p><b>Por que comparar, e não olhar solto.</b> "500 visualizações" não é bom nem ruim sozinho. Agora, "esse vídeo segurou o dobro do outro" te diz exatamente qual abertura funcionou. Você não precisa acertar na teoria — precisa ler o que os seus próprios vídeos já estão te contando.</p>
+<p><b>Como usar pra decidir o próximo:</b></p>
+<ul>
+<li>Caiu logo no começo? Troca a abertura — mantém o resto.</li>
+<li>Segurou mas ninguém clicou? Faltou desejo — mostra melhor o caimento, os detalhes, o preço.</li>
+<li>Clicaram mas não compraram? Pode ser tamanho, confiança ou preço — responde essa dúvida no próximo vídeo.</li>
+<li>Vendeu? Não para: repete a fórmula com outra roupa e outra abertura. Você achou um campeão.</li>
+</ul>
+<p>Métrica boa é a que muda o seu próximo vídeo. Se você olhou e não mudou nada, não olhou de verdade.</p>`},
+
+  {id:'gmvmax', i:'🚀', niv:'todas', tags:['ads','alcance','comissão'], dur:'5 min',
+   t:'O que é o GMV Max (e por que ele adora um vídeo bom)',
+   promessa:'Entender a máquina de anúncios da Rhode — e por que gravar bem faz ela trabalhar de graça pra você.',
+   missao:'Escolhe o seu vídeo que mais vendeu e confere: ele é vídeo (não foto), mostra o produto e prende no início? Se sim, é o tipo que a máquina quer — avisa a Rhode que você tem um candidato a Spark Ads.',
+   corpo:`<p><b>A ideia.</b> Além do alcance orgânico (o que o TikTok te entrega de graça), existe o alcance <b>pago</b>: a Rhode coloca dinheiro de anúncio pra empurrar vídeos que vendem. A máquina que faz isso sozinha dentro da TikTok Shop se chama <b>GMV Max</b>. E o combustível dela são vídeos — os seus.</p>
+<p><b>Como funciona, sem complicar.</b> A Rhode define um orçamento e uma meta de retorno. O GMV Max testa vários vídeos como anúncio pra ver quais trazem mais venda por real gasto. Os que convertem, ele empurra mais; os que não, ele corta. É automático e roda o tempo todo.</p>
+<p><b>Onde você entra.</b> Os melhores vídeos das creators entram nesse pool de anúncios (é o que o Hub chama de <b>Spark Ads</b> / GMV Max Creative Pool). Se o seu vídeo é escolhido, duas coisas boas acontecem juntas:</p>
+<ul>
+<li><b>Alcance que você não pagou</b> — seu vídeo aparece pra muito mais gente do que o orgânico entregaria.</li>
+<li><b>Comissão em cima disso</b> — as vendas que vierem do seu vídeo amplificado continuam sendo suas. É a sua comissão orgânica + o bônus das vendas via anúncio.</li>
+</ul>
+<p><b>Por que isso muda como você grava.</b> A máquina não amplifica vídeo bonito — amplifica vídeo que <b>vende</b>. Então o que aumenta a sua chance de ser escolhida é exatamente o que a gente ensina nos aulões:</p>
+<ul>
+<li><b>Ser vídeo, não foto</b> — só vídeo leva a sacolinha e pode virar anúncio de loja.</li>
+<li><b>Prender no início</b> — se as pessoas ficam, o GMV Max enxerga potencial.</li>
+<li><b>Fazer vender</b> — prova no corpo, tamanho, caimento: o que tira a dúvida e fecha.</li>
+<li><b>Volume</b> — quanto mais vídeos bons você posta, mais material a máquina tem pra escolher o seu.</li>
+</ul>
+<p>Resumindo: um bom vídeo seu pode ganhar um orçamento de mídia que você não pagou — e te devolver mais alcance e mais comissão. Gravar com constância é o que te coloca nessa fila.</p>`}
 ];
 // ── mecânica de publicação por data ──────────────────────────────────────────
 function _hojeISO(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -692,23 +758,36 @@ function aulaoVideoHTML(a){
     +'<span class="playbadge">▶ toca pra ver com som</span></div>'
     +(a.cap?'<p class="clipcap">'+esc(a.cap)+'</p>':'')+'</div>';
 }
-function openAulao(n){
-  var a=aulaoPorN(n);if(!a){show('conteudo');return;}
-  var cont=document.getElementById('aulao-detail');
-  var atual=aulaoAtual();var ehAtual=atual&&atual.n===a.n;
-  var html='<div class="vhead"><div class="stepbadge">'+(ehAtual?'🔥 Aulão desta semana':'Aulão · Semana '+a.n)+' · '+fmtData(a.data)+'</div>'
-    +'<h1>'+esc(a.t)+'</h1></div>'
+function _renderDetalhe(a,o){
+  var cont=document.getElementById('aulao-detail');if(!cont)return;
+  cont.innerHTML='<div class="vhead"><div class="stepbadge">'+o.badge+'</div><h1>'+esc(a.t)+'</h1></div>'
     +'<div class="promessa"><b>✅ O que você sai sabendo:</b> '+esc(a.promessa)+'</div>'
     +aulaoVideoHTML(a)
     +'<div class="prose">'+a.corpo+'</div>'
     +'<div class="aulafoot">'
-    +(a.missao?'<div class="aula-missao"><b>🎯 Missão prática:</b> '+esc(a.missao)+'</div>':'')
-    +'<div class="foot-actions">'
-    +'<button class="btn" onclick="show(\'ganchos\')">Puxar um gancho pra gravar →</button>'
-    +'<button class="btn ghost" onclick="show(\'conteudo\')">📚 Ver todos os aulões</button>'
-    +'</div></div>';
-  cont.innerHTML=html;
-  show('aulao');track('abriu_aulao',{n:a.n});
+    +(a.missao?'<div class="aula-missao"><b>'+o.testLabel+'</b> '+esc(a.missao)+'</div>':'')
+    +'<div class="foot-actions">'+o.actions+'</div></div>';
+  show('aulao');
+}
+function openAulao(n){
+  var a=aulaoPorN(n);if(!a)return show('conteudo');
+  var atual=aulaoAtual();var ehAtual=atual&&atual.n===a.n;
+  _renderDetalhe(a,{
+    badge:(ehAtual?'🔥 Aulão desta semana':'Aulão · Semana '+a.n)+' · '+fmtData(a.data),
+    testLabel:'🧪 Seu teste desta semana:',
+    actions:'<button class="btn" onclick="show(\'ganchos\')">Puxar um gancho pra gravar →</button><button class="btn ghost" onclick="show(\'conteudo\')">📚 Ver todo o conteúdo</button>'
+  });
+  track('abriu_aulao',{n:a.n});
+}
+function fundamentoPorId(id){for(var i=0;i<FUNDAMENTOS.length;i++){if(FUNDAMENTOS[i].id===id)return FUNDAMENTOS[i];}return null;}
+function openFundamento(id){
+  var a=fundamentoPorId(id);if(!a)return show('conteudo');
+  _renderDetalhe(a,{
+    badge:'📚 Fundamento'+(a.dur?' · '+esc(a.dur):''),
+    testLabel:'🎯 Faça agora:',
+    actions:'<button class="btn ghost" onclick="show(\'conteudo\')">📚 Ver todo o conteúdo</button>'
+  });
+  track('abriu_fundamento',{id:a.id});
 }
 function aulaoCardHTML(a,destaque){
   var atual=aulaoAtual();var ehAtual=atual&&atual.n===a.n;
@@ -719,12 +798,22 @@ function aulaoCardHTML(a,destaque){
     +'<h3 class="mattitle">'+esc(a.t)+'</h3><p class="matdesc">'+esc(a.promessa)+'</p>'
     +'<span class="matcta">'+(ehAtual?'assistir agora':'rever')+' →</span></div></article>';
 }
+function fundamentoCardHTML(a){
+  return '<article class="matcard" onclick="openFundamento(\''+a.id+'\')"><div class="matcover cov-teal">'
+    +(a.poster?'<img class="covimg" src="'+a.poster+'" alt="" loading="lazy">':'<span class="maticon">'+(a.i||'📚')+'</span>')
+    +(a.video?'<span class="matnow soon">▶ vídeo</span>':'')+'</div>'
+    +'<div class="matbody"><div class="mattags">'+(a.tags||[]).map(function(t){return '<span class="mattag">'+esc(t)+'</span>';}).join('')+(a.dur?'<span class="mattag">'+esc(a.dur)+'</span>':'')+'</div>'
+    +'<h3 class="mattitle">'+esc(a.t)+'</h3><p class="matdesc">'+esc(a.promessa)+'</p>'
+    +'<span class="matcta">entender →</span></div></article>';
+}
 function renderConteudo(){
   var atual=aulaoAtual();var pub=auloesPub();
   var ec=document.getElementById('aulao-current');
   if(ec)ec.innerHTML=atual?aulaoCardHTML(atual,true):'<p class="sub">Nenhum aulão publicado ainda.</p>';
   var ar=document.getElementById('aulao-arquivo');
   if(ar){var ant=pub.slice(1);ar.innerHTML=ant.length?ant.map(function(a){return aulaoCardHTML(a,false);}).join(''):'<p class="sub">Os aulões anteriores vão aparecer aqui conforme forem saindo.</p>';}
+  var fl=document.getElementById('fundamentos-list');
+  if(fl)fl.innerHTML=FUNDAMENTOS.map(fundamentoCardHTML).join('');
 }
 function refreshFooters(){CORE.forEach(c=>{const b=document.querySelector('#v-'+c.id+' .concluir-btn');if(b){const d=isDone(c.id);b.textContent=d?'✓ Aula concluída — refazer quando quiser':'✓ Concluí esta aula';b.classList.toggle('is-done',d)}});}
 function concluir(id){const first=!isDone(id);markDone(id);if(first)track('concluiu_aula',{modulo:id});renderHome();refreshFooters();toast(first?'Aula concluída 🎉':'Feito ✓');show('home');}
