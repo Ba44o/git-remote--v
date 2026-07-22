@@ -398,6 +398,9 @@
       <p class="sub" style="margin-bottom:12px"><span class="fonte testado" style="vertical-align:middle">✓ testado</span> = veio do teste de jun/26 (Wide Leg, tem lastro). <span class="fonte novo" style="vertical-align:middle">novo</span> = expansão, ainda é aposta. Preço nos exemplos é chute — troca pelo do dia.</p>
       <div class="aviso">🚫 <b>Não é pra copiar a frase igual.</b> Somos muitas na mesma calça — pega o <b>ângulo</b> e remodela na <b>sua voz</b> (<a href="#ganchos" onclick="show('ganchos')" style="color:var(--red);font-weight:600">como fazer ↑</a>). Frase repetida por 50 creators não para o dedo de ninguém.</div>
       <input class="search" id="angsearch" type="text" placeholder="Buscar por palavra, produto ou tipo de gancho…">
+      <p class="sub" style="margin:14px 0 6px;font-size:13px"><b>Etapa</b> — monte a semana pegando de cada uma (<a href="#conteudo" onclick="openFundamento('gmvmax')" style="color:var(--red);font-weight:600">por quê ↗</a>)</p>
+      <div class="chips" id="chipsfun"></div>
+      <p class="sub" style="margin:12px 0 6px;font-size:13px"><b>Ângulo</b></p>
       <div class="chips" id="chips"></div>
       <div class="angcount" id="angcount"></div>
       <div id="angulos" class="anggrid"></div>
@@ -621,25 +624,31 @@ const FUNDAMENTOS=[
 </ul>
 <p>Métrica boa é a que muda o seu próximo vídeo. Se você olhou e não mudou nada, não olhou de verdade.</p>`},
 
-  {id:'gmvmax', i:'🚀', niv:'todas', tags:['ads','alcance','comissão'], dur:'5 min',
+  {id:'gmvmax', i:'🚀', niv:'todas', tags:['ads','funil','alcance'], dur:'7 min',
+   ctaView:'ganchos', ctaLabel:'Montar a semana no banco de ganchos →',
    t:'O que é o GMV Max (e por que ele adora um vídeo bom)',
-   promessa:'Entender a máquina de anúncios da Rhode — e por que gravar bem faz ela trabalhar de graça pra você.',
-   missao:'Escolhe o seu vídeo que mais vendeu e confere: ele é vídeo (não foto), mostra o produto e prende no início? Se sim, é o tipo que a máquina quer — avisa a Rhode que você tem um candidato a Spark Ads.',
+   promessa:'Entender a máquina de anúncios por dentro — e por que variar etapa e ângulo dos seus vídeos é o que te coloca nela.',
+   missao:'Olha os seus últimos 5 vídeos e classifica cada um: topo, meio ou fundo? Se estiverem quase todos na mesma etapa, é aí que você está perdendo alcance. Monta a próxima semana com pelo menos um de cada.',
    corpo:`<p><b>A ideia.</b> Além do alcance orgânico (o que o TikTok te entrega de graça), existe o alcance <b>pago</b>: a Rhode coloca dinheiro de anúncio pra empurrar vídeos que vendem. A máquina que faz isso sozinha dentro da TikTok Shop se chama <b>GMV Max</b>. E o combustível dela são vídeos — os seus.</p>
-<p><b>Como funciona, sem complicar.</b> A Rhode define um orçamento e uma meta de retorno. O GMV Max testa vários vídeos como anúncio pra ver quais trazem mais venda por real gasto. Os que convertem, ele empurra mais; os que não, ele corta. É automático e roda o tempo todo.</p>
-<p><b>Onde você entra.</b> Os melhores vídeos das creators entram nesse pool de anúncios (é o que o Hub chama de <b>Spark Ads</b> / GMV Max Creative Pool). Se o seu vídeo é escolhido, duas coisas boas acontecem juntas:</p>
+<p><b>Como funciona por cima.</b> A Rhode define um orçamento e uma meta de retorno. O GMV Max testa vários vídeos como anúncio pra ver quais trazem mais venda por real gasto. Os que convertem, ele empurra mais; os que não, ele corta. É automático e roda o tempo todo.</p>
+<p><b>Agora o que acontece por trás: cada vídeo é uma chave.</b> A máquina não tem um público pronto esperando. Ela sai <b>procurando</b> quem compra — e pra isso testa o seu vídeo em grupos de pessoas diferentes até achar quem reage. Cada vídeo abre uma porta diferente: um que fala "nunca acho calça que feche no quadril" encontra um grupo; um que fala "essa esgotou três vezes" encontra outro completamente diferente. <b>Se todos os seus vídeos dizem a mesma coisa, a máquina só bate na mesma porta</b> — e aquele público esgota rápido.</p>
+<p><b>Por isso a etapa do funil importa.</b> As pessoas não estão todas no mesmo momento da decisão. A máquina precisa de vídeo pra cada momento:</p>
 <ul>
-<li><b>Alcance que você não pagou</b> — seu vídeo aparece pra muito mais gente do que o orgânico entregaria.</li>
-<li><b>Comissão em cima disso</b> — as vendas que vierem do seu vídeo amplificado continuam sendo suas. É a sua comissão orgânica + o bônus das vendas via anúncio.</li>
+<li><b>Topo — ela ainda não te conhece.</b> Curiosidade, um problema que ela vive, uma surpresa. Serve pra <b>trazer gente nova</b> pra dentro.</li>
+<li><b>Meio — ela está considerando.</b> Prova no corpo, caimento, seu tamanho, comparação, resposta a uma objeção. Serve pra <b>tirar a dúvida</b>.</li>
+<li><b>Fundo — ela está quase comprando.</b> Voltou o estoque, esgotou 3 vezes, o preço, últimas peças. Serve pra <b>fechar</b>.</li>
 </ul>
-<p><b>Por que isso muda como você grava.</b> A máquina não amplifica vídeo bonito — amplifica vídeo que <b>vende</b>. Então o que aumenta a sua chance de ser escolhida é exatamente o que a gente ensina nos aulões:</p>
+<p>Só vídeo de topo = muita visualização e pouca venda. Só vídeo de fundo = você vende pra quem já ia comprar de qualquer jeito, não entra gente nova e o público satura em poucos dias. <b>Com os três, um vídeo alimenta o outro:</b> o de topo traz a pessoa, o de meio convence, o de fundo fecha. É por isso que um conjunto variado rende mais que cinco vídeos ótimos do mesmo tipo — os seus vídeos <b>não competem entre si, eles se completam</b>.</p>
+<p><b>E existe a fadiga.</b> Nenhum criativo é eterno. Um vídeo que roda muito cansa: as mesmas pessoas veem de novo, param de clicar, o custo por venda sobe e a máquina corta ele. <b>Vídeo novo é o que mantém a máquina rodando</b> — e é por isso que a Rhode sempre precisa de material fresco. Quem posta com constância está sempre na fila; quem posta de vez em quando fica de fora quando o criativo satura.</p>
+<p><b>Como montar a sua semana pra alimentar a máquina.</b> Não faça 5 vídeos do mesmo tipo. Distribui as etapas:</p>
 <ul>
-<li><b>Ser vídeo, não foto</b> — só vídeo leva a sacolinha e pode virar anúncio de loja.</li>
-<li><b>Prender no início</b> — se as pessoas ficam, o GMV Max enxerga potencial.</li>
-<li><b>Fazer vender</b> — prova no corpo, tamanho, caimento: o que tira a dúvida e fecha.</li>
-<li><b>Volume</b> — quanto mais vídeos bons você posta, mais material a máquina tem pra escolher o seu.</li>
+<li><b>2 de topo</b> — descoberta, um problema, uma surpresa.</li>
+<li><b>2 de meio</b> — provador, o seu tamanho, o caimento, respondendo uma objeção.</li>
+<li><b>1 de fundo</b> — voltou o estoque, o preço, corre garantir.</li>
 </ul>
-<p>Resumindo: um bom vídeo seu pode ganhar um orçamento de mídia que você não pagou — e te devolver mais alcance e mais comissão. Gravar com constância é o que te coloca nessa fila.</p>`}
+<p>E dentro de cada etapa, varia também o <b>ângulo</b>: conforto, objeção, autoridade, escassez, prova, ocasião. Duas etapas iguais com ângulos diferentes já abrem portas diferentes.</p>
+<p>No módulo <b>Ganchos &amp; estrutura</b> cada uma das 45 ideias já vem marcada com a <b>etapa</b> (topo, meio ou fundo) e com o <b>ângulo</b> — dá pra montar a semana inteira pegando uma de cada, sem pensar muito.</p>
+<p>Resumindo: um bom vídeo seu pode ganhar um orçamento de mídia que você não pagou. Mas quem entra e <b>se mantém</b> nessa fila é quem entrega variedade — vídeos diferentes, pra momentos diferentes, sempre frescos.</p>`}
 ];
 // ── mecânica de publicação por data ──────────────────────────────────────────
 function _hojeISO(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -785,7 +794,8 @@ function openFundamento(id){
   _renderDetalhe(a,{
     badge:'📚 Fundamento'+(a.dur?' · '+esc(a.dur):''),
     testLabel:'🎯 Faça agora:',
-    actions:'<button class="btn ghost" onclick="show(\'conteudo\')">📚 Ver todo o conteúdo</button>'
+    actions:(a.ctaView?'<button class="btn" onclick="show(\''+a.ctaView+'\')">'+esc(a.ctaLabel||'Abrir →')+'</button>':'')
+      +'<button class="btn ghost" onclick="show(\'conteudo\')">📚 Ver todo o conteúdo</button>'
   });
   track('abriu_fundamento',{id:a.id});
 }
@@ -830,12 +840,13 @@ CORE.forEach((c,idx)=>{
 renderHome();refreshFooters();renderConteudo();
 document.getElementById('steps').innerHTML=ACAD.estrutura.map(s=>`<div class="step"><div class="tm">${s[0]}</div><div><div class="st">${esc(s[1])}</div><div class="sd">${esc(s[2])}</div></div></div>`).join('');
 function forcaTag(f){return f==='segura'?'<span class="forca seg">🪝 segura</span>':f==='fecha'?'<span class="forca fec">💰 fecha</span>':'<span class="forca amb">🪝💰 ambos</span>';}
-let _arq='Todos',_q='';
+let _arq='Todos',_q='',_fun='Todas';
 function scriptText(h){return 'HOOK (0-3s): '+h.gancho+'\n\nFILMA: '+h.filma+'\n\nTEXTO NA TELA:\n'+h.tela.map(function(t){return '• '+t}).join('\n')+'\n\nCHAMADO: '+h.chamado;}
 function cardHTML(h,i){return `<div class="ang" onclick="toggleAng(this)"><div class="anghead"><span class="funpill ${h.fun}">${h.fun}</span>${forcaTag(h.forca)}<span class="arqtag">${esc(h.arq)}</span><span class="prodtag">${esc(h.prod)}</span><span class="fonte ${h.fonte}">${h.fonte==='testado'?'✓ testado':'novo'}</span></div><div class="gancho">“${esc(h.gancho)}”</div><div class="angmore">ver roteiro ▾</div><div class="angdetail"><div class="anglayer"><span class="lb">🎬 Filma</span><div class="lv">${esc(h.filma)}</div></div><div class="anglayer"><span class="lb">📝 Texto na tela</span><ul class="beats">${h.tela.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')}</ul></div><div class="anglayer"><span class="lb">🛒 Chamado</span><div class="lv chamado">${esc(h.chamado)}</div></div><div class="anglayer mont"><span class="lb">💡 Por que</span><div class="lv">${esc(h.porque)}</div></div><button class="btn copybtn" onclick="event.stopPropagation();cpRot(${i},this)">📋 Copiar roteiro</button></div></div>`;}
 function toggleAng(el){el.classList.toggle('open');}
-function render(){var list=[];HOOKS.forEach(function(h,i){var okA=_arq==='Todos'||h.arq===_arq;var blob=(h.gancho+' '+h.arq+' '+h.prod+' '+h.filma+' '+h.chamado).toLowerCase();if(okA&&(!_q||blob.indexOf(_q)>=0))list.push([h,i]);});document.getElementById('angcount').textContent=list.length+(list.length===1?' gancho':' ganchos')+(_arq!=='Todos'?' · '+_arq:'');document.getElementById('angulos').innerHTML=list.length?list.map(function(x){return cardHTML(x[0],x[1])}).join(''):'<div class="angempty">Nenhum gancho com esse filtro. Tenta outra palavra.</div>';}
+function render(){var list=[];HOOKS.forEach(function(h,i){var okA=_arq==='Todos'||h.arq===_arq;var okF=_fun==='Todas'||h.fun===_fun;var blob=(h.gancho+' '+h.arq+' '+h.prod+' '+h.filma+' '+h.chamado).toLowerCase();if(okA&&okF&&(!_q||blob.indexOf(_q)>=0))list.push([h,i]);});document.getElementById('angcount').textContent=list.length+(list.length===1?' gancho':' ganchos')+(_fun!=='Todas'?' · '+_fun:'')+(_arq!=='Todos'?' · '+_arq:'');document.getElementById('angulos').innerHTML=list.length?list.map(function(x){return cardHTML(x[0],x[1])}).join(''):'<div class="angempty">Nenhum gancho com esse filtro. Tenta outra palavra.</div>';}
 function setArq(el,a){_arq=a;document.querySelectorAll('#chips .chip').forEach(function(c){c.classList.remove('on')});el.classList.add('on');render();}
+function setFun(el,f){_fun=f;document.querySelectorAll('#chipsfun .chip').forEach(function(c){c.classList.remove('on')});el.classList.add('on');render();}
 function cpRot(i,btn){var h=HOOKS[i];var t=scriptText(h);try{navigator.clipboard.writeText(t)}catch(e){try{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta)}catch(e2){}}btn.classList.add('is-done');btn.textContent='✓ Copiado';toast('Roteiro copiado ✓');setTimeout(function(){btn.classList.remove('is-done');btn.textContent='📋 Copiar roteiro'},1600);try{track('copiou_roteiro',{modulo:'ganchos',ref:h.arq+'/'+h.prod})}catch(e){}}
 function openClip(src,poster){var lb=document.getElementById('cliplb'),v=document.getElementById('cliplb-v');v.src=src;if(poster)v.poster=poster;v.muted=false;v.currentTime=0;lb.classList.add('on');document.body.style.overflow='hidden';var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});try{track('assistiu_clip',{ref:src})}catch(e){}}
 function closeClip(e,force){if(!force&&e&&e.target&&e.target.id!=='cliplb')return;var lb=document.getElementById('cliplb'),v=document.getElementById('cliplb-v');try{v.pause();v.removeAttribute('src');v.load();}catch(e2){}lb.classList.remove('on');document.body.style.overflow='';}
@@ -843,6 +854,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeClip(nu
 let _tt;function toast(msg){const t=document.getElementById('toast');t.textContent=msg||'Copiado ✓';t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),1500)}
 document.getElementById('espinha').innerHTML='“'+esc(ESPINHA)+'”';
 document.getElementById('chips').innerHTML=['Todos'].concat(ARQ_ORDER).map(function(a,i){return '<button class="chip '+(i===0?'on':'')+'" onclick="setArq(this,\''+a+'\')">'+a+'</button>'}).join('');
+document.getElementById('chipsfun').innerHTML=[['Todas','Todas'],['topo','🌱 Topo · traz gente nova'],['meio','🤔 Meio · tira a dúvida'],['fundo','🛒 Fundo · fecha']].map(function(f,i){return '<button class="chip '+(i===0?'on':'')+'" onclick="setFun(this,\''+f[0]+'\')">'+f[1]+'</button>'}).join('');
 document.getElementById('angsearch').addEventListener('input',function(e){_q=e.target.value.toLowerCase().trim();render();});
 render();
 document.getElementById('vok').innerHTML=ACAD.usar.map(t=>`<span class="tag ok">${esc(t)}</span>`).join('');
