@@ -765,6 +765,14 @@ todo dia e a tabela nunca ganha o mês novo. (`etl_lives.yml` NÃO resolve — s
 > Agravante: o cron `daily-collect.yml` roda em `actions/checkout` → só enxerga arquivos **commitados**.
 > Export solto no disco local nem existe pro cron. Por isso o durável é COMMITAR o export.
 
+> **Mitigado em 22/07/2026 (fallback via API):** o script agora completa a `lives` pelo `live_attr`
+> (Analytics `/shop_lives`, já coletado no cron) para toda live **sem export** — grava o lado de
+> VENDA (GMV/pedidos/itens/clientes/AOV + ads GMV Max) com `schema_version='v3-api'` e o **funil
+> em NULL** (a API não expõe views/CTR/CTOR/GPM/engajamento). Então o painel **não fica mais em
+> branco** esperando export; ele só perde as colunas de funil daquela live. Quando o export chega,
+> a linha rica substitui a v3-api (que é apagada) automaticamente. Sintoma residual esperado:
+> live recente com GMV/ROAS preenchidos mas views/CTOR vazios = normal, falta o export.
+
 ### Diagnóstico
 ```bash
 cd "/Users/user/Documents/VS Claude Teste"
