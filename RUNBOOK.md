@@ -747,6 +747,53 @@ python3 -c "from coletar_dados import buscar_analytics; buscar_analytics('2026-0
 
 ---
 
+## 15. Painel dash-live "não atualiza" / "Nenhuma live no período" (tabela `lives` congelada)
+
+### Sintoma
+`dash.rhodejeans.com.br/dash-live.html` mostra **"Nenhuma live no período selecionado"**
+(e R$/viewer R$0,00, CTOR sem dados) num mês em que HOUVE lives. A tabela `lives` parou
+numa data antiga (ex.: última live 30/06 com o painel aberto em julho).
+
+### Causa
+`atualizar_painel_lives.py` (passo **15f** do `refresh_performance_diario.sh`) alimenta a tabela
+`lives` **só a partir de exports manuais** dropados em `dados/lives/exports/Creator-Live-Performance_*.xlsx`
+(formato novo `performance_detail` com Room ID). **Não puxa da API** — a API não traz o funil completo.
+Falha típica: os exports do Seller Center foram baixados mas **ficaram parados em `~/Downloads`** e
+nunca foram movidos/commitados pra `dados/lives/exports/`. O script re-processa o mesmo mês velho
+todo dia e a tabela nunca ganha o mês novo. (`etl_lives.yml` NÃO resolve — só lê o formato antigo.)
+
+> Agravante: o cron `daily-collect.yml` roda em `actions/checkout` → só enxerga arquivos **commitados**.
+> Export solto no disco local nem existe pro cron. Por isso o durável é COMMITAR o export.
+
+### Diagnóstico
+```bash
+cd "/Users/user/Documents/VS Claude Teste"
+# 1. Qual a última live que a tabela tem? (se < mês atual, é este cenário)
+python3 -c "import os,json,urllib.request as u;from dotenv import load_dotenv;load_dotenv('.env');\
+S=os.environ['SUPABASE_URL'];K=os.environ['SUPABASE_SERVICE_KEY'];\
+print([r['date'] for r in json.load(u.urlopen(u.Request(S+'/rest/v1/lives?select=date&order=date.desc&limit=1',headers={'apikey':K,'Authorization':'Bearer '+K})))])"
+# 2. Existe export do mês novo NA PASTA que o script lê?
+ls -1t dados/lives/exports/Creator-Live-Performance_*.xlsx | head -3
+# 3. E em ~/Downloads (onde costumam empacar)?
+ls -lat ~/Downloads/Creator-Live-Performance_*.xlsx 2>/dev/null | head
+```
+
+### Fix
+1. Mover os exports do mês faltante de `~/Downloads` → `dados/lives/exports/` (o export mais
+   recente costuma cobrir o mês inteiro; conferir o range com o Start Time antes).
+2. `python3 atualizar_painel_lives.py` (idempotente, upsert por `live_key` — pode rodar os exports
+   sobrepostos sem duplicar). Confere `2026-MM: N lives` do mês novo no resumo.
+3. **Commitar** os `.xlsx` (`data(lives): exports ... mês/AA`) e **push** — assim o `daily-collect.yml`
+   passa a enxergar os arquivos. Sem deploy (o painel lê o Supabase ao vivo).
+4. Só descarta lives com `gmv_bruto <= 0` (regra do `build_record`) — live real sem GMV não entra.
+
+> **Lição:** ETL de arquivo depende do arquivo CHEGAR na pasta certa E no repo. Export baixado ≠
+> export ingerido. Rotina: assim que baixar o Creator-Live-Performance, mover pra
+> `dados/lives/exports/` e commitar — senão o painel congela em silêncio (passo 15f é não-crítico,
+> não aborta o refresh).
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:
@@ -754,7 +801,7 @@ Diga:
 
 Eu vou:
 1. Ler RUNBOOK.md
-2. Identificar o cenário (1-14 acima)
+2. Identificar o cenário (1-15 acima)
 3. Rodar a bateria de diagnóstico do cenário
 4. Reportar o que encontrei
 5. Aplicar fix conhecido (ou abrir investigação se for novo)
