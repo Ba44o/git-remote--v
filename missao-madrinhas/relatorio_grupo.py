@@ -78,6 +78,20 @@ def listar_grupos():
             n += 1
     print(f'\n{n} grupos. Use o ID da coluna esquerda em --grupo.')
 
+def participantes_de_arquivo(path):
+    """Lista de participantes vinda de arquivo (CSV/TXT) — plano B quando a Z-API está fora.
+    Aceita qualquer formato: pega todo telefone válido que encontrar no texto."""
+    txt = open(path, encoding='utf-8-sig', errors='ignore').read()
+    vistos, out = set(), []
+    # linha a linha (o \s do regex juntaria números de linhas diferentes)
+    for linha in txt.splitlines():
+        for cand in re.findall(r'\+?\d[\d \t().\-]{7,}\d', linha):
+            k = norm(cand)
+            if k and k not in vistos:
+                vistos.add(k)
+                out.append({'raw': re.sub(r'\D', '', cand), 'key': k, 'admin': False})
+    return out, f'lista manual ({os.path.basename(path)})'
+
 def participantes_do_grupo(group_id):
     r = requests.get(f'{BASE}/group-metadata/{group_id}', headers=HDR, timeout=40); r.raise_for_status()
     data = r.json()
@@ -227,19 +241,24 @@ def montar_xlsx(caminho, ctx):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--grupo'); ap.add_argument('--respostas')
+    ap.add_argument('--participantes', help='CSV/TXT com os telefones do grupo (plano B sem Z-API)')
     ap.add_argument('--listar-grupos', action='store_true')
     ap.add_argument('--saida')
     a = ap.parse_args()
 
-    if not (INST and TOK and CT):
-        sys.exit('Faltam ZAPI_INSTANCE / ZAPI_TOKEN / ZAPI_CLIENT_TOKEN no .env')
+    usa_zapi = not a.participantes
+    if usa_zapi and not (INST and TOK and CT):
+        sys.exit('Sem Z-API configurada. Use --participantes <arquivo.csv> com a lista de telefones do grupo.')
     if a.listar_grupos:
         return listar_grupos()
-    if not a.grupo:
-        sys.exit('uso: --grupo <ID> [--respostas respostas.csv]   (ou --listar-grupos)')
+    if not (a.grupo or a.participantes):
+        sys.exit('uso: --grupo <ID>  OU  --participantes <arquivo.csv>   [--respostas respostas.csv]')
 
     agora = datetime.datetime.now()
-    parts, subject = participantes_do_grupo(a.grupo)
+    if a.participantes:
+        parts, subject = participantes_de_arquivo(a.participantes)
+    else:
+        parts, subject = participantes_do_grupo(a.grupo)
     atual = {p['key']: p['raw'] for p in parts}
 
     ant = snapshot_anterior()
@@ -298,7 +317,7 @@ def main():
             pass
     tab_hist.append([f'{agora:%Y-%m-%d %H:%M}', len(atual), len(entradas), len(saidas)])
 
-    salvar_snapshot(a.grupo, subject, parts, agora)
+    salvar_snapshot(a.grupo or 'arquivo', subject, parts, agora)
 
     saida = a.saida or os.path.join(ROOT, 'missao-madrinhas', f'Relatorio Grupo Madrinhas_{agora:%Y-%m-%d}.xlsx')
     montar_xlsx(saida, {
