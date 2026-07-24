@@ -116,6 +116,13 @@ def buscar_pedidos(inicio, fim):
             break
         time.sleep(0.3)
 
+    # TRUNCAGEM: o cap de 200 páginas (=20.000 pedidos) silenciosamente cortava janelas
+    # longas — o backfill de abr–jul/26 parou em maio e jun/jul ficaram SEM cancel_reason,
+    # sem nenhum aviso. Agora grita. Fatie por mês em vez de aumentar o cap.
+    if cursor:
+        print(f"  🛑 TRUNCADO: bateu o teto de {pagina} páginas ({len(pedidos)} pedidos) e AINDA "
+              f"há próxima página. A janela {inicio}→{fim} está INCOMPLETA — rode por mês.")
+
     print(f"  → {len(pedidos)} pedidos encontrados")
     return pedidos
 

@@ -30,6 +30,9 @@ SELECT
   periodo,
   coalesce(cancel_reason, '(sem motivo)')            AS motivo,
   CASE
+    -- meses ANTERIORES à instrumentação (jul/26) têm cancel_reason NULL. Sem esta guarda
+    -- eles caíam no ELSE e apareciam como 100% "arrependimento" — leitura falsa (jan-mar/26).
+    WHEN cancel_reason IS NULL OR cancel_reason = '' THEN 'sem_motivo_coletado'
     WHEN cancel_reason ILIKE '%fora de estoque%'  THEN 'ruptura'
     WHEN cancel_reason ILIKE '%pagamento%'
       OR cancel_reason ILIKE '%pagar%'
