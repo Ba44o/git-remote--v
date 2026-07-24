@@ -15,7 +15,7 @@ mesmo período não duplica e atualiza status/valores.
 
 Uso:  python3 coletar_pedidos_sku.py --dias 21
 """
-import os, sys, json, argparse, urllib.request, urllib.error
+import os, sys, json, argparse, re, urllib.request, urllib.error
 from datetime import datetime, timedelta, timezone
 
 from dotenv import load_dotenv
@@ -49,20 +49,31 @@ def extrair_cor(sku_name):
 
 
 def upsert(table, rows, chunk=500, on_conflict=None):
+    """Self-healing: se a tabela não tem uma coluna (migração pendente), dropa a coluna e
+    reenvia em vez de crashar e matar a coleta diária inteira — lição do RUNBOOK #13
+    (commit que adiciona coluna ESCRITA por coletor = deploy de schema)."""
     if not rows:
         return
     url = f"{SB_URL}/rest/v1/{table}"
     if on_conflict:
         url += f"?on_conflict={on_conflict}"
+    dropped = set()
     for i in range(0, len(rows), chunk):
-        body = json.dumps(rows[i:i + chunk]).encode()
-        req = urllib.request.Request(url, data=body,
-            headers={**SBH, "Prefer": "resolution=merge-duplicates,return=minimal"}, method="POST")
-        try:
-            urllib.request.urlopen(req, timeout=120)
-        except urllib.error.HTTPError as e:
-            print(f"  [ERRO upsert {table}] {e.code}: {e.read()[:300]}"); raise
-    print(f"  ✓ {table}: {len(rows)} linhas upsertadas")
+        while True:
+            batch = [{k: v for k, v in r.items() if k not in dropped} for r in rows[i:i + chunk]]
+            req = urllib.request.Request(url, data=json.dumps(batch).encode(),
+                headers={**SBH, "Prefer": "resolution=merge-duplicates,return=minimal"}, method="POST")
+            try:
+                urllib.request.urlopen(req, timeout=120); break
+            except urllib.error.HTTPError as e:
+                msg = e.read()[:400].decode(errors="replace")
+                m = re.search(r"Could not find the '([^']+)' column", msg)
+                if e.code == 400 and m and m.group(1) not in dropped:
+                    dropped.add(m.group(1))
+                    print(f"  [SCHEMA-DRIFT] '{m.group(1)}' não existe — dropando. RODAR sql/pedidos_cancel_reason.sql")
+                    continue
+                print(f"  [ERRO upsert {table}] {e.code}: {msg}"); raise
+    print(f"  ✓ {table}: {len(rows)} linhas upsertadas" + (f" (ignoradas: {sorted(dropped)})" if dropped else ""))
 
 
 def agregar_por_sku(pedidos):
@@ -94,6 +105,10 @@ def agregar_por_sku(pedidos):
                     "order_time": ct,
                     "data": data,
                     "periodo": periodo,
+                    # motivo do cancelamento — "Fora de estoque" = RUPTURA (a única leitura
+                    # confiável dela). Item-level tem prioridade; cai pro order-level se vazio.
+                    "cancel_reason": ((item.get("cancel_reason") or o.get("cancel_reason") or "") or None),
+                    "cancel_user": ((item.get("cancel_user") or o.get("cancellation_initiator") or "") or None),
                 }
                 acc[key] = row
             row["qty"] += 1
@@ -127,6 +142,11 @@ def agregar_pagamento(pedidos):
             "shipping_fee": fnum(pay.get("shipping_fee")),
             "seller_discount": fnum(pay.get("seller_discount")),
             "platform_discount": fnum(pay.get("platform_discount")),
+            # cancelamento order-level: motivo + quem iniciou (BUYER/SELLER/SYSTEM) + quando.
+            # "Fora de estoque" iniciado por SELLER = ruptura real.
+            "cancel_reason": (o.get("cancel_reason") or None),
+            "cancel_initiator": (o.get("cancellation_initiator") or None),
+            "cancel_time": int(o.get("cancel_time", 0) or 0) or None,
         })
     return rows
 
