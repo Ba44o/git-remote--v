@@ -105,6 +105,13 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 
 ## 🚧 Em desenvolvimento
 
+### P&L por SKU × tamanho + motivo de cancelamento (conciliacao.html) — jul/2026
+Aponta o motor financeiro pro PRODUTO (grão = `seller_sku` = REF+tam). **Achado que reenquadra a conversa:** a perda não é ruptura — é **modelagem**. Jun/26: devolução por "não serviu" (`Item doesn't fit`) = 77% de todas as devoluções (963 peças, R$76.974 de GMV devolvido), pior no tam **46** (21,7% vs 13% no 36). **Ruptura real** (`cancel_reason='Fora de estoque'`) = só R$1.548/mês (50× menor). E apareceu um vazamento maior que os dois: **R$104k/mês de pedidos cujo pagamento nunca completou** (Pix expirando, `cancel_reason` "Pagamento atrasado", SYSTEM) — é checkout, não fábrica.
+- **A (dado):** `coletar_pedidos_sku.py` grava `cancel_reason`/`cancel_user` (item) + `cancel_reason`/`cancel_initiator`/`cancel_time` (pedido); upsert self-healing (RUNBOOK #13). `sql/pedidos_cancel_reason.sql`: ALTERs + views `cancelamento_motivo`/`cancelamento_resumo` (classifica por dono: ruptura/checkout_pagamento/logistica/arrependimento). Validado: view = R$1.547,57 ruptura jun = bate com a API.
+- **B (lente):** aba `P&L SKU × Tamanho` no conciliacao.html (regra firme: financeiro ≠ admin/performance), ao lado da Liquidação SKU. Devolução por tamanho + P&L por SKU×tam (fee validado − CPV − imposto TX_VENDA+TX_ICMS, margem ajustada por devolução) + motivos + ruptura. KPI de margem mostra cobertura de CPV.
+- **⚠️ Bugs corrigidos no caminho:** (a) `buscar_pedidos` tem cap de 200 páginas (20k pedidos) que truncava EM SILÊNCIO — backfill abr-jul parava em maio; agora grita, fix = fatiar por mês; (b) `cancel_reason` NULL (meses pré-instrumentação) caía em 'arrependimento' na view → agora 'sem_motivo_coletado'.
+- **Pendente:** ICMS ainda "a confirmar" (Lucas) — margem usa TX_ICMS=0 editável. Cancelamento por pagamento (R$104k/mês) merece investigação de funil de checkout separada.
+
 ### Radar de creators de potencial (aba `Radar de potencial` no admin) — jul/2026
 Rastreia creator que **posta mas ainda não vende** — invisível pro pipeline atual (que só rastreia venda via `extrato_pedidos`/`affiliate_creator_product`). Fonte nova: Shop Partner API `GET /analytics/202409/shop_videos/performance` (métricas lifetime por vídeo × creator), que **nunca tinha sido coletada**.
 - **Régua do dono:** alcance sem conversão + esforço consistente + frequência. `score = semanas_ativas*12 + LEAST(vídeos/sem, 5)*4 + views/1000` (cadência sustentada > pico; rajada não fura fila).
