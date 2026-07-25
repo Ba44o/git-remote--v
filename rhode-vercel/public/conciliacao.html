@@ -279,7 +279,7 @@ let TX_ICMS=parseFloat(localStorage.getItem('rhode_tx_icms'))||0;       // ICMS 
 function setTx(w,v){const n=parseFloat(v)||0; if(w==='venda'){TX_VENDA=n;try{localStorage.setItem('rhode_tx_venda',n)}catch(e){}}else if(w==='icms'){TX_ICMS=n;try{localStorage.setItem('rhode_tx_icms',n)}catch(e){}}else{TX_IR=n;try{localStorage.setItem('rhode_tx_ir',n)}catch(e){}} render();}
 function setRegime(r){ if(r==='presumido'){TX_VENDA=6.4;TX_IR=0;} else if(r==='real'){TX_VENDA=9.25;TX_IR=34;} try{localStorage.setItem('rhode_tx_venda',TX_VENDA);localStorage.setItem('rhode_tx_ir',TX_IR);}catch(e){} render(); }
 
-const TABS=[['visao','Visão Geral'],['conciliacao','Conciliação'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['liquidacao','Liquidação SKU'],['lucro','Lucro'],['ads','Ads'],['lives','Lives'],['pedidos','Pedidos']];
+const TABS=[['visao','Visão Geral'],['conciliacao','Conciliação'],['repasse','Repasse'],['receber','A Receber'],['produtos','Produtos'],['liquidacao','Liquidação SKU'],['psku','P&L SKU × Tamanho'],['lucro','Lucro'],['ads','Ads'],['lives','Lives'],['pedidos','Pedidos']];
 
 async function load(){
   const [fin, ped, cpv, ads, stx, div, ofi, conc, adc, adcamp, livs, livp, liva] = await Promise.all([
@@ -403,6 +403,7 @@ function render(){
   else if(TAB==='receber') el.innerHTML=renderReceber(D);
   else if(TAB==='produtos')el.innerHTML=renderProdutos(D);
   else if(TAB==='liquidacao'){ el.innerHTML=renderLiqShell(); loadLiq(); }
+  else if(TAB==='psku'){ el.innerHTML=renderPskuShell(); loadPsku(); }
   else if(TAB==='lucro')   el.innerHTML=renderLucro(D);
   else if(TAB==='ads')     el.innerHTML=renderAds(D);
   else if(TAB==='lives'){  el.innerHTML=renderLives(D); simLive(); }
@@ -976,6 +977,106 @@ function renderLiqBody(){
   }).join('');
   const note=`<div class="note"><span>🎯</span><div>A <b>hero (Marmorizada)</b> é motor de <b>volume</b>, não de margem — roda fino por ser a mais descontada. Cores premium (<b>Rosa Bebê, Chocolate</b>) liquidam ~2×, mas somam &lt;10% do volume. <b>Vídeo de afiliada</b> liquida mais que <b>live</b> (que ainda liquida devagar — mais devolução/pendência). Célula/cobertura clara = poucos pedidos liquidados, número frágil.</div></div>`;
   b.innerHTML=head+secs+note;
+}
+
+// ===== P&L SKU × TAMANHO (produto: devolução por tamanho, ruptura, margem real) =====
+// Aponta o motor financeiro pro PRODUTO. Grão = seller_sku (REF+tam). A cor/lavagem mora no SKU.
+// Margem = modelo de fee VALIDADO (6% comissão + 6%+R$4 serviço + afiliada modelada) − CPV − imposto.
+// Devolução e ruptura vêm de devolucoes / pedidos_sku.cancel_reason.
+let PSKU={ped:[],dev:[]};
+const PSKU_COM=0.06, PSKU_SRV=0.06, PSKU_ITEM=4, PSKU_AFI=0.0426;   // afiliada = média jun (3,22/75,60); varia por SKU
+const DEV_VALIDO=new Set(['RETURN_OR_REFUND_REQUEST_COMPLETE','BUYER_SHIPPED_ITEM','AWAITING_BUYER_SHIP']);
+function renderPskuShell(){ return `<div id="psku-body"><div class="sec"><div class="loading">Carregando P&L por SKU × tamanho…</div></div></div>`; }
+function skuSplit(ss){ const m=/^(REF\d{3})(\d{2})$/.exec((ss||'').trim().toUpperCase()); return m?{ref:m[1],tam:m[2]}:{ref:(ss||'').toUpperCase()||'—',tam:'?'}; }
+function pskuNextMonth(m){ const [y,mo]=m.split('-').map(Number); return mo>=12?`${y+1}-01`:`${y}-${String(mo+1).padStart(2,'0')}`; }
+async function loadPsku(){
+  const ms=getMeses(); const body=document.getElementById('psku-body'); if(!body) return;
+  if(!ms.length){ body.innerHTML='<div class="sec"><div class="empty">Sem período selecionado.</div></div>'; return; }
+  const inClause = ms.length===1?`periodo=eq.${ms[0]}`:`periodo=in.(${ms.join(',')})`;
+  const de=ms[0]+'-01', ate=pskuNextMonth(ms[ms.length-1])+'-01';   // devolucoes filtra por data (não tem periodo)
+  try{
+    const [ped,dev]=await Promise.all([
+      admProxy('GET',`pedidos_sku?select=seller_sku,qty,gmv,status,cancel_reason&${inClause}`,{paged:true}),
+      admProxy('GET',`devolucoes?select=seller_sku,refund_item,return_reason,return_status&data=gte.${de}&data=lt.${ate}`,{paged:true})
+    ]);
+    PSKU.ped=ped.data||[]; PSKU.dev=dev.data||[]; renderPskuBody();
+  }catch(e){ body.innerHTML=`<div class="sec"><div class="empty">Rode <span class="mono">sql/pedidos_cancel_reason.sql</span> e o backfill de <span class="mono">coletar_pedidos_sku.py</span> pra ativar esta lente.<br><small>${e.message}</small></div></div>`; }
+}
+function renderPskuBody(){
+  const body=document.getElementById('psku-body'); if(!body) return;
+  const ms=getMeses(), nMes=Math.max(1,ms.length), tax=(TX_VENDA+TX_ICMS)/100;
+  if(!PSKU.ped.length){ body.innerHTML='<div class="sec"><div class="empty">Sem pedidos no período.</div></div>'; return; }
+  // agrega vendas/cancelamento por (ref,tam)
+  const A={};
+  const cell=(ref,tam)=>{ const k=ref+'|'+tam; return A[k]||(A[k]={ref,tam,ss:ref+tam,q:0,gmv:0,cancq:0,ruptq:0,ruptgmv:0,devn:0,devr:0,fit:0}); };
+  PSKU.ped.forEach(r=>{ const {ref,tam}=skuSplit(r.seller_sku), c=cell(ref,tam), q=+r.qty||0, g=+r.gmv||0;
+    if(/CANCEL/i.test(r.status||'')){ c.cancq+=q; if(/fora de estoque/i.test(r.cancel_reason||'')){ c.ruptq+=q; c.ruptgmv+=g; } return; }
+    c.q+=q; c.gmv+=g; });
+  // devoluções por (ref,tam) — só status válido (exclui cancelada pelo comprador)
+  const reasons={};
+  PSKU.dev.forEach(r=>{ if(!DEV_VALIDO.has(r.return_status))return; const {ref,tam}=skuSplit(r.seller_sku), c=cell(ref,tam);
+    c.devn++; c.devr+=+r.refund_item||0; if(/fit/i.test(r.return_reason||''))c.fit++;
+    const rk=r.return_reason||'(sem motivo)'; reasons[rk]=(reasons[rk]||0)+1; });
+  // calcula P&L por linha — TODAS as células (KPIs somam tudo; a tabela detalha q>=20)
+  const all=Object.values(A).map(c=>{
+    const preco=c.q?c.gmv/c.q:0, cpv=CPVMAP[c.ss]!=null?CPVMAP[c.ss]:null;
+    const fees=preco*PSKU_COM + (preco*PSKU_SRV+PSKU_ITEM) + preco*PSKU_AFI + preco*tax;
+    const marg=cpv!=null?preco-fees-cpv:null;
+    const devTax=c.q?c.devn/c.q:0, margAdj=marg!=null?marg*(1-devTax):null;
+    return {...c,preco,cpv,marg,devTax,margAdj,margTot:margAdj!=null?margAdj*c.q:null};
+  });
+  const rows=all.filter(c=>c.q>=20);                 // detalhe: só células com volume
+  const T=all.reduce((s,r)=>{s.q+=r.q;s.gmv+=r.gmv;s.devn+=r.devn;s.devr+=r.devr;s.fit+=r.fit;s.rupt+=r.ruptgmv;s.ruptq+=r.ruptq;
+    if(r.margTot!=null){s.marg+=r.margTot;s.qCpv+=r.q;} return s;},{q:0,gmv:0,devn:0,devr:0,fit:0,rupt:0,ruptq:0,marg:0,qCpv:0});
+  const covCpv=T.q?T.qCpv/T.q*100:0;                 // cobertura de CPV (peças com custo conhecido)
+  // reembolso da parcela "não serviu" (modelagem)
+  const fitRefund=PSKU.dev.filter(r=>DEV_VALIDO.has(r.return_status)&&/fit/i.test(r.return_reason||'')).reduce((s,r)=>s+(+r.refund_item||0),0);
+  const devTaxG=T.q?T.devn/T.q*100:0;
+
+  const kpis=`<div class="kpis">
+    ${kpi('Peças vendidas',NUM.format(T.q),periodoLabel()+' · exclui cancelados','k6')}
+    ${kpi('Taxa de devolução',devTaxG.toFixed(1)+'%',NUM.format(T.devn)+' devoluções válidas','k6 '+(devTaxG>=15?'accent':''))}
+    ${kpi('GMV devolvido · não serviu',fmt(fitRefund/nMes)+(nMes>1?'/mês':''),(T.devn?pct(T.fit,T.devn).toFixed(0):0)+'% das devoluções = modelagem','k6 accent')}
+    ${kpi('Margem contribuição',fmt(T.marg/nMes)+(nMes>1?'/mês':''),'pós fee+afiliada+CPV+imposto '+(TX_VENDA+TX_ICMS).toFixed(1)+'% · cobertura CPV '+covCpv.toFixed(0)+'%','k6')}
+  </div>`;
+
+  // ---- devolução por TAMANHO (a grade quebra no topo) ----
+  const byTam={}; rows.forEach(r=>{ const t=byTam[r.tam]||(byTam[r.tam]={q:0,dev:0,fit:0,devr:0}); t.q+=r.q;t.dev+=r.devn;t.fit+=r.fit;t.devr+=r.devr; });
+  const tamRows=Object.entries(byTam).filter(([t])=>t!=='?').sort((a,b)=>a[0].localeCompare(b[0])).map(([t,v])=>{
+    const tx=v.q?v.dev/v.q*100:0, fitp=v.dev?v.fit/v.dev*100:0, hot=tx>=18;
+    return `<tr style="${hot?'background:rgba(220,50,50,.06)':''}"><td class="mp" style="${hot?'font-weight:700':''}">${t}${hot?' ◀':''}</td>
+      <td>${NUM.format(v.q)}</td><td>${v.dev}</td><td style="font-weight:600;color:${hot?'var(--rhode-red)':'inherit'}">${tx.toFixed(1)}%</td>
+      <td>${fitp.toFixed(0)}%</td><td>${fmt(v.devr)}</td></tr>`; }).join('');
+  const tamSec=`<div class="sec"><div class="sec-h"><h2>Devolução por tamanho <span class="pill">a grade de modelagem</span></h2>
+    <div class="meta">taxa = devoluções ÷ peças vendidas · “não serviu” = motivo <i>Item doesn't fit</i></div></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Tam</th><th>Peças</th><th>Devol.</th><th>Taxa</th><th>% não serviu</th><th>Reembolso</th></tr></thead><tbody>${tamRows}</tbody></table></div></div>`;
+
+  // ---- P&L detalhado por SKU × tamanho (pior margem primeiro = acionável) ----
+  const det=rows.slice().sort((a,b)=>(a.margTot==null?1:b.margTot==null?-1:a.margTot-b.margTot));
+  const detRows=det.map(r=>{
+    const devHot=r.devTax>=0.20; const noCpv=r.cpv==null;
+    return `<tr><td class="mp">${r.ref}</td><td>${r.tam}</td><td>${NUM.format(r.q)}</td><td>${fmt2(r.preco)}</td>
+      <td style="${devHot?'color:var(--rhode-red);font-weight:600':''}">${(r.devTax*100).toFixed(1)}%</td>
+      <td>${noCpv?'<span class="tag mut">s/ CPV</span>':fmt2(r.cpv)}</td>
+      <td>${r.marg!=null?fmt2(r.marg):'—'}</td>
+      <td style="font-weight:600">${r.margAdj!=null?fmt2(r.margAdj):'—'}</td>
+      <td style="font-weight:600;color:${r.margTot!=null&&r.margTot<0?'var(--rhode-red)':'inherit'}">${r.margTot!=null?fmt(r.margTot):'—'}</td>
+      <td>${r.ruptq?NUM.format(r.ruptq):'—'}</td></tr>`; }).join('');
+  const detSec=`<div class="sec"><div class="sec-h"><h2>P&L por SKU × tamanho</h2>
+    <div class="meta">margem = preço − comissão 6% − serviço 6%+R$4 − afiliada ${(PSKU_AFI*100).toFixed(1)}% − CPV − imposto ${(TX_VENDA+TX_ICMS).toFixed(1)}% · <b>ajustada</b> = ×(1−devolução) · ordenado por margem total (pior primeiro)</div></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>REF</th><th>Tam</th><th>Peças</th><th>Preço/pç</th><th>Dev%</th><th>CPV</th><th>Margem/pç</th><th>Ajust./pç</th><th>Margem total</th><th>Ruptura pç</th></tr></thead><tbody>${detRows}</tbody></table></div></div>`;
+
+  // ---- motivos de devolução (com números) ----
+  const rTot=Object.values(reasons).reduce((s,n)=>s+n,0)||1;
+  const motRows=Object.entries(reasons).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,n])=>
+    `<tr><td>${k}</td><td>${n}</td><td>${(n/rTot*100).toFixed(1)}%</td></tr>`).join('');
+  const motSec=`<div class="sec"><div class="sec-h"><h2>Motivos de devolução</h2><div class="meta">${NUM.format(rTot)} devoluções válidas no período</div></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Motivo</th><th>Qtd</th><th>%</th></tr></thead><tbody>${motRows}</tbody></table></div></div>`;
+
+  const note=`<div class="note"><span>🎯</span><div>A frase pro Lucas/Júnior: <b>${(T.devn?pct(T.fit,T.devn).toFixed(0):0)}% das devoluções são “não serviu”</b> (${fmt(fitRefund/nMes)}${nMes>1?'/mês':''} de GMV devolvido) — é <b>modelagem</b>, não marketing. O tamanho <b>46</b> devolve muito mais que o <b>36</b>. <b>Ruptura</b> (fora de estoque) somou só ${fmt(T.rupt/nMes)}${nMes>1?'/mês':''} — não é o problema.<br>
+    <span style="opacity:.75">A peça devolvida <b>volta ao estoque</b> e pode ser revendida — o custo puro é logística reversa + remarcação, menor que o GMV devolvido. “Margem ajustada” assume, de forma conservadora, contribuição ≈ 0 na peça devolvida. Imposto usa TX_VENDA+TX_ICMS (edite na aba Lucro; ICMS ainda a confirmar).</span></div></div>`;
+
+  body.innerHTML=kpis+tamSec+detSec+motSec+note;
 }
 
 // ===== EXPORTAR RELATÓRIO (XLSX multi-aba) =====
