@@ -14,10 +14,14 @@ from dotenv import load_dotenv
 BASE=os.path.dirname(os.path.abspath(__file__)); load_dotenv(os.path.join(BASE,".env"))
 SB=os.environ["SUPABASE_URL"]; SK=os.environ["SUPABASE_SERVICE_KEY"]
 SBH={"apikey":SK,"Authorization":f"Bearer {SK}","Content-Type":"application/json"}
-def pageall(base):
+def pageall(base,order="id"):
+    """Paginação DETERMINÍSTICA: order=<coluna única> é OBRIGATÓRIO. Sem ORDER BY o
+    PostgREST não garante ordem entre páginas → offset pula e duplica linhas (o total
+    volta certo, o CONTEÚDO não) → o split por canal enviesa. Ver RUNBOOK #17."""
     out=[];off=0
+    sep="&" if "?" in base else "?"
     while True:
-        b=json.load(urllib.request.urlopen(urllib.request.Request(f"{SB}/rest/v1/{base}&limit=1000&offset={off}",headers=SBH)))
+        b=json.load(urllib.request.urlopen(urllib.request.Request(f"{SB}/rest/v1/{base}{sep}order={order}&limit=1000&offset={off}",headers=SBH)))
         out+=b
         if len(b)<1000: break
         off+=1000
@@ -41,11 +45,14 @@ out={"meta":META,"meta_net":META_NET,"meta_propria_ref":META_PROPRIA_REF,"meses"
 rows_db=[]
 for mes in MESES:
     ini=mes+"-01"; y,m=int(mes[:4]),int(mes[5:7]); fim=(f"{y+1}-01-01" if m==12 else f"{y}-{m+1:02d}-01")
-    ext=pageall(f"extrato_pedidos?periodo=eq.{mes}&select=order_id,content_type")
-    o2c={}
+    ext=pageall(f"extrato_pedidos?periodo=eq.{mes}&select=order_id,content_type,gmv")
+    # canal do pedido = MAIOR GMV entre as linhas (determinístico). "Primeiro que aparece"
+    # dependia da ordem de leitura → mesmo pedido caía em canal diferente a cada rodada.
+    _ctg=defaultdict(lambda:defaultdict(float))
     for r in ext:
-        oid=str(r.get("order_id") or "")
-        if oid and oid not in o2c: o2c[oid]=(r.get("content_type") or "").upper()
+        oid=str(r.get("order_id") or ""); ct=(r.get("content_type") or "").upper()
+        if oid and ct: _ctg[oid][ct]+=float(r.get("gmv") or 0)
+    o2c={o:max(sorted(c),key=lambda k:c[k]) for o,c in _ctg.items()}
     ped=pageall(f"pedidos_sku?periodo=eq.{mes}&select=order_id,seller_sku,qty,produto,status,data")
     ch=defaultdict(lambda:{"pecas":0,"sem":defaultdict(int),"skus":defaultdict(lambda:[0,""])})
     net=0; net_sem=defaultdict(int)

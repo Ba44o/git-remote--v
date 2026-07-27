@@ -49,10 +49,13 @@ def dec(v):
 
 def r2(x): return x.quantize(CENT, rounding=ROUND_HALF_UP)
 
-def pageall(base):
+def pageall(base, order="id"):
+    """Paginação DETERMINÍSTICA: sem order=<coluna única> o offset pula/duplica linhas
+    (o total volta certo, o conteúdo não) → a divergência calculada fica errada."""
     out = []; off = 0
+    sep = "&" if "?" in base else "?"
     while True:
-        req = urllib.request.Request(f"{SB}/rest/v1/{base}&limit=1000&offset={off}", headers=H)
+        req = urllib.request.Request(f"{SB}/rest/v1/{base}{sep}order={order}&limit=1000&offset={off}", headers=H)
         b = json.load(urllib.request.urlopen(req))
         out += b
         if len(b) < 1000: break

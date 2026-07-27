@@ -25,6 +25,21 @@ async function sbGet(path) {
   const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: SBSH });
   return r.ok ? r.json() : [];
 }
+// O PostgREST corta em 1000 linhas por resposta (db-max-rows) — `limit=2000` NÃO
+// traz 2000, traz 1000 calado. Quem pode passar disso usa este helper. O `order`
+// tem que terminar numa coluna ÚNICA, senão o offset pula/duplica entre páginas.
+async function sbGetAll(path, order = 'id', teto = 30000) {
+  const sep = path.includes('?') ? '&' : '?';
+  const out = []; let off = 0;
+  while (off < teto) {
+    const b = await sbGet(`${path}${sep}order=${order}&limit=1000&offset=${off}`);
+    if (!Array.isArray(b) || !b.length) break;
+    out.push(...b);
+    if (b.length < 1000) break;
+    off += 1000;
+  }
+  return out;
+}
 async function sbWrite(method, path, body, prefer = 'return=minimal') {
   return fetch(`${SB_URL}/rest/v1/${path}`, {
     method, headers: { ...SBSH, 'Prefer': prefer }, body: JSON.stringify(body),
@@ -108,9 +123,17 @@ async function handleAdminQuery(body, res) {
   if (body.paged && method === 'GET') {
     const all = []; let offset = 0; const PS = 1000;
     const sep = path.includes('?') ? '&' : '?';
+    // Paginação DETERMINÍSTICA: sem ORDER BY o PostgREST não garante a ordem entre
+    // páginas → o offset pula e duplica linhas (o total volta certo, o CONTEÚDO não).
+    // Se o caller não mandou order=, injeta order=id; se a relação não tiver `id`
+    // (views agregadas — que cabem numa página só), refaz sem ordem.
+    let ord = /[?&]order=/.test(path) ? '' : '&order=id';
     while (true) {
-      const rr = await fetch(`${SB_URL}/rest/v1/${path}${sep}limit=${PS}&offset=${offset}`, { headers: SBSH });
-      if (!rr.ok) return res.status(rr.status).json({ error: (await rr.text()).slice(0, 300) });
+      const rr = await fetch(`${SB_URL}/rest/v1/${path}${sep}limit=${PS}&offset=${offset}${ord}`, { headers: SBSH });
+      if (!rr.ok) {
+        if (ord && rr.status === 400) { ord = ''; continue; }   // relação sem coluna `id`
+        return res.status(rr.status).json({ error: (await rr.text()).slice(0, 300) });
+      }
       const batch = await rr.json();
       if (Array.isArray(batch)) all.push(...batch);
       if (!Array.isArray(batch) || batch.length < PS) break;
@@ -194,9 +217,9 @@ async function handleCadastro(body, res) {
 // ficar deny-anon também (anon key vira inútil pra leitura de qualquer tabela).
 async function handleDashlive(body, res) {
   if (body.which === 'lives')
-    return res.json(await sbGet('lives?select=*&order=started_at.asc&limit=2000'));
+    return res.json(await sbGetAll('lives?select=*', 'started_at.asc,id'));
   if (body.which === 'store_daily')
-    return res.json(await sbGet('store_daily?select=date,month,gmv_bruto,reembolsos&order=date.asc&limit=2000'));
+    return res.json(await sbGetAll('store_daily?select=date,month,gmv_bruto,reembolsos', 'date.asc,id'));
   if (body.which === 'live_produto')
     return res.json(await sbGet('live_produto?select=*&order=gmv.desc&limit=300'));
   if (body.which === 'tracker')
@@ -284,8 +307,10 @@ async function handleData(body, res) {
       case 'extrato_pedidos': {
         const eh = EXTRATO_ALIASES[handle] || handle;
         const per = p.periodo ? `&periodo=eq.${enc(p.periodo)}` : '';
-        return res.json(await sbGet(
-          `extrato_pedidos?creator=eq.${enc(eh)}${per}&order=data.desc&limit=2000`));
+        // creator grande passa de 1000 linhas num mês só (o cap cortava o extrato
+        // dela calado) → pagina. ,id no fim porque `data` empata muito.
+        return res.json(await sbGetAll(
+          `extrato_pedidos?creator=eq.${enc(eh)}${per}`, 'data.desc,id'));
       }
 
       // ── Produtos campeões da creator (top SKU por GMV) ────────────────────
@@ -295,7 +320,9 @@ async function handleData(body, res) {
         const all = []; let off = 0;
         while (true) {
           const batch = await sbGet(
-            `extrato_pedidos?creator=eq.${enc(eh)}&select=product_id,produto,gmv,comissao_estimada,comissao_paga,status,reembolso,order_id&limit=1000&offset=${off}`);
+            // order=id obrigatório: sem ORDER BY o offset pula/duplica pedidos e o
+            // ranking de produtos da creator sai errado (dado creator-facing).
+            `extrato_pedidos?creator=eq.${enc(eh)}&select=product_id,produto,gmv,comissao_estimada,comissao_paga,status,reembolso,order_id&order=id&limit=1000&offset=${off}`);
           if (!Array.isArray(batch) || !batch.length) break;
           all.push(...batch);
           if (batch.length < 1000) break;

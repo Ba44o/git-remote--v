@@ -18,10 +18,13 @@ SB=os.environ["SUPABASE_URL"]; SK=os.environ["SUPABASE_SERVICE_KEY"]
 SBH={"apikey":SK,"Authorization":f"Bearer {SK}","Content-Type":"application/json"}
 MESES=["2026-06","2026-07"]
 
-def pageall(base):
+def pageall(base,order="id"):
+    """Paginação DETERMINÍSTICA: order=<coluna única> obrigatório (views sem `id` usam
+    order_id). Sem ORDER BY o offset pula/duplica linhas → settlement e canal enviesam."""
     out=[];off=0
+    sep="&" if "?" in base else "?"
     while True:
-        b=json.load(urllib.request.urlopen(urllib.request.Request(f"{SB}/rest/v1/{base}&limit=1000&offset={off}",headers=SBH)))
+        b=json.load(urllib.request.urlopen(urllib.request.Request(f"{SB}/rest/v1/{base}{sep}order={order}&limit=1000&offset={off}",headers=SBH)))
         out+=b
         if len(b)<1000: break
         off+=1000
@@ -54,14 +57,16 @@ def cpv_de(sku):
 rows_db=[]
 for mes in MESES:
     # settlement real por pedido
-    cp=pageall(f"conciliacao_pedido?periodo=eq.{mes}&select=order_id,settlement")
+    cp=pageall(f"conciliacao_pedido?periodo=eq.{mes}&select=order_id,settlement",order="order_id")  # view: sem `id`
     o2set={str(r["order_id"]):float(r.get("settlement") or 0) for r in cp if r.get("settlement") is not None}
     # canal do pedido (afiliada)
-    ext=pageall(f"extrato_pedidos?periodo=eq.{mes}&select=order_id,content_type")
-    o2c={}
+    ext=pageall(f"extrato_pedidos?periodo=eq.{mes}&select=order_id,content_type,gmv")
+    # canal = MAIOR GMV entre as linhas do pedido (determinístico), não "primeiro que aparece"
+    _ctg=defaultdict(lambda:defaultdict(float))
     for r in ext:
-        oid=str(r.get("order_id") or "")
-        if oid and oid not in o2c: o2c[oid]=(r.get("content_type") or "").upper()
+        oid=str(r.get("order_id") or ""); ct=(r.get("content_type") or "").upper()
+        if oid and ct: _ctg[oid][ct]+=float(r.get("gmv") or 0)
+    o2c={o:max(sorted(c),key=lambda k:c[k]) for o,c in _ctg.items()}
     # pedidos_sku (lado loja, todas as peças)
     ped=pageall(f"pedidos_sku?periodo=eq.{mes}&select=order_id,seller_sku,sku,produto,qty,gmv,status")
     o2gmv=defaultdict(float)

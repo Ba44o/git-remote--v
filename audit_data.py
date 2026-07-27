@@ -61,6 +61,9 @@ def fetch_supabase_period(periodo):
             params={
                 "select": "affiliate_id,gmv_bruto,gmv_liquido,reembolso,refund_pct,pedidos,aov,videos,lives,comissao,tier",
                 "periodo": f"eq.{periodo}",
+                # order=id obrigatório: sem ORDER BY o offset pula/duplica linhas e a
+                # auditoria compara um recorte incompleto (falso alarme / falso "ok").
+                "order": "id",
                 "limit": 1000,
                 "offset": offset,
             },

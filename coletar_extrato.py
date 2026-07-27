@@ -196,7 +196,9 @@ def affiliate_ids_existentes():
     tem FK pra affiliates → só dá pra escrever creators que já existem lá."""
     ids = set(); off = 0
     while True:
-        url = f"{SB_URL}/rest/v1/affiliates?select=affiliate_id&limit=1000&offset={off}"
+        # order=affiliate_id (PK; a tabela não tem `id`) — sem ORDER BY o offset pula
+        # linhas e a creator "some" do set → performance_periods dela não é gravada.
+        url = f"{SB_URL}/rest/v1/affiliates?select=affiliate_id&order=affiliate_id&limit=1000&offset={off}"
         rows = json.loads(urllib.request.urlopen(urllib.request.Request(url, headers=SBH), timeout=60).read())
         if not rows: break
         for r in rows:

@@ -849,6 +849,69 @@ handle no `affiliate_creator_product` → dá R$0 numa busca ingênua; não é c
 
 ---
 
+## 17. Split por canal muda sozinho entre rodadas · afiliada subcontada, loja inflada
+
+### Sintoma
+- Roda o mesmo coletor 2x e o **número por canal muda** (o **net/total continua igual**).
+- "Loja própria" grande demais, vídeo/live afiliada pequenos demais.
+- Creator some de um set (não recebe disparo, não aparece no ranking, flash não abre).
+- Dado creator-facing incompleto (o extrato dela mostra menos pedido do que ela vendeu).
+
+### Diagnóstico — 2 furos DIFERENTES, mesma consequência
+
+**A) Paginação sem `ORDER BY`.** `limit/offset` sem `order=` → o PostgREST **não garante a ordem
+entre páginas** → o offset **pula e duplica** linhas. ⚠️ **A contagem de linhas NÃO denuncia**: vêm
+4.842 linhas de 4.842, mas com PKs repetidos. Só o nº de **distintos** denuncia.
+
+```bash
+# a query volta o total certo mas com linhas repetidas?
+python3 - <<'PY'
+import os,json,urllib.request
+from dotenv import load_dotenv; load_dotenv(".env")
+SB=os.environ["SUPABASE_URL"]; SK=os.environ["SUPABASE_SERVICE_KEY"]
+H={"apikey":SK,"Authorization":f"Bearer {SK}"}
+Q="extrato_pedidos?periodo=eq.2026-07&select=id"      # ← troque pela sua query
+def page(order=None):
+    out=[];off=0
+    while True:
+        o=f"&order={order}" if order else ""
+        b=json.load(urllib.request.urlopen(urllib.request.Request(f"{SB}/rest/v1/{Q}{o}&limit=1000&offset={off}",headers=H)))
+        out+=b
+        if len(b)<1000: break
+        off+=1000
+    return out
+req=urllib.request.Request(f"{SB}/rest/v1/{Q}&limit=1",headers={**H,"Prefer":"count=exact","Range":"0-0"})
+tot=int((urllib.request.urlopen(req).headers.get("Content-Range") or "/-1").split("/")[-1])
+a=page(); b=page("id")
+print("exato",tot,"| sem order: lidas",len(a),"distintas",len({x['id'] for x in a}))
+print("             | com order: lidas",len(b),"distintas",len({x['id'] for x in b}))
+PY
+```
+`distintas < exato` na 1ª linha = **é este bug**.
+
+**B) Cap de 1000 do PostgREST.** `limit=5000` **não traz 5000, traz 1000 calado** (`db-max-rows`).
+Toda leitura de tabela que possa passar de 1000 linhas TEM que paginar — `limit` alto não resolve.
+
+### Fix
+1. Toda query paginada leva **`order=<coluna ÚNICA>`** (`id`; `affiliates`→`affiliate_id`; views
+   `conciliacao_pedido`/`repasse_divergencias`→`order_id`). Ordem não-única (`order=data.desc`,
+   `order=periodo.desc`) **não basta** — precisa de desempate único no fim: `order=data.desc,id`.
+2. Nunca `limit=5000`: use o `sb_get_all`/`sbGetAll`/`pageall` do próprio arquivo.
+3. `content_type` do pedido = **maior GMV** entre as linhas (determinístico), nunca "primeiro que
+   aparece" — isso também dependia da ordem de leitura.
+
+### Validar
+3 rodadas seguidas idênticas **e** `len(distintos) == count=exact` (header `Prefer: count=exact`
++ `Range: 0-0` → ler `Content-Range`).
+
+> **Lição (caso real 27/07/26):** o `tracker_canais` de julho gravava vídeo 1.157 · live afil 1.897 ·
+> loja 2.961; o correto era **vídeo 1.423 · live afiliada 2.438 · loja 2.154** (net 6.015 igual nos dois).
+> Afiliada subcontada, loja inflada em +37%. Junho quase não mexeu — **o viés depende do plano de
+> execução e do mês estar sendo escrito**, então "conferi e bateu" num mês NÃO absolve os outros.
+> Auditoria só vale se a reprodução for independente do método furado.
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:
@@ -856,7 +919,7 @@ Diga:
 
 Eu vou:
 1. Ler RUNBOOK.md
-2. Identificar o cenário (1-15 acima)
+2. Identificar o cenário (1-17 acima)
 3. Rodar a bateria de diagnóstico do cenário
 4. Reportar o que encontrei
 5. Aplicar fix conhecido (ou abrir investigação se for novo)

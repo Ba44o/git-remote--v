@@ -3209,7 +3209,9 @@ async function loadEvento(){
     let aff=[];
     let offset=0;
     while(true){
-      const batch=await sbGet(`affiliates?select=affiliate_id,tiktok_handle,current_tier,gmv_live_mtd,gmv_video_mtd&limit=1000&offset=${offset}`);
+      // order=affiliate_id (PK; a tabela não tem `id`): sem ORDER BY o offset pula
+      // linhas entre páginas e a creator some do mapa → aparece "sem tier" no evento.
+      const batch=await sbGet(`affiliates?select=affiliate_id,tiktok_handle,current_tier,gmv_live_mtd,gmv_video_mtd&order=affiliate_id&limit=1000&offset=${offset}`);
       aff=aff.concat(batch);
       if(batch.length<1000)break;
       offset+=1000;

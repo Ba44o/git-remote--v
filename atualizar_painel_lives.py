@@ -105,6 +105,21 @@ def sb_get(path):
     return json.load(urllib.request.urlopen(urllib.request.Request(SB + path, headers=SBH), timeout=120))
 
 
+def sb_get_all(path, order="id", teto=50000):
+    """O PostgREST corta em 1000 linhas por resposta (db-max-rows) — `limit=5000` NÃO
+    traz 5000, traz 1000 calado, e o painel perde as lives mais antigas. Pagina com
+    order=<coluna única>: sem ORDER BY o offset ainda pula/duplica linhas entre páginas."""
+    sep = "&" if "?" in path else "?"
+    out, off = [], 0
+    while off < teto:
+        b = sb_get(f"{path}{sep}order={order}&limit=1000&offset={off}")
+        if not b: break
+        out += b
+        if len(b) < 1000: break
+        off += 1000
+    return out
+
+
 def read_export(path):
     wb = openpyxl.load_workbook(path, data_only=True)
     ws = wb["performance_detail"] if "performance_detail" in wb.sheetnames else wb.worksheets[0]
@@ -231,7 +246,7 @@ def main():
                 recs[rec["live_key"]] = rec; room2key[rid] = rec["live_key"]
     # 2) ads do GMV Max (live_sessao) agregado por room_id
     ads = defaultdict(lambda: {"cost": 0.0, "gmv": 0.0})
-    for x in sb_get("/rest/v1/live_sessao?select=room_id,cost,receita&limit=5000"):
+    for x in sb_get_all("/rest/v1/live_sessao?select=room_id,cost,receita"):
         a = ads[str(x["room_id"])]; a["cost"] += float(x["cost"] or 0); a["gmv"] += float(x["receita"] or 0)
     filled = 0
     for rid, key in room2key.items():
@@ -254,7 +269,7 @@ def main():
     for r in rows:
         idx_add(index, r["title"], dt_lives(r["started_at"]), r["live_key"])
         sv[r["live_key"]] = r["schema_version"]
-    for x in sb_get("/rest/v1/lives?select=live_key,started_at,title,schema_version&limit=5000"):
+    for x in sb_get_all("/rest/v1/lives?select=live_key,started_at,title,schema_version"):
         d = dt_lives(x["started_at"])
         idx_add(index, x["title"], d, x["live_key"])
         sv.setdefault(x["live_key"], x.get("schema_version"))
@@ -275,7 +290,7 @@ def main():
             # então a live segue casando e não é recriada pela API.
 
     novos = {}; n_novas = 0
-    for x in sb_get("/rest/v1/live_attr?select=room_id,inicio,fim,titulo,gmv,pedidos,sku_orders,itens,customers,aov&limit=5000"):
+    for x in sb_get_all("/rest/v1/live_attr?select=room_id,inicio,fim,titulo,gmv,pedidos,sku_orders,itens,customers,aov"):
         dt = dt_attr(x.get("inicio"))
         key = idx_find(index, x.get("titulo"), dt)
         if key and sv.get(key) != "v3-api":
@@ -301,7 +316,7 @@ def main():
 
     # 4) resumo do que ficou na tabela
     per = defaultdict(lambda: {"n": 0, "gmv": 0.0, "ads": 0, "api": 0})
-    for r in sb_get("/rest/v1/lives?select=month,gmv_bruto,ads_cost,schema_version&limit=5000"):
+    for r in sb_get_all("/rest/v1/lives?select=month,gmv_bruto,ads_cost,schema_version"):
         p = per[r["month"]]; p["n"] += 1; p["gmv"] += float(r["gmv_bruto"] or 0)
         p["ads"] += 1 if r.get("ads_cost") else 0
         p["api"] += 1 if r.get("schema_version") == "v3-api" else 0

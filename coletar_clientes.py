@@ -28,10 +28,13 @@ def f(v):
     try: return float(D(str(v))) if v not in (None, "") else 0.0
     except Exception: return 0.0
 
-def pageall(b):
+def pageall(b, order="id"):
+    """Paginação DETERMINÍSTICA: sem order=<coluna única> o offset pula/duplica linhas →
+    pedido perde o creator e o cliente vira 'sem atribuição'."""
     out = []; off = 0
+    sep = "&" if "?" in b else "?"
     while True:
-        r = json.load(urllib.request.urlopen(urllib.request.Request(f"{SB}/rest/v1/{b}&limit=1000&offset={off}", headers=SBH)))
+        r = json.load(urllib.request.urlopen(urllib.request.Request(f"{SB}/rest/v1/{b}{sep}order={order}&limit=1000&offset={off}", headers=SBH)))
         out += r
         if len(r) < 1000: break
         off += 1000

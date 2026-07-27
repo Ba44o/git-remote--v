@@ -55,7 +55,9 @@ def universo_creators():
     """Set de handles canônicos das nossas creators (fonte: extrato_resumo)."""
     out, off = set(), 0
     while True:
-        r = requests.get(f"{SB_URL}/rest/v1/extrato_resumo?select=creator&limit=1000&offset={off}",
+        # order=id obrigatório: sem ORDER BY o offset pula linhas e a creator some do
+        # universo → a flash dela não aparece no hub.
+        r = requests.get(f"{SB_URL}/rest/v1/extrato_resumo?select=creator&order=id&limit=1000&offset={off}",
                          headers=SBH, timeout=60)
         b = r.json() if r.ok else []
         if not b:

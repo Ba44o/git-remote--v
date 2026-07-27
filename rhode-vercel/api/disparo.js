@@ -46,12 +46,16 @@ function chunk(arr, n) {
   return out;
 }
 
-async function sbGetPaged(path) {
+// Paginação DETERMINÍSTICA: `order` tem que terminar numa coluna ÚNICA, senão o
+// offset pula/duplica linhas entre páginas (o total volta certo, o conteúdo não)
+// e a creator some do disparo. Callers passam a coluna via `order`.
+async function sbGetPaged(path, order = 'id') {
   const sep = path.includes('?') ? '&' : '?';
+  const ord = /[?&]order=/.test(path) ? '' : `&order=${order}`;
   const out = [];
   let offset = 0;
   while (true) {
-    const r = await fetch(`${SB_URL}/${path}${sep}limit=1000&offset=${offset}`, { headers: SB_HEADERS });
+    const r = await fetch(`${SB_URL}/${path}${sep}limit=1000&offset=${offset}${ord}`, { headers: SB_HEADERS });
     if (!r.ok) break;
     const batch = await r.json();
     if (!batch.length) break;
@@ -107,7 +111,7 @@ async function buscarAlvos(filtros) {
     // Busca em chunks pra não estourar URL
     for (const ch of chunk(handles, 100)) {
       const inList = ch.map((h) => `"${h}"`).join(',');
-      const aff = await sbGetPaged(`affiliates?select=affiliate_id,nome,access_token&affiliate_id=in.(${inList})`);
+      const aff = await sbGetPaged(`affiliates?select=affiliate_id,nome,access_token&affiliate_id=in.(${inList})`, 'affiliate_id');
       aff.forEach((a) => {
         const id = String(a.affiliate_id || '').toUpperCase().replace(/^[@.]+/, '');
         affMap[id] = a;
@@ -116,7 +120,8 @@ async function buscarAlvos(filtros) {
   }
 
   // Acumula GMV de performance_periods por creator
-  const periodos = await sbGetPaged('performance_periods?select=affiliate_id,gmv_liquido,refund_pct,periodo&order=periodo.desc');
+  // ,id no fim: `periodo` sozinho não é único → empate desordena as páginas do offset
+  const periodos = await sbGetPaged('performance_periods?select=affiliate_id,gmv_liquido,refund_pct,periodo&order=periodo.desc,id');
   const gmvMap = {};
   const refundMap = {};
   const ultimoPeriodo = {};

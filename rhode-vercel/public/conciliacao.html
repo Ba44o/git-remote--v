@@ -288,7 +288,7 @@ async function load(){
     admProxy('GET','custos_sku?select=ref,cpv',{paged:true}),
     admProxy('GET','ads_gmvmax?select=periodo,campanha,custo,receita_bruta,pedidos',{paged:true}),
     admProxy('GET','statement_tx_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
-    admProxy('GET','repasse_divergencias?select=*',{paged:true}).catch(()=>({data:[]})),
+    admProxy('GET','repasse_divergencias?select=*&order=order_id',{paged:true}).catch(()=>({data:[]})),  // view sem `id`: ordenar pela chave do grupo
     admProxy('GET','gmv_oficial_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
     admProxy('GET','conciliacao_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
     admProxy('GET','ads_custo_resumo?select=*',{paged:true}).catch(()=>({data:[]})),
@@ -920,9 +920,10 @@ function renderLiqShell(){
 let LIQROWS=[];
 async function loadLiq(){
   const ms=getMeses();
-  let path='liquidacao_cor_canal?select=periodo,corte,cor,canal,pecas,pecas_liq,settlement_real,gmv,cpv_total,is_hero&limit=3000';
+  // paged:true — o PostgREST corta em 1000 linhas por resposta (limit=3000 não traz 3000)
+  let path='liquidacao_cor_canal?select=periodo,corte,cor,canal,pecas,pecas_liq,settlement_real,gmv,cpv_total,is_hero';
   if(ms.length===1) path+=`&periodo=eq.${ms[0]}`; else if(ms.length) path+=`&periodo=in.(${ms.join(',')})`;
-  try{ const r=await admProxy('GET',path); LIQROWS=r.data||[]; renderLiqBody(); }
+  try{ const r=await admProxy('GET',path,{paged:true}); LIQROWS=r.data||[]; renderLiqBody(); }
   catch(e){ const b=document.getElementById('liq-body'); if(b) b.innerHTML=`<div class="sec"><div class="empty">Rode <span class="mono">liquidacao_cor_canal.sql</span> no Supabase e <span class="mono">python3 liquidacao_cor_canal.py</span> pra ativar esta lente.<br><small>${e.message}</small></div></div>`; }
 }
 function renderLiqBody(){
@@ -1202,7 +1203,7 @@ async function exportRelatorio(){
     const s2=[h2]; ms.forEach(m=>{const c=CONC[m]; if(!c)return; s2.push([m,c.pedidos_total,B(c.receita),B(c.repasse),B(c.comissao_real),B(c.comissao_esp),B(c.servico_real),B(c.servico_esp),B(c.afiliada),B(c.ads),B(c.desconto_vendedor),c.preco_tabela?B(c.desconto_vendedor/c.preco_tabela*100):0,B(c.desconto_plataforma),c.preco_tabela?B(c.desconto_plataforma/c.preco_tabela*100):0,B(c.impacto_1507),c.n_ok,c.n_servico,c.n_faltante]);});
     const ws2=XLSX.utils.aoa_to_sheet(s2); ws2['!cols']=h2.map((_,i)=>({wch:i===0?9:14})); XLSX.utils.book_append_sheet(wb,ws2,'Conciliação por mês');
     // 3) PEDIDOS (completo)
-    let path='conciliacao_pedido?select=order_id,periodo,data,produto,qty,preco_tabela,desconto_vendedor,desconto_pct,desconto_plataforma,desconto_plataforma_pct,receita_liq,comissao_real,comissao_esperada,servico_frete_real,servico_frete_esperado,afiliada_real,ads_real,frete_real,custo_devolucao,settlement,taxa_efetiva_pct,div_comissao,div_servico_frete,impacto_1507,conciliacao&order=receita_liq.desc';
+    let path='conciliacao_pedido?select=order_id,periodo,data,produto,qty,preco_tabela,desconto_vendedor,desconto_pct,desconto_plataforma,desconto_plataforma_pct,receita_liq,comissao_real,comissao_esperada,servico_frete_real,servico_frete_esperado,afiliada_real,ads_real,frete_real,custo_devolucao,settlement,taxa_efetiva_pct,div_comissao,div_servico_frete,impacto_1507,conciliacao&order=receita_liq.desc,order_id';  // ,order_id: desempate único (senão o offset pula/duplica pedidos)
     if(ms.length===1) path+=`&periodo=eq.${ms[0]}`; else if(ms.length) path+=`&periodo=in.(${ms.join(',')})`;
     let ped=[]; try{ const r=await admProxy('GET',path,{paged:true}); ped=r.data||[]; }catch(e){}
     const h3=['Pedido','Período','Data','Produto','Qtd','Preço tabela','Desc vendedor','Desc %','Subsídio TikTok','Subsídio %','Receita líq','Comissão real','Comissão esp','Serv/frete real','Serv/frete esp','Afiliada','Ads','Frete','Custo devol','Repasse','Taxa %','Div comissão','Div serv/frete','Impacto 15/07','Status'];
