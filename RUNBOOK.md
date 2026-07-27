@@ -802,6 +802,53 @@ ls -lat ~/Downloads/Creator-Live-Performance_*.xlsx 2>/dev/null | head
 
 ---
 
+## 16. Creator nova some do ranking · TODO o ranking com número velho (daily local parado)
+
+### Sintoma
+- "Por que a @fulana não aparece no ranking?" — e ela **VENDE** (aparece em `affiliate_creator_product`).
+- Pior: os números do ranking inteiro estão **defasados** (ex.: creator com R$82k quando já vendeu R$101k).
+
+### Causa
+O **auto-cadastro de creators novas** + a atualização do `performance_periods` rodam no **forward LOCAL**
+(`coletar_extrato.py`, passo do `refresh_performance_diario.sh` via launchd). Se o **launchd descarrega**
+(reboot sem `-w`, `bootout` manual), o daily local **para em silêncio** — o log `logs/refresh_diario.log`
+congela numa data e ninguém avisa. Efeito duplo: (a) creators novas que vendem nunca entram no `affiliates`
+→ somem do hub/ranking (é o cenário #12 em lote); (b) o mês corrente fica **subnotificado para todo mundo**
+(nº velho, não só faltando as novas). Um etl de nuvem pode manter algo, mas não faz o auto-cadastro nem o
+recompute completo.
+
+### Diagnóstico
+```bash
+# 1. O daily local está agendado? (se NÃO listar, é a causa)
+launchctl list | grep rhode
+# 2. Há quanto tempo o daily não roda? (mtime do log)
+ls -la logs/refresh_diario.log        # se mtime for de semanas atrás → parado
+# 3. Quantas creators vendem em julho vs quantas no ranking? (mede o buraco)
+#    (comparar affiliate_creator_product[mês] distinct creator  vs  performance_periods[mês])
+```
+
+### Fix
+```bash
+# 1. IMEDIATO — recompute full-window do mês corrente (auto-cadastra novas + atualiza todos)
+python3 coletar_extrato.py --inicio 2026-MM-01 --fim <hoje>
+# 2. RAIZ — recarregar o launchd COM -w (persiste após reboot)
+launchctl load -w ~/Library/LaunchAgents/com.rhode.refresh-performance-diario.plist
+launchctl list | grep rhode      # confirmar que apareceu
+```
+
+### ⚠️ Validar (não corromper o hub — [[feedback_hub_dados_intocaveis]])
+O recompute full-window **muda os números das creators existentes** (elas estavam defasadas). Isso é
+CORREÇÃO, não corrupção — mas confirme cruzando com a fonte independente `affiliate_creator_product`:
+o `gmv_liquido` gravado deve ser **≤ o GMV bruto** de lá e os **pedidos devem bater à unidade**. Se bater,
+o número velho é que estava errado. Cuidado com **aliasing de handle** (ex.: TACIANETORRESS vende sob outro
+handle no `affiliate_creator_product` → dá R$0 numa busca ingênua; não é corrupção).
+
+> **Lição:** quando o daily "morre em silêncio", o 1º lugar a olhar é `launchctl list | grep rhode` +
+> mtime do log — NÃO os dados. Sempre carregar launchd com `-w`. Caso real: 27/07/26, @dicasdala.br
+> era a maior de 12 creators novas sumidas + ranking de julho inteiro subnotificado (daily parado 08/06).
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:
