@@ -107,21 +107,24 @@ def buscar_pedidos(inicio, fim):
             break
 
         orders = data.get("data", {}).get("orders", [])
-        if not orders:
-            break
-        pedidos.extend(orders)
-        print(f"    página {pagina}: +{len(orders)} pedidos ({len(pedidos)} total)")
-        cursor = data.get("data", {}).get("next_page_token", "")
+        cursor = data.get("data", {}).get("next_page_token", "")   # lê o token NOVO antes de decidir parar
+        if orders:
+            pedidos.extend(orders)
+            print(f"    página {pagina}: +{len(orders)} pedidos ({len(pedidos)} total)")
         if not cursor:
+            break                       # fim natural: o servidor não tem próxima página
+        if not orders:
+            # página vazia MAS com token vivo = cursor expirou no meio (truncagem silenciosa real)
+            print(f"  ⚠ página {pagina} vazia com token ainda vivo — provável expiração de cursor; "
+                  f"parando com {len(pedidos)} pedidos (janela {inicio}→{fim} pode estar incompleta).")
             break
         time.sleep(0.3)
 
-    # TRUNCAGEM: o cap de 200 páginas (=20.000 pedidos) silenciosamente cortava janelas
-    # longas — o backfill de abr–jul/26 parou em maio e jun/jul ficaram SEM cancel_reason,
-    # sem nenhum aviso. Agora grita. Fatie por mês em vez de aumentar o cap.
-    if cursor:
-        print(f"  🛑 TRUNCADO: bateu o teto de {pagina} páginas ({len(pedidos)} pedidos) e AINDA "
-              f"há próxima página. A janela {inicio}→{fim} está INCOMPLETA — rode por mês.")
+    # TRUNCAGEM REAL: só quando bate o teto de 200 páginas (=20.000 pedidos) com próxima página
+    # pendente. NÃO confundir com fim natural (página vazia/sem token). Fatie por mês, não aumente o cap.
+    if cursor and pagina >= 200:
+        print(f"  🛑 TRUNCADO: bateu o teto de 200 páginas ({len(pedidos)} pedidos) e AINDA há "
+              f"próxima página. A janela {inicio}→{fim} está INCOMPLETA — rode por mês.")
 
     print(f"  → {len(pedidos)} pedidos encontrados")
     return pedidos
