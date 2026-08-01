@@ -13,12 +13,21 @@ relatórios e projeções no padrão definido abaixo.
 - **`RUNBOOK.md`** — playbook de debugging quando algo quebra em produção.
   Cenários numerados (1-8) com sintoma → diagnóstico → fix conhecido. Quando
   o usuário disser *"tem um problema, [sintoma]"*, leia RUNBOOK.md primeiro.
+- **`docs/DECISOES-E-PREMISSAS.md`** — no que a gente acredita e por quê. Premissas
+  já testadas contra dado real (✅ confirmadas · ❌ refutadas · ⏳ em aberto).
+  **Leia antes de investigar qualquer coisa** — R1–R7 já custaram trabalho.
+- **`docs/PLAYBOOKS.md`** — como conduzir análises recorrentes (diagnóstico de queda
+  de GMV, posição por motor, fechamento de mês, checklist antes de afirmar número).
 
 **Workflow padrão de cada sessão:**
 1. Trabalho de feature nova → `ROADMAP.md` → seção 🔜 Próximos
 2. Bug em produção → `RUNBOOK.md` → identificar cenário → executar diagnóstico
 3. Decisão arquitetural → registrar em `ROADMAP.md` → seção 🧠 Decisões
 4. Novo modo de falha encontrado → adicionar ao `RUNBOOK.md`
+5. Análise de negócio → declarar a premissa antes de calcular, fechar com veredito
+   explícito (✅/❌/⏳) e registrar em `docs/DECISOES-E-PREMISSAS.md`.
+   **Confirmar quando ele está certo é obrigatório**, não só apontar quando erra.
+6. Procedimento que deu certo e vai se repetir → virar playbook em `docs/PLAYBOOKS.md`
 
 ---
 
@@ -92,6 +101,6 @@ projeto/
 - Sempre comparar com o período imediatamente anterior ao analisado
 - Quando faltar dado, registrar como "sem dado" — nunca inventar valores
 - Arredondar percentuais para 1 casa decimal (ex: 12.3%)
-- Salvar todo output em `/relatorios/YYYY-MM/` com nome `YYYY-MM-DD_tipo-relatorio`
+- Salvar todo output em `/relatorios/YYYY-MM/` com nome no padrão `Relatorio <descrição>_<AAAA-MM-DD>` (ex: `Relatorio Campanha 6.6 TikTok_2026-06-23`)
 - Antes de executar qualquer tarefa destrutiva (apagar, sobrescrever), pedir confirmação
 - Tom dos relatórios: direto, objetivo, sem jargões desnecessários
