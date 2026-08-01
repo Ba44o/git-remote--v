@@ -5424,30 +5424,38 @@ function radWeek(pt){const d=new Date(pt+'T00:00:00Z');const day=d.getUTCDay()||
   return d.getUTCFullYear()+'-'+Math.ceil(((d-ys)/864e5+1)/7)}
 
 function renderRadar(){
-  const now=Date.now(), cut=now-RAD_WIN*864e5, cre={};
-  RAD.rows.forEach(r=>{
-    const pt=(r.post_time||'').slice(0,10); if(!pt||pt[0]!=='2')return;
-    const ts=new Date(pt+'T00:00:00Z').getTime(); if(ts<cut)return;
-    const a=cre[r.username]||(cre[r.username]={n:0,views:0,gmv:0,ord:0,wk:new Set(),last:''});
-    a.n++; a.views+=(+r.views||0); a.gmv+=(+r.gmv||0); a.ord+=(+r.sku_orders||0); a.wk.add(radWeek(pt)); if(pt>a.last)a.last=pt;
-  });
-  const list=Object.entries(cre).map(([u,a])=>{const sem=a.wk.size,vsem=a.n/(sem||1);
-    const dias=Math.floor((now-new Date(a.last+'T00:00:00Z').getTime())/864e5);
-    return {creator:u,n:a.n,sem,views:a.views,gmv:a.gmv,ord:a.ord,vsem,dias,last:a.last,
-      score:Math.round(sem*12+Math.min(vsem,5)*4+a.views/1000)};});
-  const base=list.filter(x=>x.ord===0 && x.views>=500);
-  RAD.ativo=base.filter(x=>x.dias<=30).sort((a,b)=>b.score-a.score);
-  RAD.frio =base.filter(x=>x.dias>30 && x.sem>=3).sort((a,b)=>b.score-a.score);
-  set('rad-tot',list.length.toLocaleString('pt-BR'));
+  const now=Date.now();
+  // agrega por creator com um corte de data (cut=0 → base 120d cheia). A janela do filtro
+  // vale só p/ ATIVOS (recência importa). ESFRIARAM usa sempre 120d — senão quem parou há
+  // +30d sumia justo nas janelas curtas, esvaziando a lista de reativação (ex.: bianca.hasss).
+  function agg(cut){
+    const cre={};
+    RAD.rows.forEach(r=>{
+      const pt=(r.post_time||'').slice(0,10); if(!pt||pt[0]!=='2')return;
+      const ts=new Date(pt+'T00:00:00Z').getTime(); if(cut && ts<cut)return;
+      const a=cre[r.username]||(cre[r.username]={n:0,views:0,gmv:0,ord:0,wk:new Set(),last:''});
+      a.n++; a.views+=(+r.views||0); a.gmv+=(+r.gmv||0); a.ord+=(+r.sku_orders||0); a.wk.add(radWeek(pt)); if(pt>a.last)a.last=pt;
+    });
+    return Object.entries(cre).map(([u,a])=>{const sem=a.wk.size,vsem=a.n/(sem||1);
+      const dias=Math.floor((now-new Date(a.last+'T00:00:00Z').getTime())/864e5);
+      return {creator:u,n:a.n,sem,views:a.views,gmv:a.gmv,ord:a.ord,vsem,dias,last:a.last,
+        score:Math.round(sem*12+Math.min(vsem,5)*4+a.views/1000)};});
+  }
+  const win=agg(now-RAD_WIN*864e5);   // janela selecionada → prospecção de ativos
+  const full=agg(0);                  // 120d cheio → reativação (não some no filtro curto)
+  RAD.ativo=win.filter(x=>x.ord===0 && x.views>=500 && x.dias<=30).sort((a,b)=>b.score-a.score);
+  RAD.frio =full.filter(x=>x.ord===0 && x.views>=500 && x.dias>30 && x.sem>=3).sort((a,b)=>b.score-a.score);
+  set('rad-tot',full.length.toLocaleString('pt-BR'));
   set('rad-ativo-n',RAD.ativo.length.toLocaleString('pt-BR')); set('rad-frio-n',RAD.frio.length.toLocaleString('pt-BR'));
-  set('rad-win-meta',`piso de alcance 500 views · sem conversão (0 pedidos) · consistência = semanas distintas com post`);
+  set('rad-win-meta',`janela do filtro vale p/ ATIVOS · esfriaram = base 120d cheia · piso 500 views · 0 pedidos`);
   renderRadList('ativo'); renderRadList('frio');
 }
 function renderRadList(which){
   const isA=which==='ativo', tb=isA?'rad-ativo-tb':'rad-frio-tb', pgId=isA?'rad-ativo-pag':'rad-frio-pag';
   const q=(el(isA?'rad-q1':'rad-q2')?.value||'').trim().toLowerCase();
   let data=isA?RAD.ativo:RAD.frio; if(q)data=data.filter(x=>x.creator.toLowerCase().includes(q));
-  set(isA?'rad-ativo-meta':'rad-frio-meta',`${data.length.toLocaleString('pt-BR')} creators${q?' (filtrado)':''} · ordenado por score`);
+  const escopo=isA?`janela ${RAD_WIN}d`:'base 120d cheia';
+  set(isA?'rad-ativo-meta':'rad-frio-meta',`${data.length.toLocaleString('pt-BR')} creators${q?' (filtrado)':''} · ${escopo} · ordenado por score`);
   const pages=Math.max(1,Math.ceil(data.length/RAD_PG_SIZE)); if(RAD_PG[which]>pages)RAD_PG[which]=1;
   const p=RAD_PG[which], st=(p-1)*RAD_PG_SIZE, slice=data.slice(st,st+RAD_PG_SIZE);
   htm(tb,slice.map(x=>{
