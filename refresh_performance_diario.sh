@@ -160,4 +160,22 @@ echo "[17/17] Sync → sample_applications..."
 python3 -c "from dotenv import load_dotenv; load_dotenv(); import sys,runpy; sys.argv=['sync','--only','sample_applications']; runpy.run_path('agente_rhode/sync_supabase.py', run_name='__main__')" \
     || echo "  ⚠ SYNC sample_applications falhou (não-crítico — segue)"
 
+# ─── CANARY ──────────────────────────────────────────────────────────────────
+# Confere o performance_periods (ranking do admin + hub creator-facing) contra a
+# fonte independente affiliate_creator_product. Roda por ÚLTIMO, com tudo fresco.
+#
+# ⚠️ Este é o ÚNICO passo que DERRUBA o run de propósito. Os demais seguem com
+# "⚠ não-crítico" porque uma coleta falha se recupera no dia seguinte — mas dado
+# errado no hub NÃO se recupera sozinho e ninguém percebe. O congelamento de
+# jun-jul/26 sobreviveu semanas justamente porque o cron ficava verde
+# (RUNBOOK #18). Cron vermelho é o único aviso que ninguém ignora.
+echo "[canary] Validando performance_periods vs fonte independente..."
+python3 canary_performance_periods.py
+CANARY_RC=$?
+
 echo "═════ Concluído — $(date '+%F %T') ═════"
+if [ "$CANARY_RC" -ne 0 ]; then
+    echo "❌ CANARY FALHOU — a coleta terminou, mas o ranking/hub está servindo dado"
+    echo "   incompleto às creators. Ver RUNBOOK #18. Derrubando o run de propósito."
+    exit "$CANARY_RC"
+fi

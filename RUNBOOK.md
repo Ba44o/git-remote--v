@@ -950,7 +950,18 @@ python3 coletar_extrato.py --inicio 2026-06-01 --fim <hoje> --dry-run   # confer
 python3 coletar_extrato.py --inicio 2026-06-01 --fim <hoje>
 # 2. RAIZ — já aplicado: refresh_performance_diario.sh passo [14] ancora a janela no
 #    1º dia do MÊS ANTERIOR (calculado em UTC) em vez de `--dias 21`.
+# 3. CANARY — roda no fim do daily e DERRUBA o run (único passo que faz isso):
+python3 canary_performance_periods.py         # exit 1 = hub servindo dado incompleto
+python3 tests/test_canary_performance_periods.py   # 8 cenários, read-only
 ```
+
+### Canary
+`canary_performance_periods.py` compara o `performance_periods` do mês corrente e do anterior
+com o `affiliate_creator_product` (pipeline independente, `etl_creator_product --dias 90`).
+Limiar calibrado nos números reais: **ratio < 0,90 = FAIL** (julho quebrado deu 0,858; saudável
+dá ~0,955). Também detecta a regressão estrutural (`--dias` de volta no daily) sem tocar a rede,
+e avisa sobre **identidade dividida** (mesma creator em 2 `affiliate_id` sem alias — o histórico
+racha e o tier sai subestimado; 5 casos abertos em 02/08/26, ver [[project_creator_handles]]).
 
 ### ⚠️ Validar
 Pedidos gravados devem bater com o `raw_affiliate.csv` do mês **à unidade** (tolerância de poucas unidades
