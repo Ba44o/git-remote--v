@@ -912,6 +912,61 @@ Toda leitura de tabela que possa passar de 1000 linhas TEM que paginar — `limi
 
 ---
 
+## 18. Creator com venda no FIM do mês some do ranking · mês passado congelado (janela deslizante)
+
+### Sintoma
+- "Por que a @fulana não aparece no ranking? Ela fez live dia 31." — e a venda **existe** na Affiliate
+  Orders API / `raw_affiliate.csv`.
+- Não é uma creator só: **um bloco** de creators cujas vendas se concentram nos últimos dias do mês.
+- O daily **rodou com sucesso todo dia** (diferente do #16, onde ele está parado). Log limpo, sem erro.
+- O mês corrente cresce normal; o **mês anterior** é que está parado num número velho.
+
+### Causa
+`build_performance_forward()` (em `coletar_extrato.py`) tem uma **guarda de cobertura**: só grava um mês
+que foi coletado **INTEIRO** (`date(per-01) < window_start` → pula). Ela existe por um motivo certo —
+sem ela, uma janela parcial reagregaria o mês pela metade e **encolheria** o hub no upsert.
+
+O problema era a janela ser **deslizante** (`--dias 21`): a partir do **dia 22** de cada mês ela deixa de
+alcançar o dia 1º, a guarda passa a pular o mês e ele **congela em silêncio**. As vendas do fim de todo
+mês nunca entravam no `performance_periods` — que é a fonte do ranking do admin **e do hub creator-facing**.
+Guarda correta + janela errada: os dois isolados parecem certos.
+
+### Diagnóstico
+```bash
+# Quantos pedidos o ranking tem no mês vs quantos a fonte tem? (o buraco fica óbvio)
+#   performance_periods[mês].pedidos  vs  raw_affiliate.csv[mês].pedidos
+# Se faltar e os ausentes tiverem venda concentrada após o dia ~22 → é este cenário.
+# Confirmar que NÃO é o #16 (daily morto):
+export GH_TOKEN=$(sed -n 's/^GH_TOKEN=//p' .env)
+gh run list --workflow=daily-collect.yml --limit 8   # success todo dia = daily vivo → é #18
+```
+
+### Fix
+```bash
+# 1. IMEDIATO — backfill com janela que cobre o 1º dia de TODOS os meses afetados
+#    ⚠️ o --fim tem que ser HOJE, não o fim do mês quebrado: uma janela 06-01→06-30 ainda
+#    devolve pedidos de julho e reescreveria julho PARCIAL, desfazendo o conserto.
+python3 coletar_extrato.py --inicio 2026-06-01 --fim <hoje> --dry-run   # confere antes
+python3 coletar_extrato.py --inicio 2026-06-01 --fim <hoje>
+# 2. RAIZ — já aplicado: refresh_performance_diario.sh passo [14] ancora a janela no
+#    1º dia do MÊS ANTERIOR (calculado em UTC) em vez de `--dias 21`.
+```
+
+### ⚠️ Validar
+Pedidos gravados devem bater com o `raw_affiliate.csv` do mês **à unidade** (tolerância de poucas unidades
+por lag de atribuição). `gmv_liquido` fica **abaixo** do bruto da Affiliate API — é `liquidado + a_liquidar`,
+exclui reembolso e **inelegível**; não é dado perdido. Mês fechado recalcula **tier retroativo** — vale
+avisar antes ([[feedback_hub_dados_intocaveis]]).
+
+> **Lição (caso real 02/08/26):** @bianca.hasss fez live 31/07 e não aparecia. Julho estava congelado desde
+> ~27/07 com **21 creators ausentes**; junho estava pior — **2.312 pedidos gravados contra 5.700 reais
+> (59% de fora), R$157k contra R$391k**. As creators viam menos da metade do GMV delas no hub, por meses,
+> com o pipeline reportando sucesso o tempo todo. **Cron verde não é dado certo:** quando alguém pergunta
+> "por que a fulana não aparece", medir o mês INTEIRO contra a fonte antes de olhar o caso individual —
+> uma creator ausente costuma ser a ponta de um bloco.
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:
@@ -919,7 +974,7 @@ Diga:
 
 Eu vou:
 1. Ler RUNBOOK.md
-2. Identificar o cenário (1-17 acima)
+2. Identificar o cenário (1-18 acima)
 3. Rodar a bateria de diagnóstico do cenário
 4. Reportar o que encontrei
 5. Aplicar fix conhecido (ou abrir investigação se for novo)

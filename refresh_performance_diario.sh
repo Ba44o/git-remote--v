@@ -89,10 +89,24 @@ python3 -c "from dotenv import load_dotenv; load_dotenv(); import sys,runpy; sys
     || { echo "  ❌ SYNC creator×produto FALHOU"; exit 1; }
 
 # 14) Extrato de Comissões (Central de Comissões / Meu Extrato — creator-facing)
-#     Janela de 21d cobre o que ainda está liquidando. UPSERT direto no Supabase
-#     (extrato_resumo + extrato_pedidos). Aditivo: não toca performance_periods.
-echo "[14/15] Extrato de comissões (--dias 21)..."
-python3 coletar_extrato.py --dias 21 || echo "  ⚠ extrato falhou (não-crítico — segue)"
+#     UPSERT direto no Supabase (extrato_resumo + extrato_pedidos + performance_periods
+#     forward). JANELA ANCORADA no 1º dia do MÊS ANTERIOR — não mais `--dias 21`.
+#
+#     Por quê (RUNBOOK #18): build_performance_forward só escreve um mês coletado
+#     INTEIRO (guarda de cobertura). Com janela deslizante de 21d, a partir do dia 22
+#     ela deixava de alcançar o dia 1º e o mês CONGELAVA — as vendas do fim de todo
+#     mês nunca entravam no ranking/hub. Jun/26 ficou com 59% dos pedidos de fora e
+#     jul/26 parou em ~27/07. Ancorar no 1º do mês anterior mantém mês corrente E
+#     anterior sempre cobertos (máx. ~63d, 1 chunk da API). Datas em UTC igual ao script.
+EXTRATO_JANELA="$(python3 -c "
+from datetime import date, datetime, timezone
+h = datetime.now(tz=timezone.utc).date()
+ini = date(h.year - 1, 12, 1) if h.month == 1 else date(h.year, h.month - 1, 1)
+print(ini.isoformat(), h.isoformat())")"
+read -r EXTRATO_INI EXTRATO_FIM <<< "$EXTRATO_JANELA"
+echo "[14/15] Extrato de comissões (${EXTRATO_INI} → ${EXTRATO_FIM})..."
+python3 coletar_extrato.py --inicio "$EXTRATO_INI" --fim "$EXTRATO_FIM" \
+    || echo "  ⚠ extrato falhou (não-crítico — segue)"
 
 # 15) Pedidos por SKU (lado LOJA — conciliação/margem admin-only).
 #     Persiste line_items por (order_id, sku) em pedidos_sku. Aditivo: tabela
