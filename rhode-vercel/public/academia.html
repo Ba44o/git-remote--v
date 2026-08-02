@@ -315,6 +315,20 @@
   .soon-box .st{font-weight:800;color:var(--ink);font-size:17px;margin-bottom:5px}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:99px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s ease;z-index:50}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* LIVE — bloco de 40s + banco de falas (escopado em #v-live) */
+  #v-live .lvbeats{display:flex;flex-direction:column;margin-top:6px}
+  #v-live .lvbeat{display:grid;grid-template-columns:62px 1fr;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
+  #v-live .lvbeat:first-child{border-top:none}
+  #v-live .lvbeat .lvbt{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--red);padding-top:2px;letter-spacing:-.02em}
+  #v-live .lvbeat>div>b{font-size:15px;display:block;margin-bottom:2px}
+  #v-live .lvbeat small{font-size:13.5px;color:var(--muted);line-height:1.5}
+  #v-live .lvbeat.hot{background:var(--red-wash);border-radius:10px;border-top-color:transparent;padding-left:10px;padding-right:10px;margin:0 -10px}
+  #v-live .falas{display:flex;flex-direction:column;gap:9px;margin-top:10px}
+  #v-live .fala{background:var(--paper);border:1px solid var(--line);border-left:2px solid var(--red);border-radius:8px;padding:11px 13px;font-size:15px;line-height:1.5}
+  #v-live .fala b{font-weight:700}
+  #v-live .falagrp{margin-top:18px}
+  #v-live .falagrp>h4{font-size:15px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  #v-live .falagrp>p{font-size:13.5px;color:var(--muted);line-height:1.5}
   @media (max-width:680px){.grid{grid-template-columns:1fr 1fr}.vocab,.fmts,.remix,.missoes{grid-template-columns:1fr}}
   @media (max-width:430px){.grid{grid-template-columns:1fr}}
 </style>
@@ -366,6 +380,149 @@
       <li>Meta: virar <b>Video Creator (20+ vídeos)</b> e destravar spark ads</li>
     </ul></div>
     <div style="margin-top:22px"><button class="btn" onclick="show('plano')">Montar meu plano de 3 semanas →</button></div>
+  </div></div>
+
+  <!-- LIVE QUE VENDE -->
+  <div class="view" id="v-live"><div class="container">
+    <div class="vhead"><div class="eyebrow">Módulo · live</div><h1>Ninguém <span class="hl">acompanha</span> a sua live</h1><p class="sub">Quem entra na sala fica menos de 30 segundos. Isso não é problema — é a regra do jogo. Este roteiro é feito pra ela.</p></div>
+
+    <div class="why">
+      <div class="wy"><b>⏱️ A sala troca a cada 30 segundos.</b> Você não está contando uma história de três horas. Está repetindo um <b>bloco de 40 segundos</b> que precisa funcionar sozinho, pra quem acabou de chegar e não viu nada.</div>
+      <div class="wy"><b>🎯 O buraco não é atrair, é fechar.</b> Nas lives que mais vendem, a diferença não está em quanta gente entra — está em quanta gente <b>clica e compra</b>. Entra até menos gente. Elas só fecham melhor.</div>
+      <div class="wy"><b>📏 A dúvida de tamanho é a que custa.</b> 3 de cada 4 devoluções são "não serviu". É a mesma dúvida que faz ela clicar no produto e desistir. Mata ela em voz alta, em todo bloco.</div>
+    </div>
+
+    <div class="blk"><h3>⏱️ O bloco de 40 segundos</h3>
+      <p class="sub" style="margin-bottom:6px">Decora esses seis passos. É só isso que você repete, trocando a peça. Quem chegou no segundo 12 recebe a informação toda antes de sair.</p>
+      <div class="lvbeats">
+        <div class="lvbeat"><div class="lvbt">0—5s</div><div><b>Reabre do zero</b><small>Quem você é, que calça é essa, quanto custa. Nunca "como eu tava dizendo".</small></div></div>
+        <div class="lvbeat"><div class="lvbt">5—15s</div><div><b>Prova no corpo</b><small>Em pé, <b>sentada</b>, de costas, de lado. Sentar é o que ninguém mostra — e é o que ela quer ver.</small></div></div>
+        <div class="lvbeat hot"><div class="lvbt">15—22s</div><div><b>Espelho de tamanho</b><small>Sua altura, seu peso, seu número — e o que ela faz com essa informação. É o passo que mais vale.</small></div></div>
+        <div class="lvbeat"><div class="lvbt">22—30s</div><div><b>Valor e fábrica</b><small>Quanto custaria em outra marca, e por que aqui custa menos.</small></div></div>
+        <div class="lvbeat"><div class="lvbt">30—35s</div><div><b>Manda clicar</b><small>Card fixado, e você diz exatamente o que ela vai fazer lá dentro.</small></div></div>
+        <div class="lvbeat hot"><div class="lvbt">35—40s</div><div><b>Fecha</b><small>Escolhe o número, finaliza — e um motivo pra ser agora.</small></div></div>
+      </div>
+      <div class="aviso" style="margin-top:16px">📌 O card fica <b>fixado do começo ao fim do bloco</b>. Sai só quando você trocar de peça — ficar alternando card confunde e derruba o clique.</div>
+    </div>
+
+    <div class="blk"><h3>🗣️ As falas</h3>
+      <p class="sub">Não decora tudo. Pega duas de cada grupo, usa por uma semana, troca. E vale a mesma regra do banco de ganchos: <b>o ângulo é compartilhado, a frase é sua</b>.</p>
+
+      <div class="falagrp"><h4>Abertura · 0–5s</h4><p>Quem acabou de cair na sala decide em três segundos se fica.</p>
+        <div class="falas">
+          <div class="fala">"Chegou agora? Volto do zero: wide leg cintura alta, direto da fábrica, menos de cem reais. Eu tô com a [seu número]."</div>
+          <div class="fala">"Gente, <b>pausa tudo</b>. Deixa eu te mostrar por quê essa é a que mais sai aqui."</div>
+          <div class="fala">"Se você é baixinha e acha que wide leg não é pra você, é porque você provou a errada. Fica dois minutos comigo."</div>
+          <div class="fala">"Eu vou sentar com essa calça na frente de vocês. Porque calça bonita em pé todo mundo tem."</div>
+        </div>
+      </div>
+
+      <div class="falagrp"><h4>Prova no corpo · 5–15s</h4><p>Essas já rodaram nos vídeos que mais venderam.</p>
+        <div class="falas">
+          <div class="fala">"Esse tecido é grosso, <b>jeans de verdade</b> — não amassa, não perde a forma."</div>
+          <div class="fala">"O caimento sobe na cintura, desce reto e <b>alonga a perna</b>."</div>
+          <div class="fala">"Eu uso o dia todo: sento, agacho, lavo, e ela continua igual."</div>
+          <div class="fala">"E vai com tudo: tênis, salto, rasteira."</div>
+        </div>
+      </div>
+
+      <div class="falagrp"><h4>Espelho de tamanho · 15–22s <span class="badge">a que mais vale</span></h4><p>Põe os <b>seus</b> números. Genérico não funciona — a força da fala é ela ser sua.</p>
+        <div class="falas">
+          <div class="fala">"Eu tenho <b>[altura]</b> e <b>[peso]</b>, tô com a <b>[número]</b> e sobra dois dedos no cós. Se você é mais baixa que eu, desce um número. Se seu quadril é maior que o meu, mantém — a perna é larga, ela não aperta."</div>
+          <div class="fala">"Não chuta o número. Pega uma calça sua que serve bem, mede a cintura dela deitada e compara com a tabela no card. Trinta segundos e você não erra."</div>
+          <div class="fala">"Entre dois números? Fica no <b>menor</b>. Esse cós não tem elastano, ele não cede — mas também não sufoca, porque a modelagem é alta."</div>
+          <div class="fala">"Quem é 38, olha aqui — é essa. Fecha na cintura sem sobrar atrás. Se na sua outra calça 38 sempre abre um vão nas costas, aqui não abre."</div>
+        </div>
+      </div>
+
+      <div class="falagrp"><h4>Valor · 22–30s</h4><p>Ancora antes de falar o preço. Preço sozinho parece barato; ancorado, parece esperto.</p>
+        <div class="falas">
+          <div class="fala">"Essa calça em loja de shopping sai por duzentos e pouco. A diferença não é a calça — é que aqui não tem shopping no meio. <b>A gente é a fábrica</b>."</div>
+          <div class="fala">"Calça boa não é a mais barata. É a que dura. Lavei essa dez vezes e ela continua igualzinha."</div>
+          <div class="fala">"Você não tá pagando oitenta reais numa calça. Tá pagando pra não ficar puxando o cós o dia inteiro."</div>
+        </div>
+      </div>
+
+      <div class="falagrp"><h4>Clique · 30–35s</h4><p>Não peça "clica aqui". Diz o que ela vai <b>fazer</b> lá dentro — dá motivo e tira o peso da compra.</p>
+        <div class="falas">
+          <div class="fala">"Toca no carrinho laranja e olha a foto de lado. É de lado que se vê se marca ou não."</div>
+          <div class="fala">"Abre o carrinho e vê a tabela de medidas. <b>Nem precisa comprar agora</b> — só abre e vê qual é o seu."</div>
+          <div class="fala">"Carrinho laranja, primeira linha: é essa a marmorizada que eu tô usando. Confere se é a mesma antes de escolher a cor."</div>
+        </div>
+      </div>
+
+      <div class="falagrp"><h4>Fechamento · 35–40s</h4><p>Urgência de verdade — estoque e condição. Nunca urgência inventada.</p>
+        <div class="falas">
+          <div class="fala">"Vê se ainda tem o seu tamanho antes de eu trocar de peça. 38 e 40 são os que acabam primeiro, sempre."</div>
+          <div class="fala">"Essa é a condição de hoje. Quando eu sair daqui ela volta pro valor de catálogo."</div>
+          <div class="fala">"<b>Garante a sua</b> e depois volta aqui pra me agradecer — que você vai me agradecer."</div>
+        </div>
+      </div>
+
+      <div class="falagrp"><h4>Pagamento · a cada 20 minutos</h4><p>Muita gente coloca no carrinho e não termina. Ninguém lembra ela — esse lembrete é venda de graça.</p>
+        <div class="falas">
+          <div class="fala">"Quem colocou no carrinho: <b>volta lá e termina</b>. Pedido sem pagamento cai sozinho e o seu tamanho volta pro estoque."</div>
+          <div class="fala">"Se travou no pagamento, escreve TRAVOU no chat que a gente resolve com você agora."</div>
+        </div>
+      </div>
+
+      <div class="falagrp"><h4>Comentário · em todo bloco</h4><p>Comentário empurra a live no algoritmo <b>e</b> te entrega a objeção escrita. Pergunta fechada, resposta de uma palavra.</p>
+        <div class="falas">
+          <div class="fala">"Manda no chat só o seu número: 36, 38, 40, 42. Eu vou falando o caimento de cada um."</div>
+          <div class="fala">"Escreve CLARA ou ESCURA. Eu visto a que ganhar."</div>
+          <div class="fala">"Quem já tem essa em casa escreve TENHO. Quem tá na dúvida escreve DÚVIDA e eu respondo a sua."</div>
+        </div>
+        <div class="aviso" style="margin-top:12px">💬 Responde <b>pelo nome</b>. É a fala que mais converte numa live — e não custa nada.</div>
+      </div>
+
+      <div class="falagrp"><h4>Segunda peça · no pico</h4><p>Quem já decidiu comprar é quem compra a segunda. O momento é logo depois do fechamento, não no fim da live.</p>
+        <div class="falas">
+          <div class="fala">"A clara é a que você põe pra ir almoçar. A escura é a que você põe quando quer estar bonita e não quer parecer que tentou. São dois dias diferentes da sua semana."</div>
+          <div class="fala">"Mesmo número, cor diferente: você já sabe que serve. É a compra sem risco."</div>
+          <div class="fala">"Leva o short junto — mesma modelagem de cintura, e sai um frete só."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="blk"><h3>🔄 Quando perguntarem "e se não servir?"</h3>
+      <p class="sub">Responde de frente. Ela já sabe que pode dar errado — quem desconversa parece que tem o que esconder. Falar a regra <b>aumenta</b> a compra.</p>
+      <div class="falas">
+        <div class="fala">"Não serviu? Você tem <b>7 dias</b> depois que receber pra devolver, e o dinheiro volta pra você."</div>
+        <div class="fala">"No TikTok Shop <b>não existe troca direta</b> — não é a loja, é a plataforma. Funciona assim: você devolve, recebe o reembolso e compra o número certo."</div>
+        <div class="fala">"O código de postagem sai no próprio app: seu perfil → pedidos → solicitar devolução. Você imprime e leva nos Correios."</div>
+      </div>
+      <div class="aviso" style="margin-top:14px">🚫 <b>Não invente o que não está escrito na página.</b> Prazo, frete, garantia — só fala o que está lá. Prometer o que a plataforma não cumpre vira alerta de violação e trava a sua live.</div>
+      <div class="aviso" style="margin-top:10px">💡 Como não existe troca, errar o número não vira "manda o outro tamanho" — vira devolução e venda perdida. É por isso que o <b>espelho de tamanho</b> é o passo mais importante do bloco.</div>
+    </div>
+
+    <div class="blk"><h3>👗 A ordem das peças</h3>
+      <p class="sub" style="margin-bottom:6px">Nem toda peça faz a mesma coisa numa live. Essa ordem vem do que as lives da Rhode já fizeram:</p>
+      <div class="trilha"><ul>
+        <li><b>Abre com Mom ou Azul Médio.</b> São as que mais puxam clique — aquecem a sala. Uns dez minutos, não mais.</li>
+        <li><b>Vai pra Marmorizada e fica.</b> É ela que carrega a live. O problema dela não é atenção, é fechamento — então o espelho de tamanho entra em todo bloco.</li>
+        <li><b>Fecha bloco com short.</b> É a peça que mais converte por clique e a segunda peça mais fácil: mesma cintura, mesmo frete.</li>
+        <li><b>Deixa de fora</b> as peças de brilho, body e saia. Elas comem tempo de tela e vendem pouco — esse tempo rende mais em qualquer uma de cima.</li>
+      </ul></div>
+    </div>
+
+    <div class="blk"><h3>🗣️ Como você fala na live</h3>
+      <div class="vocab">
+        <div><h4>✓ Usa</h4><div class="tags">
+          <span class="tag ok">amigas</span><span class="tag ok">para tudo</span><span class="tag ok">carrinho laranja</span><span class="tag ok">caimento</span><span class="tag ok">modela a cintura</span><span class="tag ok">direto da fábrica</span><span class="tag ok">menos de cem reais</span><span class="tag ok">vê se ainda tem o seu tamanho</span><span class="tag ok">garante a sua</span><span class="tag ok">não desbota</span><span class="tag ok">a condição de hoje</span>
+        </div></div>
+        <div><h4>✗ Evita</h4><div class="tags">
+          <span class="tag no">baratinha</span><span class="tag no">compre agora</span><span class="tag no">oferta imperdível</span><span class="tag no">link na bio</span><span class="tag no">cupom de desconto</span><span class="tag no">publi</span><span class="tag no">é boa pelo preço</span><span class="tag no">não é de marca mas…</span>
+        </div></div>
+      </div>
+      <div class="aviso" style="margin-top:14px">🔁 Em vez de "cupom de desconto", fala <b>"a condição de hoje"</b> ou <b>"o valor da live"</b>. Mesma coisa, sem soar liquidação.</div>
+    </div>
+
+    <div class="blk"><h3>📊 Um número julga a sua live</h3>
+      <p class="sub"><b>Taxa de compra após clique.</b> Não olha o total vendido pra saber se você foi bem — isso sobe só por ficar mais tempo no ar. Esse número mede a sua <b>fala</b>: de cada 100 pessoas que clicaram no produto, quantas compraram.</p>
+      <p class="sub" style="margin-top:10px">Sobe quando o espelho de tamanho aparece em todo bloco, quando você responde pelo nome e quando lembra do pagamento. Cai quando você troca de card rápido demais.</p>
+    </div>
+
+    <div style="margin-top:22px"><button class="btn" onclick="show('ganchos')">Ver o banco de ângulos →</button></div>
   </div></div>
 
   <!-- GANCHOS & ESTRUTURA -->
@@ -495,6 +652,7 @@ const CORE=[
   {id:'vendas',    n:6, i:'💬', t:'FAQ & missões',         d:'Responde objeções e fecha a venda.',            tags:['objeções','fechar'],  cov:'teal',   img:'/img/cover-vendas.webp'}
 ];
 const EXTRA=[
+  {id:'live',    i:'🔴',t:'Live que vende',d:'O bloco de 40s e as falas que fecham.', tags:['live','falas','fechar'], cov:'red'},
   {id:'conteudo',i:'📚',t:'Conteúdo',d:'Todos os aulões + leituras rápidas.',         tags:['aulões','biblioteca'], cov:'gray', img:'/img/cover-semana.webp'},
   {id:'trends',i:'📈',t:'Trends',d:'Áudios e formatos em alta — em breve.',           tags:['em breve'],  cov:'gray', img:'/img/cover-trends.webp', soon:true}
 ];
