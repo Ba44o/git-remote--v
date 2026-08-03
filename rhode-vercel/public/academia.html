@@ -329,6 +329,29 @@
   #v-live .falagrp{margin-top:18px}
   #v-live .falagrp>h4{font-size:15px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
   #v-live .falagrp>p{font-size:13.5px;color:var(--muted);line-height:1.5}
+  #v-live .mv{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);background:var(--red-wash);padding:3px 7px;border-radius:6px;white-space:nowrap}
+  #v-live .faq summary{gap:9px;align-items:flex-start;flex-wrap:wrap}
+  #v-live .faq summary .sq{flex:1;min-width:0}
+  #v-live .faq .fa{color:var(--ink);max-width:none}
+  #v-live .fa .lbl{display:block;font-size:11px;font-family:var(--mono);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);margin:14px 0 5px}
+  #v-live .fa .lbl:first-child{margin-top:0}
+  #v-live .fa ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px}
+  #v-live .fa li{padding-left:17px;position:relative;font-size:14.5px;line-height:1.5}
+  #v-live .fa li::before{content:"→";position:absolute;left:0;color:var(--red);font-weight:700}
+  #v-live .diag{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+  #v-live .dg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+  #v-live .dg.key{border-color:var(--red);background:var(--red-wash)}
+  #v-live .dg .ve{font-size:15px;font-weight:700;line-height:1.35}
+  #v-live .dg .on{font-size:13px;color:var(--muted);margin-top:3px}
+  #v-live .dg .on b{color:var(--ink);font-weight:600}
+  #v-live .dg .ac{font-size:14.5px;line-height:1.5;margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
+  #v-live .dg.key .ac{border-top-color:var(--red-line,rgba(254,44,85,.3))}
+  #v-live .dg .ac::before{content:"→ ";color:var(--red);font-weight:700}
+  #v-live .papeis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+  #v-live .papel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+  #v-live .papel h5{font-size:14px;font-weight:800;margin:0 0 6px}
+  #v-live .papel p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0}
+  @media (max-width:680px){#v-live .papeis{grid-template-columns:1fr}}
   @media (max-width:680px){.grid{grid-template-columns:1fr 1fr}.vocab,.fmts,.remix,.missoes{grid-template-columns:1fr}}
   @media (max-width:430px){.grid{grid-template-columns:1fr}}
 </style>
@@ -515,6 +538,153 @@
         </div></div>
       </div>
       <div class="aviso" style="margin-top:14px">🔁 Em vez de "cupom de desconto", fala <b>"a condição de hoje"</b> ou <b>"o valor da live"</b>. Mesma coisa, sem soar liquidação.</div>
+    </div>
+
+    <div class="blk"><h3>🎬 Cada momento e o que ele move</h3>
+      <p class="sub" style="margin-bottom:12px">A live não é uma coisa só. Cada hora dela decide um número diferente — e a ação certa às 20h05 é errada às 22h30. Abre o momento que você vai viver agora.</p>
+      <div class="faq">
+
+        <details><summary><span class="sq">1 · Dia anterior e 2h antes — o teaser</span><span class="mv">entrada na sala</span></summary><div class="fa">
+          <span class="lbl">O que essa hora decide</span>
+          <ul>
+            <li>Quanta gente o TikTok vai mostrar a sua live, e quantas dessas vão entrar. <b>A taxa de entrada é decidida antes de você abrir a boca</b> — é capa, título e primeiros segundos.</li>
+          </ul>
+          <span class="lbl">O que fazer</span>
+          <ul>
+            <li>Posta <b>1 vídeo no dia anterior</b> e reforça <b>2h antes</b>. Menos de 30 segundos, com sticker de contagem regressiva. É recomendação do próprio TikTok.</li>
+            <li>O teaser mostra a <b>peça no corpo</b> e a hora. "Vem pra live" sozinho não faz ninguém voltar.</li>
+            <li>Título e capa dizem o que ela ganha entrando: peça, preço, condição. Título genérico ("bora lá") entrega menos que "wide leg a 79,90 hoje".</li>
+          </ul>
+          <span class="lbl">Confere antes de abrir</span>
+          <ul>
+            <li>Estoque e preço de <b>cada</b> peça que vai entrar. Clique alto com compra baixa quase sempre começa num tamanho esgotado que ninguém percebeu.</li>
+            <li>As peças já adicionadas na vitrine da live — dá pra fixar vários cards de uma vez quando tem mais de dois produtos.</li>
+          </ul>
+        </div></details>
+
+        <details><summary><span class="sq">2 · Primeiros 5 minutos — a sala se define</span><span class="mv">tempo médio</span></summary><div class="fa">
+          <span class="lbl">O que essa hora decide</span>
+          <ul>
+            <li>O TikTok testa a sua sala com pouca gente e decide se entrega mais. Os cinco primeiros minutos ditam o tamanho da audiência da live inteira.</li>
+          </ul>
+          <span class="lbl">O que fazer</span>
+          <ul>
+            <li><b>Não espera encher.</b> Sala vazia é o estado normal — fala como se tivesse mil pessoas, porque quem chega decide em três segundos.</li>
+            <li><b>Fixa o primeiro card no minuto 1.</b> Sala sem card fixado é sala sem porta de saída pra compra.</li>
+            <li>Abre com a peça de <b>maior clique</b> (Mom ou Azul Médio), não com a que mais vende. Aqui você está comprando atenção, não fechando venda.</li>
+            <li>Pede comentário na primeira fala: <i>"manda o seu número no chat"</i>. Comentário cedo faz o TikTok entregar mais.</li>
+          </ul>
+          <span class="lbl">Se a entrada na sala estiver baixa</span>
+          <ul>
+            <li>O problema é <b>capa, título e cenário</b> — não é o produto. Muda a capa antes de mudar a peça.</li>
+          </ul>
+        </div></details>
+
+        <details><summary><span class="sq">3 · O bloco de 40s — o motor</span><span class="mv">compra após clique</span></summary><div class="fa">
+          <span class="lbl">O que essa hora decide</span>
+          <ul>
+            <li>Os dois números que separam live boa de live ruim: <b>quantos clicam</b> no produto e <b>quantos compram depois de clicar</b>.</li>
+          </ul>
+          <span class="lbl">Se tem muita impressão e pouco clique</span>
+          <ul>
+            <li>O problema é <b>demonstração</b>, não preço. Peça parada não gera clique — mostra em movimento: gira, senta, anda.</li>
+            <li><b>Nomeia a peça</b> em voz alta enquanto o card está fixado. Se você fala "essa aqui", ninguém sabe qual card abrir.</li>
+            <li><b>Refixa o card.</b> Ele some sozinho — card sumido é clique perdido sem você perceber.</li>
+          </ul>
+          <span class="lbl">Se tem muito clique e pouca compra</span>
+          <ul>
+            <li>Isso é <b>dúvida</b>, não desinteresse. Ela abriu, olhou e travou. As três travas, nessa ordem: <b>vai servir?</b> · <b>o preço é real?</b> · <b>e se não servir?</b></li>
+            <li>Espelho de tamanho em <b>todo</b> bloco, com os seus números. É a fala que mais move esse número.</li>
+            <li>Fala o preço <b>em voz alta</b>, sempre. Quem entrou agora não viu.</li>
+            <li>Responde a política de devolução de frente — falar a regra aumenta a compra, esconder derruba.</li>
+          </ul>
+          <span class="lbl">Repete em todo bloco, sem exceção</span>
+          <ul>
+            <li>Nome da peça · o número que você veste · o preço · o que fazer no card.</li>
+          </ul>
+        </div></details>
+
+        <details><summary><span class="sq">4 · Quando a sala esquenta</span><span class="mv">GMV por hora</span></summary><div class="fa">
+          <span class="lbl">Como você percebe</span>
+          <ul>
+            <li>Comentário acelera, o contador de espectador sobe, começam a pingar pedidos. O Seller Center marca isso depois como <b>"momento de destaque"</b>.</li>
+          </ul>
+          <span class="lbl">O que fazer</span>
+          <ul>
+            <li><b>Não troca de peça.</b> É o erro mais caro da live: começou a vender e a pessoa muda de produto. Fica nela.</li>
+            <li>Repete o argumento que estava funcionando, mais devagar. Quem chegou no meio do pico não ouviu.</li>
+            <li>Chama o estoque de verdade: <i>"o 38 e o 40 são os que acabam primeiro"</i>.</li>
+            <li><b>É aqui — e só aqui — que entra a segunda peça.</b> Quem já decidiu comprar é quem compra a segunda. No fim da live não funciona.</li>
+          </ul>
+          <span class="lbl">Se subiu gente mas não subiu pedido</span>
+          <ul>
+            <li>Você tem atenção sem oferta. Transforma na hora: fala o preço, fala o que fazer no card, dá um motivo pra ser agora.</li>
+          </ul>
+        </div></details>
+
+        <details><summary><span class="sq">5 · Quando a sala esfria</span><span class="mv">comentários</span></summary><div class="fa">
+          <span class="lbl">O que fazer</span>
+          <ul>
+            <li><b>Não baixa o preço na hora.</b> Preço é a última carta — se você queima cedo, o resto da live não tem pra onde ir.</li>
+            <li>Muda o <b>formato</b>, não a oferta: senta e levanta, mostra de costas, prova outra cor, conta um caso de cliente.</li>
+            <li>Pergunta de <b>uma palavra</b> reacende o chat: "CLARA ou ESCURA". Pergunta aberta trava.</li>
+            <li>Chama pelo <b>nome</b> quem está comentando. É a fala que mais converte numa live e não custa nada.</li>
+            <li>Oferta relâmpago é <b>carta na manga</b>, não primeira resposta. Guarda pra quando o formato já não resolveu.</li>
+          </ul>
+        </div></details>
+
+        <details><summary><span class="sq">6 · Últimos 15 minutos — o encore</span><span class="mv">compradores</span></summary><div class="fa">
+          <span class="lbl">O que essa hora decide</span>
+          <ul>
+            <li>Quanta gente que ficou a live toda sem decidir ainda dá pra converter — e quanto cada pedido vale.</li>
+          </ul>
+          <span class="lbl">O que fazer</span>
+          <ul>
+            <li><b>Repesca as duas que mais venderam</b> na live. Não é hora de apresentar peça nova — é hora de fechar as que já provaram que fecham.</li>
+            <li>No fim da live o <b>ticket cai</b>: quem compra tarde tende a levar o item mais barato. Por isso oferece <b>combo</b>, não peça avulsa.</li>
+            <li><b>Última chamada de pagamento</b>: <i>"quem colocou no carrinho, volta lá e termina"</i>. Pedido não pago é venda que você já fez e vai perder.</li>
+            <li>Pede pra seguir a loja e avisa a próxima live com dia e hora.</li>
+          </ul>
+        </div></details>
+
+        <details><summary><span class="sq">7 · Depois da live</span><span class="mv">a próxima</span></summary><div class="fa">
+          <span class="lbl">Olha três coisas, só</span>
+          <ul>
+            <li><b>GMV por hora</b> — compara com a última. É o que mede a live inteira, sem premiar quem só ficou mais tempo no ar.</li>
+            <li><b>Compra após clique</b> — é o que mede a sua fala.</li>
+            <li>Qual produto teve <b>muita impressão e pouca venda</b>. Esse não merece o tempo de tela que teve.</li>
+          </ul>
+          <span class="lbl">O que vira material</span>
+          <ul>
+            <li>A <b>objeção que mais apareceu no chat</b> vira fala fixa do próximo bloco. O chat é a única fonte de voz real da cliente que você tem.</li>
+            <li>Corta os <b>picos</b> em vídeo curto pro feed. O momento que vendeu ao vivo costuma vender gravado.</li>
+          </ul>
+        </div></details>
+
+      </div>
+    </div>
+
+    <div class="blk"><h3>🔍 Leitura ao vivo — o número caiu, e agora</h3>
+      <p class="sub" style="margin-bottom:6px">A regra é sempre a mesma: olha <b>onde</b> o funil quebrou, não o total. Impressão → clique → compra.</p>
+      <div class="diag">
+        <div class="dg"><div class="ve">Muita impressão, pouca gente entra</div><div class="on">O problema está em <b>capa, título e cenário</b></div><div class="ac">Troca a capa e o título. Não é a peça — ninguém chegou a ver a peça.</div></div>
+        <div class="dg"><div class="ve">Entra e sai rápido</div><div class="on">O problema está no <b>bloco que não fecha sozinho</b></div><div class="ac">Reabre do zero a cada 40 segundos: peça, seu número, preço.</div></div>
+        <div class="dg"><div class="ve">O produto aparece mas não clicam</div><div class="on">O problema está na <b>demonstração e no card</b></div><div class="ac">Mostra em movimento, nomeia a peça em voz alta e refixa o card.</div></div>
+        <div class="dg key"><div class="ve">Clicam mas não compram</div><div class="on">O problema é <b>dúvida</b>: tamanho, preço ou risco</div><div class="ac">Espelho de tamanho + preço em voz alta + a regra de devolução. É o número que mais vale — trata como emergência.</div></div>
+        <div class="dg"><div class="ve">Vende, mas o ticket cai</div><div class="on">É o <b>comprador tardio</b>, normal no fim da live</div><div class="ac">Oferece combo no lugar de peça avulsa.</div></div>
+        <div class="dg"><div class="ve">Chat parado</div><div class="on">A <b>pergunta está aberta demais</b></div><div class="ac">Pergunta de uma palavra só — e responde pelo nome.</div></div>
+        <div class="dg"><div class="ve">Subiu gente, não subiu pedido</div><div class="on">Você tem <b>atenção sem oferta</b></div><div class="ac">Fala o preço, fala o que fazer no card, dá um motivo pra ser agora.</div></div>
+        <div class="dg"><div class="ve">Peça com muito palco e pouca venda</div><div class="on">A <b>grade está errada</b></div><div class="ac">Tira da próxima live. O tempo de tela dela rende mais em qualquer outra.</div></div>
+      </div>
+    </div>
+
+    <div class="blk"><h3>👥 Quem faz o quê</h3>
+      <p class="sub">Se você estiver sozinha, faz os três — mas sabendo que são três trabalhos. Com duas pessoas, a conta muda muito.</p>
+      <div class="papeis">
+        <div class="papel"><h5>🎤 Host</h5><p>Fala, corpo, espelho de tamanho, fechamento. Não olha métrica durante a live — quem olha número para de vender.</p></div>
+        <div class="papel"><h5>📌 Card</h5><p>Fixa no minuto 1, <b>refixa a cada bloco</b>, troca na hora certa. Acompanha clique e compra após clique e avisa a host.</p></div>
+        <div class="papel"><h5>💬 Moderação</h5><p>Quebra objeção no chat — tamanho, prazo, pagamento. Avisa a host do que está travando. Fica de olho em alerta de violação.</p></div>
+      </div>
     </div>
 
     <div class="blk"><h3>🚨 O que derruba a sua live</h3>
