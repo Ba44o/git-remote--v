@@ -160,6 +160,13 @@ echo "[17/17] Sync → sample_applications..."
 python3 -c "from dotenv import load_dotenv; load_dotenv(); import sys,runpy; sys.argv=['sync','--only','sample_applications']; runpy.run_path('agente_rhode/sync_supabase.py', run_name='__main__')" \
     || echo "  ⚠ SYNC sample_applications falhou (não-crítico — segue)"
 
+# ─── SKU × CANAL (pace diário por canal) ─────────────────────────────────────
+# Regenera a planilha SKU × canal do mês (metas + pace MTD por canal). Fonte:
+# pedidos_sku × extrato (já frescos acima). Afiliada exata; vendedor calibrado
+# pelo export do Seller Center. Não-crítico — nunca derruba o run.
+echo "[sku-canal] Gerando planilha SKU × canal (pace do dia)..."
+python3 gerar_sku_por_canal.py || echo "  ⚠ gerar_sku_por_canal falhou (não-crítico — segue)"
+
 # ─── CANARY ──────────────────────────────────────────────────────────────────
 # Confere o performance_periods (ranking do admin + hub creator-facing) contra a
 # fonte independente affiliate_creator_product. Roda por ÚLTIMO, com tudo fresco.
