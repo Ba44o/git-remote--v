@@ -42,11 +42,11 @@ jobs:
       - name: Coleta diária (refresh token + ETLs API + extrato + GMV forward)
         run: bash refresh_performance_diario.sh
 
-      - name: Planilha SKU × canal (pace) como artifact
+      - name: Workbook Rhode SKU × Canal (pace) como artifact
         if: always()   # o xlsx é gerado ANTES do canary; sobe mesmo se o canary derrubar o run
         uses: actions/upload-artifact@v4
         with:
-          name: sku-por-canal-pace
-          path: "relatorios/**/SKU por Canal Agosto_ATUAL.xlsx"
+          name: rhode-sku-x-canal-pace
+          path: "relatorios/**/Rhode_SKU_x_Canal_Agosto_ATUAL.xlsx"
           if-no-files-found: warn
           retention-days: 90

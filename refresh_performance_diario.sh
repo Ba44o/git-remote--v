@@ -164,8 +164,8 @@ python3 -c "from dotenv import load_dotenv; load_dotenv(); import sys,runpy; sys
 # Regenera a planilha SKU × canal do mês (metas + pace MTD por canal). Fonte:
 # pedidos_sku × extrato (já frescos acima). Afiliada exata; vendedor calibrado
 # pelo export do Seller Center. Não-crítico — nunca derruba o run.
-echo "[sku-canal] Gerando planilha SKU × canal (pace do dia)..."
-python3 gerar_sku_por_canal.py || echo "  ⚠ gerar_sku_por_canal falhou (não-crítico — segue)"
+echo "[sku-canal] Atualizando pace do workbook Rhode SKU × Canal (Log diário)..."
+python3 atualizar_log_diario.py || echo "  ⚠ atualizar_log_diario falhou (não-crítico — segue)"
 
 # ─── CANARY ──────────────────────────────────────────────────────────────────
 # Confere o performance_periods (ranking do admin + hub creator-facing) contra a
