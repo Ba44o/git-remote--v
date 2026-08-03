@@ -5,9 +5,10 @@ Atualiza o PACE do workbook Rhode_SKU_x_Canal — desenho do Humberto.
 A ÚNICA coisa a fazer é alimentar a aba "Log diário" (Data|Canal|SKU|Peças|GMV|Origem).
 As abas de canal leem por SUMIFS(Canal=B2, SKU=A8) SEM data → o coletor SUBSTITUI as
 linhas do mês (uma por canal×SKU = MTD), não acumula. Nada mais precisa ser regerado.
-Canais mensuráveis: Live afiliada · Vídeo afiliada (extrato, exato) + Live/Vídeo/Card loja
-(split calibrado pelo export "Análise de produtos" do Seller Center). Card afiliada/Vitrine/
-Busca ficam SEM DADO (como no template). Re-rodável DIÁRIO (cron) → pace atualiza.
+Canais mensuráveis: Live afiliada · Vídeo afiliada (extrato, exato por SKU) + Live/Vídeo/Card
+loja (total do canal EXATO via API /analytics/202605/shop_products/performance — bate ao
+centavo com o export; rateado por SKU pela mistura não-afiliada). Card afiliada/Vitrine/Busca
+ficam SEM DADO (como no template). Re-rodável DIÁRIO (cron) → pace atualiza. Zero export manual.
 """
 import os, sys, json, urllib.request, datetime, shutil
 from collections import defaultdict
@@ -27,9 +28,38 @@ def pg(b,order="id"):
         off+=1000
     return out
 def canc(s): return bool(s) and 'CANCEL' in str(s).upper()
-# split vendedor calibrado (export TikTok jul): Live/Vídeo/Card do vendedor
-LV,VV,CARD=177660.0,5090.0,19216.0; S=LV+VV+CARD
-PV={"live_loja":LV/S,"video_loja":VV/S,"card":CARD/S}
+try:
+    from coletar_dados import chamar   # Partner API (HMAC) — mesmo usado nos outros coletores
+except Exception:
+    chamar=None
+def _amt(o,*path):
+    for p in path: o=(o or {}).get(p,{}) if isinstance(o,dict) else {}
+    return float((o or {}).get("amount",0) or 0) if isinstance(o,dict) else 0
+def seller_split_api(ge,lt):
+    """Split vendedor EXATO via /analytics/202605/shop_products/performance (bate ao centavo c/ o export)."""
+    if chamar is None: return None
+    tot={"live_loja":0.0,"video_loja":0.0,"card":0.0};tok=None
+    for _ in range(30):
+        p={"start_date_ge":ge,"end_date_lt":lt,"page_size":100,"currency":"LOCAL","product_status_filter":"ALL"}
+        if tok:p["page_token"]=tok
+        r=chamar("GET","/analytics/202605/shop_products/performance",params=p)
+        if not r or r.get("code")!=0: return None
+        d=r.get("data",{}) or {}
+        for it in d.get("products",[]):
+            tot["live_loja"]+=_amt(it,"seller_live_performance","attributed_gmv")
+            tot["video_loja"]+=_amt(it,"seller_video_performance","attributed_gmv")
+            tot["card"]+=_amt(it,"seller_product_card_performance","attributed_gmv")
+        tok=d.get("next_page_token")
+        if not tok: break
+    S=sum(tot.values())
+    return {k:v/S for k,v in tot.items()} if S>0 else None
+# proporções do split vendedor: EXATO da API (mês-base jul); fallback = export jul hardcoded
+PV=seller_split_api("2026-07-01","2026-08-01")
+if PV: print(f"  [split vendedor] via API 202605 (exato): {[f'{k}={v*100:.0f}%' for k,v in PV.items()]}")
+else:
+    LV,VV,CARD=177660.0,5090.0,19216.0; S=LV+VV+CARD
+    PV={"live_loja":LV/S,"video_loja":VV/S,"card":CARD/S}
+    print("  [split vendedor] API 202605 indisponível → fallback export jul")
 NAME={"live_afil":"Live afiliada","video_afil":"Vídeo afiliada","live_loja":"Live loja","video_loja":"Vídeo loja","card":"Card loja"}
 def matrix(per,cut):
     raw=pg(f"pedidos_sku?periodo=eq.{per}&select=id,order_id,qty,gmv,seller_sku,data,status")
