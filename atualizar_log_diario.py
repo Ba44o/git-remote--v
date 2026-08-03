@@ -60,7 +60,7 @@ else:
     LV,VV,CARD=177660.0,5090.0,19216.0; S=LV+VV+CARD
     PV={"live_loja":LV/S,"video_loja":VV/S,"card":CARD/S}
     print("  [split vendedor] API 202605 indisponível → fallback export jul")
-NAME={"live_afil":"Live afiliada","video_afil":"Vídeo afiliada","live_loja":"Live loja","video_loja":"Vídeo loja","card":"Card loja"}
+NAME={"live_afil":"Live afiliada","video_afil":"Vídeo afiliada","card_afil":"Card afiliada","live_loja":"Live loja","video_loja":"Vídeo loja","card":"Card loja"}
 def matrix(per,cut):
     raw=pg(f"pedidos_sku?periodo=eq.{per}&select=id,order_id,qty,gmv,seller_sku,data,status")
     seen={};[seen.setdefault(r['id'],r) for r in raw]
@@ -78,6 +78,7 @@ def matrix(per,cut):
         ct=oct_.get(o)
         if ct=='VIDEO': q[ref]["video_afil"]+=qt;g[ref]["video_afil"]+=gm
         elif ct=='LIVE': q[ref]["live_afil"]+=qt;g[ref]["live_afil"]+=gm
+        elif ct in ('SHOP','LINKSHARE'): q[ref]["card_afil"]+=qt;g[ref]["card_afil"]+=gm   # afiliada showcase/card
         else:
             for ch,p in PV.items(): q[ref][ch]+=qt*p;g[ref][ch]+=gm*p
     return q,g
@@ -88,6 +89,7 @@ wb=load_workbook(TEMPLATE)   # preserva TODAS as fórmulas/abas do desenho
 ws=wb["Log diário"]
 if ws.max_row>=5: ws.delete_rows(5,ws.max_row-4)   # limpa dados antigos (mantém cabeçalho L4)
 r=5; nrows=0
+# canais por SKU (os 5 principais)
 for ref in sorted(q):
     for ch in ("live_afil","video_afil","live_loja","video_loja","card"):
         pc=q[ref][ch]
@@ -95,6 +97,12 @@ for ref in sorted(q):
         ws.cell(row=r,column=1,value=HOJE);ws.cell(row=r,column=2,value=NAME[ch]);ws.cell(row=r,column=3,value=ref)
         ws.cell(row=r,column=4,value=round(pc));ws.cell(row=r,column=5,value=round(g[ref][ch],2));ws.cell(row=r,column=6,value=origem)
         r+=1;nrows+=1
+# Card afiliada (SHOP+LINKSHARE) = pequeno → uma linha AGREGADA (SKU="AGREGADO"), casa com a aba
+ca_pc=sum(q[x]["card_afil"] for x in q); ca_g=sum(g[x]["card_afil"] for x in q)
+if ca_pc>=0.5:
+    ws.cell(row=r,column=1,value=HOJE);ws.cell(row=r,column=2,value="Card afiliada");ws.cell(row=r,column=3,value="AGREGADO")
+    ws.cell(row=r,column=4,value=round(ca_pc));ws.cell(row=r,column=5,value=round(ca_g,2));ws.cell(row=r,column=6,value=origem+" (SHOP+LINKSHARE)")
+    r+=1;nrows+=1
 OUT=os.path.join(OUTDIR,"Rhode_SKU_x_Canal_Agosto_ATUAL.xlsx")
 wb.save(OUT); wb.save(os.path.join(OUTDIR,f"Rhode_SKU_x_Canal_Agosto_{HOJE}.xlsx"))
 print(f"OK -> {OUT}  ({nrows} linhas no Log diário)")
