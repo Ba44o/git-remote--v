@@ -13,7 +13,7 @@ const PADROES_MARCA = {
     "Surpresa e descoberta: arco 'eu não acreditava → experimentei → fiquei chocada' — ativa curiosidade e desejo de replicar a experiência"
   ],
   vocabulario: {
-    usar: ["amigas","apaixonada","para tudo","perfeita","carrinho laranja","viralizada","empina o bumbum","modela a cintura","menos de 100 reais","direto da fábrica","qualidade de Zara","caimento","100% algodão","não desbota","garante a sua","vê se ainda tem o seu tamanho","depois volta aqui pra me agradecer","versátil","combina com tudo","eu uso toda semana","todo mundo pergunta"],
+    usar: ["amigas","apaixonada","para tudo","perfeita","carrinho laranja","sacolinha laranja","viralizada","empina o bumbum","modela a cintura","menos de 100 reais","direto da fábrica","qualidade de Zara","caimento","100% algodão","não desbota","garante a sua","vê se ainda tem o seu tamanho","depois volta aqui pra me agradecer","versátil","combina com tudo","eu uso toda semana","todo mundo pergunta"],
     evitar: ["baratinha","compre agora","oferta imperdível","link na bio","cupom de desconto","publi/publicidade","fast fashion","básica/simples demais","produto bom pelo preço","não é de marca mas..."]
   },
   ctas_validados: [
