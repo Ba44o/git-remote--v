@@ -65,14 +65,21 @@ Documentação oficial (LIVE Product List Pin + TikTok LIVE Shopping):
 - Existe **LIVE Product List Pin**: com mais de 2 produtos no showcase, dá pra fixar
   vários de uma vez.
 
-⚠️ **Conflito com o guia BR.** O PDF do Seller Center BR trata o card como algo que
-*permanece* ("Tempo com card fixado = % do tempo da live em que o produto ficou
-fixado" · "fixe o card enquanto fala do produto e remova quando mudar de item"), o
-que contradiz o auto-sumiço em 30s. Pode ser diferença de versão de UI ou de mercado.
+✅ **CONFIRMADO na conta da Rhode (03/08/2026).** O card despina sozinho aos ~30s.
+O guia BR dava a entender que o card *permanece* ("Tempo com card fixado = % do tempo
+da live em que o produto ficou fixado"), mas na prática a métrica mede justamente o
+resultado da disciplina de repin, não persistência automática. Conflito encerrado.
 
-**Instrução segura sob as duas leituras:** o operador **re-fixa o card a cada bloco**
-e trata o card como algo que some — nunca assume que ficou. Confirmar o comportamento
-real na conta antes de escrever regra definitiva.
+**Consequência operacional:** o bloco de venda tem 40s e o card vive 30s — quem fixa
+só na abertura chega ao **fechamento sem card na tela**. O CTA de comprar dispara sem
+porta. Framework adotado (pin / repin / despin) documentado em `PLAYBOOK_LIVE_CTA.md`
+e publicado no módulo da Academy.
+
+⚠️ **Fixar mais não vende mais.** Testado nas 65 lives de julho: a exposição de card
+varia 2,8x entre lives, mas isolando o tamanho da audiência, as lives com **2,11x mais
+impressão de produto por espectador** fizeram só **1,15x** de GMV/hora e converteram
+**pior** por clique (**0,94x**). Impressão a mais com o mesmo clique derruba o CTR.
+O ganho está no *timing* (card vivo na hora de fechar), não no volume de repin.
 
 ---
 

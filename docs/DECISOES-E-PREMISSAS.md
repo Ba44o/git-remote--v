@@ -36,6 +36,8 @@ em silêncio e evaporava.
 | R5 | **"O custo de GMV Max sai do settlement"** | Sai da **conta de ads**, tanto no Tradicional quanto em Vendas Líquidas. Provado com 98 statements | jul/26 | Lucro subtrai `ads_custo` inteiro; `affiliate_ads_commission` é comissão de creator, não custo |
 | R6 | **"Tem divergência de repasse do TikTok pra recuperar"** | Comissão exata 6%, repasse faltante **R$0** com base completa (abr–jun) | 15/07/26 | Matou o modelo de success-fee por recuperação no SaaS. Valor = **visibilidade**, não recuperação |
 | R7 | **"Se a contagem bate, a paginação está certa"** | Sem `order=<pk>`, o offset pula/duplica linhas e **a contagem não denuncia** (4.842 de 4.842 com PKs repetidos). Split por canal saiu enviesado: 1.157/1.897/2.961 quando o certo era **1.423/2.438/2.154** | 27/07/26 | Contrato de leitura do Supabase; 10 coletores varridos; RUNBOOK #17 |
+| R8 | **"O 'GMV gerado' do relatório de seeding é o retorno da amostra e fecha com o mês"** | **Não fecha e não é retorno.** A atribuição não tem data-limite: soma toda venda de afiliada da creator depois do convite, pra sempre. Julho foi **R$ 57,7k (31/07) → R$ 67,6k (01/08) → R$ 75,5k (02/08)** sem **nenhuma amostra nova**. Pior: comparar meses era maçã com laranja — junho puxado até 06/07, julho até 02/08. E **84% do número é 1 creator** (@tacianecreator, já top afiliada) | 02/08/26 | Métrica passa a exigir **janela fixa após o convite** + **coorte de observação completa** + leitura **com e sem a maior creator**. Painel de julho implementa os 3. Veredito da eficiência real: em toda janela fixa, **sem a maior creator o seeding dá prejuízo** (7d −R$1,1k · 14d −R$1,7k · 30d −R$436) |
+| R9 | **"`affiliate_perf.gmv` é o GMV influenciado por creator — dá pra dizer '% do GMV que vem de afiliada'"** | **Não dá.** Em **abr/26 o GMV de afiliada bate R$981.789 contra R$917.399 de GMV oficial = 107%** — impossível. A série inteira fica em 80–96%, incompatível com o mix real por pedido (`tracker_canais`: **45,1% jun · 46,8% jul** das peças em video/live de afiliada). A API de Affiliate Orders atribui no **pedido criado** (não pago), inclui `SHOP`/`LINKSHARE` (vitrine) e credita a live própria rodada via programa de afiliado | 03/08/26 | `affiliate_perf` serve pra **ranking/tier de creator** (uso atual, ok) e **nunca** como numerador de share do GMV. Share de creator = `tracker_canais` (por pedido). Número citável: **~45% das peças**, ~71% se incluir live própria com creator |
 
 ---
 
@@ -57,3 +59,42 @@ em silêncio e evaporava.
 - **Ao fechar uma análise**: adicionar a linha (premissa → evidência → veredito → data → ação).
 - **Premissa confirmada envelhece.** A data está aqui pra isso — base velha pode ter virado.
 - Quando uma premissa vira decisão de arquitetura, ela **também** entra no `ROADMAP.md` → 🧠.
+
+---
+
+## P8 · Meta agosto/2026 = "R$230k faturados" (03/08/2026) ⏳
+
+**Premissa declarada:** "230k faturado" = **faturamento LÍQUIDO** (settlement/liquidado, ~75% do GMV), NÃO GMV bruto.
+- **Evidência:** julho GMV oficial R$589.510 · líq/GMV=76% (settle 328k/pago 433k). Agosto MTD (3d) 405 pç / R$30.867 → run-rate GMV **R$318.959** / líquido **R$239.219**. Se "230k"=GMV bruto seria −61% vs julho E já abaixo do run-rate (sem sentido como meta). Se =líquido, 230k ≈ o run-rate atual (R$239k) → coerente.
+- **Tradução:** R$230k líq = **R$306.667 de GMV = ~4.024 peças** (AOV R$76). Run-rate já entrega ~R$239k líq — cushion FINO (4%) e frágil (agosto −46% vs julho pela mídia cortada; MTD 90% live, 73% live afiliada = concentração).
+- **Veredito:** ⏳ **PENDENTE de confirmação do Humberto** — se faturado=GMV bruto, o plano inteiro muda. Atingível no ritmo atual SE segurar as lives; premium mix + re-escalar mídia dão a folga.
+- **Ação:** confirmar a régua (líquido vs bruto) → baco a redistribuição SKU×canal + premium mix no workbook.
+
+**CORREÇÃO (03/08, mesmo dia):** P8 estava contaminada com a operação toda. O dono corrigiu: **230k é meta de LIVE PRÓPRIA e só.** Régua = GMV do canal (não líquido). Base EXATA live_attr: jun R$205.788 · jul R$174.300 · ago MTD R$2.877 (só dia 01, frio). 230k = +32% vs jul. **É quase 100% FREQUÊNCIA** (68→88 lives, ~3/dia, ~103 pç/dia vs 73 em jul). Premium mix NÃO leva aos 230k (spread hero R$75×premium R$86 é pequeno → AOV só 77→79); payoff dele é MARGEM (+~R$4,7k). VL é folga (se paga). Plano: `relatorios/2026-08/Projecao Agosto/Meta 230k Live Propria Agosto_2026-08-03.xlsx`. Veredito ⏳ stretch, atrás do pace.
+
+---
+
+## P9 · Card de produto despina sozinho aos 30s (03/08/2026) ✅
+
+**Premissa declarada:** "o card fixado permanece até o operador trocar de peça" — foi o
+que publiquei no módulo de live em 01/08, e estava **errado**.
+
+- **Evidência:** TikTok Seller University é explícita ("Pin product card every 30 seconds.
+  Otherwise it will disappear"). O guia BR do Seller Center dava a entender persistência
+  (métrica "Tempo com card fixado"). **Conflito resolvido pelo dono: o card some aos 30s.**
+- **Consequência:** o bloco de venda tem 40s e o card vive 30s → quem pina só na abertura
+  chega no **fechamento sem card na tela**. O CTA de comprar dispara sem porta.
+- **Veredito:** ✅ **CONFIRMADO.** Framework pin/repin/despin publicado. Gatilho do repin é
+  a **fala do preço** (~25s), não cronômetro — operador não conta segundo.
+
+**Sub-premissa testada no mesmo passo — ❌ REFUTADA:** *"fixar mais = vender mais"*.
+Nas 65 lives de julho a exposição de card varia 2,8x (p90/p10 de impressões de produto
+por hora). Isolando o tamanho da audiência, as lives com **2,11x** mais impressão de
+produto **por espectador** fizeram só **1,15x** de GMV/hora e converteram **pior** por
+clique (**0,94x**); CTR 0,74x. Impressão a mais com o mesmo clique dilui o CTR.
+→ **O ganho é de _timing_ (card vivo na hora de fechar), não de volume de repin.**
+Não instruir a equipe a "pinar sem parar".
+
+**Limite do dado:** "Tempo com card fixado" e "Qtd de vezes com card fixado" existem na UI
+do Seller Center mas **não vêm no export** de SKU por live — a disciplina de repin foi
+medida por proxy (impressões de produto), não diretamente.

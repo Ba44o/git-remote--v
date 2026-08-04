@@ -66,7 +66,23 @@ quem já estava, e quem já estava é minoria.
 | 30-35s | CTA de clique (card fixado) | CTR |
 | 35-40s | CTA de fechamento + motivo pra ser agora | compra após clique ⭐ |
 
-Card fixado entra em 0s e sai quando trocar de produto — não alternar rápido.
+### Framework de card — pin / repin / despin
+
+O card **despina sozinho aos ~30s** (confirmado na conta, 03/08/26). O bloco tem 40s.
+Fixar só na abertura = **fechamento sem card na tela**.
+
+| Ação | Gatilho | Por quê |
+|---|---|---|
+| **PINA** | ao entrar na peça | card sobe junto com a 1ª frase, não depois |
+| **REPINA** | quando a host **falar o preço** | o preço sai ~25s, logo antes do card morrer → chega vivo no fechamento |
+| **DESPINA** | ao sair da peça | card antigo no ar enquanto se fala de outra = clique na peça errada |
+
+Gatilho é **fala**, não cronômetro — o operador não consegue contar segundo.
+
+⚠️ **Fixar mais não vende mais.** Nas 65 lives de julho, exposição de card varia 2,8x.
+Isolando audiência: lives com **2,11x** mais impressão de produto por espectador fizeram
+só **1,15x** de GMV/hora e converteram **pior** por clique (**0,94x**). Repin em excesso
+dilui CTR. O ganho é de *timing*, não de volume.
 
 ---
 
