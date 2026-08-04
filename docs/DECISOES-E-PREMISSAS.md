@@ -84,8 +84,11 @@ que publiquei no módulo de live em 01/08, e estava **errado**.
   (métrica "Tempo com card fixado"). **Conflito resolvido pelo dono: o card some aos 30s.**
 - **Consequência:** o bloco de venda tem 40s e o card vive 30s → quem pina só na abertura
   chega no **fechamento sem card na tela**. O CTA de comprar dispara sem porta.
-- **Veredito:** ✅ **CONFIRMADO.** Framework pin/repin/despin publicado. Gatilho do repin é
-  a **fala do preço** (~25s), não cronômetro — operador não conta segundo.
+- **Veredito:** ✅ card despina sozinho — mas ⚠️ **os 30s NÃO são exatos** (dono, 03/08).
+  **REVERTIDO no mesmo dia:** eu tinha publicado um framework pin/repin/despin com gatilho
+  aos ~25s. Falsa precisão em cima de um mecanismo que nunca medi — e a evidência que eu
+  já tinha apontava contra. Rebaixado a **higiene** ("mantém um card no ar, tira quando
+  trocar"), sem prescrição de cadência.
 
 **Sub-premissa testada no mesmo passo — ❌ REFUTADA:** *"fixar mais = vender mais"*.
 Nas 65 lives de julho a exposição de card varia 2,8x (p90/p10 de impressões de produto
@@ -98,3 +101,14 @@ Não instruir a equipe a "pinar sem parar".
 **Limite do dado:** "Tempo com card fixado" e "Qtd de vezes com card fixado" existem na UI
 do Seller Center mas **não vêm no export** de SKU por live — a disciplina de repin foi
 medida por proxy (impressões de produto), não diretamente.
+
+**Ranking das alavancas (03/08) — só o medido, por valor mensal:**
+
+| # | Alavanca | Vale/mês | Evidência |
+|---|---|---|---|
+| 1 | Duração 1,8h → 2,5h | **+R$ 67,4k** | top16 130min × bottom16 84min (1,55x) + TikTok oficial + guia BR + painel US |
+| 2 | Compra após clique 2,33% → 2,80% | **+R$ 35,4k** | único diferencial forte top×bottom (1,62x); 94.461 cliques sem compra |
+| 3 | Pagamento não concluído (metade) | +R$ 13,9k | taxa de pgto do hero = 80%, medido no export SKU |
+| 4 | Card / pin | **não medido** | proxy aponta ao contrário (0,94x compra/clique) |
+
+Soma de 1+2+3 = **+R$ 116,6k/mês** sobre base de R$ 173,3k. O card não entra no 80/20.

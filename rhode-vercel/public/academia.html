@@ -352,6 +352,43 @@
   #v-live .papel h5{font-size:14px;font-weight:800;margin:0 0 6px}
   #v-live .papel p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0}
   @media (max-width:680px){#v-live .papeis{grid-template-columns:1fr}}
+  /* ENSAIO — timer do bloco de 40s */
+  #v-live .ens{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:12px}
+  #v-live .ens-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  #v-live .ens-clock{font-family:var(--mono);font-size:44px;font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--red);font-variant-numeric:tabular-nums;min-width:104px}
+  #v-live .ens-now{flex:1;min-width:150px}
+  #v-live .ens-now .lb2{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);font-weight:700}
+  #v-live .ens-now .tt{font-size:17px;font-weight:800;line-height:1.2;margin-top:2px}
+  #v-live .ens-bar{height:7px;background:var(--paper);border-radius:99px;overflow:hidden;margin-top:14px;border:1px solid var(--line)}
+  #v-live .ens-fill{height:100%;width:0;background:var(--red);border-radius:99px;transition:width .18s linear}
+  #v-live .ens-say{margin-top:12px;font-size:15.5px;line-height:1.5;min-height:3.6em;padding:12px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+  #v-live .ens-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  #v-live .ens-btn{flex:1;min-width:110px;font-size:15px;font-weight:700;padding:12px 16px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+  #v-live .ens-btn.pri{background:var(--red);color:#fff;border-color:var(--red)}
+  #v-live .ens-btn:focus-visible,#v-live .gen input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  #v-live .ens-dots{display:flex;gap:5px;margin-top:12px}
+  #v-live .ens-dot{flex:1;height:4px;border-radius:99px;background:var(--line)}
+  #v-live .ens-dot.on{background:var(--red)}
+  /* GERADOR — espelho de tamanho */
+  #v-live .gen{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:12px}
+  #v-live .gen-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  #v-live .gen label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:4px}
+  #v-live .gen input{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+  #v-live .gen-out{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+  #v-live .gen-empty{font-size:14px;color:var(--muted);padding:14px;background:var(--paper);border:1px dashed var(--line);border-radius:10px;text-align:center}
+  /* EXEMPLO PRÁTICO */
+  #v-live .ex40{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:12px}
+  #v-live .ex40 .xl{display:grid;grid-template-columns:70px 1fr;gap:11px;padding:13px 15px;border-top:1px solid var(--line)}
+  #v-live .ex40 .xl:first-child{border-top:none}
+  #v-live .ex40 .xt{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);letter-spacing:-.02em;padding-top:3px}
+  #v-live .ex40 .xt small{display:block;color:var(--soft);font-size:9.5px;letter-spacing:.06em;margin-top:3px}
+  #v-live .ex40 .xs{font-size:15.5px;line-height:1.5}
+  #v-live .ex40 .xa{font-size:12.5px;color:var(--soft);margin-top:4px;font-style:italic}
+  /* fala copiável */
+  #v-live .fala{cursor:pointer;transition:border-color .15s,transform .1s}
+  #v-live .fala:hover{border-color:var(--red)}
+  #v-live .fala:active{transform:scale(.995)}
+  #v-live .fala.cp{border-color:var(--red);background:var(--red-wash)}
   @media (max-width:680px){.grid{grid-template-columns:1fr 1fr}.vocab,.fmts,.remix,.missoes{grid-template-columns:1fr}}
   @media (max-width:430px){.grid{grid-template-columns:1fr}}
 </style>
@@ -425,15 +462,55 @@
         <div class="lvbeat"><div class="lvbt">30—35s</div><div><b>Manda clicar</b><small>Card fixado, e você diz exatamente o que ela vai fazer lá dentro.</small></div></div>
         <div class="lvbeat hot"><div class="lvbt">35—40s</div><div><b>Fecha</b><small>Escolhe o número, finaliza — e um motivo pra ser agora.</small></div></div>
       </div>
-      <div class="aviso" style="margin-top:16px">📌 <b>O card morre em 30 segundos.</b> O TikTok despina sozinho. Como o bloco tem 40s, se você fixa só no começo o card já sumiu quando chega o <b>fechamento</b> — a hora de mandar comprar acontece sem porta na tela. É o furo mais silencioso da live.</div>
+      <div class="aviso" style="margin-top:16px">📌 <b>Card: higiene, não estratégia.</b> Mantém um card no ar enquanto fala da peça e tira quando trocar — card errado no ar faz a pessoa abrir a peça que não é. O TikTok despina sozinho depois de um tempo, então de vez em quando confere se ainda está lá. <b>Só isso.</b> Pinar mais não vende mais: nas nossas lives, as que expuseram mais card por espectador converteram <i>pior</i> por clique. O que decide a venda é a fala, não a frequência do pin.</div>
+    </div>
 
-      <div class="lvbeats" style="margin-top:14px">
-        <div class="lvbeat"><div class="lvbt">PINA</div><div><b>Ao entrar na peça</b><small>O card sobe junto com a primeira frase do bloco, não depois.</small></div></div>
-        <div class="lvbeat hot"><div class="lvbt">REPINA</div><div><b>Quando a host falar o preço</b><small>Não conta segundo — usa a fala como gatilho. O preço sai por volta dos 25s, que é exatamente antes do card morrer. Repinou ali, o card chega vivo no fechamento.</small></div></div>
-        <div class="lvbeat"><div class="lvbt">DESPINA</div><div><b>Ao sair da peça</b><small>Nunca deixa o card da peça anterior no ar enquanto a host já fala de outra — a pessoa clica e abre a errada.</small></div></div>
+        <div class="blk"><h3>📝 Exemplo prático — um bloco inteiro, palavra por palavra</h3>
+      <p class="sub" style="margin-bottom:6px">Não é fragmento: é como soa de ponta a ponta. Lê em voz alta uma vez e você já entendeu o ritmo.</p>
+      <div class="ex40">
+        <div class="xl"><div class="xt">0—5s<small>ABRE</small></div><div><div class="xs">"Chegou agora? Volto do zero: wide leg cintura alta, direto da fábrica. Eu tenho 1,62 e tô com a 40."</div><div class="xa">Card no ar desde já.</div></div></div>
+        <div class="xl"><div class="xt">5—15s<small>CORPO</small></div><div><div class="xs">"Olha em pé… agora eu vou sentar. Presta atenção no cós: não abre, não faz aquele vão nas costas. De lado, ó — é de lado que se vê se marca."</div><div class="xa">Senta de verdade. É o que ninguém mostra.</div></div></div>
+        <div class="xl"><div class="xt">15—22s<small>TAMANHO</small></div><div><div class="xs">"Eu tenho 1,62 e 68 quilos, tô com a 40 e sobra dois dedos no cós. Se você é mais baixa que eu, desce um número. Se seu quadril é maior que o meu, mantém — a perna é larga, ela não aperta."</div><div class="xa">Seus números, sempre os mesmos.</div></div></div>
+        <div class="xl"><div class="xt">22—30s<small>VALOR</small></div><div><div class="xs">"Essa calça em loja de shopping sai por duzentos e pouco. A diferença não é a calça — é que aqui não tem shopping no meio: a gente é a fábrica. Setenta e nove e noventa."</div><div class="xa">Ancora antes de dizer o preço.</div></div></div>
+        <div class="xl"><div class="xt">30—35s<small>CLIQUE</small></div><div><div class="xs">"Toca no carrinho laranja e olha a foto de lado. Nem precisa comprar agora — só abre e vê qual é o seu número na tabela."</div><div class="xa">Dá uma tarefa, não uma ordem de compra.</div></div></div>
+        <div class="xl"><div class="xt">35—40s<small>FECHA</small></div><div><div class="xs">"Vê se ainda tem o seu antes de eu trocar de peça. 38 e 40 acabam primeiro, sempre. Garante a sua e depois volta aqui pra me agradecer."</div><div class="xa">Escassez real. Nunca inventada.</div></div></div>
       </div>
+      <div style="margin-top:12px"><button class="btn" onclick="cpEx40(this)">📋 Copiar o bloco inteiro</button></div>
+    </div>
 
-      <div class="aviso" style="margin-top:14px">⚖️ <b>Pinar mais não vende mais.</b> Nas nossas lives, as que expuseram mais card por espectador converteram <b>pior</b> por clique — impressão demais com o mesmo clique derruba o CTR. O ganho está em o card estar <b>vivo na hora de fechar</b>, não em ficar repinando sem parar.</div>
+    <div class="blk"><h3>📏 Monte o seu espelho de tamanho</h3>
+      <p class="sub" style="margin-bottom:6px">Essa é a fala que mais vale da live inteira — e ela só funciona com <b>os seus</b> números. Preenche uma vez, decora, usa pra sempre.</p>
+      <div class="gen">
+        <div class="gen-row">
+          <div><label for="gAlt">Sua altura</label><input id="gAlt" type="text" inputmode="decimal" placeholder="1,62" oninput="genRun()"></div>
+          <div><label for="gPeso">Seu peso</label><input id="gPeso" type="text" inputmode="numeric" placeholder="68" oninput="genRun()"></div>
+        </div>
+        <div class="gen-row" style="margin-top:10px">
+          <div><label for="gNum">Número que veste</label><input id="gNum" type="text" inputmode="numeric" placeholder="40" oninput="genRun()"></div>
+          <div><label for="gQuad">Quadril em cm <span style="text-transform:none;letter-spacing:0">(opcional)</span></label><input id="gQuad" type="text" inputmode="numeric" placeholder="98" oninput="genRun()"></div>
+        </div>
+        <div class="gen-out" id="genOut"><div class="gen-empty">Preenche altura, peso e número — as suas falas aparecem aqui prontas.</div></div>
+      </div>
+    </div>
+
+<div class="blk"><h3>▶️ Ensaia o bloco agora</h3>
+      <p class="sub" style="margin-bottom:6px">Aperta e fala junto. Quarenta segundos — o mesmo que você vai repetir a noite toda. Se travar, é aqui que é pra travar. <span id="ensHint" style="display:none">Preencheu os seus números ali em cima? O ensaio já entra com eles.</span></p>
+      <div class="ens">
+        <div class="ens-top">
+          <div class="ens-clock" id="ensClock">0:00</div>
+          <div class="ens-now">
+            <div class="lb2" id="ensLb">pronta?</div>
+            <div class="tt" id="ensTt">Aperta ensaiar</div>
+          </div>
+        </div>
+        <div class="ens-bar"><div class="ens-fill" id="ensFill"></div></div>
+        <div class="ens-dots" id="ensDots"></div>
+        <div class="ens-say" id="ensSay">Cada passo mostra o que falar. Você não precisa decorar — precisa sentir o tempo que cada parte tem.</div>
+        <div class="ens-btns">
+          <button class="ens-btn pri" id="ensGo" onclick="ensToggle()">▶ Ensaiar 40s</button>
+          <button class="ens-btn" onclick="ensReset()">↺ Recomeçar</button>
+        </div>
+      </div>
     </div>
 
     <div class="blk"><h3>🗣️ As falas</h3>
@@ -1191,7 +1268,7 @@ const _qs=new URLSearchParams(location.search);
 const CREATOR=_qs.get('c')||_qs.get('handle')||_qs.get('creator')||null;
 function track(evento,extra){try{fetch('/api/relay',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify(Object.assign({action:'acad_track',evento:evento,sess:sessId(),creator:CREATOR},extra||{}))}).catch(function(){})}catch(e){}}
 // ROUTER
-function show(id){if(id==='aula')return openAulao((aulaoAtual()||{}).n);if(id==='semana')id='conteudo';if(id==='aulao'){var _dt=document.getElementById('aulao-detail');if(_dt&&!_dt.innerHTML.trim())return openAulao((aulaoAtual()||{}).n);}document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));const el=document.getElementById('v-'+id);(el||document.getElementById('v-home')).classList.add('on');document.body.classList.toggle('inview',id!=='home');if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);window.scrollTo({top:0,behavior:'instant'});refreshFooters();if(id==='home'||!el)renderHome();if(id==='conteudo')renderConteudo();if(id&&id!=='home')track('abriu_modulo',{modulo:id});}
+function show(id){if(id==='aula')return openAulao((aulaoAtual()||{}).n);if(id==='semana')id='conteudo';if(id==='aulao'){var _dt=document.getElementById('aulao-detail');if(_dt&&!_dt.innerHTML.trim())return openAulao((aulaoAtual()||{}).n);}document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));const el=document.getElementById('v-'+id);(el||document.getElementById('v-home')).classList.add('on');document.body.classList.toggle('inview',id!=='home');if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);window.scrollTo({top:0,behavior:'instant'});refreshFooters();if(id==='home'||!el)renderHome();if(id==='conteudo')renderConteudo();if(id==='live'){liveInit()}else{ensStop()}if(id&&id!=='home')track('abriu_modulo',{modulo:id});}
 function goHome(){show('home')}
 window.addEventListener('hashchange',()=>show((location.hash||'#home').slice(1)));
 // RENDER
@@ -1316,6 +1393,92 @@ function cpRot(i,btn){var h=HOOKS[i];var t=scriptText(h);try{navigator.clipboard
 function openClip(src,poster){var lb=document.getElementById('cliplb'),v=document.getElementById('cliplb-v');v.src=src;if(poster)v.poster=poster;v.muted=false;v.currentTime=0;lb.classList.add('on');document.body.style.overflow='hidden';var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});try{track('assistiu_clip',{ref:src})}catch(e){}}
 function closeClip(e,force){if(!force&&e&&e.target&&e.target.id!=='cliplb')return;var lb=document.getElementById('cliplb'),v=document.getElementById('cliplb-v');try{v.pause();v.removeAttribute('src');v.load();}catch(e2){}lb.classList.remove('on');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeClip(null,true);});
+// ═══ MÓDULO LIVE — ensaio do bloco de 40s + gerador do espelho de tamanho ═══
+const ENS=[
+ {a:0, b:5, lb:'0—5s · abre',     tt:'Reabre do zero',      say:'"Chegou agora? Volto do zero: wide leg cintura alta, direto da fábrica. Eu tenho {ALT} e tô com a {NUM}."'},
+ {a:5, b:15,lb:'5—15s · corpo',   tt:'Prova no corpo',      say:'Em pé → <b>senta</b> → de costas → de lado. Sentar é o que ninguém mostra — e é o que ela quer ver.'},
+ {a:15,b:22,lb:'15—22s · tamanho',tt:'Espelho de tamanho',  say:'"Eu tenho {ALT} e {PESO}, tô com a {NUM} e sobra dois dedos no cós. Mais baixa que eu, desce um número. Quadril maior que o meu, mantém."'},
+ {a:22,b:30,lb:'22—30s · valor',  tt:'Valor e fábrica',     say:'"No shopping sai por duzentos e pouco. A diferença não é a calça — é que aqui não tem shopping no meio: a gente é a fábrica."'},
+ {a:30,b:35,lb:'30—35s · clique', tt:'Manda clicar',        say:'"Toca no carrinho laranja e olha a foto de lado. Nem precisa comprar agora — só abre e vê qual é o seu."'},
+ {a:35,b:40,lb:'35—40s · fecha',  tt:'Fecha',               say:'"Vê se ainda tem o seu antes de eu trocar de peça. Garante a sua e depois volta aqui pra me agradecer."'}
+];
+const GKEY='rhode_acad_medidas';
+let _ensT=null,_ensS=0;
+function ensVals(){try{return JSON.parse(localStorage.getItem(GKEY)||'{}')}catch(e){return{}}}
+function ensFill(txt){const v=ensVals();
+  return txt.replace('{ALT}',v.alt||'[sua altura]').replace('{PESO}',v.peso?v.peso+' quilos':'[seu peso]').replace('{NUM}',v.num||'[seu número]');}
+function ensPaint(){
+  const s=Math.min(_ensS,40), i=ENS.findIndex(b=>s<b.b), st=ENS[i<0?ENS.length-1:i];
+  document.getElementById('ensClock').textContent='0:'+String(Math.floor(s)).padStart(2,'0');
+  document.getElementById('ensLb').textContent=st.lb;
+  document.getElementById('ensTt').textContent=st.tt;
+  document.getElementById('ensSay').innerHTML=ensFill(st.say);
+  document.getElementById('ensFill').style.width=(s/40*100)+'%';
+  document.querySelectorAll('#ensDots .ens-dot').forEach((d,k)=>d.classList.toggle('on',ENS[k].a<=s));
+}
+function ensToggle(){
+  const btn=document.getElementById('ensGo');
+  if(_ensT){clearInterval(_ensT);_ensT=null;btn.textContent='▶ Continuar';return}
+  if(_ensS>=40)_ensS=0;
+  btn.textContent='⏸ Pausar';
+  try{track('ensaiou_bloco',{modulo:'live'})}catch(e){}
+  _ensT=setInterval(function(){
+    _ensS+=0.1;
+    if(_ensS>=40){_ensS=40;clearInterval(_ensT);_ensT=null;
+      btn.textContent='▶ Ensaiar de novo';ensPaint();
+      document.getElementById('ensTt').textContent='Fim do bloco';
+      document.getElementById('ensLb').textContent='40s · pronto';
+      document.getElementById('ensSay').innerHTML='<b>Foi isso.</b> Agora troca a peça e repete. A live inteira é esse bloco de novo, e de novo.';
+      toast('Bloco completo ✓');return}
+    ensPaint();
+  },100);
+}
+function ensReset(){if(_ensT){clearInterval(_ensT);_ensT=null}_ensS=0;document.getElementById('ensGo').textContent='▶ Ensaiar 40s';ensPaint();}
+function ensStop(){if(_ensT){clearInterval(_ensT);_ensT=null;const b=document.getElementById('ensGo');if(b)b.textContent='▶ Continuar';}}
+
+function genRun(){
+  const g=id=>(document.getElementById(id).value||'').trim();
+  const alt=g('gAlt'),peso=g('gPeso'),num=g('gNum'),quad=g('gQuad');
+  try{localStorage.setItem(GKEY,JSON.stringify({alt:alt,peso:peso,num:num,quad:quad}))}catch(e){}
+  const out=document.getElementById('genOut');
+  if(!alt||!peso||!num){out.innerHTML='<div class="gen-empty">Preenche altura, peso e número — as suas falas aparecem aqui prontas.</div>';return}
+  const F=[
+    'Eu tenho '+alt+' e '+peso+' quilos, tô com a '+num+' e sobra dois dedos no cós. Se você é mais baixa que eu, desce um número. Se seu quadril é maior que o meu, mantém — a perna é larga, ela não aperta.',
+    'Pra você ter referência: '+alt+', '+peso+' quilos, veste '+num+'. Se os seus números são parecidos com os meus, é essa que serve em você.',
+    'Não chuta o número. Pega uma calça sua que serve bem, mede a cintura dela deitada e compara com a tabela no card. Trinta segundos e você não erra.'
+  ];
+  if(quad)F.splice(1,0,'Meu quadril é '+quad+' e eu visto '+num+'. Me fala quanto mede o seu que eu te falo o seu tamanho exato — manda no chat.');
+  out.innerHTML=F.map(f=>'<div class="fala">'+esc(f)+'</div>').join('');
+  if(!genRun._t){genRun._t=1;try{track('gerou_espelho',{modulo:'live'})}catch(e){}}
+}
+function cpEx40(btn){
+  const t=[...document.querySelectorAll('#v-live .ex40 .xl')].map(function(l){
+    return '['+l.querySelector('.xt').childNodes[0].textContent.trim()+'] '+l.querySelector('.xs').textContent.trim();
+  }).join('\n\n');
+  cpTxt(t);btn.textContent='✓ Copiado';toast('Bloco copiado ✓');
+  setTimeout(function(){btn.textContent='📋 Copiar o bloco inteiro'},1600);
+  try{track('copiou_bloco40',{modulo:'live'})}catch(e){}
+}
+function cpTxt(t){try{navigator.clipboard.writeText(t)}catch(e){try{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta)}catch(e2){}}}
+document.addEventListener('click',function(e){
+  const f=e.target.closest('#v-live .fala');if(!f)return;
+  cpTxt(f.textContent.trim());f.classList.add('cp');toast('Fala copiada ✓');
+  setTimeout(function(){f.classList.remove('cp')},900);
+  try{track('copiou_fala',{modulo:'live'})}catch(e2){}
+});
+function liveInit(){
+  const d=document.getElementById('ensDots');if(!d||d.dataset.on)return;
+  d.dataset.on='1';
+  d.innerHTML=ENS.map(function(){return '<div class="ens-dot"></div>'}).join('');
+  const v=ensVals();
+  ['alt|gAlt','peso|gPeso','num|gNum','quad|gQuad'].forEach(function(p){
+    const k=p.split('|');const el=document.getElementById(k[1]);if(el&&v[k[0]])el.value=v[k[0]];
+  });
+  if(v.alt&&v.peso&&v.num)genRun();
+  const hint=document.getElementById('ensHint');
+  if(hint)hint.style.display=(v.alt&&v.peso&&v.num)?'inline':'inline';
+  ensPaint();
+}
 let _tt;function toast(msg){const t=document.getElementById('toast');t.textContent=msg||'Copiado ✓';t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),1500)}
 document.getElementById('espinha').innerHTML='“'+esc(ESPINHA)+'”';
 document.getElementById('chips').innerHTML=['Todos'].concat(ARQ_ORDER).map(function(a,i){return '<button class="chip '+(i===0?'on':'')+'" onclick="setArq(this,\''+a+'\')">'+a+'</button>'}).join('');
