@@ -1,0 +1,1018 @@
+{
+ "_fonte": "DOM real do TikTok Seller Center, aba logada (AppleScript) — 08/08/2026",
+ "_telas": [
+  "shop.tiktok.com/streamer/live/product/dashboard",
+  "shop.tiktok.com/workbench/live/overview"
+ ],
+ "_como_regerar": "tools/tiktok-seller-scraper/mapear_live.sh",
+ "pares": [
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Roteiro",
+   "valor": "00:05:38",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "GMV atribuído",
+   "valor": "R$ 0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Itens atribuídos vendidos",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Espectadores atuais",
+   "valor": "12",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "R$ 0",
+   "valor": "Itens atribuídos vendidos0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Duração média de visualização",
+   "valor": "10s",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Cliques no produto",
+   "valor": "14",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Porcentagem de visitantes",
+   "valor": "23,85%16%",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Em pedidos acima de R$ 49,00 Do TikTok Shop",
+   "valor": "Desconto de 10%",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Fixar",
+   "valor": "Desconto de 10%",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Do TikTok Shop",
+   "valor": "Em pedidos acima de R$ 49,00",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Calça Jeans Feminina Wide Leg Jeans Feminina Cintura Alta",
+   "valor": "De R$ 78,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Oferta relâmpago da LIVE – 17:45Encerrar",
+   "valor": "De R$ 78,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "De R$ 78,90",
+   "valor": "R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "R$ 159,99",
+   "valor": "De R$ 78,90",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Em estoque: 5,8 mil",
+   "valor": "Demonstração solicitada: 0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Demonstração solicitada: 0",
+   "valor": "Em estoque: 5,8 mil",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Todos os comentários",
+   "valor": "0/100",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Mensagens do sistema",
+   "valor": "0/100",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Desafixar",
+   "valor": "De R$ 78,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Cliques",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Adicionado ao carrinho",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Itens vendidos atribuídos",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "|",
+   "valor": "Adicionado ao carrinho0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "|",
+   "valor": "Itens vendidos atribuídos0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "R$ 0123456789x0123456789x,0123456789x0123456789x",
+   "valor": "R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "R",
+   "valor": "0123456789x",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "$",
+   "valor": "0123456789x",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": ",",
+   "valor": "0123456789x",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "x",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Lista de produtos nesta LIVE",
+   "valor": "+7Fixar",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Fixar",
+   "valor": "+7",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Oferta relâmpago da LIVE – 17:45Encerrar",
+   "valor": "De R$ 94,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "De R$ 94,90",
+   "valor": "R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "R$ 159,99",
+   "valor": "De R$ 94,90",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Em estoque: 311",
+   "valor": "Demonstração solicitada: 0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Demonstração solicitada: 0",
+   "valor": "Em estoque: 311",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Fixar",
+   "valor": "De R$ 94,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Roteiro",
+   "valor": "00:10:06",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "GMV atribuídoR$ 71,01",
+   "valor": "Itens atribuídos vendidos1",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Itens atribuídos vendidos1",
+   "valor": "Espectadores atuais17",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Espectadores atuais17",
+   "valor": "Cliques no produto42",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "GMV atribuído",
+   "valor": "R$ 71,01",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Itens atribuídos vendidos",
+   "valor": "1",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Espectadores atuais",
+   "valor": "17",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "R$ 71,01",
+   "valor": "Itens atribuídos vendidos1",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Duração média de visualização8s",
+   "valor": "Cliques no produto42",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Cliques no produto42",
+   "valor": "GMV atribuídoR$ 71,01",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Porcentagem de visitantes22,88%",
+   "valor": "GMV atribuídoR$ 71,01",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Duração média de visualização",
+   "valor": "8s",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Cliques no produto",
+   "valor": "42",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Porcentagem de visitantes",
+   "valor": "22,88%",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Em pedidos acima de R$ 49,00 Do TikTok ShopFixar",
+   "valor": "Desconto de 10%",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "|",
+   "valor": "R$ 71,01",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Oferta relâmpago da LIVE – 13:17Encerrar",
+   "valor": "De R$ 78,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Em estoque: 5,8 milDemonstração solicitada: 0Desafixar",
+   "valor": "De R$ 78,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Em estoque: 5,8 milDemonstração solicitada: 0",
+   "valor": "De R$ 78,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Todos os comentáriosMensagens do sistema",
+   "valor": "0/100",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Cliques0",
+   "valor": "Adicionado ao carrinho0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Adicionado ao carrinho0",
+   "valor": "Itens vendidos atribuídos0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Itens vendidos atribuídos0",
+   "valor": "Cliques0",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "robertha 💫mostra a chocolate",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "robertha 💫",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "mostra a chocolate",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "AnnadaDiaassMostra a rosa",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "AnnadaDiaass",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Lista de produtos nesta LIVE",
+   "valor": "+10Fixar",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Mostra a rosa",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Fixar",
+   "valor": "+10",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "robertha 💫visto 38 pego o número normal",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "visto 38 pego o número normal",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "AnnadaDiaass",
+   "valor": "42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Oferta relâmpago da LIVE – 13:17Encerrar",
+   "valor": "De R$ 94,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "robertha 💫vc tem a 38 marrom pra mostra",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "vc tem a 38 marrom pra mostra",
+   "valor": "AnnadaDiaass42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Em estoque: 311Demonstração solicitada: 0Fixar",
+   "valor": "De R$ 94,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Console de LIVE",
+   "rotulo": "Em estoque: 311Demonstração solicitada: 0",
+   "valor": "De R$ 94,90R$ 159,99",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Duração",
+   "valor": "5 min e 59 s",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Itens atribuídos vendidos",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Espectadores atuais",
+   "valor": "13",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Porcentagem de visitantes (pela prévia da LIVE)3,03%",
+   "valor": "CTR por LIVE6,57%7,61%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Porcentagem de visitantes24,12%",
+   "valor": "CTR por LIVE6,57%7,61%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "CTR por LIVE6,57%7,61%",
+   "valor": "Taxa de pedidos (SKU)0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de pedidos (SKU)0%",
+   "valor": "Taxa de compartilhamento0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Porcentagem de visitantes (pela prévia da LIVE)",
+   "valor": "3,03%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Porcentagem de visitantes",
+   "valor": "24,12%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "CTR por LIVE",
+   "valor": "6,57%7,61%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de pedidos (SKU)",
+   "valor": "0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ",03%",
+   "valor": "3",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ",12%",
+   "valor": "24",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ",57%",
+   "valor": "6",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "%",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de compartilhamento0%",
+   "valor": "Taxa de Curtidas181,32%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de Curtidas181,32%",
+   "valor": "Visualizações de > 1 min.6",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Visualizações de > 1 min.6",
+   "valor": "CTR por LIVE6,57%7,61%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de compartilhamento",
+   "valor": "0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de Curtidas",
+   "valor": "181,32%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Visualizações de > 1 min.",
+   "valor": "6",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ",32%",
+   "valor": "181",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Feed Para você",
+   "valor": "43,37%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Total",
+   "valor": "Lista de produtos10",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Calça Jeans Feminina Wide Leg Jeans Feminina Cintura Alta",
+   "valor": "R$ 99,40",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Deslizar para LIVE",
+   "valor": "13,75%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "R$ 99,40",
+   "valor": "1",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Perfis de vídeo de...",
+   "valor": "1,62%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Prévia da LIVE",
+   "valor": "16,02%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Fixado",
+   "valor": "226",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "R$ 0,00",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "R$ 0,00",
+   "valor": "0",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Calça Jeans Feminina Wide Leg Jeans Feminina Cintura Alta",
+   "valor": "ID: 1731763836201109087",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Toques no perfil d...",
+   "valor": "11,97%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1731763836201109087",
+   "valor": "1",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Feed de LIVE",
+   "valor": "8,25%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1733690547643385439",
+   "valor": "2",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Outros canais",
+   "valor": "3,4%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1732670078583801439",
+   "valor": "3",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Aba Loja",
+   "valor": "0,97%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Calça Jeans Feminina Wide Leg Jeans Cintura alta",
+   "valor": "ID: 1734713315420767839",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Novos seguidores",
+   "valor": "0%0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Seguidores existentes",
+   "valor": "0%0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Não seguidores",
+   "valor": "0%0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1734713315420767839",
+   "valor": "4",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Deslizar para LIVE",
+   "valor": "0,81%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Calça Mom Jeans Feminina Cintura Alta Marmorizada",
+   "valor": "ID: 1735220480519472735",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Seguidores",
+   "valor": "0%0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Prévia da LIVE",
+   "valor": "0,16%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1735220480519472735",
+   "valor": "5",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Caixa de entrada",
+   "valor": "39,81%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Calça Baggy Jeans Feminina Cintura Média Marmorizada",
+   "valor": "ID: 1735220491823449695",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1735220491823449695",
+   "valor": "6",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Seguindo",
+   "valor": "3,4%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Calça Jeans Wide Leg Cintura Alta com Brilho Strass",
+   "valor": "ID: 1732956787016435295",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1732956787016435295",
+   "valor": "7",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Perfil da linha sup...",
+   "valor": "2,91%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Shorts Mom/Social Feminino Jeans Cintura Alta Barra Dobrada",
+   "valor": "ID: 1734190087073400415",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Prévia da LIVE",
+   "valor": "0,49%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1734190087073400415",
+   "valor": "8",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Pesquisa",
+   "valor": "0,81%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Shorts Jeans Feminino Cintura Alta Casual",
+   "valor": "ID: 1734426660402398815",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1734426660402398815",
+   "valor": "9",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "ID: 1735506546136680031",
+   "valor": "10",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GMV (R$)",
+   "valor": "80",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Itens atribuídos vendidos0Espectadores atuais13",
+   "valor": "80",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Itens atribuídos vendidos0",
+   "valor": "Espectadores atuais13",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Espectadores atuais13",
+   "valor": "Itens atribuídos vendidos0",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Impressões883",
+   "valor": "Visualizações213",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Visualizações213",
+   "valor": "GMV por hora0",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GMV por hora0",
+   "valor": "Impressões por hora8.66K",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Impressões por hora8.66K",
+   "valor": "GPM de exibições0",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Impressões",
+   "valor": "883",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Visualizações",
+   "valor": "213",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GMV por hora",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Impressões por hora",
+   "valor": "8.66K",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ".66K",
+   "valor": "8",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "K",
+   "valor": "8",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GPM de exibições0",
+   "valor": "Taxa de comentários0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Média de duração da visualização por visualização9s",
+   "valor": "Taxa de comentários0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de comentários0%",
+   "valor": "Taxa de seguidas0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de seguidas0%",
+   "valor": "Impressões883",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GPM de exibições",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Média de duração da visualização por visualização",
+   "valor": "9s",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de comentários",
+   "valor": "0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de seguidas",
+   "valor": "0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "s",
+   "valor": "9",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Cliente inativo",
+   "valor": "42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "AnnadaDiaass:",
+   "valor": "42 amiga",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Novos seguidoresSeguidores existentesNão seguidores",
+   "valor": "0%0%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "SeguidoresNão seguidores",
+   "valor": "0%0%",
+   "tabela": false
+  }
+ ]
+}

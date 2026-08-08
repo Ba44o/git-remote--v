@@ -19,12 +19,25 @@
     [/\d\s*(mi|milh(?:ão|ões)|M)\b/, 1e6],
     [/\d\s*(mil|k)\b/i, 1e3],
   ];
+  // Contador animado: o TikTok renderiza o número grande como colunas de dígitos
+  // rolando, e o textContent vira "0123456789x0123456789x,...". Ler isso dá um
+  // número enorme e plausível — pior que não ler. Detecta e recusa.
+  L.ehContadorAnimado = raw => /0123456789/.test(String(raw == null ? "" : raw));
+
   L.parseNumberPtBR = function (raw, type) {
     if (raw == null) return null;
     const bruto = String(raw);
+    if (L.ehContadorAnimado(bruto)) return null;
     let mult = 1;
     for (const [rx, m] of L.SUFIXOS) if (rx.test(bruto)) { mult = m; break; }
-    let s = bruto.replace(/[^\d.,-]/g, "");
+    // Só o PRIMEIRO número. Os cards colam valor e variação no mesmo texto
+    // ("CTR por LIVE" → "6,57%7,61%"); limpar tudo e juntar daria 6,577,61.
+    const m1 = bruto.match(/-?\d[\d.,]*/);
+    let s = (m1 ? m1[0] : "").replace(/[.,]+$/, "");
+    // O sinal pode estar separado do número pela moeda ("-R$ 1.200,00"), então
+    // olha tudo que vem antes do primeiro dígito em vez de exigir "-" colado.
+    const iDig = bruto.search(/\d/);
+    const negAntes = iDig > 0 && /[-−]/.test(bruto.slice(0, iDig));
     const neg = /^-/.test(s);
     s = s.replace(/-/g, "");
     if (!s) return null;
@@ -46,7 +59,7 @@
     // "2,8 mil": o 2,8 é decimal de verdade, não milhar — multiplica depois de parsear.
     if (mult > 1) n = n * mult;
     if (type === "int") n = Math.round(n);
-    return neg ? -n : n;
+    return (neg || negAntes) ? -n : n;
   };
   // Valor abreviado perde precisão (R$ 2,8 mil = qualquer coisa entre 2.750 e 2.849).
   // Quem consome usa isso pra avisar que o número é aproximado, não pra corrigir.
@@ -163,7 +176,7 @@
     // "SKU" fica de fora de propósito: pedido de SKU conta por SKU, pedido conta por
     // compra. O bench de ticket é GMV ÷ PEDIDOS — misturar os dois desloca o ticket
     // sem avisar. Fora que na tabela de produtos essa coluna é por linha, não total.
-    { key:"orders",      aceita:["pedidos atribuidos","total de pedidos","pedidos","numero de pedidos"], evita:["itens","item","produtos vendidos","por hora","valor","taxa","porcentagem","ctor","sku","%"] },
+    { key:"orders",      aceita:["pedidos atribuidos","total de pedidos","pedidos","numero de pedidos"], evita:["itens","item","produtos vendidos","por hora","valor","taxa","porcentagem","ctor","sku","%","acima de","desconto","cupom","frete","r$"] },
     { key:"liveViewers", aceita:["espectadores atuais","espectadores ativos","espectadores ao vivo","espectadores agora","espectadores no momento","audiencia ao vivo"], evita:["total","acumulad","duracao","medi"] },
     { key:"viewers",     aceita:["visualizacoes","total de espectadores","espectadores totais","views","visualizacoes da live"], evita:["duracao","medi","por hora","ativos","1 min","min","taxa","porcentagem"] },
     { key:"clicks",      aceita:["cliques no produto","cliques em produto","cliques nos produtos","product clicks","total de cliques"], evita:["porcentagem","taxa","por hora","ctr"] },
@@ -198,9 +211,21 @@
   /* Devolve a métrica que o rótulo representa, ou null.
      Casa por igualdade, depois por conter, e por fim por PREFIXO — porque a tela
      trunca com reticências ("Porcentagem d…") e às vezes o corte chega ao texto. */
+  // Um rótulo de verdade não termina em número nem em %. Quando termina, o que
+  // veio foi o CARD inteiro ("CTR por LIVE6,57%7,61%") e não o rótulo — aceitar
+  // isso fazia o vizinho de baixo virar o valor, e o CTR lia a métrica seguinte.
+  L.ehRotuloPuro = texto => {
+    const t = String(texto == null ? "" : texto).trim();
+    return !!t && !/[\d%]\s*$/.test(t);
+  };
+
+  // "0/100" é contador de caracteres da caixa de comentário, não métrica.
+  L.ehValorSuspeito = v => /^\s*\d+\s*\/\s*\d+\s*$/.test(String(v == null ? "" : v));
+
   L.metricaDoRotulo = function (texto) {
     const t = L.normalizarRotulo(texto);
     if (!t || t.length < 3) return null;
+    if (!L.ehRotuloPuro(texto)) return null;
     const bloqueado = a => (a.evita || []).some(e => t.includes(e));
     for (const a of L.ALIASES) if (!bloqueado(a) && a.aceita.some(x => t === x)) return a.key;
     // Alias curto ("err", "ctr", "views") só vale por igualdade: por "conter", QUALQUER

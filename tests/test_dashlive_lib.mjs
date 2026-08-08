@@ -231,5 +231,58 @@ console.log(`  · com CO=${coMedido}% (medido): ${ruimNovo}/${n} lives em VERMEL
 eq(ruimAntigo, n, "bench antigo reprovava 100% das lives reais");
 eq(ruimNovo < n * 0.6, true, `bench medido distribui o julgamento (${ruimNovo}/${n} vermelhas)`);
 
+/* ── 7. o DOM real das telas de live commerce ────────────────────────────
+   Fixture lida da aba logada do Chrome (tools/tiktok-seller-scraper/mapear_live.sh),
+   não transcrita de screenshot. É o que fecha o ciclo: cada correção do dicionário
+   passa a ser verificável contra o que a página realmente entrega. */
+sec("DOM real do Seller Center");
+const telas = JSON.parse(readFileSync(join(HERE, "fixtures", "dashlive_telas_tiktok.json"), "utf8"));
+const TIPO = { gmv:"money", orders:"int", liveViewers:"int", viewers:"int", clicks:"int",
+               ctr:"pct", co:"pct", convView:"pct", impressions:"int", comments:"int", err:"pct" };
+
+// Nenhum destes pode ser reconhecido — todos já causaram leitura errada em produção.
+const venenos = [
+  ["Em pedidos acima de R$ 49,00 Do TikTok Shop", "texto de cupom não é pedidos"],
+  ["CTR por LIVE6,57%7,61%", "card inteiro não é rótulo (o valor vem colado)"],
+  ["Taxa de pedidos (SKU)0%", "idem, com o valor grudado no fim"],
+  ["Visualizações de > 1 min.6", "recorte de audiência, e ainda com valor colado"],
+  ["Impressões por hora", "derivado por hora não é a contagem"],
+  ["GMV por hora", "idem"],
+  ["Taxa de comentários", "taxa não é a contagem de comentários"],
+  ["Duração média de visualização", "não é métrica do funil"],
+];
+for (const [rot, porque] of venenos) eq(L.metricaDoRotulo(rot), null, porque);
+
+// E estes precisam ser reconhecidos, com o valor exato que a página entregou.
+const bons = [
+  ["GMV atribuído", "R$ 71,01", "gmv", 71.01],
+  ["GMV (R$)", "80", "gmv", 80],
+  ["Espectadores atuais", "17", "liveViewers", 17],
+  ["Cliques no produto", "42", "clicks", 42],
+  ["Impressões", "883", "impressions", 883],
+  ["Visualizações", "213", "viewers", 213],
+  ["CTR por LIVE", "6,57%7,61%", "ctr", 6.57],      // valor + variação colados
+  ["Taxa de pedidos (SKU)", "0%", "convView", 0],
+];
+for (const [rot, val, keyEsp, valEsp] of bons) {
+  const k = L.metricaDoRotulo(rot);
+  eq(k, keyEsp, `"${rot}" → ${keyEsp}`);
+  eq(L.parseNumberPtBR(val, TIPO[keyEsp]), valEsp, `"${rot}" lê ${valEsp}`);
+}
+
+// Varredura completa da fixture: nada fora do esperado pode casar.
+const permitido = new Set(["gmv","orders","liveViewers","viewers","clicks","ctr","co","convView","impressions","comments","err"]);
+let casados = 0, suspeitos = 0;
+for (const p of telas.pares) {
+  const k = L.metricaDoRotulo(p.rotulo);
+  if (!k) continue;
+  if (!permitido.has(k)) { suspeitos++; continue; }
+  if (L.ehValorSuspeito(p.valor)) continue;
+  if (L.parseNumberPtBR(p.valor, TIPO[k]) != null) casados++;
+}
+eq(suspeitos, 0, "nenhuma métrica desconhecida sai do dicionário");
+eq(casados > 0, true, `${casados} pares reais casam e parseiam`);
+console.log(`  · ${telas.pares.length} pares reais na fixture · ${casados} viram métrica`);
+
 console.log(`\n${fail === 0 ? "✓" : "✗"} ${pass} passaram, ${fail} falharam\n`);
 process.exit(fail === 0 ? 0 : 1);

@@ -189,7 +189,7 @@
     const alvo = LIB.normalizarRotulo(label);
     if (!alvo) return null;
     const cands = Array.from(document.querySelectorAll("body *")).filter(el =>
-      !elDoPainel(el) && el.children.length<=1 && visivel(el) &&
+      !elDoPainel(el) && el.children.length<=3 && visivel(el) &&
       LIB.normalizarRotulo(el.textContent)===alvo);
     // o mais alto na tela: mesma regra do mapeamento, senão a leitura ao vivo
     // poderia ancorar num rótulo repetido dentro da tabela
@@ -198,13 +198,36 @@
   }
   function prof(el){ let n=0; while((el=el.parentElement)) n++; return n; }
 
+  // Duas vias, nesta ordem: o irmão do rótulo (limpo na maioria dos cards) e,
+  // se ele vier vazio ou envenenado (contador animado), o texto do CARD inteiro
+  // menos o rótulo — que é como "CTR por LIVE6,57%7,61%" entrega 6,57.
+  function textoValorDe(rotEl, tipo){
+    const alvo = valorPertoDe(rotEl);
+    if (alvo){
+      const t = (alvo.textContent||"").trim();
+      if (parseTyped(t, tipo)!=null) return t;
+    }
+    const rot = (rotEl.textContent||"").trim();
+    let node = rotEl;
+    for (let up=0; up<3 && node; up++){
+      const cont = node.parentElement;
+      if (!cont || cont===document.body) break;
+      const inteiro = (cont.textContent||"").trim();
+      if (inteiro.startsWith(rot) && inteiro.length>rot.length){
+        const resto = inteiro.slice(rot.length).trim();
+        if (parseTyped(resto, tipo)!=null) return resto;
+      }
+      node = cont;
+    }
+    return null;
+  }
+
   function readMetric(m){
     const c = state.calib[m.key];
     if (!c) return null;
     if (c.label){
       const rot = acharRotulo(c.label);
-      const alvo = rot && valorPertoDe(rot);
-      if (alvo){ const n = parseTyped(alvo.textContent, m.type); if (n!=null) return n; }
+      if (rot){ const t = textoValorDe(rot, m.type); if (t!=null){ const n = parseTyped(t, m.type); if (n!=null) return n; } }
     }
     if (c.selector){
       let el=null; try { el = document.querySelector(c.selector); } catch(e){ el=null; }
@@ -263,7 +286,11 @@
     // varrer de cima pra baixo resolve, e o filtro de visibilidade descarta o que
     // está em aba fechada ou fora de tela.
     const folhas = Array.from(document.querySelectorAll("body *"))
-      .filter(el => el.children.length<=1 && !elDoPainel(el) && visivel(el))
+      // <=3 filhos: "GMV (R$)" vem como <div><span>GMV</span><span>(R$)</span></div>
+      // e ficava de fora com o limite antigo. O ruído que isso abre (card inteiro
+      // com valor colado) é barrado pelo ehRotuloPuro, que recusa texto terminado
+      // em número ou %.
+      .filter(el => el.children.length<=3 && !elDoPainel(el) && visivel(el))
       .map(el => { const r = el.getBoundingClientRect(); return { el, top:Math.round(r.top), left:Math.round(r.left) }; })
       .sort((a,b) => a.top-b.top || a.left-b.left)
       .map(x => x.el);
@@ -274,12 +301,13 @@
       if (!key || achados[key]) continue;                        // 1º achado ganha
       const m = METRICS.find(x=>x.key===key);
       if (!m) continue;
-      const alvo = valorPertoDe(el);
-      if (!alvo) continue;
-      const val = parseTyped(alvo.textContent, m.type);
+      const texto = textoValorDe(el, m.type);
+      if (texto==null || LIB.ehValorSuspeito(texto)) continue;
+      const val = parseTyped(texto, m.type);
       if (val==null) continue;
-      achados[key] = { selector:cssPath(alvo), label:txt,
-                       sample:(alvo.textContent||"").trim().slice(0,40), origem:"auto", val,
+      const alvo = valorPertoDe(el);
+      achados[key] = { selector: alvo?cssPath(alvo):null, label:txt,
+                       sample: texto.slice(0,40), origem:"auto", val,
                        perfilCtr: key==="ctr" ? LIB.perfilPeloRotulo(txt) : undefined };
     }
     return achados;
@@ -769,9 +797,7 @@
       const t=(el.textContent||"").trim();
       if (!t || t.length>50 || /^\d/.test(t) || vistos.has(t)) continue;
       if (LIB.metricaDoRotulo(t)) continue;             // já reconhecido
-      const alvo=valorPertoDe(el); if (!alvo) continue;
-      const val=(alvo.textContent||"").trim();
-      if (!val || val.length>28) continue;
+      const val=textoValorDe(el,"int"); if (!val || val.length>28) continue;
       vistos.add(t); n++;
       L1.push(`  "${t}" = ${val}`);
     }
