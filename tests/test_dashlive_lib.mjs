@@ -254,7 +254,16 @@ const venenos = [
 for (const [rot, porque] of venenos) eq(L.metricaDoRotulo(rot), null, porque);
 
 // E estes precisam ser reconhecidos, com o valor exato que a página entregou.
+// Valores conferidos contra a tela às 14:01 de 08/08/26 — GMV 71, 925 espectadores,
+// 1,01K visualizações, 5,68K impressões. O contador animado entregava "8781" no GMV
+// e o "5.68K" saía como "5K" antes das correções de leitura.
 const bons = [
+  ["GMV (R$)", "71", "gmv", 71],
+  ["Espectadores", "925", "liveViewers", 925],
+  ["Impressões", "5.68K", "impressions", 5680],
+  ["Visualizações", "1.01K", "viewers", 1010],
+  ["Impressões5.68K", null, null, null],        // rótulo poluído: não pode casar
+  ["Visualizações1.01K", null, null, null],
   ["GMV atribuído", "R$ 71,01", "gmv", 71.01],
   ["GMV (R$)", "80", "gmv", 80],
   ["Espectadores atuais", "17", "liveViewers", 17],
@@ -266,8 +275,8 @@ const bons = [
 ];
 for (const [rot, val, keyEsp, valEsp] of bons) {
   const k = L.metricaDoRotulo(rot);
-  eq(k, keyEsp, `"${rot}" → ${keyEsp}`);
-  eq(L.parseNumberPtBR(val, TIPO[keyEsp]), valEsp, `"${rot}" lê ${valEsp}`);
+  eq(k, keyEsp, `"${rot}" → ${keyEsp === null ? "(ignora)" : keyEsp}`);
+  if (keyEsp !== null) eq(L.parseNumberPtBR(val, TIPO[keyEsp]), valEsp, `"${rot}" lê ${valEsp}`);
 }
 
 // Varredura completa da fixture: nada fora do esperado pode casar.

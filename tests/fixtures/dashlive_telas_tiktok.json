@@ -1013,6 +1013,378 @@
    "rotulo": "SeguidoresNão seguidores",
    "valor": "0%0%",
    "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Duração",
+   "valor": "23 min e 31 s",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GMV (R$)",
+   "valor": "71",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Repetir",
+   "valor": "00:00",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Itens atribuídos vendidos1Espectadores925",
+   "valor": "71",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Itens atribuídos vendidos1",
+   "valor": "Espectadores925",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Espectadores925",
+   "valor": "Itens atribuídos vendidos1",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Itens atribuídos vendidos",
+   "valor": "1",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Espectadores",
+   "valor": "925",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Impressões5.68K",
+   "valor": "Visualizações1.01K",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Visualizações1.01K",
+   "valor": "GMV por hora181.17",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GMV por hora181.17",
+   "valor": "Impressões por hora14.48K",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Impressões por hora14.48K",
+   "valor": "GPM de exibições12.5148,13%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Impressões",
+   "valor": "5.68K",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Visualizações",
+   "valor": "1.01K",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GMV por hora",
+   "valor": "181.17",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Impressões por hora",
+   "valor": "14.48K",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ".68K",
+   "valor": "5",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "K",
+   "valor": "5",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ".01K",
+   "valor": "1",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "K",
+   "valor": "1",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ".17",
+   "valor": "181",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ".48K",
+   "valor": "14",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "K",
+   "valor": "14",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GPM de exibições12.5148,13%",
+   "valor": "Taxa de comentários1,35%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Média de duração da visualização por visualização13s",
+   "valor": "Taxa de comentários1,35%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de comentários1,35%",
+   "valor": "Taxa de seguidas0,19%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de seguidas0,19%",
+   "valor": "Impressões5.68K",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GPM de exibições",
+   "valor": "12.5148,13%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Média de duração da visualização por visualização",
+   "valor": "13s",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de comentários",
+   "valor": "1,35%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Taxa de seguidas",
+   "valor": "0,19%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "s",
+   "valor": "13",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ",35%",
+   "valor": "1",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ",19%",
+   "valor": "0",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ".51",
+   "valor": "12",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Feed Para você",
+   "valor": "100%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Deslizar para LIVE",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Prévia da LIVE",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Perfis de vídeo de...",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Fixado",
+   "valor": "1.430",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "R$ 49,66",
+   "valor": "0,94%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "R$ 71,01",
+   "valor": "1",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Toques no perfil d...",
+   "valor": "100%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GêneroIdadeRegião",
+   "valor": ">34100,00%Sao Paulo100,00%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Feed de LIVE",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Sao Paulo",
+   "valor": "100,00%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Outros canais",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Aba Loja",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Novos seguidoresSeguidores existentesNão seguidores",
+   "valor": "0%100%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Novos seguidores",
+   "valor": "0%100%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Seguidores existentes",
+   "valor": "0%100%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Não seguidores",
+   "valor": "0%100%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "SeguidoresNão seguidores",
+   "valor": "0%100%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Seguidores",
+   "valor": "0%100%",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Caixa de entrada",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Pesquisa",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Seguindo",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Perfil da linha sup...",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Foto de perfil de L...",
+   "valor": "0%",
+   "tabela": true
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "GMV (R$)",
+   "valor": "8781",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": "Itens atribuídos vendidos1Espectadores925",
+   "valor": "8781",
+   "tabela": false
+  },
+  {
+   "tela": "Painel de LIVE",
+   "rotulo": ">34",
+   "valor": "100,00%",
+   "tabela": false
   }
  ]
 }

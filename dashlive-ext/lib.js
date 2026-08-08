@@ -216,7 +216,10 @@
   // isso fazia o vizinho de baixo virar o valor, e o CTR lia a métrica seguinte.
   L.ehRotuloPuro = texto => {
     const t = String(texto == null ? "" : texto).trim();
-    return !!t && !/[\d%]\s*$/.test(t);
+    if (!t) return false;
+    // termina com número, com % ou com número+sufixo ("Impressões5.68K",
+    // "Visualizações1.01K") → é o card inteiro, não o rótulo.
+    return !/\d[\d.,]*\s*(%|k|mil|mi|m|bi|b)?\s*$/i.test(t);
   };
 
   // "0/100" é contador de caracteres da caixa de comentário, não métrica.
