@@ -75,6 +75,18 @@ Registrado em `docs/DECISOES-E-PREMISSAS.md` (R10 e R11).
 
 Painel **arrastável**, **minimizável** (–) e **ocultável** (×).
 
+## Modo demo (smoke test e treino)
+
+Aba **Dados** → **Carregar dados demo**. Preenche o painel com uma live fictícia
+(funil entrando bem e afunilando no meio) pra você ver semáforo, gatilhos, derivados e
+linha do tempo funcionando **sem estar no ar**. Enquanto estiver ligado:
+
+- a leitura da página fica **pausada** (o demo não é sobrescrito pela tela);
+- a gravação no Supabase fica **bloqueada** — número fabricado não vira histórico;
+- uma tarja amarela avisa que é demo.
+
+Saia por **Sair do modo demo**, na mesma aba.
+
 ## Gravação no Supabase
 
 No popup, **Senha do painel** (a mesma do admin) → **Conectar**. O token fica no storage local do Chrome; a extensão nunca vê a service key — a escrita passa por `/api/get-hub` (`action=live_monitor`), igual ao resto do projeto.

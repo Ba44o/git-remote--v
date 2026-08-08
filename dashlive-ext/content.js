@@ -79,7 +79,7 @@
     return { goal:0, plannedMin:240, startTime:null, endTime:null,
       snapshots:[], events:[], frameworksUsed:[], violations:[],
       current:{ err:null,impressions:null,clicks:null,viewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null, t:null },
-      calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null,
+      calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
       ui:{ x:null, y:null, min:false, hidden:false, tab:"monitor" } };
   }
   function migrate(s){
@@ -226,6 +226,7 @@
   /* ================= shadow overlay ================= */
   let root, host;
   const STYLE = `
+    .demo-flag{font-size:11px;font-weight:600;color:#0B0B0F;background:#FFC53D;border-radius:7px;padding:7px 9px;margin-bottom:9px;line-height:1.4}
     .prov-src{font-size:10px;color:#8A8A9A;line-height:1.5;margin:6px 2px 0;padding:6px 8px;background:rgba(124,92,255,.07);border-radius:7px}
     :host{ all:initial; }
     *{ box-sizing:border-box; margin:0; padding:0; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; }
@@ -408,7 +409,8 @@
     const pct=state.goal>0&&s.gmv!=null?Math.round(s.gmv/state.goal*100):null;
     const d=h?h.dims:{};
 
-    let html=`<div class="sem ${h?h.overall:''}"><div class="beacon"></div><div><div class="st ${h?'':'idle'}">${h?map[h.overall]:'Aguardando leitura'}</div></div>
+    let html=state.demo?`<div class="demo-flag">▶ MODO DEMO — números fabricados. Não grava no Supabase. Limpa na aba <b>Dados</b>.</div>`:"";
+    html+=`<div class="sem ${h?h.overall:''}"><div class="beacon"></div><div><div class="st ${h?'':'idle'}">${h?map[h.overall]:'Aguardando leitura'}</div></div>
       <div class="pc"><b>${pct!=null?pct+'%':'—'}</b><span>da meta</span></div></div>`;
     html+=`<div class="reason">${h?heroReason(h):(calibrated?'Lendo a página… se ficar em branco, confira a aba <b>Dados</b>.':'Ainda não calibrado. Vai na aba <b>Dados</b> e aponta os números uma vez.')}</div>`;
 
@@ -529,12 +531,15 @@
       html+=`<div class="cm ${c?'ok':''}"><span class="d"></span><span class="l">${m.label}${m.prov?'<span class="tag prov">provisório</span>':''}${m.opt?'<span class="tag opt">opcional</span>':''}</span><span class="v">${disp}</span></div>`; });
     html+=`</div>`;
     html+=`<div class="rowbtn"><button id="dl-cal" class="pri">Calibrar métricas</button><button id="dl-cal-clear">Limpar</button></div>`;
+    html+=`<div class="rowbtn" style="margin-top:8px"><button id="dl-demo">${state.demo?"Sair do modo demo":"Carregar dados demo"}</button></div>`;
+    html+=`<div class="note" style="text-align:left">Demo preenche o painel com uma live fictícia pra você ver o semáforo, os gatilhos e a linha do tempo funcionando sem estar no ar. Enquanto estiver ligado, a leitura da página fica pausada e a gravação no Supabase, bloqueada.</div>`;
     html+=`<div class="note" style="text-align:left">Benchmarks vêm da tabela <b>lives</b> (mesma fonte do dash-live), não de constante no código — regera com <code>gerar_benchmarks_live.py</code>. <b>CO</b> é <b>medido</b> (coluna <code>ctor</code> = compra após clique); a <b>conv/visualização</b> é que é derivada (CTR×CO). Calibrar <b>Cliques em produto</b> é opcional mas recomendado: é o que confirma qual régua de CTR a tela usa. <b>ERR</b> segue por tendência (sem bench). Quebrou após atualização do TikTok? Recalibra.</div>`;
     return html;
   }
   function bindCalib(body){
     const cal=body.querySelector("#dl-cal"); if(cal) cal.onclick=startCalibration;
     const clr=body.querySelector("#dl-cal-clear"); if(clr) clr.onclick=()=>{ state.calib={}; saveState(); render(); };
+    const dm=body.querySelector("#dl-demo"); if(dm) dm.onclick=()=>{ state.demo?clearDemo():loadDemo(); };
   }
 
   /* ================= calibration ================= */
@@ -567,6 +572,35 @@
   }
   function advanceCalib(){ calState.idx++; if(calState.idx>=METRICS.length){ endCalibration(); return; } showCalHint(); }
 
+  /* ================= modo demo =================
+     Serve pro smoke test e pra treinar operador fora do ar. Os números são
+     inventados de propósito num cenário que ACENDE o painel: funil entrando bem
+     e afunilando no meio (CO e ticket fracos) com o GMV atrás do ritmo.
+     `demo:true` viaja junto no state — o popup se recusa a gravar no Supabase
+     enquanto estiver ligado, pra dado fabricado nunca virar histórico. */
+  function loadDemo(){
+    const agora=Date.now();
+    if(!state.startTime){ state.startTime=agora-95*60000; state.endTime=null; }
+    if(!state.goal) { state.goal=10000; state.plannedMin=240; }
+    state.demo=true;
+    // snapshot anterior: sem ele as métricas de TENDÊNCIA (ERR, viewers, engajamento)
+    // não têm contra o que comparar e o painel fica só com as de nível.
+    state.snapshots=[{ t:agora-20*60000, err:14.2, impressions:38000, clicks:1183, viewers:5400,
+                       ctr:21.9, co:2.7, gmv:3100, orders:38, comments:280, ctrProfile:"views" }];
+    // clicks = ctr × views de propósito (1310 ≈ 21,4% de 6120): fecha a identidade e o
+    // painel resolve a régua pelos cliques, não pela ordem de grandeza.
+    state.current={ err:11.1, impressions:54000, clicks:1310, viewers:6120,
+                    ctr:21.4, co:1.6, gmv:4180, orders:62, comments:210, t:agora };
+    state.lastSnapAt=agora;
+    saveState(); render();
+  }
+  function clearDemo(){
+    state.demo=false;
+    state.current={ err:null,impressions:null,clicks:null,viewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null };
+    state.snapshots=[]; state.events=[]; state.violations=[]; state.lastSnapAt=null;
+    saveState(); render();
+  }
+
   /* ================= live loop ================= */
   function commitSnapshot(){
     const s=state.current;
@@ -576,6 +610,7 @@
   }
   function readTick(){
     if(!state.startTime||state.endTime) return;
+    if(state.demo) return;               // demo congelado: leitura real só depois de limpar
     if(Object.keys(state.calib).length===0) return;
     let changed=false;
     METRICS.forEach(m=>{ const v=readMetric(m); if(v!=null){ state.current[m.key]=v; changed=true; } });

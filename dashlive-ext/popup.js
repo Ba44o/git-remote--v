@@ -11,7 +11,7 @@ let tick = null;
 
 function defaults(){
   return { goal:0, plannedMin:240, startTime:null, endTime:null, snapshots:[], events:[], frameworksUsed:[], violations:[],
-    current:{err:null,impressions:null,clicks:null,viewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null}, calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null,
+    current:{err:null,impressions:null,clicks:null,viewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null}, calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
     ui:{x:null,y:null,min:false,hidden:false,tab:"monitor"} };
 }
 function load(cb){ chrome.storage.local.get(KEY, r=>{ state=Object.assign(defaults(), r[KEY]||{}); cb&&cb(); }); }
@@ -125,6 +125,8 @@ async function connect(){
 async function pushReport(auto){
   if(!adminToken){ setSync("Conecte primeiro para gravar no Supabase.", "err"); return false; }
   if(!state.startTime){ setSync("Nenhuma live para enviar.", "err"); return false; }
+  // Dado fabricado não vira histórico. Sai do demo (aba Dados) antes de gravar.
+  if(state.demo){ setSync("Modo demo ligado — não gravo números fabricados.", "err"); return false; }
   const n=$("syncNote"); n.dataset.busy="1"; setSync(auto?"Encerrando e gravando…":"Enviando…");
   try {
     const j = await post({ action:"live_monitor", adminToken, relatorio:reportObj() });
