@@ -22,6 +22,14 @@
 
   function resolveProfile(){
     const s = state.current;
+    // "CTR por LIVE" já declara o denominador — vale mais que qualquer inferência.
+    const peloRotulo = state.calib.ctr && state.calib.ctr.perfilCtr;
+    if (peloRotulo){
+      state.ctrProfile = peloRotulo;
+      BM_DET = { profile:peloRotulo, method:"rotulo", confident:true };
+      BM = LIB.resolveBenchmarks(BENCH_SRC, peloRotulo);
+      return BM;
+    }
     const det = LIB.detectCtrProfile(
       { ctr:s.ctr, clicks:s.clicks, views:s.viewers, impressions:s.impressions }, BENCH_SRC);
     BM_DET = det;
@@ -62,6 +70,7 @@
     { key:"ctr",         label:"% de cliques no produto (CTR)",      type:"pct",   star:2, opt:true },
     { key:"clicks",      label:"Cliques no produto",                 type:"int",   star:2, opt:true },
     { key:"co",          label:"Compra após clique — CO (%)",        type:"pct",   star:2, opt:true },
+    { key:"convView",    label:"Taxa de pedidos (SKU) / conversão por visualização", type:"pct", star:2, opt:true },
     { key:"viewers",     label:"Views acumuladas (se a tela tiver)", type:"int",   star:2, opt:true },
     { key:"impressions", label:"Impressões da live",                 type:"int",   star:3, opt:true },
     { key:"err",         label:"ERR — taxa de entrada",              type:"pct",   star:2, opt:true, prov:true },
@@ -115,7 +124,7 @@
   function defaults(){
     return { goal:0, plannedMin:240, startTime:null, endTime:null,
       snapshots:[], events:[], frameworksUsed:[], violations:[],
-      current:{ err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null, t:null },
+      current:{ err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,convView:null,gmv:null,orders:null,comments:null, t:null },
       calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
       ui:{ x:null, y:null, min:false, hidden:false, tab:"monitor" } };
   }
@@ -172,20 +181,36 @@
     }
     return parts.join(">");
   }
+  // O painel do TikTok é React: o seletor CSS capturado na calibração morre no
+  // primeiro re-render e a métrica passa a ler "—" sem avisar. O RÓTULO, esse
+  // sobrevive — então ele vira a âncora principal e o seletor fica de reserva
+  // (útil quando o operador aponta um número que não tem rótulo ao lado).
+  function acharRotulo(label){
+    const alvo = LIB.normalizarRotulo(label);
+    if (!alvo) return null;
+    const cands = Array.from(document.querySelectorAll("body *")).filter(el =>
+      !elDoPainel(el) && el.children.length<=1 &&
+      LIB.normalizarRotulo(el.textContent).length<=60 &&
+      LIB.normalizarRotulo(el.textContent)===alvo);
+    // mais profundo primeiro: é o elemento mais específico, não um wrapper
+    cands.sort((a,b)=>prof(b)-prof(a));
+    return cands[0]||null;
+  }
+  function prof(el){ let n=0; while((el=el.parentElement)) n++; return n; }
+
   function readMetric(m){
     const c = state.calib[m.key];
-    if (!c || !c.selector) return null;
-    let el = null;
-    try { el = document.querySelector(c.selector); } catch(e){ el=null; }
-    if (!el && c.label){
-      const nodes = Array.from(document.querySelectorAll("body *")).filter(n=>n.children.length===0 && n.textContent && n.textContent.trim()===c.label);
-      if (nodes[0] && nodes[0].parentElement){
-        const sib = Array.from(nodes[0].parentElement.querySelectorAll("*")).find(x=>/\d/.test(x.textContent||""));
-        el = sib || null;
-      }
+    if (!c) return null;
+    if (c.label){
+      const rot = acharRotulo(c.label);
+      const alvo = rot && valorPertoDe(rot);
+      if (alvo){ const n = parseTyped(alvo.textContent, m.type); if (n!=null) return n; }
     }
-    if (!el) return null;
-    return parseTyped(el.textContent, m.type);
+    if (c.selector){
+      let el=null; try { el = document.querySelector(c.selector); } catch(e){ el=null; }
+      if (el && !elDoPainel(el)) return parseTyped(el.textContent, m.type);
+    }
+    return null;
   }
 
   /* ================= auto-mapeamento da tela =================
@@ -213,8 +238,11 @@
 
   function mapearTela(){
     const achados = {};
-    const folhas = Array.from(document.querySelectorAll("body *")).filter(el =>
-      el.children.length===0 && !elDoPainel(el));
+    // children<=1 em vez de só folhas: "GMV (R$)" costuma vir como <div><span>GMV</span> (R$)</div>.
+    // Mais profundo primeiro pra pegar o rótulo em si, não o wrapper do card inteiro.
+    const folhas = Array.from(document.querySelectorAll("body *"))
+      .filter(el => el.children.length<=1 && !elDoPainel(el))
+      .sort((a,b)=>prof(b)-prof(a));
     for (const el of folhas){
       const txt = (el.textContent||"").trim();
       if (!txt || txt.length>60 || /^\d/.test(txt)) continue;   // valor não é rótulo
@@ -227,7 +255,8 @@
       const val = parseTyped(alvo.textContent, m.type);
       if (val==null) continue;
       achados[key] = { selector:cssPath(alvo), label:txt,
-                       sample:(alvo.textContent||"").trim().slice(0,40), origem:"auto", val };
+                       sample:(alvo.textContent||"").trim().slice(0,40), origem:"auto", val,
+                       perfilCtr: key==="ctr" ? LIB.perfilPeloRotulo(txt) : undefined };
     }
     return achados;
   }
@@ -254,7 +283,7 @@
 
   function evaluateHealth(){
     const s = state.current;
-    if (s.gmv==null && s.viewers==null && s.liveViewers==null && s.err==null) return null;
+    if (s.gmv==null && s.viewers==null && s.liveViewers==null && s.err==null && s.ctr==null) return null;
     const d = {}; const ref = lastSnap();
     resolveProfile();                       // define BM/BM_DET antes de qualquer comparação
     const B = BM || {};
@@ -271,7 +300,12 @@
     // Sem perfil resolvido não há bench comparável — vira "na" em vez de acusar
     // vermelho contra um denominador que pode não ser o da tela.
     d.ctr = (s.ctr!=null && B.ctr) ? { grade:grade(s.ctr/B.ctr,1.0,0.8), ratio:s.ctr/B.ctr, star:2 } : { grade:"na", star:2 };
-    d.co  = (s.co!=null  && B.co)  ? { grade:grade(s.co/B.co,1.0,0.8),   ratio:s.co/B.co,   star:2 } : { grade:"na", star:2 };
+    // Esta tela dá "Taxa de pedidos (SKU)" (= conv/visualização) e o CTR, mas não o
+    // CO. Ele sai da identidade CTR × CO = convView — derivação legítima, e o card
+    // marca "deriv" pra ninguém confundir com leitura direta.
+    let coVal = s.co, coDeriv = false;
+    if (coVal==null){ const dc = LIB.deriveCO(s.convView, s.ctr); if (dc!=null){ coVal = dc; coDeriv = true; } }
+    d.co  = (coVal!=null && B.co) ? { grade:grade(coVal/B.co,1.0,0.8), ratio:coVal/B.co, star:2, val:coVal, deriv:coDeriv } : { grade:"na", star:2 };
     const ticket = (s.orders>0 && s.gmv!=null) ? s.gmv/s.orders : 0;
     d.aov = { grade: (ticket>0 && B.ticket)?grade(ticket/B.ticket,1.0,0.8):"na", ticket, star:2 };
 
@@ -283,14 +317,19 @@
     const audVal = s.viewers!=null ? s.viewers : s.liveViewers;
     const audRef = ref ? (ref.viewers!=null ? ref.viewers : ref.liveViewers) : null;
     d.aud = { val:audVal, modo: s.viewers!=null ? "bench" : (s.liveViewers!=null ? "trend" : "na") };
-    d.viewersVol = (d.aud.modo==="bench" && B.views) ? { grade:grade(s.viewers/B.views,0.6,0.4), ratio:s.viewers/B.views, star:2 } : { grade:"na" };
+    // Views é ACUMULADO: comparar o total de 13 minutos de live contra a média de
+    // uma live inteira acusa vermelho em toda live nova. O bench é prorrateado pelo
+    // tempo decorrido — mesma lógica que o ritmo de GMV já usava contra a meta.
+    const fracao = state.plannedMin>0 ? Math.min(1, Math.max(0.02, elapsedMin()/state.plannedMin)) : 1;
+    const benchViewsAgora = B.views ? B.views*fracao : null;
+    d.viewersVol = (d.aud.modo==="bench" && benchViewsAgora) ? { grade:grade(s.viewers/benchViewsAgora,0.6,0.4), ratio:s.viewers/benchViewsAgora, star:2, benchAgora:benchViewsAgora } : { grade:"na" };
     d.viewersTrend = (audVal!=null && audRef) ? (t=>({grade:t.grade, drop:t.drop}))(trendGrade(audVal, audRef, -0.15, -0.30)) : { grade:"good", drop:0 };
     // ⭐ antecedente: engajamento (comentários) por tendência
     d.eng = (s.comments!=null && ref) ? (t=>({grade:t.grade==="bad"?"warn":t.grade, drop:t.drop}))(trendGrade(s.comments, ref.comments, -0.20, -0.40)) : { grade:"na" };
 
     // derivados
     // conv/visualização = CTR × CO (produto das etapas). Exibida, nunca calibrada — R10.
-    const cvVal = LIB.deriveConvView(s.ctr, s.co);
+    const cvVal = s.convView!=null ? s.convView : LIB.deriveConvView(s.ctr, coVal);
     d.convView = cvVal!=null ? { val:cvVal, ratio: B.convView ? cvVal/B.convView : null } : null;
     d.gpm = LIB.computeGpm(s.gmv, s.impressions);
 
@@ -333,7 +372,7 @@
     if(d.viewersTrend.grade!=="good")
       T.push({sev:d.viewersTrend.grade,icon:"📥",title:"Viewers caindo",action:`Queda de ${Math.round(Math.abs(d.viewersTrend.drop)*100)}% desde o último snapshot. Ativa retenção: anuncia o próximo drop de preço.`,fw:"retencao"});
     else if(d.viewersVol.grade!=="good"&&d.viewersVol.grade!=="na")
-      T.push({sev:d.viewersVol.grade,icon:"👥",title:"Audiência abaixo da média",action:`Views em ${Math.round(d.viewersVol.ratio*100)}% da média por live (${BM&&BM.views?fmtNum(BM.views):"—"}). Boost / GMV Max + re-hook pra quem chega.`,fw:"rehook"});
+      T.push({sev:d.viewersVol.grade,icon:"👥",title:"Audiência abaixo da média",action:`Views em ${Math.round(d.viewersVol.ratio*100)}% do esperado para este ponto da live. Boost / GMV Max + re-hook pra quem chega.`,fw:"rehook"});
     if(d.eng.grade==="warn")
       T.push({sev:"warn",icon:"💬",title:"Engajamento esfriando",action:`Conecta: faz pergunta, responde pelo @, meta de curtidas p/ liberar sorteio.`,fw:"retencao"});
     return T;
@@ -546,14 +585,14 @@
     html+=kpCard(d.gmvPace?d.gmvPace.grade:"", "GMV / hora", gmvHour!=null?fmtBRL(gmvHour):"—", d.gmvPace&&d.gmvPace.grade!=="na"?`ritmo <b>${Math.round(d.gmvPace.ratio*100)}%</b> da meta`:`—`);
     html+=kpCard(d.err?d.err.grade:"", "ERR entrada", s.err!=null?pct1(s.err)+"%":"—", d.err&&d.err.drop!==undefined&&s.err!=null?`tendência (sem bench)`:`—`, true);
     html+=kpCard(d.ctr?d.ctr.grade:"", "CTR live", s.ctr!=null?pct1(s.ctr)+"%":"—", `bench ${benchPct(BM&&BM.ctr)}${d.ctr&&d.ctr.ratio?` · <b>${Math.round(d.ctr.ratio*100)}%</b>`:""}`);
-    html+=kpCard(d.co?d.co.grade:"", "CO pós-clique", s.co!=null?pct1(s.co)+"%":"—", `bench ${benchPct(BM&&BM.co)}${d.co&&d.co.ratio?` · <b>${Math.round(d.co.ratio*100)}%</b>`:""}`);
+    html+=kpCard(d.co?d.co.grade:"", "CO pós-clique", d.co&&d.co.val!=null?pct1(d.co.val)+"%":"—", `${d.co&&d.co.deriv?"derivado · ":""}bench ${benchPct(BM&&BM.co)}${d.co&&d.co.ratio?` · <b>${Math.round(d.co.ratio*100)}%</b>`:""}`, d.co&&d.co.deriv);
     const ticket=(s.orders>0&&s.gmv!=null)?s.gmv/s.orders:0;
     html+=kpCard(d.aov?d.aov.grade:"", "Ticket / AOV", ticket>0?fmtBRL(ticket):"—", `bench ${benchBRL(BM&&BM.ticket)} · ${s.orders!=null?s.orders:0} ped.`);
     const aud=d.aud||{modo:"na"};
     html+=kpCard(aud.modo==="bench"?(d.viewersVol?d.viewersVol.grade:""):(d.viewersTrend?d.viewersTrend.grade:""),
       aud.modo==="trend"?"Espectadores":"Views",
       aud.val!=null?fmtNum(aud.val):"—",
-      aud.modo==="bench" ? `média/live ${BM&&BM.views?fmtNum(BM.views):"—"}`
+      aud.modo==="bench" ? `esperado agora ${d.viewersVol&&d.viewersVol.benchAgora?fmtNum(d.viewersVol.benchAgora):"—"} · live inteira ${BM&&BM.views?fmtNum(BM.views):"—"}`
       : aud.modo==="trend" ? `ao vivo · tendência (sem bench)` : "—");
     html+=`</div>`;
 
@@ -601,7 +640,8 @@
       return `⚖️ Bench indefinido — ${txt}`;
     }
     const nome = BM.profile==="views" ? "CTR ÷ views" : "CTR ÷ impressões de produto";
-    const via  = BM_DET.method==="identidade" ? "confirmado pelos cliques"
+    const via  = BM_DET.method==="rotulo" ? "declarado pelo rótulo da página"
+               : BM_DET.method==="identidade" ? "confirmado pelos cliques"
                : BM_DET.method==="magnitude"  ? "inferido pela ordem de grandeza — calibra <b>Cliques em produto</b> pra confirmar"
                : "perfil anterior mantido";
     const j = BM.janela ? `${BM.janela.de}→${BM.janela.ate} · ${BM.janela.lives} lives` : "janela ?";
@@ -738,7 +778,7 @@
   }
   function clearDemo(){
     state.demo=false;
-    state.current={ err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null };
+    state.current={ err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,convView:null,gmv:null,orders:null,comments:null,t:null };
     state.snapshots=[]; state.events=[]; state.violations=[]; state.lastSnapAt=null;
     saveState(); render();
   }

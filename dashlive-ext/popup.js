@@ -11,7 +11,7 @@ let tick = null;
 
 function defaults(){
   return { goal:0, plannedMin:240, startTime:null, endTime:null, snapshots:[], events:[], frameworksUsed:[], violations:[],
-    current:{err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null}, calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
+    current:{err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,convView:null,gmv:null,orders:null,comments:null,t:null}, calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
     ui:{x:null,y:null,min:false,hidden:false,tab:"monitor"} };
 }
 function load(cb){ chrome.storage.local.get(KEY, r=>{ state=Object.assign(defaults(), r[KEY]||{}); cb&&cb(); }); }
@@ -140,6 +140,21 @@ async function pushReport(auto){
   } finally { delete n.dataset.busy; }
 }
 
+// O cronômetro nasce quando o operador aperta "Iniciar live", que quase nunca é
+// quando a LIVE começou. Como o GMV/hora é o KPI de desfecho (⭐⭐⭐), meia hora de
+// diferença infla o ritmo várias vezes e o semáforo mente pra cima.
+function fixStart(){
+  const v = ($("realStart").value||"").trim();
+  if(!v) { $("realStart").focus(); return; }
+  const [h,m] = v.split(":").map(Number);
+  if(isNaN(h)||isNaN(m)) return;
+  const d = new Date(); d.setHours(h, m, 0, 0);
+  if(d.getTime() > Date.now()) d.setDate(d.getDate()-1);   // live que atravessou a meia-noite
+  state.startTime = d.getTime(); save(); reflect();
+  const b=$("btnFixStart"), o=b.textContent; b.textContent="Ajustado ✓";
+  setTimeout(()=>b.textContent=o, 1400);
+}
+
 function toggleOverlay(){ state.ui=state.ui||defaults().ui; state.ui.hidden=!state.ui.hidden; save(); reflect(); }
 
 document.addEventListener("DOMContentLoaded", ()=>{
@@ -148,6 +163,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
     $("btnAuth").onclick=connect;
     $("pass").addEventListener("keydown",e=>{ if(e.key==="Enter") connect(); });
     $("btnSync").onclick=()=>pushReport(false);
+    $("btnFixStart").onclick=fixStart;
+    $("realStart").addEventListener("keydown",e=>{ if(e.key==="Enter") fixStart(); });
     $("btnStart").onclick=startLive;
     $("btnEnd").onclick=()=>{ if(confirm(adminToken?"Encerrar a live? O relatório será gravado no Supabase.":"Encerrar a live e liberar o relatório?")) endLive(); };
     $("btnExport").onclick=exportReport;

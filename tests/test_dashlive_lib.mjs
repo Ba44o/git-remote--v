@@ -77,6 +77,35 @@ for (const [txt, esp] of rot) { const g = L.metricaDoRotulo(txt); if (g === esp)
 eq(rOk, rot.length, `reconhece ${rOk}/${rot.length} rótulos da tela real`);
 eq(L.normalizarRotulo("Porcentagem de cliques"), "porcentagem de cliques", "normaliza acento e caixa");
 
+/* Painel de LIVE (shop.tiktok.com/workbench/live/overview) — tela densa, colhida
+   em 08/08/26. Metade dos campos são armadilhas: taxas que contêm o nome de uma
+   contagem ("Taxa de comentários"), derivados por hora ("GMV por hora") e
+   recortes ("Visualizações de > 1 min."). Casar qualquer um deles é pior que
+   não achar nada, porque entra no painel como se fosse a métrica boa. */
+sec("rótulos do Painel de LIVE");
+const rot2 = [
+  ["GMV (R$)", "gmv"], ["GMV por hora", null], ["Itens atribuídos vendidos", null],
+  ["Espectadores atuais", "liveViewers"], ["Visualizações", "viewers"],
+  ["Visualizações de > 1 min.", null], ["Média de duração da vis…", null],
+  ["CTR por LIVE", "ctr"], ["Taxa de pedidos (SKU)", "convView"],
+  ["Impressões por hora", null], ["Taxa de comentários", null],
+  ["Taxa de seguidas", null], ["Taxa de Curtidas", null], ["Porcentagem de visitant…", null],
+];
+let r2 = 0;
+for (const [txt, esp] of rot2) { const g = L.metricaDoRotulo(txt); if (g === esp) r2++; else console.log(`  ✗ "${txt}" → ${g} (esperado ${esp})`); }
+eq(r2, rot2.length, `reconhece ${r2}/${rot2.length} rótulos do Painel de LIVE`);
+
+// "CTR por LIVE" diz o denominador no próprio nome — a régua sai daí, sem inferência.
+eq(L.perfilPeloRotulo("CTR por LIVE"), "views", "rótulo declara o perfil de CTR");
+eq(L.perfilPeloRotulo("Porcentagem de cliques no produto"), null, "rótulo sem denominador não declara perfil");
+
+// CO derivado da identidade CTR × CO = convView, com os números reais da tela:
+// 581 views · CTR 13,77% · taxa de pedidos (SKU) 0,34% → 2 itens vendidos.
+eq(+L.deriveCO(0.34, 13.77).toFixed(2), 2.47, "CO derivado de convView ÷ CTR");
+eq(+(581 * 0.34 / 100).toFixed(1), 2.0, "convView × views reproduz os itens vendidos da tela");
+eq(L.deriveCO(0.34, 0), null, "CTR zero não deriva CO");
+eq(L.deriveCO(null, 13.77), null, "sem convView não deriva CO");
+
 /* ── 2. derivados ───────────────────────────────────────────────────────── */
 sec("derivados");
 // abril/26: CTR 28,51% × CO 2,776% = 0,79% de conversão por visualização.

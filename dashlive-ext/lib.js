@@ -151,22 +151,46 @@
   L.normalizarRotulo = t => String(t == null ? "" : t)
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")   // tira acento
     .toLowerCase()
-    .replace(/[.…:%()]/g, " ")
+    .replace(/[.…:%()$>]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
+  // `perfilCtr`: alguns rótulos já DIZEM o denominador. "CTR por LIVE" é cliques
+  // sobre visualizações da live — com isso a régua sai do próprio nome do campo,
+  // sem depender de calibrar os cliques pra fechar a conta.
   L.ALIASES = [
-    { key:"gmv",         aceita:["gmv atribuido","gmv da live","gmv total","gmv","receita atribuida","receita da live"], evita:["por hora","medio","gmv max","meta"] },
-    { key:"orders",      aceita:["pedidos atribuidos","pedidos sku","total de pedidos","pedidos","sku orders","numero de pedidos"], evita:["itens","item","produtos vendidos","por hora","valor"] },
-    { key:"liveViewers", aceita:["espectadores ativos","espectadores ao vivo","espectadores agora","espectadores no momento","audiencia ao vivo"], evita:["total","acumulad","duracao","medi"] },
-    { key:"viewers",     aceita:["visualizacoes","total de espectadores","espectadores totais","views","visualizacoes da live"], evita:["duracao","medi","por hora","ativos"] },
-    { key:"clicks",      aceita:["cliques no produto","cliques em produto","cliques nos produtos","product clicks","total de cliques"], evita:["porcentagem","taxa","%","por hora"] },
-    { key:"ctr",         aceita:["porcentagem de cliques no produto","porcentagem de cliques","taxa de cliques no produto","taxa de cliques","ctr"], evita:["compra","pedido","conversao"] },
+    { key:"gmv",         aceita:["gmv atribuido","gmv da live","gmv total","gmv r","gmv","receita atribuida","receita da live"], evita:["por hora","medio","gmv max","meta","hora"] },
+    { key:"orders",      aceita:["pedidos atribuidos","total de pedidos","pedidos","numero de pedidos","sku orders"], evita:["itens","item","produtos vendidos","por hora","valor","taxa","porcentagem"] },
+    { key:"liveViewers", aceita:["espectadores atuais","espectadores ativos","espectadores ao vivo","espectadores agora","espectadores no momento","audiencia ao vivo"], evita:["total","acumulad","duracao","medi"] },
+    { key:"viewers",     aceita:["visualizacoes","total de espectadores","espectadores totais","views","visualizacoes da live"], evita:["duracao","medi","por hora","ativos","1 min","min","taxa","porcentagem"] },
+    { key:"clicks",      aceita:["cliques no produto","cliques em produto","cliques nos produtos","product clicks","total de cliques"], evita:["porcentagem","taxa","por hora","ctr"] },
+    { key:"ctr",         aceita:["ctr por live"], evita:[], perfilCtr:"views" },
+    { key:"ctr",         aceita:["porcentagem de cliques no produto","porcentagem de cliques","taxa de cliques no produto","taxa de cliques","ctr"], evita:["compra","pedido","conversao","por hora"] },
     { key:"co",          aceita:["taxa de compra apos clique","compra apos clique","taxa de conversao apos clique","conversao apos clique"], evita:["visualizacao","view"] },
-    { key:"impressions", aceita:["impressoes do produto","impressoes de produto","impressoes da live","impressoes","exibicoes do produto"], evita:["por hora","gpm"] },
+    // "Taxa de pedidos (SKU)" NÃO é o CO: é pedido sobre VISUALIZAÇÃO, ou seja, a
+    // conversão por visualização (CTR × CO). Confirmado na tela de 08/08/26 —
+    // 0,34% × 581 views = 1,98 ≈ os 2 itens vendidos. Tratar como CO derrubaria
+    // o painel pra vermelho, que é o mesmo erro do R10 por outro caminho.
+    { key:"convView",    aceita:["taxa de pedidos sku","taxa de pedidos","taxa de conversao por visualizacao","conversao por visualizacao"], evita:["clique","click"] },
+    { key:"impressions", aceita:["impressoes da live","impressoes do produto","impressoes de produto","impressoes","exibicoes do produto"], evita:["por hora","gpm","taxa"] },
     { key:"comments",    aceita:["comentarios","total de comentarios"], evita:["taxa","porcentagem"] },
     { key:"err",         aceita:["taxa de entrada","err","entry rate"], evita:["saida"] },
   ];
+
+  // Qual perfil de CTR o próprio rótulo revela (null quando o nome não diz).
+  L.perfilPeloRotulo = function (texto) {
+    const t = L.normalizarRotulo(texto);
+    for (const a of L.ALIASES) {
+      if (!a.perfilCtr) continue;
+      if (a.aceita.some(x => t === x || t.includes(x))) return a.perfilCtr;
+    }
+    return null;
+  };
+
+  // CO não aparece em toda tela. Quando a página dá a conversão por visualização
+  // (ex: "Taxa de pedidos (SKU)") e o CTR, o CO sai da identidade CTR × CO = convView.
+  // É derivação legítima — o inverso do erro R10, que chamava o CO de convView.
+  L.deriveCO = (convView, ctr) => (convView == null || !(ctr > 0) ? null : convView * 100 / ctr);
 
   /* Devolve a métrica que o rótulo representa, ou null.
      Casa por igualdade, depois por conter, e por fim por PREFIXO — porque a tela
