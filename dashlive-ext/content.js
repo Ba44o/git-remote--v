@@ -189,11 +189,11 @@
     const alvo = LIB.normalizarRotulo(label);
     if (!alvo) return null;
     const cands = Array.from(document.querySelectorAll("body *")).filter(el =>
-      !elDoPainel(el) && el.children.length<=1 &&
-      LIB.normalizarRotulo(el.textContent).length<=60 &&
+      !elDoPainel(el) && el.children.length<=1 && visivel(el) &&
       LIB.normalizarRotulo(el.textContent)===alvo);
-    // mais profundo primeiro: é o elemento mais específico, não um wrapper
-    cands.sort((a,b)=>prof(b)-prof(a));
+    // o mais alto na tela: mesma regra do mapeamento, senão a leitura ao vivo
+    // poderia ancorar num rótulo repetido dentro da tabela
+    cands.sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
     return cands[0]||null;
   }
   function prof(el){ let n=0; while((el=el.parentElement)) n++; return n; }
@@ -220,17 +220,35 @@
      Calibração manual continua valendo e sempre vence a automática. */
   function elDoPainel(el){ return host && (el===host || host.contains(el)); }
 
-  // Num card de KPI o valor é o vizinho do rótulo. Sobe no máximo 3 níveis pra não
-  // sair do card e capturar o número do card ao lado.
+  function visivel(el){
+    if (!el || !el.getBoundingClientRect) return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  }
+
+  // Num card de KPI o valor é IRMÃO do rótulo, quase sempre logo abaixo.
+  // Duas coisas que a primeira versão errava:
+  //  · varria todos os descendentes do container e pegava o primeiro com dígito —
+  //    num card com ícone ou badge numerado, pegava o lixo;
+  //  · pegava só folhas, mas o TikTok quebra o número em pedaços ("402" + ".62"),
+  //    então a folha traz "402" e o valor sai errado. Lendo o irmão inteiro, o
+  //    textContent junta os pedaços de volta.
   function valorPertoDe(rotEl){
+    const txtRot = LIB.normalizarRotulo(rotEl.textContent);
     let node = rotEl;
     for (let up=0; up<3 && node; up++){
       const cont = node.parentElement;
       if (!cont || cont===document.body) break;
-      const cands = Array.from(cont.querySelectorAll("*")).filter(x =>
-        x!==rotEl && !elDoPainel(x) && x.children.length===0 &&
-        /\d/.test(x.textContent||"") && (x.textContent||"").trim().length<=28);
-      if (cands.length) return cands[0];
+      const irmaos = Array.from(cont.children).filter(x => x!==node && !elDoPainel(x) && visivel(x));
+      // depois do rótulo primeiro: em card, o valor vem embaixo
+      const pos = x => (node.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING) ? 0 : 1;
+      irmaos.sort((a,b)=>pos(a)-pos(b));
+      for (const cand of irmaos){
+        const t = (cand.textContent||"").trim();
+        if (!t || t.length>28 || !/\d/.test(t)) continue;
+        if (LIB.normalizarRotulo(t) === txtRot) continue;      // é outra cópia do rótulo
+        return cand;
+      }
       node = cont;
     }
     return null;
@@ -238,11 +256,17 @@
 
   function mapearTela(){
     const achados = {};
-    // children<=1 em vez de só folhas: "GMV (R$)" costuma vir como <div><span>GMV</span> (R$)</div>.
-    // Mais profundo primeiro pra pegar o rótulo em si, não o wrapper do card inteiro.
+    // Ordem VISUAL, não estrutural. Ordenar por profundidade fazia o mapa ler a
+    // tabela de produtos do rodapé — cada célula é mais funda que os cards de
+    // resumo, e as colunas repetem os mesmos nomes ("Pedidos de SKU", "Taxa de
+    // pagamento") com valor por linha. Daí os zeros. Os cards ficam no topo, então
+    // varrer de cima pra baixo resolve, e o filtro de visibilidade descarta o que
+    // está em aba fechada ou fora de tela.
     const folhas = Array.from(document.querySelectorAll("body *"))
-      .filter(el => el.children.length<=1 && !elDoPainel(el))
-      .sort((a,b)=>prof(b)-prof(a));
+      .filter(el => el.children.length<=1 && !elDoPainel(el) && visivel(el))
+      .map(el => { const r = el.getBoundingClientRect(); return { el, top:Math.round(r.top), left:Math.round(r.left) }; })
+      .sort((a,b) => a.top-b.top || a.left-b.left)
+      .map(x => x.el);
     for (const el of folhas){
       const txt = (el.textContent||"").trim();
       if (!txt || txt.length>60 || /^\d/.test(txt)) continue;   // valor não é rótulo
@@ -385,6 +409,8 @@
     .orfao b{display:block;color:#FF7A7A;font-size:13px;margin-bottom:5px}
     .orfao button{width:100%;margin-top:10px;background:#7C5CFF;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:600;cursor:pointer}
     .orfao .dica{display:block;margin-top:8px;color:#8A8A9A;font-size:11px}
+    .cm .anc{display:block;font-size:10px;color:#7C5CFF;margin-top:2px;font-weight:500}
+    .diag{width:100%;height:150px;margin-top:8px;background:#0B0B0F;color:#8A8A9A;border:1px solid #2A2A38;border-radius:8px;padding:8px;font:11px ui-monospace,Menlo,monospace;resize:vertical}
     .demo-flag{font-size:11px;font-weight:600;color:#0B0B0F;background:#FFC53D;border-radius:7px;padding:7px 9px;margin-bottom:9px;line-height:1.4}
     .prov-src{font-size:10px;color:#8A8A9A;line-height:1.5;margin:6px 2px 0;padding:6px 8px;background:rgba(124,92,255,.07);border-radius:7px}
     :host{ all:initial; }
@@ -701,12 +727,15 @@
       const disp=val!=null?(m.type==='money'?fmtBRL(val):m.type==='pct'?pct1(val)+"%":fmtNum(val)):(c?'—':'—');
     // "R$ 2,8 mil" é lido certo (2800) mas vem arredondado da origem — avisa em vez de fingir precisão.
     const aprox = c && c.sample && LIB.ehAbreviado(c.sample) ? '<span class="tag prov">aprox.</span>' : '';
-      html+=`<div class="cm ${c?'ok':''}"><span class="d"></span><span class="l">${m.label}${m.prov?'<span class="tag prov">provisório</span>':''}${m.opt?'<span class="tag opt">opcional</span>':''}${aprox}</span><span class="v">${disp}</span></div>`; });
+      const anc = c && c.label ? `<span class="anc">← "${escapeHtml(c.label)}"</span>` : '';
+      html+=`<div class="cm ${c?'ok':''}"><span class="d"></span><span class="l">${m.label}${anc}${m.prov?'<span class="tag prov">provisório</span>':''}${m.opt?'<span class="tag opt">opcional</span>':''}${aprox}</span><span class="v">${disp}</span></div>`; });
     html+=`</div>`;
     const auto=Object.values(state.calib).filter(c=>c&&c.origem==="auto").length;
     const faltam=METRICS.filter(m=>!state.calib[m.key]);
     html+=`<div class="rowbtn"><button id="dl-auto" class="pri">🔎 Mapear tela automaticamente</button></div>`;
     html+=`<div class="rowbtn" style="margin-top:8px"><button id="dl-cal">Apontar na mão</button><button id="dl-cal-clear">Limpar</button></div>`;
+    html+=`<div class="rowbtn" style="margin-top:8px"><button id="dl-diag">📋 Copiar diagnóstico</button></div>`;
+    html+=`<textarea id="dl-diag-out" class="diag" style="display:none" readonly></textarea>`;
     if(auto) html+=`<div class="note" style="text-align:left">${auto} métrica(s) reconhecida(s) pelo rótulo da página. <b>Confere os valores acima</b> — se algum estiver errado, usa "Apontar na mão" pra corrigir só ele (o manual sempre vence o automático).</div>`;
     if(faltam.length) html+=`<div class="note" style="text-align:left">Não encontrei na tela: <b>${faltam.map(m=>m.label.split(" —")[0].split(" (")[0]).join(" · ")}</b>. Pode não existir nesta página — o painel roda sem, mostrando "—".</div>`;
     html+=`<div class="rowbtn" style="margin-top:8px"><button id="dl-demo">${state.demo?"Sair do modo demo":"Carregar dados demo"}</button></div>`;
@@ -714,10 +743,53 @@
     html+=`<div class="note" style="text-align:left">Benchmarks vêm da tabela <b>lives</b> (mesma fonte do dash-live), não de constante no código — regera com <code>gerar_benchmarks_live.py</code>. <b>CO</b> é <b>medido</b> (coluna <code>ctor</code> = compra após clique); a <b>conv/visualização</b> é que é derivada (CTR×CO). Calibrar <b>Cliques em produto</b> é opcional mas recomendado: é o que confirma qual régua de CTR a tela usa. <b>ERR</b> segue por tendência (sem bench). Quebrou após atualização do TikTok? Recalibra.</div>`;
     return html;
   }
+  // Texto colável: o que cada métrica ancorou, o que leu, e os rótulos que a página
+  // tem mas o dicionário ainda não conhece. É o que permite corrigir o mapa sem
+  // precisar adivinhar o DOM por print.
+  function montarDiagnostico(){
+    const L1=[]; L1.push("DASHLIVE — DIAGNÓSTICO DE LEITURA");
+    L1.push("url: "+location.href.split("?")[0]);
+    L1.push("perfil de CTR: "+(state.ctrProfile||"—")+" ("+(BM_DET&&BM_DET.method||"—")+")");
+    L1.push("");
+    L1.push("MÉTRICA | RÓTULO ANCORADO | AMOSTRA | VALOR LIDO");
+    for (const m of METRICS){
+      const c=state.calib[m.key];
+      const v=c?readMetric(m):null;
+      L1.push(`${m.key} | ${c&&c.label?c.label:"—"} | ${c&&c.sample?c.sample:"—"} | ${v==null?"—":v}`);
+    }
+    L1.push("");
+    L1.push("RÓTULOS NA TELA QUE O DICIONÁRIO NÃO RECONHECE (com número ao lado):");
+    const vistos=new Set(); let n=0;
+    const cands=Array.from(document.querySelectorAll("body *"))
+      .filter(el=>el.children.length<=1 && !elDoPainel(el) && visivel(el))
+      .map(el=>{const r=el.getBoundingClientRect(); return {el,top:Math.round(r.top)};})
+      .sort((a,b)=>a.top-b.top).map(x=>x.el);
+    for (const el of cands){
+      if (n>=40) break;
+      const t=(el.textContent||"").trim();
+      if (!t || t.length>50 || /^\d/.test(t) || vistos.has(t)) continue;
+      if (LIB.metricaDoRotulo(t)) continue;             // já reconhecido
+      const alvo=valorPertoDe(el); if (!alvo) continue;
+      const val=(alvo.textContent||"").trim();
+      if (!val || val.length>28) continue;
+      vistos.add(t); n++;
+      L1.push(`  "${t}" = ${val}`);
+    }
+    return L1.join("\n");
+  }
+
   function bindCalib(body){
     const cal=body.querySelector("#dl-cal"); if(cal) cal.onclick=startCalibration;
     const clr=body.querySelector("#dl-cal-clear"); if(clr) clr.onclick=()=>{ state.calib={}; saveState(); render(); };
     const dm=body.querySelector("#dl-demo"); if(dm) dm.onclick=()=>{ state.demo?clearDemo():loadDemo(); };
+    const dg=body.querySelector("#dl-diag");
+    if(dg) dg.onclick=()=>{
+      const ta=body.querySelector("#dl-diag-out");
+      ta.value=montarDiagnostico(); ta.style.display="block"; ta.select();
+      try { document.execCommand("copy"); dg.textContent="✓ Copiado"; }
+      catch(e){ dg.textContent="Selecione e copie ↓"; }
+      setTimeout(()=>{ dg.textContent="📋 Copiar diagnóstico"; }, 2500);
+    };
     const am=body.querySelector("#dl-auto");
     if(am) am.onclick=()=>{ am.textContent="Procurando…"; const r=aplicarAutoMapa();
       am.textContent = r.total ? `✓ ${r.total} encontrada(s)` : "Nada reconhecido nesta tela";

@@ -97,6 +97,17 @@ eq(r2, rot2.length, `reconhece ${r2}/${rot2.length} rótulos do Painel de LIVE`)
 
 // "CTR por LIVE" diz o denominador no próprio nome — a régua sai daí, sem inferência.
 eq(L.perfilPeloRotulo("CTR por LIVE"), "views", "rótulo declara o perfil de CTR");
+
+// Alias de 3 letras por "conter" capturava qualquer coisa: foi assim que ERR
+// ancorou no contador de comentários e o painel mostrou 6.475%.
+sec("alias curto não pode casar por substring");
+eq(L.metricaDoRotulo("Taxa de entrada"), "err", "ERR casa pelo nome completo");
+eq(L.metricaDoRotulo("ERR"), "err", "ERR casa por igualdade");
+eq(L.metricaDoRotulo("Interrupção da transmissão"), null, "\"err\" dentro de outra palavra não casa");
+eq(L.metricaDoRotulo("Erro de conexão"), null, "\"erro\" não vira ERR");
+eq(L.metricaDoRotulo("CTOR (pedidos de SKU)"), null, "coluna da tabela de produtos não vira pedidos");
+eq(L.metricaDoRotulo("Taxa de pagamento"), null, "taxa de pagamento não é métrica do funil");
+eq(L.metricaDoRotulo("Pedidos de SKU atribuídos"), null, "pedido por produto na tabela não é o total da live");
 eq(L.perfilPeloRotulo("Porcentagem de cliques no produto"), null, "rótulo sem denominador não declara perfil");
 
 // CO derivado da identidade CTR × CO = convView, com os números reais da tela:

@@ -160,7 +160,10 @@
   // sem depender de calibrar os cliques pra fechar a conta.
   L.ALIASES = [
     { key:"gmv",         aceita:["gmv atribuido","gmv da live","gmv total","gmv r","gmv","receita atribuida","receita da live"], evita:["por hora","medio","gmv max","meta","hora"] },
-    { key:"orders",      aceita:["pedidos atribuidos","total de pedidos","pedidos","numero de pedidos","sku orders"], evita:["itens","item","produtos vendidos","por hora","valor","taxa","porcentagem"] },
+    // "SKU" fica de fora de propósito: pedido de SKU conta por SKU, pedido conta por
+    // compra. O bench de ticket é GMV ÷ PEDIDOS — misturar os dois desloca o ticket
+    // sem avisar. Fora que na tabela de produtos essa coluna é por linha, não total.
+    { key:"orders",      aceita:["pedidos atribuidos","total de pedidos","pedidos","numero de pedidos"], evita:["itens","item","produtos vendidos","por hora","valor","taxa","porcentagem","ctor","sku","%"] },
     { key:"liveViewers", aceita:["espectadores atuais","espectadores ativos","espectadores ao vivo","espectadores agora","espectadores no momento","audiencia ao vivo"], evita:["total","acumulad","duracao","medi"] },
     { key:"viewers",     aceita:["visualizacoes","total de espectadores","espectadores totais","views","visualizacoes da live"], evita:["duracao","medi","por hora","ativos","1 min","min","taxa","porcentagem"] },
     { key:"clicks",      aceita:["cliques no produto","cliques em produto","cliques nos produtos","product clicks","total de cliques"], evita:["porcentagem","taxa","por hora","ctr"] },
@@ -200,7 +203,10 @@
     if (!t || t.length < 3) return null;
     const bloqueado = a => (a.evita || []).some(e => t.includes(e));
     for (const a of L.ALIASES) if (!bloqueado(a) && a.aceita.some(x => t === x)) return a.key;
-    for (const a of L.ALIASES) if (!bloqueado(a) && a.aceita.some(x => t.includes(x))) return a.key;
+    // Alias curto ("err", "ctr", "views") só vale por igualdade: por "conter", QUALQUER
+    // rótulo com essas 3 letras casaria — foi assim que "ERR" capturou o contador de
+    // comentários e virou 6.475%.
+    for (const a of L.ALIASES) if (!bloqueado(a) && a.aceita.some(x => x.length >= 6 && t.includes(x))) return a.key;
     for (const a of L.ALIASES) {
       if (bloqueado(a)) continue;
       // prefixo só vale com 8+ caracteres: abaixo disso "taxa de" casaria com tudo
