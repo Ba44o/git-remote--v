@@ -227,6 +227,57 @@ async function handleDashlive(body, res) {
   return res.status(400).json({ error: 'which inválido' });
 }
 
+// ════════════ DASHLIVE MONITOR (extensão Chrome → relatório pós-live) ═══════
+// Grava o "durante" da live (ver rhode-vercel/sql/live_monitor.sql). Autenticado
+// pelo ADMIN_TOKEN: é ferramenta interna do operador, não fluxo de creator.
+// Idempotente por construção — o id sai do horário de início, então reenviar o
+// mesmo relatório (ou encerrar duas vezes) atualiza a linha em vez de duplicar.
+async function handleLiveMonitor(body, res) {
+  if (!process.env.ADMIN_TOKEN || body.adminToken !== process.env.ADMIN_TOKEN) {
+    await new Promise(r => setTimeout(r, 1000));
+    return res.status(401).json({ error: 'não autorizado' });
+  }
+  const r = body.relatorio || {};
+  if (!r.inicio) return res.status(400).json({ error: 'relatório sem inicio' });
+
+  const ini = new Date(r.inicio);
+  if (isNaN(ini)) return res.status(400).json({ error: 'inicio inválido' });
+  const id = 'mon:' + ini.toISOString();
+  const data = ini.toISOString().slice(0, 10);
+  const num = v => (v == null || v === '' || isNaN(+v) ? null : +v);
+
+  const sessao = {
+    id, room_id: r.room_id || null, titulo: r.titulo || null,
+    inicio: ini.toISOString(), fim: r.fim || null,
+    data, periodo: data.slice(0, 7), duracao_h: num(r.duracao_h),
+    meta: num(r.meta), gmv_final: num(r.gmv_final) || 0, pct_meta: num(r.pct_meta),
+    pedidos: num(r.pedidos) || 0, ticket_medio: num(r.ticket_medio),
+    err_medio: num(r.err_medio), ctr_medio: num(r.ctr_medio), co_medio: num(r.co_medio),
+    conv_visualizacao_media: num(r.conv_por_visualizacao_medio),
+    views_pico: num(r.pico_viewers), ctr_perfil: r.ctr_perfil || null,
+    bench_janela: r.bench_janela || null, bench_gerado_em: r.bench_gerado_em || null,
+    frameworks: r.frameworks_usados || [], violacoes: r.violacoes || [],
+    snapshots_n: (r.snapshots || []).length, versao: r.versao || null,
+    updated_at: new Date().toISOString(),
+  };
+  const w = await sbWrite('POST', 'live_monitor_sessao', sessao, 'resolution=merge-duplicates');
+  if (!w.ok) return res.status(500).json({ error: (await w.text()).slice(0, 300) });
+
+  const snaps = (r.snapshots || []).filter(x => x && x.t).map(x => ({
+    id: `${id}:${x.t}`, sessao_id: id, t: new Date(x.t).toISOString(),
+    minuto: Math.round((x.t - ini.getTime()) / 60000),
+    err: num(x.err), impressions: num(x.impressions), clicks: num(x.clicks),
+    views: num(x.viewers), ctr: num(x.ctr), co: num(x.co),
+    gmv: num(x.gmv), orders: num(x.orders), comments: num(x.comments),
+    ctr_perfil: x.ctrProfile || r.ctr_perfil || null,
+  }));
+  if (snaps.length) {
+    const s2 = await sbWrite('POST', 'live_monitor_snapshot', snaps, 'resolution=merge-duplicates');
+    if (!s2.ok) return res.status(500).json({ error: 'sessão gravada, snapshots falharam: ' + (await s2.text()).slice(0, 200) });
+  }
+  return res.json({ ok: true, id, snapshots: snaps.length });
+}
+
 async function handleData(body, res) {
   const { token, action } = body;
   const creator = await resolveToken(token);
@@ -590,6 +641,8 @@ export default async function handler(req, res) {
   if (body.action === 'cadastro') return handleCadastro(body, res);
   // Dash de lives público (dash-live.html) — dado agregado da loja, sem PII
   if (body.action === 'dashlive') return handleDashlive(body, res);
+  // Relatório pós-live da extensão DashLive (interno, ADMIN_TOKEN)
+  if (body.action === 'live_monitor') return handleLiveMonitor(body, res);
   // Tracking público da página /live (vitrine QR) — proxy thin pra sendBeacon → hub_eventos
   if (body.action === 'track') return handleVitrineTrack(body, req, res);
   // Opt-in WhatsApp do estado BETWEEN do /live (com Z-API + rate limits)

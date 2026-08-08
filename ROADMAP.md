@@ -103,6 +103,34 @@ Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 
 
 ---
 
+### DashLive Monitor — extensão Chrome (o "durante" da live) — ago/2026
+
+Monitor operacional sobreposto à tela da LIVE no Seller Center: lê as métricas do DOM
+(calibração por clique, resiliente à ofuscação do TikTok), roda o semáforo em cascata
+`GMV/hora ⭐⭐⭐ → ERR/CTR/CO/AOV ⭐⭐ → engajamento ⭐` e grava o relatório pós-live.
+
+- Pasta `dashlive-ext/` · Manifest V3 · Shadow DOM · sem remote code.
+- Benchmarks **gerados** de `lives` por `gerar_benchmarks_live.py` → `dashlive-ext/benchmarks.js`.
+- Relatório → `live_monitor_sessao` + `live_monitor_snapshot` via `/api/get-hub action=live_monitor`.
+- Testes: `node tests/test_dashlive_lib.mjs` (parser pt-BR + régua de CTR + round-trip com dado real).
+- ⚠️ Pré-requisito: rodar `rhode-vercel/sql/live_monitor.sql` no Supabase.
+
+🧠 **Decisões**
+
+1. **Benchmark é artefato gerado, não endpoint nem constante.** Endpoint exigiria rede
+   (e CORS) só pra ler número que muda uma vez por mês; constante no `content.js` foi
+   justamente o que produziu os erros R10/R11. O arquivo versionado dá rastreabilidade
+   (janela + n + coluna de origem no git) sem custo de runtime.
+2. **A régua de CTR é detectada, não configurada.** `lives.ctr` tem dois denominadores
+   conviventes (R11). Fixar um no código quebra silenciosamente quando o Seller Center
+   troca de versão — e "quebrar" aqui significa marcar a live inteira de vermelho.
+   Sem evidência suficiente o painel declara que não sabe, em vez de escolher.
+3. **`host_permissions` ganhou `dash.rhodejeans.com.br`.** Exceção consciente ao "só
+   `storage`" do brief: sem rede não há como cumprir "encerrar a live grava no Supabase".
+   Escrita passa pelo proxy com ADMIN_TOKEN — a service key não chega à extensão.
+4. **Escrita nova entrou como `action` no `get-hub.js`, não como arquivo novo.** A conta
+   Vercel está em 11/12 Serverless Functions; endpoint próprio queimaria o último slot.
+
 ## 🚧 Em desenvolvimento
 
 ### P&L por SKU × tamanho + motivo de cancelamento (conciliacao.html) — jul/2026

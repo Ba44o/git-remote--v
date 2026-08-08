@@ -978,6 +978,38 @@ avisar antes ([[feedback_hub_dados_intocaveis]]).
 
 ---
 
+## 19. DashLive (extensão): painel marca TUDO vermelho a live inteira
+
+**Sintoma.** Semáforo vermelho desde o começo, gatilho de "conversão pós-clique baixa"
+e/ou "CTR despencou" disparando sem parar, mesmo com a live vendendo normal.
+
+**Diagnóstico — na ordem.**
+
+1. **Olhe a linha de proveniência** embaixo dos derivados no painel ("⚖️ Régua: …").
+   Ela diz qual bench está valendo e como foi decidido.
+2. **Régua errada** é a causa mais provável. `lives.ctr` tem dois denominadores
+   (cliques÷views ≈ 22% · cliques÷impressões ≈ 6,5% — ver R11 em
+   `docs/DECISOES-E-PREMISSAS.md`). Se a linha disser *"inferido pela ordem de
+   grandeza"*, a extensão chutou: **calibra "Cliques em produto"** na aba Dados e ela
+   passa a decidir pela identidade, sem chute.
+3. **Calibração apontando pro número errado.** Aba Dados mostra o valor lido de cada
+   métrica ao lado do nome — compare com a tela. Um CO calibrado no CTR (ou um GMV
+   calibrado no GMV de ontem) produz exatamente esse quadro. Recalibra.
+4. **`benchmarks.js` ausente.** A linha de proveniência avisa
+   *"benchmarks.js ausente — fallback"*. Rode `python3 gerar_benchmarks_live.py` e
+   recarregue a extensão em `chrome://extensions`.
+
+**Fix de raiz já aplicado (ago/2026).** O build original comparava o CO contra 8,9% —
+um valor derivado ao contrário (dividia onde era pra multiplicar). Com ele, **50 de 50**
+lives reais da nossa base entravam em vermelho. Hoje o bench é medido (`lives.ctor`) e
+travado por teste de regressão em `tests/test_dashlive_lib.mjs`.
+
+**Conferir depois da live.** View `live_monitor_vs_oficial` (Supabase) põe o GMV lido na
+tela ao lado do GMV atribuído do `live_attr`. Divergência grande = leitura errada, não
+dado mudado.
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:

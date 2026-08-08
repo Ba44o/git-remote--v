@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root{ --bg:#0B0B0F;--surface:#15151C;--surface-2:#1E1E28;--border:#2A2A38;--text:#F2F2F7;--mute:#8A8A9A;--dim:#5E5E6E;--purple:#7C5CFF;--green:#2ECC71;--red:#FF4D4D; }
+  *{ box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; }
+  body{ width:300px;background:var(--bg);color:var(--text);padding:16px; }
+  .hd{ display:flex;align-items:center;gap:9px;margin-bottom:16px; }
+  .hd .b{ width:9px;height:9px;border-radius:50%;background:var(--purple);box-shadow:0 0 0 3px rgba(124,92,255,.15); }
+  .hd .t{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:16px;letter-spacing:-.02em; }
+  .hd .t small{ color:var(--mute);font-weight:500;font-size:11px; }
+  .status{ display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:14px; }
+  .status .dot{ width:8px;height:8px;border-radius:50%;background:var(--dim); }
+  .status.live .dot{ background:var(--red);animation:p 1.4s ease-in-out infinite; }
+  @keyframes p{ 0%,100%{opacity:1}50%{opacity:.4} }
+  .status .lbl{ font-size:13px;font-weight:600; }
+  .status .tm{ margin-left:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums;font-size:13px;color:var(--mute); }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px; }
+  .field input,.field select{ width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 12px;font-size:15px;color:var(--text); }
+  .field input:focus,.field select:focus{ border-color:var(--purple);outline:none; }
+  .btn{ width:100%;border:none;border-radius:9px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px; }
+  .btn.pri{ background:var(--purple);color:#fff; } .btn.pri:hover{ background:#6a4aff; }
+  .btn.danger{ background:rgba(255,77,77,.12);color:var(--red);border:1px solid rgba(255,77,77,.35); } .btn.danger:hover{ background:var(--red);color:#fff; }
+  .btn.ghost{ background:var(--surface);border:1px solid var(--border);color:var(--text); } .btn.ghost:hover{ border-color:var(--purple); }
+  .row{ display:flex;gap:8px; } .row .btn{ flex:1; }
+  .sep{ height:1px;background:var(--border);margin:14px 0; }
+  .note{ font-size:11px;color:var(--dim);line-height:1.5;margin-top:4px; }
+  .note b{ color:var(--mute); }
+  .hide{ display:none!important; }
+</style>
+</head>
+<body>
+  <div class="hd"><span class="b"></span><span class="t">DashLive <small>· Monitor</small></span></div>
+
+  <div class="status" id="status"><span class="dot"></span><span class="lbl" id="statusLbl">Fora do ar</span><span class="tm" id="statusTm"></span></div>
+
+  <div id="setupBlock">
+    <div class="field"><label for="goal">Meta de GMV (R$)</label><input id="goal" type="number" inputmode="numeric" placeholder="10000"></div>
+    <div class="field"><label for="dur">Duração planejada</label>
+      <select id="dur"><option value="120">2 horas</option><option value="180">3 horas</option><option value="240" selected>4 horas</option><option value="300">5 horas</option><option value="360">6 horas</option></select>
+    </div>
+    <button class="btn pri" id="btnStart">Iniciar live →</button>
+  </div>
+
+  <div id="liveBlock" class="hide">
+    <button class="btn danger" id="btnEnd">Encerrar live</button>
+    <button class="btn ghost" id="btnExport">Exportar relatório (JSON)</button>
+    <div class="row"><button class="btn ghost" id="btnToggle">Ocultar painel</button></div>
+    <div class="note" style="margin-top:10px"><b>Calibração dos números</b> é feita no painel sobre a tela da live → aba "Dados".</div>
+  </div>
+
+  <div class="sep"></div>
+  <div id="syncBlock">
+    <div class="field" id="syncAuth">
+      <label for="pass">Senha do painel (1ª vez)</label>
+      <input id="pass" type="password" placeholder="para gravar no Supabase" autocomplete="off">
+      <button class="btn ghost" id="btnAuth" style="margin-top:8px">Conectar</button>
+    </div>
+    <button class="btn ghost hide" id="btnSync">Enviar relatório ao Supabase</button>
+    <div class="note" id="syncNote">Sem conexão — ao encerrar, o relatório só sai em JSON.</div>
+  </div>
+
+  <div class="sep"></div>
+  <div class="note" id="domainNote">Painel aparece automaticamente no Seller Center do TikTok. Se não aparecer, confirme que você está numa página <b>*.tiktok.com</b> e recarregue.</div>
+
+  <script src="benchmarks.js"></script>
+  <script src="lib.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

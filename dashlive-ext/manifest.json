@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "DashLive · Monitor Ao Vivo (Rhode)",
+  "version": "1.2.0",
+  "description": "Monitor operacional de live commerce no TikTok Shop: semáforo de saúde, KPIs com benchmark e frameworks, sobrepostos na tela da live com leitura automática das métricas.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.tiktok.com/*",
+    "*://*.tiktokglobalshop.com/*",
+    "*://*.tiktokshop.com/*",
+    "https://dash.rhodejeans.com.br/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DashLive",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.tiktok.com/*",
+        "*://*.tiktokglobalshop.com/*",
+        "*://*.tiktokshop.com/*"
+      ],
+      "js": [
+        "benchmarks.js",
+        "lib.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
