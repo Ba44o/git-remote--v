@@ -11,9 +11,20 @@
      A regra que decide tudo: quem é o ÚLTIMO separador manda. Se vier só ponto com
      3 dígitos depois, é milhar ("9.519" = 9519) — exceto em percentual, onde
      "2.52%" é decimal de origem en-US e virar 252 destruiria a leitura. */
+  // O Seller Center abrevia número grande: "R$ 2,8 mil", "1,4 mil", às vezes "12,5 mi".
+  // Sem tratar isso o painel lê R$ 2,80 no lugar de R$ 2.800 — e não dá nenhum sinal
+  // de que errou, porque 2,80 é um número perfeitamente válido.
+  L.SUFIXOS = [
+    [/\d\s*(bi|bilh(?:ão|ões))\b/i, 1e9],
+    [/\d\s*(mi|milh(?:ão|ões)|M)\b/, 1e6],
+    [/\d\s*(mil|k)\b/i, 1e3],
+  ];
   L.parseNumberPtBR = function (raw, type) {
     if (raw == null) return null;
-    let s = String(raw).replace(/[^\d.,-]/g, "");
+    const bruto = String(raw);
+    let mult = 1;
+    for (const [rx, m] of L.SUFIXOS) if (rx.test(bruto)) { mult = m; break; }
+    let s = bruto.replace(/[^\d.,-]/g, "");
     const neg = /^-/.test(s);
     s = s.replace(/-/g, "");
     if (!s) return null;
@@ -32,9 +43,14 @@
     }
     let n = parseFloat(s);
     if (isNaN(n)) return null;
+    // "2,8 mil": o 2,8 é decimal de verdade, não milhar — multiplica depois de parsear.
+    if (mult > 1) n = n * mult;
     if (type === "int") n = Math.round(n);
     return neg ? -n : n;
   };
+  // Valor abreviado perde precisão (R$ 2,8 mil = qualquer coisa entre 2.750 e 2.849).
+  // Quem consome usa isso pra avisar que o número é aproximado, não pra corrigir.
+  L.ehAbreviado = raw => raw != null && L.SUFIXOS.some(([rx]) => rx.test(String(raw)));
 
   /* ============ benchmarks ============
      Fonte única: benchmarks.js, gerado de `lives` por gerar_benchmarks_live.py.

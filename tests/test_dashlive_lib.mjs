@@ -43,6 +43,20 @@ eq(L.parseNumberPtBR("-R$ 1.200,00", "money"), -1200, "negativo (estorno)");
 eq(L.parseNumberPtBR("2.500 views", "int"), 2500, "sufixo depois do número");
 eq(L.parseNumberPtBR("0,79%", "pct"), 0.79, "conv por visualização");
 
+// O Console de LIVE abrevia número grande. Sem isso o painel lia R$ 2,80 no lugar
+// de R$ 2.800 — número válido, erro invisível. Visto na tela real em 08/08/26.
+sec("números abreviados do Seller Center");
+eq(L.parseNumberPtBR("R$ 2,8 mil", "money"), 2800, "GMV abreviado em mil");
+eq(L.parseNumberPtBR("1,4 mil", "int"), 1400, "cliques abreviados em mil");
+eq(L.parseNumberPtBR("R$ 12,5 mil", "money"), 12500, "milhar com 2 dígitos");
+eq(L.parseNumberPtBR("2 mil", "int"), 2000, "mil sem decimal");
+eq(L.parseNumberPtBR("R$ 1,2 mi", "money"), 1200000, "milhão abreviado");
+eq(L.parseNumberPtBR("3,4k", "int"), 3400, "sufixo k");
+eq(L.parseNumberPtBR("R$ 1.234,56", "money"), 1234.56, "valor cheio não é afetado");
+eq(L.parseNumberPtBR("9.519", "int"), 9519, "milhar por ponto não é afetado");
+eq(L.ehAbreviado("R$ 2,8 mil"), true, "detecta abreviação (pra marcar aproximado)");
+eq(L.ehAbreviado("R$ 2.847,90"), false, "valor cheio não é abreviado");
+
 /* ── 2. derivados ───────────────────────────────────────────────────────── */
 sec("derivados");
 // abril/26: CTR 28,51% × CO 2,776% = 0,79% de conversão por visualização.

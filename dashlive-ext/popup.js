@@ -11,7 +11,7 @@ let tick = null;
 
 function defaults(){
   return { goal:0, plannedMin:240, startTime:null, endTime:null, snapshots:[], events:[], frameworksUsed:[], violations:[],
-    current:{err:null,impressions:null,clicks:null,viewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null}, calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
+    current:{err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null}, calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
     ui:{x:null,y:null,min:false,hidden:false,tab:"monitor"} };
 }
 function load(cb){ chrome.storage.local.get(KEY, r=>{ state=Object.assign(defaults(), r[KEY]||{}); cb&&cb(); }); }

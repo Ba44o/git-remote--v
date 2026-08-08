@@ -11,7 +11,11 @@
      Nada de constante chumbada aqui: os números saem de gerar_benchmarks_live.py.
      Dois perfis, porque o CTR da tela troca de denominador conforme a versão do
      Seller Center (R11) — o perfil ativo é DETECTADO, nunca presumido. */
+  // Se lib.js/benchmarks.js falharem por qualquer motivo, o painel NÃO pode morrer
+  // junto: um TypeError aqui mata o content script inteiro e a tela fica sem nada,
+  // sem erro visível pro operador. Melhor abrir com bench de fallback e avisar.
   const LIB = self.DashLiveLib;
+  if (!LIB) { console.error("[DashLive] lib.js não carregou — verifique a ordem em content_scripts do manifest."); return; }
   const BENCH_SRC = LIB.getBenchmarkSource();
   let BM = null;                                                  // bench do perfil ativo
   let BM_DET = { profile:null, method:"sem-ctr", confident:false }; // como foi decidido
@@ -50,15 +54,18 @@
 
   /* ===== métricas calibráveis (ordem do funil) ===== */
   const METRICS = [
-    { key:"err",         label:"ERR — taxa de entrada (%)",   type:"pct",   star:2, prov:true },
-    { key:"impressions", label:"Impressões da live",          type:"int",   star:3, opt:true },
-    { key:"clicks",      label:"Cliques em produto (opcional)", type:"int",   star:2, opt:true },
-    { key:"viewers",     label:"Views — visualizações da live", type:"int",   star:2 },
-    { key:"ctr",         label:"CTR da live (%)",             type:"pct",   star:2 },
-    { key:"co",          label:"Compra após clique — CO (%)", type:"pct",   star:2, prov:true },
-    { key:"gmv",         label:"GMV direto (R$)",             type:"money", star:3 },
-    { key:"orders",      label:"Pedidos",                     type:"int",   star:2 },
-    { key:"comments",    label:"Comentários (opcional)",       type:"int",   star:1, opt:true }
+    // Ordem = o que a tela do Console de LIVE realmente mostra, do essencial ao extra.
+    // Tudo que pode não existir na tela é opcional: melhor pular do que calibrar errado.
+    { key:"gmv",         label:"GMV atribuído (R$)",                 type:"money", star:3 },
+    { key:"orders",      label:"Pedidos — NÃO é \"itens\"",           type:"int",   star:2 },
+    { key:"liveViewers", label:"Espectadores ao vivo (agora)",       type:"int",   star:2, opt:true },
+    { key:"ctr",         label:"% de cliques no produto (CTR)",      type:"pct",   star:2, opt:true },
+    { key:"clicks",      label:"Cliques no produto",                 type:"int",   star:2, opt:true },
+    { key:"co",          label:"Compra após clique — CO (%)",        type:"pct",   star:2, opt:true },
+    { key:"viewers",     label:"Views acumuladas (se a tela tiver)", type:"int",   star:2, opt:true },
+    { key:"impressions", label:"Impressões da live",                 type:"int",   star:3, opt:true },
+    { key:"err",         label:"ERR — taxa de entrada",              type:"pct",   star:2, opt:true, prov:true },
+    { key:"comments",    label:"Comentários",                        type:"int",   star:1, opt:true }
   ];
 
   const CUE_TYPES = ["Gerador de Tráfego", "Herói", "Valor Agregado"];
@@ -78,7 +85,7 @@
   function defaults(){
     return { goal:0, plannedMin:240, startTime:null, endTime:null,
       snapshots:[], events:[], frameworksUsed:[], violations:[],
-      current:{ err:null,impressions:null,clicks:null,viewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null, t:null },
+      current:{ err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null, t:null },
       calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
       ui:{ x:null, y:null, min:false, hidden:false, tab:"monitor" } };
   }
@@ -145,7 +152,7 @@
 
   function evaluateHealth(){
     const s = state.current;
-    if (s.gmv==null && s.viewers==null && s.err==null) return null;
+    if (s.gmv==null && s.viewers==null && s.liveViewers==null && s.err==null) return null;
     const d = {}; const ref = lastSnap();
     resolveProfile();                       // define BM/BM_DET antes de qualquer comparação
     const B = BM || {};
@@ -167,8 +174,15 @@
     d.aov = { grade: (ticket>0 && B.ticket)?grade(ticket/B.ticket,1.0,0.8):"na", ticket, star:2 };
 
     // contexto / secundárias
-    d.viewersVol = (s.viewers!=null && B.views) ? { grade:grade(s.viewers/B.views,0.6,0.4), ratio:s.viewers/B.views, star:2 } : { grade:"na" };
-    d.viewersTrend = ref ? (t=>({grade:t.grade, drop:t.drop}))(trendGrade(s.viewers, ref.viewers, -0.15, -0.30)) : { grade:"good", drop:0 };
+    // Duas audiências com o mesmo nome na cabeça de todo mundo: "views" é o acumulado
+    // da live (tem bench) e "espectadores ao vivo" é o simultâneo (não tem — 15 ao vivo
+    // contra 8.284 de bench acusaria vermelho a live inteira). Só com o simultâneo, o
+    // painel julga por TENDÊNCIA e diz isso no card.
+    const audVal = s.viewers!=null ? s.viewers : s.liveViewers;
+    const audRef = ref ? (ref.viewers!=null ? ref.viewers : ref.liveViewers) : null;
+    d.aud = { val:audVal, modo: s.viewers!=null ? "bench" : (s.liveViewers!=null ? "trend" : "na") };
+    d.viewersVol = (d.aud.modo==="bench" && B.views) ? { grade:grade(s.viewers/B.views,0.6,0.4), ratio:s.viewers/B.views, star:2 } : { grade:"na" };
+    d.viewersTrend = (audVal!=null && audRef) ? (t=>({grade:t.grade, drop:t.drop}))(trendGrade(audVal, audRef, -0.15, -0.30)) : { grade:"good", drop:0 };
     // ⭐ antecedente: engajamento (comentários) por tendência
     d.eng = (s.comments!=null && ref) ? (t=>({grade:t.grade==="bad"?"warn":t.grade, drop:t.drop}))(trendGrade(s.comments, ref.comments, -0.20, -0.40)) : { grade:"na" };
 
@@ -345,8 +359,13 @@
     // Inter entra se a máquina tiver, senão cai na fonte nativa da plataforma.
 
     const panel = root.getElementById("dl-panel"), ui = state.ui;
-    panel.style.top = (ui.y!=null?ui.y:80)+"px";
-    panel.style.left = (ui.x!=null?ui.x:(window.innerWidth-364))+"px";
+    // clamp: x/y vêm do storage e podem ter sido salvos noutra resolução/monitor.
+    // Sem isso o painel "some" fora da viewport e parece que a extensão não abriu.
+    const W = window.innerWidth, H = window.innerHeight;
+    const x = Math.min(Math.max(ui.x!=null?ui.x:(W-364), 0), Math.max(0, W-120));
+    const y = Math.min(Math.max(ui.y!=null?ui.y:80, 0), Math.max(0, H-80));
+    panel.style.top = y+"px";
+    panel.style.left = x+"px";
 
     const hd = root.getElementById("dl-hd"); let dragging=false, ox=0, oy=0;
     hd.addEventListener("pointerdown", e=>{ if(e.target.tagName==="BUTTON")return; dragging=true; hd.classList.add("drag");
@@ -423,7 +442,12 @@
     html+=kpCard(d.co?d.co.grade:"", "CO pós-clique", s.co!=null?pct1(s.co)+"%":"—", `bench ${benchPct(BM&&BM.co)}${d.co&&d.co.ratio?` · <b>${Math.round(d.co.ratio*100)}%</b>`:""}`);
     const ticket=(s.orders>0&&s.gmv!=null)?s.gmv/s.orders:0;
     html+=kpCard(d.aov?d.aov.grade:"", "Ticket / AOV", ticket>0?fmtBRL(ticket):"—", `bench ${benchBRL(BM&&BM.ticket)} · ${s.orders!=null?s.orders:0} ped.`);
-    html+=kpCard(d.viewersVol?d.viewersVol.grade:"", "Views", s.viewers!=null?fmtNum(s.viewers):"—", `média/live ${BM&&BM.views?fmtNum(BM.views):"—"}`);
+    const aud=d.aud||{modo:"na"};
+    html+=kpCard(aud.modo==="bench"?(d.viewersVol?d.viewersVol.grade:""):(d.viewersTrend?d.viewersTrend.grade:""),
+      aud.modo==="trend"?"Espectadores":"Views",
+      aud.val!=null?fmtNum(aud.val):"—",
+      aud.modo==="bench" ? `média/live ${BM&&BM.views?fmtNum(BM.views):"—"}`
+      : aud.modo==="trend" ? `ao vivo · tendência (sem bench)` : "—");
     html+=`</div>`;
 
     // derivados: conversão por visualização (CTR×CO) + GPM
@@ -528,7 +552,9 @@
     html+=`<div class="calibmap">`;
     METRICS.forEach(m=>{ const c=state.calib[m.key]; const val=c?readMetric(m):null;
       const disp=val!=null?(m.type==='money'?fmtBRL(val):m.type==='pct'?pct1(val)+"%":fmtNum(val)):(c?'—':'—');
-      html+=`<div class="cm ${c?'ok':''}"><span class="d"></span><span class="l">${m.label}${m.prov?'<span class="tag prov">provisório</span>':''}${m.opt?'<span class="tag opt">opcional</span>':''}</span><span class="v">${disp}</span></div>`; });
+    // "R$ 2,8 mil" é lido certo (2800) mas vem arredondado da origem — avisa em vez de fingir precisão.
+    const aprox = c && c.sample && LIB.ehAbreviado(c.sample) ? '<span class="tag prov">aprox.</span>' : '';
+      html+=`<div class="cm ${c?'ok':''}"><span class="d"></span><span class="l">${m.label}${m.prov?'<span class="tag prov">provisório</span>':''}${m.opt?'<span class="tag opt">opcional</span>':''}${aprox}</span><span class="v">${disp}</span></div>`; });
     html+=`</div>`;
     html+=`<div class="rowbtn"><button id="dl-cal" class="pri">Calibrar métricas</button><button id="dl-cal-clear">Limpar</button></div>`;
     html+=`<div class="rowbtn" style="margin-top:8px"><button id="dl-demo">${state.demo?"Sair do modo demo":"Carregar dados demo"}</button></div>`;
@@ -585,18 +611,18 @@
     state.demo=true;
     // snapshot anterior: sem ele as métricas de TENDÊNCIA (ERR, viewers, engajamento)
     // não têm contra o que comparar e o painel fica só com as de nível.
-    state.snapshots=[{ t:agora-20*60000, err:14.2, impressions:38000, clicks:1183, viewers:5400,
+    state.snapshots=[{ t:agora-20*60000, err:14.2, impressions:38000, clicks:1183, viewers:5400, liveViewers:180,
                        ctr:21.9, co:2.7, gmv:3100, orders:38, comments:280, ctrProfile:"views" }];
     // clicks = ctr × views de propósito (1310 ≈ 21,4% de 6120): fecha a identidade e o
     // painel resolve a régua pelos cliques, não pela ordem de grandeza.
-    state.current={ err:11.1, impressions:54000, clicks:1310, viewers:6120,
+    state.current={ err:11.1, impressions:54000, clicks:1310, viewers:6120, liveViewers:152,
                     ctr:21.4, co:1.6, gmv:4180, orders:62, comments:210, t:agora };
     state.lastSnapAt=agora;
     saveState(); render();
   }
   function clearDemo(){
     state.demo=false;
-    state.current={ err:null,impressions:null,clicks:null,viewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null };
+    state.current={ err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,gmv:null,orders:null,comments:null,t:null };
     state.snapshots=[]; state.events=[]; state.violations=[]; state.lastSnapAt=null;
     saveState(); render();
   }
@@ -604,8 +630,8 @@
   /* ================= live loop ================= */
   function commitSnapshot(){
     const s=state.current;
-    if(s.gmv==null&&s.viewers==null&&s.err==null) return;
-    state.snapshots.push({ t:Date.now(), err:s.err, impressions:s.impressions, clicks:s.clicks, viewers:s.viewers||0, ctr:s.ctr, co:s.co, gmv:s.gmv||0, orders:s.orders||0, comments:s.comments, ctrProfile:state.ctrProfile });
+    if(s.gmv==null&&s.viewers==null&&s.liveViewers==null&&s.err==null) return;
+    state.snapshots.push({ t:Date.now(), err:s.err, impressions:s.impressions, clicks:s.clicks, viewers:s.viewers||0, liveViewers:s.liveViewers, ctr:s.ctr, co:s.co, gmv:s.gmv||0, orders:s.orders||0, comments:s.comments, ctrProfile:state.ctrProfile });
     state.lastSnapAt=Date.now(); saveState(); render();
   }
   function readTick(){
