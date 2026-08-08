@@ -57,6 +57,26 @@ eq(L.parseNumberPtBR("9.519", "int"), 9519, "milhar por ponto não é afetado");
 eq(L.ehAbreviado("R$ 2,8 mil"), true, "detecta abreviação (pra marcar aproximado)");
 eq(L.ehAbreviado("R$ 2.847,90"), false, "valor cheio não é abreviado");
 
+/* ── 1b. reconhecimento de rótulo (auto-mapeamento) ──────────────────────
+   Rótulos colhidos da tela real do Console de LIVE em 08/08/26. As linhas com
+   `null` são as armadilhas: campos que ficam ao lado dos certos e não podem casar
+   ("Itens atribuídos" não é pedido; "GMV por hora" não é o GMV da live). */
+sec("reconhecimento de rótulo");
+const rot = [
+  ["GMV atribuído", "gmv"], ["GMV da live", "gmv"], ["GMV por hora", null], ["Ticket médio", null],
+  ["Pedidos", "orders"], ["Pedidos atribuídos", "orders"], ["Itens atribuídos", null],
+  ["Espectadores ativos", "liveViewers"], ["Espectadores ao vivo", "liveViewers"],
+  ["Visualizações", "viewers"], ["Total de espectadores", "viewers"],
+  ["Cliques no produto", "clicks"], ["Porcentagem de cliques no produto", "ctr"],
+  ["Porcentagem d…", "ctr"], ["Taxa de compra após clique", "co"],
+  ["Impressões do produto", "impressions"], ["Comentários", "comments"],
+  ["Taxa de entrada", "err"], ["Duração média de visualização", null], ["Chat", null], ["", null],
+];
+let rOk = 0;
+for (const [txt, esp] of rot) { const g = L.metricaDoRotulo(txt); if (g === esp) rOk++; else console.log(`  ✗ "${txt}" → ${g} (esperado ${esp})`); }
+eq(rOk, rot.length, `reconhece ${rOk}/${rot.length} rótulos da tela real`);
+eq(L.normalizarRotulo("Porcentagem de cliques"), "porcentagem de cliques", "normaliza acento e caixa");
+
 /* ── 2. derivados ───────────────────────────────────────────────────────── */
 sec("derivados");
 // abril/26: CTR 28,51% × CO 2,776% = 0,79% de conversão por visualização.

@@ -143,6 +143,63 @@
     return parseTyped(el.textContent, m.type);
   }
 
+  /* ================= auto-mapeamento da tela =================
+     O TikTok ofusca as classes, mas não os rótulos: "GMV atribuído", "Cliques no
+     produto", "Espectadores ativos" são texto em português e mudam pouco. A extensão
+     varre a página, reconhece o que consegue e só deixa o resto pro clique manual.
+     Calibração manual continua valendo e sempre vence a automática. */
+  function elDoPainel(el){ return host && (el===host || host.contains(el)); }
+
+  // Num card de KPI o valor é o vizinho do rótulo. Sobe no máximo 3 níveis pra não
+  // sair do card e capturar o número do card ao lado.
+  function valorPertoDe(rotEl){
+    let node = rotEl;
+    for (let up=0; up<3 && node; up++){
+      const cont = node.parentElement;
+      if (!cont || cont===document.body) break;
+      const cands = Array.from(cont.querySelectorAll("*")).filter(x =>
+        x!==rotEl && !elDoPainel(x) && x.children.length===0 &&
+        /\d/.test(x.textContent||"") && (x.textContent||"").trim().length<=28);
+      if (cands.length) return cands[0];
+      node = cont;
+    }
+    return null;
+  }
+
+  function mapearTela(){
+    const achados = {};
+    const folhas = Array.from(document.querySelectorAll("body *")).filter(el =>
+      el.children.length===0 && !elDoPainel(el));
+    for (const el of folhas){
+      const txt = (el.textContent||"").trim();
+      if (!txt || txt.length>60 || /^\d/.test(txt)) continue;   // valor não é rótulo
+      const key = LIB.metricaDoRotulo(txt);
+      if (!key || achados[key]) continue;                        // 1º achado ganha
+      const m = METRICS.find(x=>x.key===key);
+      if (!m) continue;
+      const alvo = valorPertoDe(el);
+      if (!alvo) continue;
+      const val = parseTyped(alvo.textContent, m.type);
+      if (val==null) continue;
+      achados[key] = { selector:cssPath(alvo), label:txt,
+                       sample:(alvo.textContent||"").trim().slice(0,40), origem:"auto", val };
+    }
+    return achados;
+  }
+
+  // Só preenche o que ainda não existe: calibração feita na mão nunca é sobrescrita.
+  function aplicarAutoMapa(){
+    const achados = mapearTela();
+    let novos = 0;
+    for (const [k,v] of Object.entries(achados)){
+      if (state.calib[k] && state.calib[k].origem!=="auto") continue;
+      state.calib[k] = v; novos++;
+    }
+    state.autoMapAt = Date.now();
+    saveState(); readTick(); render();
+    return { novos, total:Object.keys(achados).length };
+  }
+
   /* ================= health — cascata do funil ================= */
   function elapsedMin(){ if(!state.startTime) return 0; const end=state.endTime||Date.now(); return (end-state.startTime)/60000; }
   function grade(r,warnAt,badAt){ if(r>=warnAt) return "good"; if(r>=badAt) return "warn"; return "bad"; }
@@ -431,7 +488,7 @@
     let html=state.demo?`<div class="demo-flag">▶ MODO DEMO — números fabricados. Não grava no Supabase. Limpa na aba <b>Dados</b>.</div>`:"";
     html+=`<div class="sem ${h?h.overall:''}"><div class="beacon"></div><div><div class="st ${h?'':'idle'}">${h?map[h.overall]:'Aguardando leitura'}</div></div>
       <div class="pc"><b>${pct!=null?pct+'%':'—'}</b><span>da meta</span></div></div>`;
-    html+=`<div class="reason">${h?heroReason(h):(calibrated?'Lendo a página… se ficar em branco, confira a aba <b>Dados</b>.':'Ainda não calibrado. Vai na aba <b>Dados</b> e aponta os números uma vez.')}</div>`;
+    html+=`<div class="reason">${h?heroReason(h):(calibrated?'Lendo a página… se ficar em branco, confira a aba <b>Dados</b>.':'Não reconheci as métricas nesta tela. Abre a aba <b>Dados</b> → <b>Mapear tela automaticamente</b>, ou aponta na mão.')}</div>`;
 
     // KPIs na ordem do funil: GMV/hora → ERR → CTR → CO → Ticket → Viewers
     const gmvHour = (s.gmv!=null && elapsedMin()>0) ? s.gmv/(elapsedMin()/60) : null;
@@ -556,7 +613,12 @@
     const aprox = c && c.sample && LIB.ehAbreviado(c.sample) ? '<span class="tag prov">aprox.</span>' : '';
       html+=`<div class="cm ${c?'ok':''}"><span class="d"></span><span class="l">${m.label}${m.prov?'<span class="tag prov">provisório</span>':''}${m.opt?'<span class="tag opt">opcional</span>':''}${aprox}</span><span class="v">${disp}</span></div>`; });
     html+=`</div>`;
-    html+=`<div class="rowbtn"><button id="dl-cal" class="pri">Calibrar métricas</button><button id="dl-cal-clear">Limpar</button></div>`;
+    const auto=Object.values(state.calib).filter(c=>c&&c.origem==="auto").length;
+    const faltam=METRICS.filter(m=>!state.calib[m.key]);
+    html+=`<div class="rowbtn"><button id="dl-auto" class="pri">🔎 Mapear tela automaticamente</button></div>`;
+    html+=`<div class="rowbtn" style="margin-top:8px"><button id="dl-cal">Apontar na mão</button><button id="dl-cal-clear">Limpar</button></div>`;
+    if(auto) html+=`<div class="note" style="text-align:left">${auto} métrica(s) reconhecida(s) pelo rótulo da página. <b>Confere os valores acima</b> — se algum estiver errado, usa "Apontar na mão" pra corrigir só ele (o manual sempre vence o automático).</div>`;
+    if(faltam.length) html+=`<div class="note" style="text-align:left">Não encontrei na tela: <b>${faltam.map(m=>m.label.split(" —")[0].split(" (")[0]).join(" · ")}</b>. Pode não existir nesta página — o painel roda sem, mostrando "—".</div>`;
     html+=`<div class="rowbtn" style="margin-top:8px"><button id="dl-demo">${state.demo?"Sair do modo demo":"Carregar dados demo"}</button></div>`;
     html+=`<div class="note" style="text-align:left">Demo preenche o painel com uma live fictícia pra você ver o semáforo, os gatilhos e a linha do tempo funcionando sem estar no ar. Enquanto estiver ligado, a leitura da página fica pausada e a gravação no Supabase, bloqueada.</div>`;
     html+=`<div class="note" style="text-align:left">Benchmarks vêm da tabela <b>lives</b> (mesma fonte do dash-live), não de constante no código — regera com <code>gerar_benchmarks_live.py</code>. <b>CO</b> é <b>medido</b> (coluna <code>ctor</code> = compra após clique); a <b>conv/visualização</b> é que é derivada (CTR×CO). Calibrar <b>Cliques em produto</b> é opcional mas recomendado: é o que confirma qual régua de CTR a tela usa. <b>ERR</b> segue por tendência (sem bench). Quebrou após atualização do TikTok? Recalibra.</div>`;
@@ -566,6 +628,10 @@
     const cal=body.querySelector("#dl-cal"); if(cal) cal.onclick=startCalibration;
     const clr=body.querySelector("#dl-cal-clear"); if(clr) clr.onclick=()=>{ state.calib={}; saveState(); render(); };
     const dm=body.querySelector("#dl-demo"); if(dm) dm.onclick=()=>{ state.demo?clearDemo():loadDemo(); };
+    const am=body.querySelector("#dl-auto");
+    if(am) am.onclick=()=>{ am.textContent="Procurando…"; const r=aplicarAutoMapa();
+      am.textContent = r.total ? `✓ ${r.total} encontrada(s)` : "Nada reconhecido nesta tela";
+      setTimeout(render, 1200); };
   }
 
   /* ================= calibration ================= */
@@ -651,6 +717,12 @@
     if(!uiInt) uiInt=setInterval(()=>{ const tm=root&&root.getElementById("dl-timer"); if(tm&&state.startTime){ const end=state.endTime||Date.now(); tm.textContent=hhmmss(end-state.startTime); } },1000);
   }
 
-  function init(){ loadState(()=>{ buildOverlay(); render(); applyLiveLoop(); readTick(); }); }
+  function init(){ loadState(()=>{
+    buildOverlay();
+    // Sem nenhuma calibração ainda: tenta reconhecer sozinho antes de mostrar a tela
+    // vazia. Se achar, o painel já nasce com número; se não, cai no fluxo manual.
+    if (Object.keys(state.calib).length===0) { try { aplicarAutoMapa(); } catch(e){ console.warn("[DashLive] auto-mapa falhou:", e); } }
+    render(); applyLiveLoop(); readTick();
+  }); }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
 })();

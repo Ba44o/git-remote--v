@@ -141,6 +141,50 @@
     };
   };
 
+  /* ============ reconhecimento de rótulo (auto-mapeamento) ============
+     A calibração manual existe porque o TikTok ofusca as CLASSES — mas os RÓTULOS
+     são texto em português e estáveis ("GMV atribuído", "Cliques no produto").
+     Dá pra reconhecer a maioria sozinho e deixar o clique só pro que sobrar.
+
+     `evita` é tão importante quanto `aceita`: "Itens atribuídos" mora ao lado de
+     "GMV atribuído" e não é pedido — casar errado ali estraga o ticket em silêncio. */
+  L.normalizarRotulo = t => String(t == null ? "" : t)
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")   // tira acento
+    .toLowerCase()
+    .replace(/[.…:%()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  L.ALIASES = [
+    { key:"gmv",         aceita:["gmv atribuido","gmv da live","gmv total","gmv","receita atribuida","receita da live"], evita:["por hora","medio","gmv max","meta"] },
+    { key:"orders",      aceita:["pedidos atribuidos","pedidos sku","total de pedidos","pedidos","sku orders","numero de pedidos"], evita:["itens","item","produtos vendidos","por hora","valor"] },
+    { key:"liveViewers", aceita:["espectadores ativos","espectadores ao vivo","espectadores agora","espectadores no momento","audiencia ao vivo"], evita:["total","acumulad","duracao","medi"] },
+    { key:"viewers",     aceita:["visualizacoes","total de espectadores","espectadores totais","views","visualizacoes da live"], evita:["duracao","medi","por hora","ativos"] },
+    { key:"clicks",      aceita:["cliques no produto","cliques em produto","cliques nos produtos","product clicks","total de cliques"], evita:["porcentagem","taxa","%","por hora"] },
+    { key:"ctr",         aceita:["porcentagem de cliques no produto","porcentagem de cliques","taxa de cliques no produto","taxa de cliques","ctr"], evita:["compra","pedido","conversao"] },
+    { key:"co",          aceita:["taxa de compra apos clique","compra apos clique","taxa de conversao apos clique","conversao apos clique"], evita:["visualizacao","view"] },
+    { key:"impressions", aceita:["impressoes do produto","impressoes de produto","impressoes da live","impressoes","exibicoes do produto"], evita:["por hora","gpm"] },
+    { key:"comments",    aceita:["comentarios","total de comentarios"], evita:["taxa","porcentagem"] },
+    { key:"err",         aceita:["taxa de entrada","err","entry rate"], evita:["saida"] },
+  ];
+
+  /* Devolve a métrica que o rótulo representa, ou null.
+     Casa por igualdade, depois por conter, e por fim por PREFIXO — porque a tela
+     trunca com reticências ("Porcentagem d…") e às vezes o corte chega ao texto. */
+  L.metricaDoRotulo = function (texto) {
+    const t = L.normalizarRotulo(texto);
+    if (!t || t.length < 3) return null;
+    const bloqueado = a => (a.evita || []).some(e => t.includes(e));
+    for (const a of L.ALIASES) if (!bloqueado(a) && a.aceita.some(x => t === x)) return a.key;
+    for (const a of L.ALIASES) if (!bloqueado(a) && a.aceita.some(x => t.includes(x))) return a.key;
+    for (const a of L.ALIASES) {
+      if (bloqueado(a)) continue;
+      // prefixo só vale com 8+ caracteres: abaixo disso "taxa de" casaria com tudo
+      if (a.aceita.some(x => x.length >= 8 && t.length >= 8 && (x.startsWith(t) || t.startsWith(x)))) return a.key;
+    }
+    return null;
+  };
+
   /* ============ derivados ============ */
   // Conversão por visualização é o PRODUTO das duas etapas (view→clique→pedido).
   // O build antigo tratava o CO como se fosse essa conversão e dividia por CTR — R10.
