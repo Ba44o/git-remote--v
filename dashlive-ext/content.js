@@ -79,7 +79,37 @@
   ];
 
   const KEY = "dashlive";
-  let state = null, readInt = null, uiInt = null;
+  let state = null, readInt = null, uiInt = null, orfao = false;
+
+  /* ===== contexto órfão =====
+     Quando a extensão é recarregada (ou atualizada pelo Chrome), o content script
+     que já estava na página perde a ligação com ela: qualquer chamada a
+     chrome.storage passa a lançar "Extension context invalidated".
+     O perigo não é o erro — é o que vinha depois: o painel continuava na tela com
+     os últimos números, parecendo ao vivo, sem ler mais nada. Num live isso é pior
+     que sumir. Agora ele para os timers e diz o que houve. */
+  function contextoVivo(){
+    try { return !!(chrome.runtime && chrome.runtime.id); } catch(e){ return false; }
+  }
+  function marcarOrfao(){
+    if (orfao) return;
+    orfao = true;
+    if (readInt){ clearInterval(readInt); readInt = null; }
+    if (uiInt){ clearInterval(uiInt); uiInt = null; }
+    try { renderOrfao(); } catch(e){}
+  }
+  function renderOrfao(){
+    if (!root) return;
+    const body = root.getElementById("dl-body"); if (!body) return;
+    const panel = root.getElementById("dl-panel"); if (panel) panel.style.display = "block";
+    body.innerHTML = `<div class="orfao"><b>Painel desconectado</b>
+      A extensão foi recarregada ou atualizada e esta aba ficou com a versão antiga.
+      Os números pararam de atualizar — <b>não são mais ao vivo</b>.
+      <button id="dl-reload">Recarregar a página</button>
+      <span class="dica">Se estiver transmitindo por esta aba, abra a live numa aba nova em vez de recarregar.</span></div>`;
+    const b = body.querySelector("#dl-reload");
+    if (b) b.onclick = () => location.reload();
+  }
 
   /* ================= storage ================= */
   function defaults(){
@@ -99,15 +129,30 @@
     s.cueSheet = s.cueSheet.map(c => Object.assign({ nome:"", tipo:"Herói", hook:"", preco:"" }, c));
     return s;
   }
-  function loadState(cb){ chrome.storage.local.get(KEY, r => { state = migrate(r[KEY]); cb && cb(); }); }
-  function saveState(){ chrome.storage.local.set({ [KEY]: state }); }
+  function loadState(cb){
+    if (!contextoVivo()) return marcarOrfao();
+    try {
+      chrome.storage.local.get(KEY, r => {
+        if (chrome.runtime.lastError) return marcarOrfao();
+        state = migrate(r[KEY]); cb && cb();
+      });
+    } catch(e){ marcarOrfao(); }
+  }
+  function saveState(){
+    if (orfao) return;
+    if (!contextoVivo()) return marcarOrfao();
+    try { chrome.storage.local.set({ [KEY]: state }); } catch(e){ marcarOrfao(); }
+  }
 
-  chrome.storage.onChanged.addListener((ch, area) => {
-    if (area==="local" && ch[KEY]) {
-      state = migrate(ch[KEY].newValue);
-      applyLiveLoop(); render();
-    }
-  });
+  try {
+    chrome.storage.onChanged.addListener((ch, area) => {
+      if (orfao) return;
+      if (area==="local" && ch[KEY]) {
+        state = migrate(ch[KEY].newValue);
+        applyLiveLoop(); render();
+      }
+    });
+  } catch(e){ marcarOrfao(); }
 
   /* ================= number parsing ================= */
   // Implementação única em lib.js (coberta por tests/test_dashlive_lib.mjs).
@@ -297,6 +342,10 @@
   /* ================= shadow overlay ================= */
   let root, host;
   const STYLE = `
+    .orfao{font-size:12px;line-height:1.55;color:#F2F2F7;background:rgba(255,77,77,.1);border:1px solid rgba(255,77,77,.35);border-radius:9px;padding:12px}
+    .orfao b{display:block;color:#FF7A7A;font-size:13px;margin-bottom:5px}
+    .orfao button{width:100%;margin-top:10px;background:#7C5CFF;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:600;cursor:pointer}
+    .orfao .dica{display:block;margin-top:8px;color:#8A8A9A;font-size:11px}
     .demo-flag{font-size:11px;font-weight:600;color:#0B0B0F;background:#FFC53D;border-radius:7px;padding:7px 9px;margin-bottom:9px;line-height:1.4}
     .prov-src{font-size:10px;color:#8A8A9A;line-height:1.5;margin:6px 2px 0;padding:6px 8px;background:rgba(124,92,255,.07);border-radius:7px}
     :host{ all:initial; }
@@ -448,6 +497,7 @@
 
   function render(){
     if(!root) return;
+    if(orfao) return renderOrfao();
     let reopen = root.getElementById("dl-reopen"); const panel = root.getElementById("dl-panel");
     if(state.ui.hidden){ panel.style.display="none";
       if(!reopen){ reopen=document.createElement("button"); reopen.className="reopen"; reopen.id="dl-reopen"; reopen.innerHTML=`<span class="b"></span> DashLive`;
@@ -701,6 +751,8 @@
     state.lastSnapAt=Date.now(); saveState(); render();
   }
   function readTick(){
+    if(orfao) return;
+    if(!contextoVivo()) return marcarOrfao();
     if(!state.startTime||state.endTime) return;
     if(state.demo) return;               // demo congelado: leitura real só depois de limpar
     if(Object.keys(state.calib).length===0) return;
@@ -714,7 +766,11 @@
     const running=state.startTime&&!state.endTime;
     if(running&&!readInt) readInt=setInterval(readTick,8000);
     if(!running&&readInt){ clearInterval(readInt); readInt=null; }
-    if(!uiInt) uiInt=setInterval(()=>{ const tm=root&&root.getElementById("dl-timer"); if(tm&&state.startTime){ const end=state.endTime||Date.now(); tm.textContent=hhmmss(end-state.startTime); } },1000);
+    if(!uiInt) uiInt=setInterval(()=>{
+      if(orfao) return;
+      if(!contextoVivo()) return marcarOrfao();   // detecta em até 1s, mesmo fora de live
+      const tm=root&&root.getElementById("dl-timer"); if(tm&&state.startTime){ const end=state.endTime||Date.now(); tm.textContent=hhmmss(end-state.startTime); }
+    },1000);
   }
 
   function init(){ loadState(()=>{
