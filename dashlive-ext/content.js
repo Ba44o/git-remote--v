@@ -77,6 +77,69 @@
     { key:"comments",    label:"Comentários",                        type:"int",   star:1, opt:true }
   ];
 
+  /* ===== Roteiro — direto de docs/PLAYBOOK_LIVE_CTA.md e
+     docs/REFERENCIA_LIVE_COMMERCE_TIKTOK.md. Não inventar fala aqui: o que está
+     nesses dois arquivos foi escrito contra o dado das nossas lives. ===== */
+
+  // Arco por FRAÇÃO da duração planejada, não por minuto fixo — a mesma estrutura
+  // serve pra live de 2h e de 4h. Fonte: TikTok Seller University (estrutura oficial).
+  const ARCO = [
+    { ate:0.03, nome:"Abertura", icon:"🎬",
+      fazer:["Receber pelo nome quem está chegando","Dizer o tema do evento em 1 frase","Pedir compartilhamento"],
+      lembrete:"Ninguém acompanha a live inteira: quem entra agora não viu nada." },
+    { ate:0.08, nome:"Aquecimento", icon:"🔥",
+      fazer:["Visão geral do que vai passar","Anunciar a condição do dia","Fixar o 1º herói"],
+      lembrete:"É aqui que o GMV Max aprende. Tráfego cedo vale mais." },
+    { ate:0.85, nome:"Ciclo de venda", icon:"🔁",
+      fazer:["Loop de 40s por peça (abaixo)","Trocar de peça a cada ~5 min","Combo a cada ~15 min","Responder objeção do chat pelo nome"],
+      lembrete:"O watch médio é 27,7s. Cada bloco tem que se sustentar sozinho." },
+    { ate:0.95, nome:"Encore", icon:"🏆",
+      fazer:["Repescar as 2 mais vendidas da live","Oferta por tempo limitado de verdade","Chamar quem clicou e não fechou"],
+      lembrete:"A conversão sobe na 2ª metade. Encore existe pra colher isso." },
+    { ate:1.01, nome:"Despedida", icon:"👋",
+      fazer:["Agradecer nominalmente","Avisar dia e hora da próxima","Pedir para seguir"],
+      lembrete:"Seguidor de live volta mais barato que tráfego pago." },
+  ];
+
+  // A espinha. Congela e repete — é o que o playbook chama de bloco de 40s.
+  const BLOCO40 = [
+    { de:0,  ate:5,  o:"Reabertura: quem eu sou, que calça é essa, quanto custa", movia:"entrada" },
+    { de:5,  ate:15, o:"Prova no corpo: em pé → sentada → de costas → de lado",   movia:"watch" },
+    { de:15, ate:22, o:"Espelho de tamanho (medida do host → medida dela)",       movia:"CO ⭐" },
+    { de:22, ate:30, o:"Ancoragem de valor + fábrica",                            movia:"CO ⭐" },
+    { de:30, ate:35, o:"CTA de clique — com o card FIXADO",                        movia:"CTR" },
+    { de:35, ate:40, o:"CTA de fechamento + motivo pra ser agora",                 movia:"CO ⭐" },
+  ];
+
+  // Inserts por métrica: quando o semáforo acusa, aparece a fala que move ELA.
+  const INSERTS = {
+    entrada: { nome:"Entrada na sala", falas:[
+      "Se você é baixinha e acha que wide leg não é pra você, é porque você provou a errada. Fica dois minutos comigo.",
+      "Amigas, para tudo — eu vou sentar com essa calça na frente de vocês. Porque calça bonita em pé todo mundo tem.",
+      "Chegou agora? Volto do zero: calça wide leg cintura alta, direto da fábrica, menos de cem reais. Eu tô com a 40." ]},
+    ctr: { nome:"Clique no card (CTR)", falas:[
+      "Toca no card aqui embaixo e olha a terceira foto — a de lado. É de lado que se vê se marca ou não.",
+      "Abre o card e olha a tabela de medida em centímetro. Se você já comprou online e sobrou na cintura, foi por não ter aberto isso.",
+      "Toca no carrinho laranja só pra ver as cores. Nem precisa comprar agora, só abre e olha qual é a sua.",
+      "Card fixado, primeira linha: é essa a Marmorizada que eu tô usando. Confere se é a mesma antes de escolher." ]},
+    co: { nome:"Compra após clique ⭐ (é aqui que está o dinheiro)", falas:[
+      "TAMANHO — Eu tenho 1,62 e 68 quilos, tô com a 40 e sobra dois dedos no cós. Se você é mais baixa que eu, desce um número. Se seu quadril é maior, mantém: a perna é larga, ela não aperta.",
+      "TAMANHO — Não chuta o número. Pega uma calça sua que serve bem, mede a cintura dela deitada e compara com o card. Trinta segundos e você não erra.",
+      "TAMANHO — Entre dois números? Fica no menor. O cós não tem elastano, ele não cede — mas também não sufoca, porque a modelagem é alta.",
+      "PREÇO — Essa calça na Zara sai por duzentos e pouco. A diferença não é a calça, é que aqui não tem loja de shopping no meio. A gente é a fábrica.",
+      "PREÇO — Você não tá pagando setenta e nove numa calça. Tá pagando pra não ficar puxando o cós o dia inteiro.",
+      "URGÊNCIA — O 38 e o 40 acabam primeiro, sempre. Vê se ainda tem o seu antes de eu trocar de peça.",
+      "URGÊNCIA — Essa condição é a de hoje. Quando eu sair daqui, ela volta pro valor de catálogo." ]},
+    aov: { nome:"Ticket / segunda peça", falas:[
+      "Leva a segunda numa cor diferente: o frete é o mesmo e você resolve a semana inteira.",
+      "Quem tá levando a Marmorizada, olha a Stone junto — é a mesma modelagem, muda só a lavagem.",
+      "Fecha o look: calça + a de cima por [valor], em vez de [valor cheio] separado." ]},
+    engajamento: { nome:"Comentário e retenção", falas:[
+      "Comenta o seu tamanho que eu falo se é esse mesmo ou se desce um.",
+      "Comenta 🔥 quem quer que eu sente com a próxima cor.",
+      "Fica mais cinco comigo que daqui a pouco eu solto a [SKU] no melhor preço da live." ]},
+  };
+
   const CUE_TYPES = ["Gerador de Tráfego", "Herói", "Valor Agregado"];
   const CUE_DEFAULT = [
     { nome:"Isca — SKU âncora", tipo:"Gerador de Tráfego", hook:"Preço de entrada pra puxar tráfego e ativar GMV Max", preco:"65,90" },
@@ -126,6 +189,7 @@
       snapshots:[], events:[], frameworksUsed:[], violations:[],
       current:{ err:null,impressions:null,clicks:null,viewers:null,liveViewers:null,ctr:null,co:null,convView:null,gmv:null,orders:null,comments:null, t:null },
       calib:{}, lastSnapAt:null, cueSheet:null, ctrProfile:null, demo:false,
+      pin:{ autoOn:false, modo:"bloco40", ultimoPin:null, ciclos:0 },
       ui:{ x:null, y:null, min:false, hidden:false, tab:"monitor" } };
   }
   function migrate(s){
@@ -478,6 +542,29 @@
     .orfao .dica{display:block;margin-top:8px;color:#8A8A9A;font-size:11px}
     .cm .anc{display:block;font-size:10px;color:#7C5CFF;margin-top:2px;font-weight:500}
     .diag{width:100%;height:150px;margin-top:8px;background:#0B0B0F;color:#8A8A9A;border:1px solid #2A2A38;border-radius:8px;padding:8px;font:11px ui-monospace,Menlo,monospace;resize:vertical}
+    .fase{background:rgba(124,92,255,.09);border:1px solid rgba(124,92,255,.3);border-radius:9px;padding:10px;margin-bottom:10px}
+    .fase-hd{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;margin-bottom:7px}
+    .fase-hd span{font-size:11px;font-weight:500;color:#8A8A9A}
+    .fase ul{margin:0;padding-left:16px} .fase li{font-size:11.5px;line-height:1.6;color:#D8D8E0}
+    .fase-nota{font-size:10.5px;color:#8A8A9A;margin-top:7px;line-height:1.5}
+    .pinbox{border-radius:9px;padding:10px;margin-bottom:10px;border:1px solid #2A2A38;background:#15151C}
+    .pinbox.vivo{border-color:rgba(46,204,113,.45)} .pinbox.morto{border-color:rgba(255,77,77,.45)}
+    .pin-st{font-size:12px;font-weight:600;margin-bottom:7px}
+    .pinbox.vivo .pin-st{color:#2ECC71} .pinbox.morto .pin-st{color:#FF7A7A}
+    .pin-bar{height:5px;background:#2A2A38;border-radius:3px;overflow:hidden;margin-bottom:9px}
+    .pin-bar span{display:block;height:100%;background:#2ECC71;transition:width .4s linear}
+    .pin-auto{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;margin:9px 8px 0 0;cursor:pointer}
+    .pinbox select{background:#1E1E28;color:#F2F2F7;border:1px solid #2A2A38;border-radius:6px;padding:4px 6px;font-size:11px}
+    .pin-nota{font-size:10.5px;color:#8A8A9A;line-height:1.5;margin-top:8px}
+    .pin-warn{font-size:10.5px;color:#FFC53D;margin-top:6px}
+    .b40{display:flex;gap:8px;align-items:baseline;padding:5px 7px;border-radius:6px;font-size:11px;margin-bottom:2px}
+    .b40.on{background:rgba(124,92,255,.18)}
+    .b40 .t{color:#8A8A9A;width:48px;flex-shrink:0;font-variant-numeric:tabular-nums}
+    .b40 .o{flex:1;color:#D8D8E0} .b40 .m{color:#7C5CFF;font-size:10px}
+    .ins{margin-bottom:10px} .ins h4{font-size:11.5px;margin:0 0 5px;color:#F2F2F7}
+    .fala{font-size:11.5px;line-height:1.55;color:#D8D8E0;background:#15151C;border-left:2px solid #7C5CFF;border-radius:0 7px 7px 0;padding:8px 10px;margin-bottom:5px;cursor:pointer}
+    .fala:hover{background:#1E1E28} .fala.copiada{border-left-color:#2ECC71;color:#2ECC71}
+    .ins-mais summary{font-size:11px;color:#8A8A9A;cursor:pointer;margin:8px 0}
     .demo-flag{font-size:11px;font-weight:600;color:#0B0B0F;background:#FFC53D;border-radius:7px;padding:7px 9px;margin-bottom:9px;line-height:1.4}
     .prov-src{font-size:10px;color:#8A8A9A;line-height:1.5;margin:6px 2px 0;padding:6px 8px;background:rgba(124,92,255,.07);border-radius:7px}
     :host{ all:initial; }
@@ -587,7 +674,8 @@
         <div class="tabs" id="dl-tabs">
           <button data-tab="monitor" class="on">Monitor</button>
           <button data-tab="sacola">Sacola</button>
-          <button data-tab="frameworks">Frameworks</button>
+          <button data-tab="roteiro">Roteiro</button>
+          <button data-tab="frameworks">FW</button>
           <button data-tab="calib">Dados</button>
         </div>
         <div class="body" id="dl-body"></div>
@@ -644,6 +732,7 @@
     const body=root.getElementById("dl-body");
     if(state.ui.min){ body.innerHTML=miniView(); return; }
     const tab=state.ui.tab;
+    if(tab==="roteiro"){ body.innerHTML=roteiroView(); bindRoteiro(body); return; }
     if(tab==="frameworks"){ body.innerHTML=fwView(); bindFw(body); return; }
     if(tab==="calib"){ body.innerHTML=calibView(); bindCalib(body); return; }
     if(tab==="sacola"){ body.innerHTML=cueView(); bindCue(body); return; }
@@ -754,6 +843,91 @@
     };
   }
   function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+  /* ---- Roteiro: onde estou · bloco de 40s · card · inserts do momento ---- */
+  function faseAtual(){
+    const f = state.plannedMin>0 ? Math.min(1, elapsedMin()/state.plannedMin) : 0;
+    return ARCO.find(a=>f<=a.ate) || ARCO[ARCO.length-1];
+  }
+  // Qual métrica está pior AGORA — é dela que os inserts aparecem primeiro.
+  function insertsDoMomento(){
+    const h = evaluateHealth();
+    const ordem = [];
+    if (h){
+      const d=h.dims;
+      if (d.ctr && d.ctr.grade!=="good" && d.ctr.grade!=="na") ordem.push("ctr");
+      if (d.co && d.co.grade!=="good" && d.co.grade!=="na") ordem.push("co");
+      if (d.aov && d.aov.grade!=="good" && d.aov.grade!=="na") ordem.push("aov");
+      if (d.viewersTrend && d.viewersTrend.grade!=="good") ordem.push("entrada");
+      if (d.eng && d.eng.grade==="warn") ordem.push("engajamento");
+    }
+    // sem diagnóstico, o padrão é o que mais move dinheiro no nosso funil
+    if (!ordem.length) ordem.push("co","ctr");
+    return [...new Set(ordem)];
+  }
+
+  function roteiroView(){
+    if(!state.startTime) return `<div class="em">Inicie a live no popup para o roteiro acompanhar o relógio.</div>`;
+    const fase = faseAtual(), mins = elapsedMin();
+    const b = botaoPin(), sp = segsDesdePin();
+    const vivo = sp!=null && sp<30;
+
+    let html = `<div class="fase"><div class="fase-hd">${fase.icon} ${fase.nome}<span>${Math.floor(mins)} min de ${state.plannedMin}</span></div>
+      <ul>${fase.fazer.map(x=>`<li>${x}</li>`).join("")}</ul>
+      <div class="fase-nota">${fase.lembrete}</div></div>`;
+
+    // ── card ──
+    html += `<div class="seclabel">Card do produto</div>`;
+    html += `<div class="pinbox ${vivo?"vivo":"morto"}">
+      <div class="pin-st">${sp==null ? "Nenhum card fixado por aqui" : vivo ? `Card vivo — ${Math.max(0,Math.round(30-sp))}s até despinar` : `Card provavelmente MORTO há ${Math.round(sp-30)}s`}</div>
+      <div class="pin-bar"><span style="width:${sp==null?0:Math.max(0,Math.min(100,(1-sp/30)*100))}%"></span></div>
+      <div class="rowbtn">
+        <button class="pri" id="dl-pin" ${b.fixar?"":"disabled"}>${b.fixado?"Re-fixar":"Fixar agora"}</button>
+        <button id="dl-despin" ${b.desafixar?"":"disabled"}>Despinar</button>
+      </div>
+      ${b.fixar||b.desafixar ? "" : `<div class="pin-warn">Não achei o botão de fixar nesta tela. Ele fica no Console de LIVE, na lista de produtos.</div>`}
+      <label class="pin-auto"><input type="checkbox" id="dl-pin-auto" ${state.pin.autoOn?"checked":""}> Auto-repin</label>
+      <select id="dl-pin-modo" ${state.pin.autoOn?"":"disabled"}>
+        <option value="bloco40" ${state.pin.modo==="bloco40"?"selected":""}>Ciclo de 40s (playbook)</option>
+        <option value="30s" ${state.pin.modo==="30s"?"selected":""}>A cada 30s</option>
+      </select>
+      <div class="pin-nota">Nas 65 lives de julho, <b>2,11x mais impressão de card</b> por espectador rendeu só <b>1,15x</b> de GMV/hora e converteu <b>pior</b> por clique (0,94x). O que vende é o card <b>vivo na hora de fechar</b> — não o volume de repin. O ciclo de 40s repina junto com o preço (~25s); o modo 30s é repin puro.</div>
+      <div class="pin-nota">${state.pin.ciclos||0} fixações nesta live.</div>
+    </div>`;
+
+    // ── bloco de 40s ──
+    const dentro = sp!=null ? sp%40 : null;
+    html += `<div class="seclabel">O bloco de 40s (a espinha — repete)</div>`;
+    html += BLOCO40.map(x=>{
+      const ativo = dentro!=null && dentro>=x.de && dentro<x.ate;
+      return `<div class="b40 ${ativo?"on":""}"><span class="t">${x.de}-${x.ate}s</span><span class="o">${x.o}</span><span class="m">${x.movia}</span></div>`;
+    }).join("");
+    html += `<div class="fase-nota">Watch médio 27,7s: quem entra agora não viu o bloco anterior. Cada bloco tem que se sustentar sozinho.</div>`;
+
+    // ── inserts do momento ──
+    const keys = insertsDoMomento();
+    html += `<div class="seclabel">Inserts para agora ${keys.length?`· puxados pelo semáforo`:""}</div>`;
+    html += keys.map(k=>{
+      const I=INSERTS[k]; if(!I) return "";
+      return `<div class="ins"><h4>${I.nome}</h4>${I.falas.map(f=>`<div class="fala">${escapeHtml(f)}</div>`).join("")}</div>`;
+    }).join("");
+    const resto = Object.keys(INSERTS).filter(k=>!keys.includes(k));
+    if (resto.length) html += `<details class="ins-mais"><summary>Outros inserts (${resto.length})</summary>${resto.map(k=>{
+      const I=INSERTS[k];
+      return `<div class="ins"><h4>${I.nome}</h4>${I.falas.map(f=>`<div class="fala">${escapeHtml(f)}</div>`).join("")}</div>`;}).join("")}</details>`;
+    return html;
+  }
+
+  function bindRoteiro(body){
+    const p=body.querySelector("#dl-pin"); if(p) p.onclick=()=>{ if(!acionarPin("pin")) p.textContent="Botão não encontrado"; };
+    const d=body.querySelector("#dl-despin"); if(d) d.onclick=()=>acionarPin("despin");
+    const a=body.querySelector("#dl-pin-auto"); if(a) a.onchange=()=>{ state.pin.autoOn=a.checked; saveState(); render(); };
+    const m=body.querySelector("#dl-pin-modo"); if(m) m.onchange=()=>{ state.pin.modo=m.value; saveState(); render(); };
+    body.querySelectorAll(".fala").forEach(f=>f.onclick=()=>{
+      const sel=getSelection(); const r=document.createRange(); r.selectNodeContents(f); sel.removeAllRanges(); sel.addRange(r);
+      try{ document.execCommand("copy"); f.classList.add("copiada"); setTimeout(()=>f.classList.remove("copiada"),1200);}catch(e){}
+    });
+  }
 
   function fwView(){ return Object.entries(FRAMEWORKS).map(([k,f])=>`<div class="fw"><h4>${f.icon} ${f.name}</h4><div class="sc">${f.script}</div><button class="use" data-use="${k}">Usei agora ✓</button></div>`).join(""); }
   function bindFw(body){ body.querySelectorAll(".use").forEach(b=>b.onclick=()=>{
@@ -891,6 +1065,49 @@
   }
   function advanceCalib(){ calState.idx++; if(calState.idx>=METRICS.length){ endCalibration(); return; } showCalHint(); }
 
+  /* ================= assistente de card (pin / repin / despin) =================
+     O card despina sozinho aos ~30s (confirmado na conta em 03/08/26) e o bloco de
+     venda tem 40s: quem fixa só na abertura chega ao fechamento sem card na tela.
+     Daí o assistente.
+
+     ⚠️ Sobre o auto-repin: nas 65 lives de julho, as lives com 2,11x mais impressão
+     de card por espectador fizeram só 1,15x de GMV/hora e converteram PIOR por
+     clique (0,94x). Repin em volume não vende — o que vende é o card estar vivo na
+     hora de fechar. Por isso o padrão é o ciclo de 40s do playbook (pin → repin no
+     preço, ~25s → despin), e o intervalo fixo fica como opção. */
+  function botaoPin(){
+    const alvos = Array.from(document.querySelectorAll("button,[role='button'],span,div"))
+      .filter(el => visivel(el) && !elDoPainel(el) && el.children.length<=1);
+    const txt = el => LIB.normalizarRotulo(el.textContent);
+    const fixar = alvos.find(el => txt(el)==="fixar");
+    const desafixar = alvos.find(el => txt(el)==="desafixar");
+    return { fixar: fixar||null, desafixar: desafixar||null, fixado: !!desafixar };
+  }
+  function segsDesdePin(){
+    return state.pin && state.pin.ultimoPin ? (Date.now()-state.pin.ultimoPin)/1000 : null;
+  }
+  function acionarPin(qual){
+    const b = botaoPin();
+    const alvo = qual==="despin" ? b.desafixar : b.fixar;
+    if (!alvo) return false;
+    try { alvo.click(); } catch(e){ return false; }
+    if (qual!=="despin"){ state.pin.ultimoPin = Date.now(); state.pin.ciclos++; }
+    else state.pin.ultimoPin = null;
+    saveState(); render();
+    return true;
+  }
+  // Roda junto com o relógio de 1s. Só age com o auto ligado E com a live no ar.
+  function tickPin(){
+    if (!state.pin || !state.pin.autoOn) return;
+    if (!state.startTime || state.endTime || state.demo) return;
+    const s = segsDesdePin();
+    if (s==null){ acionarPin("pin"); return; }
+    if (state.pin.modo==="30s"){ if (s>=30) acionarPin("pin"); return; }
+    // bloco40: repin aos 25s (o card chega vivo no fechamento) e recomeça aos 40s
+    if (s>=40) acionarPin("pin");
+    else if (s>=25 && s<26) acionarPin("pin");
+  }
+
   /* ================= modo demo =================
      Serve pro smoke test e pra treinar operador fora do ar. Os números são
      inventados de propósito num cenário que ACENDE o painel: funil entrando bem
@@ -946,6 +1163,7 @@
     if(!uiInt) uiInt=setInterval(()=>{
       if(orfao) return;
       if(!contextoVivo()) return marcarOrfao();   // detecta em até 1s, mesmo fora de live
+      try { tickPin(); } catch(e){}
       const tm=root&&root.getElementById("dl-timer"); if(tm&&state.startTime){ const end=state.endTime||Date.now(); tm.textContent=hhmmss(end-state.startTime); }
     },1000);
   }

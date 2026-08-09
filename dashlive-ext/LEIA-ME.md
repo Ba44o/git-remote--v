@@ -75,6 +75,37 @@ Registrado em `docs/DECISOES-E-PREMISSAS.md` (R10 e R11).
 
 Painel **arrastável**, **minimizável** (–) e **ocultável** (×).
 
+## Roteiro (aba própria) — o "durante" com script
+
+Não é só medir; é dizer o que fazer no minuto em que você está.
+
+**Onde você está.** O arco da live em fração do tempo planejado (abertura ·
+aquecimento · ciclo de venda · encore · despedida), com o que fazer em cada fase.
+Serve para live de 2h e de 4h — é proporcional, não minutagem fixa.
+
+**O bloco de 40s.** A espinha do `PLAYBOOK_LIVE_CTA.md`, com a etapa atual destacada
+conforme o card fixado: reabertura → prova no corpo → espelho de tamanho → ancoragem
+→ CTA de clique → CTA de fechamento. Existe porque o watch médio é 27,7s: quem entra
+agora não viu o bloco anterior, então cada bloco tem que se sustentar sozinho.
+
+**Inserts puxados pelo semáforo.** As falas não vêm numa lista fixa — aparecem as da
+métrica que está fraca **agora**. CTR ruim → as falas de clique no card. CO ruim → as
+quatro objeções (tamanho, preço, risco, urgência). Clique numa fala para copiar.
+Todas saem de `docs/PLAYBOOK_LIVE_CTA.md`, escritas contra o dado das nossas lives.
+
+### Assistente de card (pin / repin / despin)
+
+O card despina sozinho aos ~30s e o bloco de venda tem 40s: quem fixa só na abertura
+chega ao fechamento **sem card na tela**. O painel mostra a barra de vida do card,
+avisa quando ele morreu e fixa com um clique — encontrando o botão real da página.
+
+**Sobre o auto-repin.** Ele existe e é configurável, mas o padrão é o **ciclo de 40s**
+(pin → repin junto com o preço, ~25s → despin), não o intervalo fixo. Motivo: nas 65
+lives de julho, as lives com **2,11× mais impressão de card** por espectador fizeram
+só **1,15×** de GMV/hora e converteram **pior** por clique (**0,94×**). Repin em volume
+não vende — o que vende é o card estar **vivo na hora de fechar**. O modo "a cada 30s"
+está lá para quem quiser testar contra isso.
+
 ## Modo demo (smoke test e treino)
 
 Aba **Dados** → **Carregar dados demo**. Preenche o painel com uma live fictícia
