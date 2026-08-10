@@ -331,45 +331,73 @@ pós-mídia**, não falta subtrair nada.
 **Premissa declarada antes de calcular:** uma live 2x maior em GMV, com ROAS de 8,6x, é um
 resultado bom para a operação.
 
-**Veredito: ❌ REFUTADA.** ROAS não é a régua desta operação — a margem por peça é.
+**Veredito: ❌ REFUTADA.** ROAS não é a régua desta operação — a margem por peça é. A live
+**empatou**: +R$ 107,89 (cenário A) / −R$ 44,32 (cenário B, com a campanha 09.07). **A mídia
+consumiu 96% da margem.**
 
-**⚠️ Lente do headline (corrigido em 10/08 após o painel divergir):** o número da live é
-**R$ 28.477,84 — o GMV da SALA** (`/shop_lives`, é o que o painel/Seller Center mostra, ~28.493
-com o drift de snapshot). Os R$ 33.465,81 são a atribuição do **link da Amanda** e a **preço de
-tabela**. Cascata: extrato 33.465,81 − cupom 2.242,09 = produto pago 31.223,72 − nunca pago
-6.765,17 (80 pedidos) − pagou-e-cancelou 1.245,82 (16) = **23.356,76 de produto vivo** (bate ao
-centavo com `pedido_pagamento.sub_total`, 260 pedidos / 326 peças). A sala tem 390 itens contra
-343 pagos no link dela — **a sala inclui quem comprou sem passar pelo link da creator**, e a API
-não devolve `order_id` por sala, então as duas lentes não fecham pedido a pedido. Sala = tamanho
-da live; extrato = comissão; produto vivo = dinheiro.
+> ⚠️ **Correção registrada em 10/08 (2ª rodada).** Minha primeira leitura disse −R$ 705,39 e
+> estava errada: apliquei a taxa efetiva sobre o que o **cliente pagou**, quando a base do fee é
+> o **revenue** (= produto pago + cupom da plataforma). Errei R$ 813 pra baixo. Ver "base do fee".
+
+**Lente do headline:** o número da live é **R$ 28.477,84 — o GMV da SALA** (`/shop_lives`, é o que
+o painel/Seller Center mostra, ~28.493 com drift de snapshot). Os R$ 33.465,81 são a atribuição
+do **link da Amanda**, a preço **pré-cupom**. Cascata: extrato 33.465,81 − cupom 2.242,09 =
+produto pago 31.223,72 − nunca pago 6.765,17 (80 pedidos) − pagou-e-cancelou 1.245,82 (16) =
+**23.356,76 de produto vivo** (bate ao centavo com `pedido_pagamento.sub_total`, 260 ped / 326 pç).
+A sala tem 390 itens contra 343 pagos no link dela — **a sala inclui quem comprou sem o link da
+creator**, e a API não devolve `order_id` por sala, então as lentes não fecham pedido a pedido.
+
+### ✅ A BASE DO FEE É O REVENUE, NÃO O QUE O CLIENTE PAGOU (provado, não é premissa)
+
+Duas coisas testadas em `statement_tx` de julho:
+
+1. **O cupom da plataforma volta pra loja.** `revenue = sub_total + platform_discount` em
+   **1.146 de 1.149** pedidos liquidados com cupom. O TikTok reembolsa — o desconto sai do
+   bolso dele, não do da loja.
+2. **A comissão da creator incide sobre o revenue.** Comissão ÷ revenue cai em % de tabela
+   redondo (12 / 10 / 8 / 9%) em **99,1% de 1.188 pedidos**; comissão ÷ o-que-o-cliente-pagou
+   vira ruído (8,2%). Ou seja: a loja paga comissão sobre uma base que ela **de fato recebe**.
+   Não há vazamento aqui — a leitura de que "paga comissão sobre dinheiro que não entrou" é FALSA.
+
+**Régua correta:** `settlement ÷ revenue = 68,97%` (julho, subset comissão de afiliada >8%,
+n=2.502). Fee = 31,03% do revenue: afiliada 10,79% + plataforma 6,00% + frete 1,03% + tarifas.
+**Nunca aplicar taxa sobre `sub_total`** — subestima o revenue pelo cupom (7,8% nesta live).
+
+### Os números, na régua certa
 
 | | mega live 06/08 | live 19/07 (melhor anterior) |
 |---|---:|---:|
 | GMV da sala (headline) | **28.477,84** | — |
 | GMV atribuído ao link (pré-cupom) | 33.465,81 | 15.933,00 |
-| GMV válido (exclui cancelado) | 23.356,76 | 11.432,78 |
+| Produto pago e vivo | 23.356,76 | 11.432,78 |
+| Revenue (base do fee) | 25.189,53 | 12.168,10 |
 | Ticket/pedido · peças/pedido | **89,83 · 1,25** | 71,45 · 1,06 |
 | Ads | **2.507,33** | 150,00 |
 | ROAS · CPA | 8,58x · 9,64 | 32,84x · 0,94 |
-| Margem antes da mídia | 1.801,94 | 488,84 |
-| **Resultado pós-mídia** | **−705,39** | **+338,84** |
+| Margem antes da mídia | 2.615,22 | 775,34 |
+| **Margem por peça** | **8,02** | 4,59 |
+| Ads por peça | **7,69** | 0,89 |
+| **Resultado pós-mídia** | **+107,89** | **+625,34** |
 
-**Por que refuta:** com CPV de R$ 45,55/peça e taxa efetiva de 29,1% (medida em `statement_tx`
-de julho, subconjunto com comissão de afiliada >8%, n=2.502), sobram **R$ 5,53/peça** de margem.
-A mídia entrou a **R$ 7,69/peça**. O break-even de mídia da live era R$ 1.801,94 — gastou 39%
-acima. **Teto de mídia por live ≈ R$ 5,50/peça projetada**, não "enquanto o ROAS for alto".
+**Por que refuta:** a economia unitária da mega live é a **melhor** da creator (R$ 8,02/peça de
+margem contra R$ 4,59) — o formato funciona. Mas a mídia entrou a R$ 7,69/peça e comeu tudo.
+**Teto de mídia por live = margem por peça × peças projetadas**, não "enquanto o ROAS for alto".
+Break-even desta live: R$ 2.615,22 — e gastar até o break-even é trabalhar de graça.
 
-**O que ficou CONFIRMADO ✅ (o formato funciona):** ticket +25,7% e 1,25 peças/pedido são os
-melhores da creator; margem antes da mídia +268,6%. O produto se paga — quem derrubou foi a mídia.
+**O que ficou CONFIRMADO ✅ (o formato funciona):** ticket +25,7%, 1,25 peças/pedido e margem
+por peça +74,8% vs a live anterior. O produto se paga.
 
 **Achado colateral ✅:** no extrato do afiliado, `INELIGIBLE` **é exatamente o pedido cancelado**
 (107 linhas, cruzamento 1:1 contra `pedidos_sku`). Não é regra de programa. Base de comissão
 elegível = `TO-SETTLE`. Amanda: base R$ 25.189,53 → **R$ 2.860,92 (11,36%)**.
 
+**Segunda alavanca — cancelamento:** 25,2% do GMV cancelou; 63% disso por "pagamento atrasado"
+(R$ 4.980,29 · 69 peças). Recuperar só isso vale **~+R$ 560** de margem — 5x o lucro da live.
+
 **Alerta de dado:** `affiliate_perf` (agregado da API) diverge R$ 135,56 (3,7%) da soma linha a
 linha de `extrato_pedidos` no mesmo dia. **Pagar pelo extrato por pedido**, que é auditável.
 
 **⏳ Em aberto:** a campanha `LIVE-AMANDA-09.07` gastou R$ 152,21 em 06/08 sem linha por `room_id`
-em `live_sessao` — não dá pra cravar se é mídia desta live. Obrigou o P&L a ter 2 cenários.
+em `live_sessao` — não dá pra cravar se é mídia desta live. Obriga o P&L a ter 2 cenários.
 
 Relatório: `relatorios/2026-08/Relatorio Mega Live Amanda 06-08_2026-08-10.{md,xlsx}`
