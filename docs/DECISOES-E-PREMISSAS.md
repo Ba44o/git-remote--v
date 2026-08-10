@@ -118,3 +118,247 @@ medida por proxy (impressões de produto), não diretamente.
 | 4 | Card / pin | **não medido** | proxy aponta ao contrário (0,94x compra/clique) |
 
 Soma de 1+2+3 = **+R$ 116,6k/mês** sobre base de R$ 173,3k. O card não entra no 80/20.
+
+---
+
+## P10 · Liquidação real da Mom Marmorizada REF588 (10/08/2026) ⏳
+
+**Premissa declarada:** "liquidação média" = `conciliacao_pedido.settlement` real por pedido,
+rateado por linha pelo share de GMV, dividido pelas **peças liquidadas** (não pelas vendidas) —
+mesmo método de [[reference_liquidacao_cor_canal]]. É o que **entra na conta pra sacar**: já
+descontou comissão TikTok, frete, R$4/item e comissão de afiliada; **não** desconta mídia
+GMV Max (sai da conta de ads) nem imposto.
+
+| Período | Peças | Preço/pç | **Liq/pç** | Taxa efetiva | Cobertura |
+|---|---|---|---|---|---|
+| mai/26 | 332 | 82,79 | **59,63** | 29,7% | 97% |
+| jun/26 | 511 | 87,11 | **57,54** | 34,7% | 99% |
+| jul/26 | 302 | 89,80 | **53,42** | 40,5% | 99% |
+| **mai–jul (blend)** | **1.145** | **86,57** | **R$ 57,05** | 34,1% | 98% |
+
+ago/26 ilegível (cobertura 12% — settlement atrasa).
+
+**Achado — CORRIGIDO 10/08 pelo dono:** `custos_sku` trazia REF588 = R$ 52,00 (import de 23/06).
+O CPV real é **R$ 44,00**. ✅ **Corrigido no Supabase** (6 tamanhos, `fonte='dono 10/08/2026'`).
+A conciliação e a aba Liquidação SKU estavam mostrando a margem da Mom R$ 8 pra baixo.
+
+**Regra do dono (10/08):** margem de SKU = **settlement − CPV**. Descontar só o que a
+plataforma desconta; **imposto fica fora** (entra depois, no P&L, não na leitura de SKU).
+
+### O "desconto" de R$ 85,72 era ficção de vitrine — ❌ minha leitura anterior
+
+`gross_sales_amount` é **179,90 em 222/222 pedidos** — é o preço "de" riscado, não um preço
+praticado. Logo `seller_discount` não é desconto: é só a distância até o preço real. **Mix real
+de preço em jul (222 pedidos de 1 peça, sem devolução):** 99,90 = 51% · 89,90 = 40% · **79,90 = 9%**
+(esse terceiro degrau não estava no radar do dono).
+
+### O cupom do TikTok existe e NÃO sai do bolso do vendedor — ✅
+
+Cupom da plataforma em **50% dos pedidos** (R$ 3,83/pç na média; R$ 5,00 ou R$ 8,99 quando
+aparece). O cliente paga menos (R$ 92,80 médio), mas **`revenue_amount` é sempre exatamente o
+preço do vendedor** (99,90 / 89,90 / 79,90 — 222/222). Quem banca é o TikTok. ✅ Suspeita do
+dono confirmada quanto ao cupom, e a boa notícia é que o subsídio é da plataforma.
+
+### O que realmente come a margem: FRETE GRÁTIS (não a taxa)
+
+Fonte: `/finance/202309/statements/{id}/statement_transactions`, campos crus (jul, R$/peça):
+
+| | R$/pç |
+|---|---|
+| Frete real cobrado pela transportadora | **−24,48** |
+| Subsídio de frete do TikTok | +11,13 |
+| Frete pago pelo cliente | +1,52 (**83% dos pedidos o cliente paga ZERO**) |
+| **= a loja absorve** | **−11,83/pç** |
+
+**R$ 11,83 é 2,1x a comissão de 6% (R$ 5,64).** Estável nos 3 canais (loja 12,26 · vídeo 11,47 ·
+live 11,27) → é estrutural, não é mix. Isso **nomeia** o "serviço+frete acima do modelo" que
+estava em aberto: era frete grátis subsidiado pela loja.
+
+### Números finais REF588 · jul/26
+
+| Recorte | Liq/pç | Margem (− CPV 44) |
+|---|---|---|
+| Pedidos que ficaram de pé (222) | **63,82** | **+19,82** |
+| Blend com devolução (todos) | **53,42** | **+9,42** |
+
+**A devolução vale −R$ 10,40/pç** (15% dos pedidos liquidam ≤ 0). É a maior alavanca isolada
+do SKU. Bate com [[project_perda_produto_modelagem]].
+
+**Veredito:** ✅ liquidação e frete confirmados no dado cru · ❌ a cascata de desconto que
+publiquei primeiro estava distorcida (li `gross_sales` como preço praticado) · ⏳ **em aberto:**
+`fee_amount` **não fecha** com a soma dos componentes nomeados pela API — sobra R$ 5 a R$ 15/pç,
+variando por pedido e maior nos de 99,90. Regressão não achou estrutura (R² 0,44). Próximo passo:
+bater contra o extrato itemizado do Seller Center antes de dar nome. Não prescrever preço até lá.
+
+**Também não dá pra afirmar (checado e descartado):** "subir de 89,90 pra 99,90 não chega na
+conta". Na loja a média diz +R$0,92 mas a mediana diz −R$3,09 — dispersão alta, n=28. Sem sinal.
+
+---
+
+## P11 · "Desconto" do GMV Max — ❌ MINHA PRIMEIRA LEITURA ESTAVA ERRADA (10/08/2026)
+
+**O que eu afirmei e está ERRADO:** *"(a) e (b) não se somam — o custo da campanha sai da conta
+de ads, a comissão de ads sai do repasse; são coisas distintas."* **Falso para Vendas Líquidas.**
+O dono apontou que existe um escopo onde o caminho do GMV Max aparece dentro das vendas líquidas —
+e ele está certo. É o que a [[project_tiktok_fee_composition]] já registrava na correção de
+10/07 e o que a §8.1 do `docs/CONCILIACAO.md` (leitura de junho) tinha deixado como ressalva
+**e eu não li**.
+
+### Os dois modelos são MECANICAMENTE diferentes
+
+| | Cobrança | Onde aparece |
+|---|---|---|
+| **Tradicional** (`net_cost>0`) | pago antecipado | **conta de ads** — fora do settlement |
+| **Vendas Líquidas** (`net_cost=0`) | % da receita bruta de cada pedido | **DENTRO do `fee_amount`** do settlement |
+
+### Prova no dado cru (jul/26, 5.220 pedidos liquidados sem devolução)
+
+Isolando o resíduo do fee — `fee_amount` − comissão 6% − afiliada − comissão de ads − frete
+líquido − (serviço 6% + R$4) — a distribuição é **bimodal, não ruído**:
+
+- **60% dos pedidos: resíduo ≈ 0** → só serviço/frete, sem mídia. Valida a régua 6% + R$4.
+- **19% dos pedidos (996): resíduo = R$ 14.165,89 = 12,2% da receita deles** → é o
+  pay-with-GMV. Compare: gasto VL de julho no `ads_campanha` = **R$ 16.087,22**. **88% batido.**
+
+**E o cluster cai exatamente nos SKUs cujas campanhas são VL:**
+
+| REF | % das linhas com cobrança VL | campanha |
+|---|---|---|
+| REF547 | 70,0% | mix VL |
+| REF588 (Mom) | **66,5%** | `[GMV-MAX][MOM]` VL |
+| REF528 | 62,0% | mix VL |
+| REF587 | 59,7% | mix VL |
+| REF562 | 49,1% | mix VL |
+| **REF516 (hero)** | **12,2%** | `MARMORIZADA-CARD-PRINCIPAL` = **Tradicional** |
+
+O hero fica no piso justamente porque a campanha dele é Tradicional. Por canal: loja 36,8% ·
+vídeo afiliado 26,4% · live afiliada 7,5% (as lives VL são as **próprias**, que caem em "loja").
+
+### Consequência que muda número
+
+**1. Não subtrair o custo de ads inteiro do lucro.** Nos SKUs em campanha VL o settlement **já
+está líquido de mídia**. Regra: **lucro = settlement − CPV − só ADS Tradicional** (`net_cost>0`).
+Subtrair VL de novo é double-count.
+
+**2. A margem da Mom (P10) melhora de leitura:**
+
+| REF588 jul | n | Settlement | Margem − CPV 44 | Mídia embutida |
+|---|---|---|---|---|
+| Pedidos **com** cobrança VL | 145 (65%) | 61,04 | **+17,04 — já é PÓS-mídia** | 13,07 (13,5%) |
+| Pedidos **sem** VL | 77 (35%) | 69,07 | +25,07 (falta a Trad rateada) | −1,70 (≈0) |
+| Blend | 222 | 63,82 | +19,82 | — |
+
+Os R$ 17,04 dos pedidos VL são margem **depois da mídia**, não antes como escrevi no P10.
+
+### Os números de take (medidos, seguem válidos)
+
+- **Comissão de ads no repasse** (`affiliate_ads_commission`, comissão do creator na taxa de
+  ads): jul = 14% dos pedidos, níveis 8%/5%/3%, média 6,19%, peso 0,91% da receita. **Coisa à
+  parte da mídia** — não confundir de novo.
+- **Custo de campanha ÷ receita atribuída:** média jan–ago **12,6%** (R$ 444.429 / R$ 3.537.563).
+  jul 13,4% · faixa 10,9% (fev) a 14,4% (mai).
+- **Por campanha (jul):** hero card **17,7%** (era 15,1% jun), CPA R$ 18,19, 42% do gasto —
+  pior take com o maior orçamento. Lives **8,5%**, CPA R$ 7,27. Mom 14,3%.
+
+**Veredito:** ❌ minha leitura de que VL não toca o settlement — refutada no dado, 2 populações
+separadas. ✅ **Resposta certa: o GMV Max cobra ~12–13% da receita, e ONDE ele cobra depende do
+modelo** — Tradicional na conta de ads, Vendas Líquidas por dentro do fee de cada pedido.
+⚠️ `docs/CONCILIACAO.md` §8.1 está **desatualizada** (conclusão de 08/07 baseada em junho, quando
+VL era R$209; em julho virou R$16,1k = 35% do gasto). ✅ **Gap fechado (ver abaixo).**
+
+### ✅ Fechamento do gap (10/08) — não falta dinheiro, falta settlement
+
+O gap de R$ 1,9k era **artefato de corte + cauda não liquidada**, não cobrança oculta.
+
+**1. O corte de R$6 era grosseiro.** Sensibilidade (jul):
+
+| corte | VL identificado | % do gasto |
+|---|---|---|
+| ≥ R$ 2 | 15.150,59 | 94,2% |
+| **≥ R$ 3** | **15.070,97** | **93,7%** |
+| ≥ R$ 6 | 14.384,11 | 89,4% |
+| ≥ R$ 10 | 12.144,94 | 75,5% |
+
+O baseline do cluster não-VL é **mediana R$ 0,00** (n=3.509) → não há viés a corrigir; o corte
+certo é **≥ R$ 3** (abaixo disso a cobrança se confunde com o arredondamento do serviço).
+
+**2. A série diária casa: r = 0,944.** Gasto VL por dia × VL detectado no fee por dia, 31 dias.
+As diferenças alternam de sinal em dias vizinhos (28/07 −776 → 29/07 +405) = **lag de 1 dia
+entre a data do anúncio e a do pedido**, não valor faltando.
+
+**3. Os R$ 1.016 restantes estão na cauda não liquidada.** 951 pedidos de julho (13,6% do GMV)
+ainda não tinham statement legível em 10/08. À taxa implícita medida (3,06% da receita, blend
+de todos os pedidos), eles valem **+R$ 2.378** — mais que o gap.
+
+| | R$ | % do gasto VL |
+|---|---|---|
+| Piso — só o que já liquidou | 15.070,97 | 93,7% |
+| Teto — projetando a cauda | 17.448,66 | 108,5% |
+| **Gasto real (`ads_campanha`)** | **16.087,22** | — |
+
+**O gasto cai dentro do intervalo.** ✅ **Conta fechada** — o custo do Vendas Líquidas está
+integralmente dentro do `fee_amount`, dentro do erro de medição (±6pp). Não há cobrança
+não identificada nem repasse a recuperar.
+
+### Recorte pedido: só a campanha da REF588 (Mom)
+
+`[GMV-MAX][MOM]-TESTE DE VENDAS LIQUIDAS-27.05` — **100% Vendas Líquidas**, sem Tradicional.
+
+| mês | custo | receita atrib. | **take** | pedidos | CPA |
+|---|---|---|---|---|---|
+| mai/26 | 4.845,24 | 24.051,92 | 20,1% ⚠️ teste | 225 | 21,53 |
+| jun/26 | 4.554,31 | 32.038,90 | **14,2%** | 314 | 14,50 |
+| jul/26 | 2.938,12 | 20.577,88 | **14,3%** | 202 | 14,55 |
+| ago (parcial) | 255,38 | 1.786,00 | **14,3%** | 18 | 14,19 |
+| **total** | 12.593,05 | 78.454,70 | 16,1% | 759 | 16,59 |
+
+**A taxa é 14,3% e está travada desde junho.** Maio (20,1%) era fase de teste — tinha uma
+campanha Tradicional `[MOM-BAGGY]-07.05` a 18,5% e a VL a 25,2%, ambas encerradas.
+
+**Confirmação cruzada pelo detector** (253 pedidos de jul contendo REF588, liquidados):
+**70% pagaram VL**, R$ 13,26/pedido, **taxa mediana 14,1%** (p75 14,3%) — bate com o take de
+14,3% da campanha. Diluído em todas as peças de Mom: **R$ 9,24/peça**.
+
+**Consequência:** a campanha da Mom não tem Tradicional → **a margem de R$ 19,82/pç do P10 já é
+pós-mídia**, não falta subtrair nada.
+
+**Limite que segue de pé:** "receita atribuída" do GMV Max **não é receita incremental**.
+
+---
+
+## P12 · Mega live da Amanda (06/08) — "live grande com muita mídia é boa" ❌ REFUTADA (10/08/2026)
+
+**Premissa declarada antes de calcular:** uma live 2x maior em GMV, com ROAS de 8,6x, é um
+resultado bom para a operação.
+
+**Veredito: ❌ REFUTADA.** ROAS não é a régua desta operação — a margem por peça é.
+
+| | mega live 06/08 | live 19/07 (melhor anterior) |
+|---|---:|---:|
+| GMV atribuído | 33.465,81 | 15.933,00 |
+| GMV válido (exclui cancelado) | 23.356,76 | 11.432,78 |
+| Ticket/pedido · peças/pedido | **89,83 · 1,25** | 71,45 · 1,06 |
+| Ads | **2.507,33** | 150,00 |
+| ROAS · CPA | 8,58x · 9,64 | 32,84x · 0,94 |
+| Margem antes da mídia | 1.801,94 | 488,84 |
+| **Resultado pós-mídia** | **−705,39** | **+338,84** |
+
+**Por que refuta:** com CPV de R$ 45,55/peça e taxa efetiva de 29,1% (medida em `statement_tx`
+de julho, subconjunto com comissão de afiliada >8%, n=2.502), sobram **R$ 5,53/peça** de margem.
+A mídia entrou a **R$ 7,69/peça**. O break-even de mídia da live era R$ 1.801,94 — gastou 39%
+acima. **Teto de mídia por live ≈ R$ 5,50/peça projetada**, não "enquanto o ROAS for alto".
+
+**O que ficou CONFIRMADO ✅ (o formato funciona):** ticket +25,7% e 1,25 peças/pedido são os
+melhores da creator; margem antes da mídia +268,6%. O produto se paga — quem derrubou foi a mídia.
+
+**Achado colateral ✅:** no extrato do afiliado, `INELIGIBLE` **é exatamente o pedido cancelado**
+(107 linhas, cruzamento 1:1 contra `pedidos_sku`). Não é regra de programa. Base de comissão
+elegível = `TO-SETTLE`. Amanda: base R$ 25.189,53 → **R$ 2.860,92 (11,36%)**.
+
+**Alerta de dado:** `affiliate_perf` (agregado da API) diverge R$ 135,56 (3,7%) da soma linha a
+linha de `extrato_pedidos` no mesmo dia. **Pagar pelo extrato por pedido**, que é auditável.
+
+**⏳ Em aberto:** a campanha `LIVE-AMANDA-09.07` gastou R$ 152,21 em 06/08 sem linha por `room_id`
+em `live_sessao` — não dá pra cravar se é mídia desta live. Obrigou o P&L a ter 2 cenários.
+
+Relatório: `relatorios/2026-08/Relatorio Mega Live Amanda 06-08_2026-08-10.{md,xlsx}`
