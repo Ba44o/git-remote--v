@@ -185,35 +185,78 @@ ledger**: *"compra após clique 2,33% → 2,80% = +R$35,4k/mês, 94.461 cliques 
 
 ### ⚠️ Ressalva do algoritmo
 Tooltip da tela: *"Os resultados dos segmentos são refinados usando nosso algoritmo."*
-O segmento **não é um filtro literal** — o TikTok refina/expande. Consequência prática:
-**não esperar que o "Tamanho estimado" bata com a nossa contagem do Supabase.** Nossos números
-servem de **business case** (quanto vale o público); o número deles serve de **alcance**.
-Divergência grande não é bug — é definição diferente de base.
+O segmento **não é filtro literal** — o TikTok refina/expande. **Não esperar que o "Tamanho
+estimado" bata com a nossa contagem do Supabase.** Nossos números = business case (quanto vale o
+público); o número deles = alcance. Divergência não é bug, é base diferente.
 
-### Receitas de segmento (cada uma com ≥3 condições, como a tela exige)
+### ⛔ Restrição dura: a janela só tem 3 valores
+O seletor de período é **rádio de 3 opções**: `Nos últimos 7 dias` · `Nos últimos 30 dias` ·
+`Nos últimos 90 dias`. **Não há faixa customizada nem data inicial/final.**
 
-| # | Segmento | Condições nativas | Nosso tamanho | Mensagem |
+**Isso não atrapalha — confirma.** A janela de recompra medida é p50 = **10d** e p75 = **28d**:
+- `últimos 7 dias` captura **41,8%** das recompras
+- `últimos 30 dias` captura **77,4%** ← **é a janela de trabalho**
+- `últimos 90 dias` captura **~100%** (p90 = 51d)
+
+**O que a restrição mata:** segmentos de *reativação por faixa* ("entre 60 e 90 dias", "mais de
+90 dias"). Só é possível construí-los se a ferramenta aceitar **negação/exclusão** (`últimos 90`
+MENOS `últimos 30`) — **a confirmar**. Se não aceitar, **S6 e S7 caem** — e eram justamente os
+de menor retorno na minha própria ordenação. A ferramenta é desenhada para a **janela quente**,
+que é exatamente onde o dado disse que está o dinheiro.
+
+### Receitas de segmento (revisadas para 7/30/90 · ≥3 condições cada)
+
+| # | Segmento | Condições nativas | Nosso tamanho | Viável? |
 |---|---|---|---|---|
-| **S1** | **Serviu? → 2ª lavagem** | `Fizeram pedidos = 1` + `Data do último pedido: 7–28d` + `Não cancelaram assinatura` | 4.761 | "serviu?" → não: troca · sim: a mesma calça na outra lavagem |
-| **S2** | **Clicou na LIVE e não comprou** ⭐ | `Clicaram em produtos na LIVE` + `Fizeram pedidos = 0` + `Assistiram transmissões ao vivo` | ordem de 94k cliques | convite pra próxima live + oferta de estreia |
-| **S3** | **Carrinho abandonado** | `Adicionaram ao carrinho (7d)` + `Fizeram pedidos = 0` + `Não cancelaram assinatura` | ~15% de vazamento | lembrete curto, sem desconto na 1ª tentativa |
-| **S4** | **Comprou múltiplo e sumiu** | `Fizeram pedidos = 1` + `Valor do pagamento ≥ R$120` + `Data do último pedido > 30d` | 1.381 · R$226k | novidade em primeira mão, preço cheio |
-| **S5** | **VIP → candidata a afiliada** | `Fizeram pedidos ≥ 3` + `Avaliaram os produtos` + `Clicaram nas suas mensagens` | 761 · LTV R$330 | convite pro Hub / Copa Rhode Creators |
-| **S6** | **Recorrente em risco** | `Fizeram pedidos = 2` + `Data do último pedido 60–90d` + `Leram suas mensagens` | 647 | novidade + motivo, janela curta |
-| **S7** | **Base fria (massa)** | `Fizeram pedidos = 1` + `Data do último pedido > 90d` + `Não cancelaram assinatura` | 14.563 | só campanha sazonal, custo por toque ~0 |
-| **S8** | **Intenção sem compra (topo)** | `Navegaram nos produtos` + `Salvaram nos favoritos` + `Fizeram pedidos = 0` | — | oferta de 1ª compra |
-| **S9** | **Leitura demográfica** (não é campanha) | `Idade` × `Gênero` × `Região` sobre compradoras | — | descobrir **quem** é a cliente do Wide Leg |
+| **S2** ⭐ | **Clicou na LIVE e não comprou** | `Clicaram produtos na LIVE: 30d` + `Fizeram pedidos = 0` + `Assistiram lives: 30d` | ordem de 94k cliques | ✅ |
+| **S1** | **Serviu? → 2ª lavagem** | `Fizeram pedidos = 1` + `Data do último pedido: 30d` + `Não cancelaram assinatura` | 4.761 | ✅ (30d = 77,4% da janela) |
+| **S4** | Comprou múltiplo e sumiu | `Fizeram pedidos = 1` + `Valor do pagamento ≥ R$120` + `Último pedido: 90d` | 1.381 · R$226k | ✅ |
+| **S5** | VIP → candidata a afiliada | `Fizeram pedidos ≥ 3: 90d` + `Avaliaram os produtos` + `Clicaram nas mensagens` | 761 · LTV R$330 | ✅ |
+| **S8** | Intenção sem compra (topo) | `Navegaram: 30d` + `Salvaram nos favoritos` + `Fizeram pedidos = 0` | — | ✅ |
+| **S9** | Leitura demográfica (não é campanha) | `Idade` × `Gênero` × `Região` | — | ✅ |
+| **S3** | Carrinho abandonado | — | — | ⚠️ **já existe plano automatizado rodando** (ver abaixo) |
+| **S6** | Recorrente em risco (60–90d) | `Fizeram pedidos = 2` + `Último pedido: 90d` **NÃO** `30d` | 647 | ❓ depende de negação |
+| **S7** | Base fria (>90d) | `Fizeram pedidos = 1` + **NÃO** `Último pedido: 90d` | 14.563 | ❓ depende de negação |
 
-**Regra transversal de higiene do canal:** toda campanha **exclui** `Cancelaram a assinatura` e
-prioriza quem `Leu`/`Clicou`. IM é canal de confiança — queimou, não volta. Frequência máxima
-sugerida: **1 mensagem por cliente a cada 14 dias** [APOSTA, calibrar pela taxa de descadastro].
+**Higiene do canal (transversal):** toda campanha exclui `Cancelaram a assinatura` e prioriza quem
+`Leu`/`Clicou`. IM é canal de confiança — queimou, não volta. Teto sugerido: **1 mensagem por
+cliente a cada 14 dias** [APOSTA, calibrar pela taxa de descadastro].
 
-### Ordem de execução sugerida
-1. **S2** (clique na live sem compra) — maior volume × leak já quantificado no ledger
-2. **S3** (carrinho) — a pessoa já decidiu comprar
-3. **S1** (serviu? / 2ª lavagem) — ataca o attach de 8,2% na janela de 10 dias
-4. **S5** (VIP → afiliada) — pequeno, mas alimenta o motor de vídeo
-5. **S9** (leitura demográfica) — barato, e informa casting e copy
+---
+
+## 2-ter. Planos automatizados — o que JÁ roda (e o que está desligado)
+
+Aba *Gerenciar planos de divulgação* → **Modelos de planos automatizados**, *sem limite de cota*.
+
+| Plano | Status | Leitura |
+|---|---|---|
+| Recuperar carrinhos abandonados | 🟢 desde **14/01/2026** | ~7 meses no ar, **nunca medido** |
+| Recuperar finalizações de compra incompletas | 🟢 desde **14/01/2026** | é o **vazamento de pagamento (~15%)** — já tem plano! |
+| Agradecimento pós-compra | 🟢 desde **14/01/2026** | **veículo natural do S1** — ver ressalva de timing |
+| Receber lembretes sobre reduções de preço | 🟢 desde **10/08/2026** (hoje) | recém-ligado |
+| **Promover eventos de LIVE** | 🔴 **DESLIGADO** | gera visita à LIVE |
+| **Lembrete para iniciar LIVE** | 🔴 **DESLIGADO** — marcado pelo TikTok como **"Conversão alta"** | avisa cliente quando a LIVE começa |
+
+### 🚨 O achado com ação hoje
+**Os dois únicos planos desligados são justamente os de LIVE** — e a live é motor central da Rhode
+([[reference_shop_lives_api]], painel de lives, 65 lives em julho). Um deles o próprio TikTok
+rotula **"Conversão alta"**. Ligar custa **um clique** e não consome cota.
+
+É o mesmo público do **S2**: quem assiste/clica na live e não compra. Ordem de grandeza já medida
+no ledger: **94.461 cliques sem compra** e a alavanca "compra após clique 2,33%→2,80%" avaliada em
+**+R$35,4k/mês** (P9 · 03/08). Antes não havia como falar com essas pessoas. Agora há — e o canal
+já está construído, só desligado.
+
+### ⚠️ Ressalva sobre o "Agradecimento pós-compra"
+Ele dispara **na compra**, não na **entrega**. Com recompra mediana de **10 dias**, a mensagem
+certa ("serviu? leva a outra lavagem") precisa chegar **depois que a peça chegou no corpo**.
+Verificar se o plano aceita **atraso configurável**. Se não aceitar, o S1 tem que ser um plano
+**manual** por segmento, não esse automatizado.
+
+### Antes de criar qualquer coisa nova
+Os 4 planos ligados rodam há ~7 meses e **ninguém olhou o resultado**. Primeiro passo não é criar
+— é **medir**: taxa de leitura, clique, descadastro e pedidos atribuídos de cada um. Se o de
+carrinho já converte, o S3 não precisa existir.
 
 ### Consequência: arquitetura de ativação em 2 camadas
 | Camada | Onde vive | Como ativa | Públicos |
