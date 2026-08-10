@@ -333,9 +333,20 @@ resultado bom para a operação.
 
 **Veredito: ❌ REFUTADA.** ROAS não é a régua desta operação — a margem por peça é.
 
+**⚠️ Lente do headline (corrigido em 10/08 após o painel divergir):** o número da live é
+**R$ 28.477,84 — o GMV da SALA** (`/shop_lives`, é o que o painel/Seller Center mostra, ~28.493
+com o drift de snapshot). Os R$ 33.465,81 são a atribuição do **link da Amanda** e a **preço de
+tabela**. Cascata: extrato 33.465,81 − cupom 2.242,09 = produto pago 31.223,72 − nunca pago
+6.765,17 (80 pedidos) − pagou-e-cancelou 1.245,82 (16) = **23.356,76 de produto vivo** (bate ao
+centavo com `pedido_pagamento.sub_total`, 260 pedidos / 326 peças). A sala tem 390 itens contra
+343 pagos no link dela — **a sala inclui quem comprou sem passar pelo link da creator**, e a API
+não devolve `order_id` por sala, então as duas lentes não fecham pedido a pedido. Sala = tamanho
+da live; extrato = comissão; produto vivo = dinheiro.
+
 | | mega live 06/08 | live 19/07 (melhor anterior) |
 |---|---:|---:|
-| GMV atribuído | 33.465,81 | 15.933,00 |
+| GMV da sala (headline) | **28.477,84** | — |
+| GMV atribuído ao link (pré-cupom) | 33.465,81 | 15.933,00 |
 | GMV válido (exclui cancelado) | 23.356,76 | 11.432,78 |
 | Ticket/pedido · peças/pedido | **89,83 · 1,25** | 71,45 · 1,06 |
 | Ads | **2.507,33** | 150,00 |
