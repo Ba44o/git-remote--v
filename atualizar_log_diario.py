@@ -86,6 +86,8 @@ q,g=matrix(MES,HOJE)   # MTD do mês corrente
 dia=int(HOJE[-2:]); origem=f"MTD 01–{dia:02d}/{MES[5:]} · coletor diário"
 
 wb=load_workbook(TEMPLATE)   # preserva TODAS as fórmulas/abas do desenho
+try: wb["Premissas"]["C6"]=datetime.date.today()   # carimba HOJE → dias decorridos/restantes ao vivo (pace certo)
+except Exception: pass
 ws=wb["Log diário"]
 if ws.max_row>=5: ws.delete_rows(5,ws.max_row-4)   # limpa dados antigos (mantém cabeçalho L4)
 r=5; nrows=0
