@@ -19,6 +19,8 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # pra commitar pace/PACE_ATUAL.md (rota segura: a chave fica só aqui)
     env:
       SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -41,6 +43,19 @@ jobs:
 
       - name: Coleta diária (refresh token + ETLs API + extrato + GMV forward)
         run: bash refresh_performance_diario.sh
+
+      - name: Gerar e commitar pace/PACE_ATUAL.md (fonte da rotina do Notion)
+        if: always()   # gera depois do ETL; a rotina do Notion lê este arquivo (sem precisar da chave)
+        run: |
+          mkdir -p pace
+          python3 reportar_pace.py > pace/PACE_ATUAL.md 2>/dev/null || echo "SEM DADO — reportar_pace.py falhou" > pace/PACE_ATUAL.md
+          cp pace/PACE_ATUAL.md "pace/PACE_$(date -u +%Y-%m-%d).md"
+          git config user.name  "rhode-pace-bot"
+          git config user.email "pace-bot@users.noreply.github.com"
+          git add pace/*.md
+          git commit -m "chore(pace): PACE_ATUAL $(date -u +%Y-%m-%d) [skip ci]" || echo "nada a commitar"
+          git pull --rebase --autostash origin main || true
+          git push || echo "push falhou (não-crítico)"
 
       - name: Workbook Rhode SKU × Canal (pace) como artifact
         if: always()   # o xlsx é gerado ANTES do canary; sobe mesmo se o canary derrubar o run
