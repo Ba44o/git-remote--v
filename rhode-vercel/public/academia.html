@@ -271,6 +271,23 @@
   .loop4s .l4-where{display:block;font-size:12.5px;color:var(--soft);margin-top:2px;line-height:1.35}
   .loop4s .l4-arrow{align-self:center;color:var(--red);font-size:18px;line-height:1;margin:5px 0}
   .loop4s .l4-note{text-align:center;font-size:11px;color:var(--soft);font-family:var(--mono);margin-top:8px}
+  /* ── KIT VISUAL reutilizável (aulões/fundamentos) — quebrar parede de texto ── */
+  .viz-grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0 4px}
+  .viz-cell{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+  .viz-cell .vc-ic{font-size:20px;line-height:1}
+  .viz-cell .vc-t{display:block;font-weight:800;font-size:14px;margin-top:6px;color:var(--ink);letter-spacing:-.01em}
+  .viz-cell .vc-d{display:block;font-size:12px;color:var(--soft);margin-top:2px;line-height:1.35}
+  .viz-cap{text-align:center;font-size:11.5px;color:var(--soft);font-family:var(--mono);margin:9px 0 2px;line-height:1.4}
+  .viz-callout{display:flex;gap:11px;align-items:flex-start;background:rgba(254,44,85,.06);border:1px solid rgba(254,44,85,.22);border-left:3px solid var(--red);border-radius:12px;padding:13px 15px;margin:18px 0 4px}
+  .viz-callout .vk-ic{font-size:19px;line-height:1.15;flex-shrink:0}
+  .viz-callout .vk-tx{font-size:14.5px;line-height:1.5;color:var(--ink)}
+  .viz-versus{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0 4px}
+  .viz-versus .vv{border-radius:12px;padding:12px;border:1px solid var(--line)}
+  .viz-versus .vv.no{background:rgba(120,120,130,.06)}
+  .viz-versus .vv.yes{background:rgba(46,204,113,.07);border-color:rgba(46,204,113,.3)}
+  .viz-versus .vv .vv-h{font-weight:800;font-size:12px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}
+  .viz-versus .vv.no .vv-h{color:var(--soft)} .viz-versus .vv.yes .vv-h{color:#1a8f4c}
+  .viz-versus .vv .vv-b{font-size:12.5px;color:var(--ink);line-height:1.42}
   .lib-drive{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-bottom:8px}
   .lib-drive .li{font-size:30px}.lib-drive .lt{flex:1;min-width:200px}.lib-drive .lt b{font-size:16px}.lib-drive .lt div{color:var(--muted);font-size:14px;margin-top:2px}
   .lib-soon{font-family:var(--mono);font-size:13px;color:var(--soft);border:1px dashed var(--line);border-radius:99px;padding:9px 16px}
@@ -1123,6 +1140,13 @@ const AULOES=[
    missao:'Escolhe 1 produto e grava 3 vídeos essa semana pensando em 3 momentos dela: um que para quem está rolando o feed (gancho forte), um que responde uma pesquisa (fala o nome e a dúvida clara), e um que fecha (oferta ou prova). No fim da semana, olha qual trouxe mais clique na sacolinha.',
    corpo:`<p><b>A ideia.</b> A pessoa quase nunca compra na primeira vez que vê o seu vídeo. Ela te descobre num dia e compra noutro. O seu trabalho não é vender na hora — é ser <b>fácil de reencontrar</b> quando ela decidir.</p>
 <p><b>Por que funciona.</b> A compra deixou de ser uma fila (descobrir → pensar → comprar). O Google chama o modelo novo de <b>Funil 4S</b>: a pessoa faz quatro coisas ao mesmo tempo e fica pulando entre elas — <b>assiste</b> conteúdo (seus vídeos, suas lives), <b>rola</b> o feed sem procurar nada, <b>pesquisa</b> quando bate a dúvida e <b>compra</b> quando se convence. Você aparece pra ela no modo assistir ou rolar — mas ela fecha lá na frente, no modo pesquisar ou comprar. Se você não estiver fácil de achar quando ela troca de modo, perde uma venda que já era sua.</p>
+<div class="viz-grid2">
+<div class="viz-cell"><span class="vc-ic">▶️</span><span class="vc-t">Assiste</span><span class="vc-d">seus vídeos e lives</span></div>
+<div class="viz-cell"><span class="vc-ic">📲</span><span class="vc-t">Rola</span><span class="vc-d">o feed, sem procurar nada</span></div>
+<div class="viz-cell"><span class="vc-ic">🔎</span><span class="vc-t">Pesquisa</span><span class="vc-d">quando bate a dúvida</span></div>
+<div class="viz-cell"><span class="vc-ic">🛒</span><span class="vc-t">Compra</span><span class="vc-d">quando se convence</span></div>
+</div>
+<div class="viz-cap">↕ e ela pula entre os quatro o tempo todo — sem ordem fixa</div>
 <p><b>Como estar lá nos quatro momentos:</b></p>
 <ul>
 <li><b>Posta com constância</b> — assim você reaparece no feed enquanto ela rola. Quem some é esquecido.</li>
@@ -1130,7 +1154,7 @@ const AULOES=[
 <li><b>Deixa o produto marcado na sacolinha em todo vídeo</b> — quando ela entrar no modo comprar, o caminho já está pronto, sem fricção.</li>
 <li><b>Não desiste de um produto porque "um vídeo não vendeu"</b> — a venda costuma vir depois, quando ela muda de modo. O vídeo de hoje planta; a compra colhe semana que vem.</li>
 </ul>
-<p>Você não precisa convencer na primeira vez. Precisa estar lá — fácil de achar — quando ela decidir.</p>`},
+<div class="viz-callout"><span class="vk-ic">💡</span><span class="vk-tx">Você não precisa convencer na primeira vez. Precisa <b>estar lá — fácil de achar —</b> quando ela decidir.</span></div>`},
 
   {n:7, data:'2026-08-24', niv:'todas', tags:['comentários','venda','ideias'], dur:'5 min',
    t:'O comentário que ela deixou é o vídeo que falta fazer',
