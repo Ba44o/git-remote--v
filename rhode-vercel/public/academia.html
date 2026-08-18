@@ -52,6 +52,8 @@
   .featured .go{margin-top:14px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:14px}
   .aulao-more{margin:0 0 16px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--soft);font-size:13px;font-weight:600;font-family:var(--mono);transition:color .12s ease}
   .aulao-more:hover{color:var(--red)}
+  .featured.stale{background:linear-gradient(135deg,#3a3a44,#26262e);box-shadow:0 18px 40px -18px rgba(0,0,0,.5)}
+  .aulao-soon{margin:-6px 0 10px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;font-family:var(--mono);color:var(--soft);background:var(--card);border:1px dashed var(--line);border-radius:999px;padding:5px 12px}
   .sectitle{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
   .sectitle .pmini{margin-left:auto;color:var(--red);font-weight:700;text-transform:none;letter-spacing:0;font-size:12px}
   .nextcard{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:18px;padding:20px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s ease}
@@ -939,7 +941,7 @@
   <!-- CONTEÚDO (acervo de aulões + leituras) -->
   <div class="view" id="v-conteudo"><div class="container">
     <div class="vhead"><div class="eyebrow">Biblioteca</div><h1>Conteúdo</h1><p class="sub">Todo aulão da semana fica guardado aqui. Reveja quando quiser.</p></div>
-    <div class="sectitle">🔥 Aulão desta semana</div>
+    <div class="sectitle" id="conteudo-atual-titulo">🔥 Aulão desta semana</div>
     <div class="matgrid" id="aulao-current"></div>
     <div class="sectitle" style="margin-top:30px">Aulões anteriores</div>
     <div class="matgrid" id="aulao-arquivo"></div>
@@ -1082,7 +1084,32 @@ const AULOES=[
 <li><b>Prova</b> — mostrada, não falada. É a parte que quase todo mundo pula.</li>
 <li><b>Um convite fácil</b> — o que fazer agora, sem enrolação.</li>
 </ul>
-<p><b>Onde isso entra.</b> Depois de prender a atenção e mostrar a calça em uso, vem a prova no corpo e os seus dados — e só então o preço e o "corre garantir". Sem a prova no corpo, o resto não se sustenta.</p>`}
+<p><b>Onde isso entra.</b> Depois de prender a atenção e mostrar a calça em uso, vem a prova no corpo e os seus dados — e só então o preço e o "corre garantir". Sem a prova no corpo, o resto não se sustenta.</p>`},
+
+  {n:5, data:'2026-08-17', niv:'todas', tags:['live','reaproveitar','ritmo'], dur:'6 min',
+   t:'Como picar 1 live em 5 vídeos pra semana',
+   promessa:'Transformar a live que você já faz numa semana inteira de vídeos — sem gravar nada novo.',
+   video:'/rhodemap/videos/taci03.mp4', poster:'/rhodemap/posters/taci03.jpg',
+   cap:'Um corte curto e natural — começa no meio da ação, sem "oi gente". É esse o formato que sai da live.',
+   missao:'Pega a sua última live e corta 5 momentos: a dúvida de tamanho que você respondeu, o pico, um try-on, uma objeção que você quebrou e a oferta. Posta 1 por dia essa semana.',
+   corpo:`<p><b>A ideia.</b> Você já faz live. Cada live é uma mina de 5 vídeos prontos — você só precisa <b>cortar</b>. Em vez de gravar do zero toda semana, você reaproveita o que já rolou ao vivo, onde você já estava solta e natural.</p>
+<p><b>Por que funciona tão bem.</b> Na live acontecem, sem esforço, exatamente as coisas que fazem um vídeo vender: você mostra o caimento, responde uma dúvida real de uma cliente, tem o momento de pico em que todo mundo entra. Esses momentos <b>já são</b> os melhores vídeos — só que aconteceram sozinhos. Cortar é mais rápido que criar, e sai mais verdadeiro.</p>
+<p><b>Os 5 cortes que valem ouro</b> (procura esses na gravação):</p>
+<ul>
+<li><b>A dúvida de tamanho que você resolveu</b> — o corte mais forte. Quem assiste vê você atender <b>outra</b> pessoa e a dúvida dela morre junto ("se serviu na 46 dela, serve em mim"). É prova no corpo por procuração.</li>
+<li><b>O pico da live</b> — o minuto em que mais gente entrou ou mais vendeu. Teve um gancho bom ali; isola ele.</li>
+<li><b>Um try-on / caimento</b> — você girando, mostrando frente, lado, costas.</li>
+<li><b>Uma objeção que você quebrou</b> — "será que marca?", "e pra quem tem mais quadril?" — a resposta ao vivo já vem com credibilidade.</li>
+<li><b>A oferta ou escassez</b> — se rolou flash ou "última numeração", esse corte fecha.</li>
+</ul>
+<p><b>Como cortar (regras rápidas):</b></p>
+<ul>
+<li><b>15 a 40 segundos</b> — corte curto, não a live inteira.</li>
+<li><b>Começa no meio da ação</b> — sem "oi gente, tudo bem". Quem cai já sente que interrompeu algo real.</li>
+<li><b>Legenda com a frase-gancho</b> daquele momento, e marca o produto na tela.</li>
+</ul>
+<p><b>Um detalhe que muda tudo:</b> só <b>vídeo</b> leva a sacolinha — então o corte da live vira post shoppable, mas o replay da live inteira não. Corta e posta como vídeo, um por dia.</p>
+<p>É o jeito mais barato de bater os 5 vídeos da semana: o trabalho já foi feito ao vivo. Você só está garimpando o ouro que já está lá.</p>`}
 ];
 // ═══════════════════════════════════════════════════════════════════════════
 // FUNDAMENTOS — aulas PERENES (não giram). "Como o jogo funciona por trás dos
@@ -1165,6 +1192,12 @@ function _hojeISO(){var d=new Date();return d.getFullYear()+'-'+String(d.getMont
 function auloesPub(){var t=_hojeISO();return AULOES.filter(function(a){return a.data<=t;}).sort(function(a,b){return a.data<b.data?1:a.data>b.data?-1:b.n-a.n;});}
 function aulaoAtual(){return auloesPub()[0]||null;}
 function aulaoPorN(n){for(var i=0;i<AULOES.length;i++){if(AULOES[i].n===n)return AULOES[i];}return null;}
+// idade do aulão em dias + guard de frescor: acima de FRESCO_DIAS ele para de
+// se dizer "desta semana" (não mente sobre frescor se o pipeline secar).
+var FRESCO_DIAS=10;
+function diasAtras(iso){try{var p=iso.split('-');var d=new Date(+p[0],+p[1]-1,+p[2]);var h=new Date(_hojeISO());return Math.round((h-d)/86400000);}catch(e){return 0;}}
+function aulaoFresco(a){return a&&diasAtras(a.data)<=FRESCO_DIAS;}
+function idadeLabel(a){var n=diasAtras(a.data);if(n<=FRESCO_DIAS)return null;var sem=Math.floor(n/7);return sem>=1?('há '+sem+(sem===1?' semana':' semanas')):('há '+n+' dias');}
 var _MES_PT=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 function fmtData(s){var p=(s||'').split('-');return p.length===3?(parseInt(p[2],10)+' '+_MES_PT[parseInt(p[1],10)-1]):s;}
 const ACAD={
@@ -1293,13 +1326,14 @@ function renderHome(){
 function renderAulaoHero(){
   var el=document.getElementById('aulao-hero');if(!el)return;var a=aulaoAtual();
   if(!a){el.innerHTML='';return;}
-  var qtd=auloesPub().length;
-  el.innerHTML='<div class="featured" onclick="openAulao('+a.n+')">'
-    +'<div class="fe">🔥 Aulão da semana · Semana '+a.n+'</div>'
+  var qtd=auloesPub().length;var fresco=aulaoFresco(a);var idade=idadeLabel(a);
+  el.innerHTML='<div class="featured'+(fresco?'':' stale')+'" onclick="openAulao('+a.n+')">'
+    +'<div class="fe">'+(fresco?'🔥 Aulão da semana · Semana '+a.n:'Último aulão · Semana '+a.n+(idade?' · '+idade:''))+'</div>'
     +'<h3>'+esc(a.t)+'</h3>'
     +'<p>'+esc(a.promessa)+'</p>'
     +'<div class="go">'+(a.video?'▶ Assistir o aulão':'Abrir o aulão')+(a.dur?' · '+esc(a.dur):'')+' →</div>'
     +'</div>'
+    +(fresco?'':'<div class="aulao-soon">✨ Novo aulão em breve</div>')
     +(qtd>1?'<div class="aulao-more" onclick="show(\'conteudo\')">📚 +'+(qtd-1)+' '+(qtd-1===1?'aulão':'aulões')+' no acervo →</div>':'');
 }
 function aulaoVideoHTML(a){
@@ -1322,10 +1356,10 @@ function _renderDetalhe(a,o){
 }
 function openAulao(n){
   var a=aulaoPorN(n);if(!a)return show('conteudo');
-  var atual=aulaoAtual();var ehAtual=atual&&atual.n===a.n;
+  var atual=aulaoAtual();var ehAtual=atual&&atual.n===a.n;var fresco=ehAtual&&aulaoFresco(a);
   _renderDetalhe(a,{
-    badge:(ehAtual?'🔥 Aulão desta semana':'Aulão · Semana '+a.n)+' · '+fmtData(a.data),
-    testLabel:'🧪 Seu teste desta semana:',
+    badge:(fresco?'🔥 Aulão desta semana':(ehAtual?'Último aulão':'Aulão · Semana '+a.n))+' · '+fmtData(a.data),
+    testLabel:'🧪 Seu teste prático:',
     actions:'<button class="btn" onclick="show(\'ganchos\')">Puxar um gancho pra gravar →</button><button class="btn ghost" onclick="show(\'conteudo\')">📚 Ver todo o conteúdo</button>'
   });
   track('abriu_aulao',{n:a.n});
@@ -1360,6 +1394,8 @@ function fundamentoCardHTML(a){
 }
 function renderConteudo(){
   var atual=aulaoAtual();var pub=auloesPub();
+  var st=document.getElementById('conteudo-atual-titulo');
+  if(st)st.textContent=atual?(aulaoFresco(atual)?'🔥 Aulão desta semana':'📼 Último aulão'+(idadeLabel(atual)?' · '+idadeLabel(atual):'')):'Aulão';
   var ec=document.getElementById('aulao-current');
   if(ec)ec.innerHTML=atual?aulaoCardHTML(atual,true):'<p class="sub">Nenhum aulão publicado ainda.</p>';
   var ar=document.getElementById('aulao-arquivo');
