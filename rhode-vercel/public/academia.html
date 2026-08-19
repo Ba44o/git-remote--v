@@ -1670,23 +1670,24 @@ if(location.hash&&location.hash!=='#home')show(location.hash.slice(1));
     else cur.style.transform=tf; }
   function toEl(el,block){ if(el) el.scrollIntoView({behavior:'smooth',block:block||'center'}); }
   async function run(){
-    window.scrollTo(0,0); show('home'); await W(3600);        // 1 · hero respira
-    var heroC=document.querySelector('#aulao-hero .featured'); point(heroC); await W(1500);
-    var at=(typeof aulaoAtual==='function')?aulaoAtual():null; // 2 · aulão da semana
-    if(at) openAulao(at.n); await W(2700);
-    toEl(document.querySelector('#v-aulao .viz-grid2'),'center'); await W(3000); // 3 · por dentro
-    toEl(document.querySelector('#v-aulao .aula-missao'),'center'); await W(2800);
-    show('home'); window.scrollTo(0,0); await W(1000);          // 4 · a trilha
-    toEl(document.getElementById('steplist'),'start'); await W(800);
+    // paceado pra NARRAÇÃO ao vivo — cada cena segura tempo de falar (~55s total)
+    window.scrollTo(0,0); show('home'); await W(6800);          // 1 · hero (abertura)
+    var heroC=document.querySelector('#aulao-hero .featured'); point(heroC); await W(1600);
+    var at=(typeof aulaoAtual==='function')?aulaoAtual():null;   // 2 · aulão da semana
+    if(at) openAulao(at.n); await W(6800);
+    toEl(document.querySelector('#v-aulao .viz-grid2'),'center'); await W(5600); // 3 · por dentro
+    toEl(document.querySelector('#v-aulao .aula-missao'),'center'); await W(5600);
+    show('home'); window.scrollTo(0,0); await W(1200);           // 4 · a trilha
+    toEl(document.getElementById('steplist'),'start'); await W(1000);
     var cs=document.querySelectorAll('#steplist .matcard');
-    for(var i=0;i<Math.min(cs.length,3);i++){ point(cs[i]); await W(950); }
-    await W(600);
-    if(cs[1]) point(cs[1]); await W(300);                        // 5 · banco de ganchos
-    show('ganchos'); await W(1800);
-    toEl(document.querySelector('#chipsfun'),'center'); await W(2100);
-    var ang=document.querySelector('#angulos .ang'); if(ang){ toEl(ang,'center'); point(ang); await W(800); if(typeof toggleAng==='function') toggleAng(ang); await W(2600); }
-    show('home'); await W(700); window.scrollTo({top:0,behavior:'smooth'}); // 6 · fecho
-    point(document.querySelector('.hero .hl')); await W(4500);
+    for(var i=0;i<Math.min(cs.length,3);i++){ point(cs[i]); await W(1300); }
+    await W(800);
+    if(cs[1]) point(cs[1]); await W(400);                        // 5 · banco de ganchos
+    show('ganchos'); await W(2400);
+    toEl(document.querySelector('#chipsfun'),'center'); await W(4600);
+    var ang=document.querySelector('#angulos .ang'); if(ang){ toEl(ang,'center'); point(ang); await W(900); if(typeof toggleAng==='function') toggleAng(ang); await W(4600); }
+    show('home'); await W(900); window.scrollTo({top:0,behavior:'smooth'}); // 6 · fecho
+    point(document.querySelector('.hero .hl')); await W(6500);
   }
   if(document.readyState==='complete') setTimeout(run,300);
   else window.addEventListener('load',function(){ setTimeout(run,300); });
