@@ -416,6 +416,19 @@
   #v-live .fala.cp{border-color:var(--red);background:var(--red-wash)}
   @media (max-width:680px){.grid{grid-template-columns:1fr 1fr}.vocab,.fmts,.remix,.missoes{grid-template-columns:1fr}}
   @media (max-width:430px){.grid{grid-template-columns:1fr}}
+  /* ===== MODO TOUR (?demo=tour) — vídeo de apresentação, estilo editorial ===== */
+  body.tour-mode{scroll-behavior:smooth}
+  body.tour-mode .container{max-width:560px}
+  @keyframes tourUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  body.tour-mode .view.on>.container>*{animation:tourUp .8s cubic-bezier(.25,.55,.32,1) both}
+  body.tour-mode .view.on>.container>*:nth-child(1){animation-delay:.05s}
+  body.tour-mode .view.on>.container>*:nth-child(2){animation-delay:.15s}
+  body.tour-mode .view.on>.container>*:nth-child(3){animation-delay:.27s}
+  body.tour-mode .view.on>.container>*:nth-child(4){animation-delay:.39s}
+  body.tour-mode .view.on>.container>*:nth-child(5){animation-delay:.51s}
+  body.tour-mode .view.on>.container>*:nth-child(6){animation-delay:.63s}
+  body.tour-mode .view.on>.container>*:nth-child(n+7){animation-delay:.75s}
+  #tour-cursor{position:fixed;top:0;left:0;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:rgba(254,44,85,.22);border:2px solid var(--red);box-shadow:0 0 0 7px rgba(254,44,85,.08);z-index:99998;pointer-events:none;opacity:0;transition:transform 1.5s cubic-bezier(.6,.04,.2,1),opacity .5s}
 </style>
 </head>
 <body>
@@ -1643,6 +1656,41 @@ document.getElementById('filterbar').innerHTML=`<button class="fbtn on" onclick=
 renderArt();
 // deep-link inicial
 if(location.hash&&location.hash!=='#home')show(location.hash.slice(1));
+/* ===== MODO TOUR (?demo=tour): autopilot silencioso pro vídeo de apresentação ===== */
+(function(){
+  try{ if(new URLSearchParams(location.search).get('demo')!=='tour') return; }catch(e){ return; }
+  track=function(){};                                  // não polui academia_eventos
+  document.body.classList.add('tour-mode');
+  var cur=document.createElement('div'); cur.id='tour-cursor'; document.body.appendChild(cur);
+  function W(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+  var _firstPoint=true;
+  function point(el,off){ if(!el)return; var r=el.getBoundingClientRect(); if(!r.width&&!r.height)return;
+    var tf='translate('+(r.left+r.width/2)+'px,'+(r.top+Math.min(r.height/2,90)+(off||0))+'px)';
+    if(_firstPoint){ cur.style.transition='none'; cur.style.transform=tf; cur.getBoundingClientRect(); cur.style.transition=''; cur.style.opacity='1'; _firstPoint=false; }
+    else cur.style.transform=tf; }
+  function toEl(el,block){ if(el) el.scrollIntoView({behavior:'smooth',block:block||'center'}); }
+  async function run(){
+    window.scrollTo(0,0); show('home'); await W(3600);        // 1 · hero respira
+    var heroC=document.querySelector('#aulao-hero .featured'); point(heroC); await W(1500);
+    var at=(typeof aulaoAtual==='function')?aulaoAtual():null; // 2 · aulão da semana
+    if(at) openAulao(at.n); await W(2700);
+    toEl(document.querySelector('#v-aulao .viz-grid2'),'center'); await W(3000); // 3 · por dentro
+    toEl(document.querySelector('#v-aulao .aula-missao'),'center'); await W(2800);
+    show('home'); window.scrollTo(0,0); await W(1000);          // 4 · a trilha
+    toEl(document.getElementById('steplist'),'start'); await W(800);
+    var cs=document.querySelectorAll('#steplist .matcard');
+    for(var i=0;i<Math.min(cs.length,3);i++){ point(cs[i]); await W(950); }
+    await W(600);
+    if(cs[1]) point(cs[1]); await W(300);                        // 5 · banco de ganchos
+    show('ganchos'); await W(1800);
+    toEl(document.querySelector('#chipsfun'),'center'); await W(2100);
+    var ang=document.querySelector('#angulos .ang'); if(ang){ toEl(ang,'center'); point(ang); await W(800); if(typeof toggleAng==='function') toggleAng(ang); await W(2600); }
+    show('home'); await W(700); window.scrollTo({top:0,behavior:'smooth'}); // 6 · fecho
+    point(document.querySelector('.hero .hl')); await W(4500);
+  }
+  if(document.readyState==='complete') setTimeout(run,300);
+  else window.addEventListener('load',function(){ setTimeout(run,300); });
+})();
 track('abriu_pagina',{ref:(document.referrer||location.hash||'')});
 </script>
 </body>
