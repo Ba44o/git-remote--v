@@ -2,7 +2,7 @@
 
 > **Como usar este arquivo:** fonte de verdade do projeto. Antes de iniciar trabalho novo, leia daqui em diante. Atualizar conforme features são concluídas ou repriorizadas.
 >
-> **Última atualização:** 2026-07-01
+> **Última atualização:** 2026-09-01
 
 ---
 
@@ -162,6 +162,150 @@ Base rastreável por IDs pra entregar com mais qualidade — 4 docs em `docs/`:
 ---
 
 ## 🔜 Próximos — priorizados
+
+### ✅ 0. Alta da taxa efetiva — **CAUSA IDENTIFICADA** (fechado 01/09/2026)
+
+A comissão de plataforma está **travada em 6,00%** e a de afiliada parou de subir. O que cresce é o **resíduo**
+(frete 6% + R$ 4/item + **GMV Max Vendas Líquidas**), e o resíduo por pedido é **bimodal**: modo baixo ~10–12% do
+revenue, modo alto ~23–26%. A diferença é o VL cobrado dentro do fee. A fatia de pedidos no modo alto foi
+**9,1% (jun) → 18,1% (jul) → 22,7% (ago)**.
+
+**Conclusão:** a taxa não subiu por mudança de preço do TikTok — subiu porque a operação comprou mais mídia no
+modelo que cobra por dentro do settlement. É **decisão de mídia disfarçada de taxa**, e não aparece na conta de ads.
+Detalhe em `docs/DECISOES-E-PREMISSAS.md` (01/09) e na aba "Taxa efetiva" do relatório de canais.
+
+**🔜 Decisão pendente do dono:** assumir o modelo Vendas Líquidas e trazê-lo para o P&L como mídia, ou reduzir a
+fatia. Hoje ele cresce por inércia.
+
+### ✅ 0-A. RÉGUA DE DECISÃO DE MÍDIA — **ENTREGUE** (01/09/2026)
+
+`relatorios/2026-08/Regua de Midia por Contribuicao_2026-09-01` (.xlsx 4 abas + .md) ·
+[Drive](https://docs.google.com/spreadsheets/d/1yBUXWCP6KNC_fbIOwsLF8M4Heag3NZGIexLJLeEYT40/edit).
+**Substitui o ROAS como critério de compra de mídia.**
+
+`teto de mídia/peça = contribuição ESPERADA/peça − margem-alvo`, onde a contribuição esperada usa o
+**settlement sem GMV Max VL** (para o VL voltar a ser tratado como mídia, não como custo do produto)
+e desconta o risco de devolução (uma peça devolvida rende −R$ 6,90 de settlement no lado afiliada).
+
+**Tetos de agosto** (margem-alvo R$ 3,00/peça): vídeo loja R$ 26,25 · card de produto R$ 25,16 ·
+card/vitrine afiliada R$ 15,00 · vídeo afiliada R$ 14,11 · live loja R$ 9,40 · **live afiliada R$ 0,75**.
+
+**Decisão de setembro:** 1 campanha em prejuízo real (`LIVE GMV-MAX AMANDA`, paga R$ 8,53/peça numa peça
+que rende R$ 3,75 — destrói R$ 4,77/peça, R$ 2.507 no mês) · 3 abaixo da meta · 5 com folga para escalar
+(a maior: `Product GMV Max`, folga de R$ 12,28/peça).
+
+**A alavanca maior que qualquer ajuste de verba:** mover peça da live de afiliada (R$ 3,75/peça) para o
+vídeo de afiliada (R$ 17,11/peça) vale **R$ 13,36 por peça** — 500 peças = R$ 6.682/mês. Os dois canais
+têm ROAS parecido; é exatamente o que o ROAS não mostra.
+
+🔁 **Manter viva:** rodar `_calc_regua_midia.py` no fecho de cada mês. O teto MUDA todo mês (em agosto caiu
+porque o preço caiu e a taxa subiu, com o CPV parado). Não decorar o número.
+
+### 🔴 0a. Live de afiliada é o pior canal — e é o que mais cresce (aberto 01/09/2026)
+
+Contribuição por peça em agosto (antes de mídia): vídeo loja R$ 27,29 · card de produto R$ 26,19 ·
+**vídeo afiliada R$ 12,43** · card/vitrine afiliada R$ 12,06 · live loja R$ 10,22 · **live afiliada R$ 5,26**.
+A live de afiliada também tem a **maior devolução** (12,4% contra 6,4% do vídeo) e o **menor preço** (R$ 76,06) —
+e é o canal que mais ganhou participação: a razão vídeo/live na afiliada foi 1,34 (jun) → 0,55 (jul) → 0,49 (ago).
+Cada peça migrada do vídeo para a live de afiliada custa ~R$ 7,17 de contribuição.
+
+### 🔴 0b. Nenhuma campanha Tradicional do GMV Max paga a própria mídia (aberto 01/09/2026)
+
+ROI (contribuição ÷ custo, **no teto** de 100% de incrementalidade): LIVE-TESTE 0,74x · Product GMV Max 0,81x ·
+LIVE AMANDA 0,62x · MARMORIZADA 0,49x · BAGGY 0,38x. ROI < 1 no teto é conclusivo. O ROAS de 7–10x esconde isso.
+✅ O refresh de criativo de 11/08 **funcionou** (CPA R$ 16,01 → R$ 14,43, ROAS 6,07x → 6,74x), mas com metade da
+verba diária — falta o teste limpo: subir a verba mantendo o criativo novo.
+
+### 🟡 0d. Gargalo do vídeo é ALCANCE, não preço (aberto 01/09/2026)
+
+Baixar preço já foi testado em agosto e não trouxe volume: no vídeo de afiliada a fatia ≥ R$ 90 caiu de 70,8% para
+42,1% e o volume caiu 23,9%. Os vídeos novos **subiram** 14,4% (2.239 → 2.562) e as impressões **caíram**
+(3,62 M → 3,49 M): cada vídeo entrega 1.363 impressões contra 2.168 em junho (−37%). É problema de distribuição —
+é onde a Academy e a Copa têm que bater.
+
+### 🔴 0. Decompor a alta da taxa efetiva do TikTok — ~~PRIORIDADE Nº1~~ **RESOLVIDO, ver item 0 acima** (aberto 31/08/2026)
+
+A taxa efetiva subiu **19,64% (jun) → 25,33% (jul) → 26,09% (ago)** (`1 − settle_liq/pago_liq` de
+`statement_tx_resumo`, mesma régua nos três meses). Só a subida ago-vs-jul custou **R$3.667,46 de lucro
+em agosto** — mais do que qualquer alavanca de mix discutida no mês, e ganhando sozinha, sem decisão de
+ninguém. **Não sabemos qual componente do fee subiu.**
+
+**O que fazer:** rodar `decompor_fee_66.py` sobre a base de agosto e comparar linha a linha com julho e
+junho (comissão 6% + frete 6% + R$4/item + afiliada + GMV Max). Registrar o veredito em
+`docs/DECISOES-E-PREMISSAS.md` (item ⏳ aberto em 31/08).
+Fonte do achado: `relatorios/2026-08/Relatorio Fechamento Agosto 2026_2026-08-31.xlsx` (aba P&L).
+
+### 🔴 0b. Despacho de amostras (seeding) — vazamento operacional (aberto 31/08/2026)
+
+Agosto recebeu **442 pedidos de amostra** (+166,3% vs jul) e enviou **62 peças (14,0%)**;
+**289 venceram sem envio** (OVERDUE_CANCELLED) e **49 seguem pendentes**. A conversão de quem recebeu
+ficou estável (28,2%), ou seja: a curadoria não piorou — a porta não abriu. Precisa de SLA de despacho
+e responsável nomeado. Detalhe em `relatorios/2026-08/Relatorio Seeding Agosto 2026_2026-08-31.xlsx`.
+
+### 🟠 0b-2. Amostra REEMBOLSÁVEL — programa existe mas não opera (aberto 01/09/2026)
+
+A amostra reembolsável ("buy now, refund later": a creator **compra** e o TikTok reembolsa quando ela
+cumpre o critério de conteúdo) teve **1 evento em toda a base** — agosto = 1 peça, julho = 0, contra
+62 peças do seeding grátis no mesmo mês. Varredura do carimbo `system_refund_sample_buy_now_refund_later`
+em 2.683 reembolsos (API, jul-ago) e 8.090 (Supabase, mar-ago).
+
+**Achados que valem decisão:**
+- **É mais barata que a amostra grátis:** custo real **medido** de R$ 55,69/peça (CPV R$ 49,00 + R$ 6,69 de
+  settlement que não volta) contra R$ 65,00 da premissa do seeding. O ganho é o frete — no fluxo de pedido
+  a plataforma bancou R$ 7,60 e a Rhode absorveu R$ 1,00.
+- **44 dias** entre a compra e o reembolso: a creator adiantou R$ 89,90 e financiou a Rhode por 6 semanas.
+- **Cego por desenho:** o carimbo só nasce DEPOIS do reembolso (`is_sample_order=False`, `order_type=NORMAL`),
+  então não dá pra medir quem comprou e ainda não recebeu. Instrumentar a entrada por fora da API.
+
+**🔜 Decisão pendente do dono:** meta de volume em setembro ou desligar o programa.
+Detalhe em `relatorios/2026-08/Relatorio Amostras Reembolsaveis Agosto 2026_2026-09-01` ·
+[Drive](https://docs.google.com/spreadsheets/d/1BWrrWvR6PySHsuhfJqTIQqxq2RjLFc0yfKzmk_K8Ogw/edit).
+Vereditos R33-R35 em `docs/DECISOES-E-PREMISSAS.md`.
+
+### 🟡 0c. Fechar os gaps de dados que travam o fechamento mensal (aberto 31/08/2026)
+
+1. **Exports por-live de agosto** (`dados/lives/exports/Live SKUS /SKUS LIVE Agosto`) não carregados →
+   ficam sem dado: margem por produto na live, views e **duração** das salas — e sem duração não sai
+   **GMV/hora**, o único driver de GMV de live já validado.
+2. **`performance_diario`** (Shop Analytics) parado em **2026-08-10** → "faturamento líquido" sai como
+   sem dado no fechamento.
+3. **Split do lado vendedor** no mix por canal ainda é rateio pela proporção do export de julho, não
+   medição por pedido.
+
+### ✅ Fechamento de agosto por CANAL — **ENTREGUE** (01/09/2026)
+
+`relatorios/2026-08/Relatorio Fechamento Agosto por Canal_2026-09-01` (.xlsx 8 abas + .md). Agosto FECHADO.
+Canais medidos com a API `/analytics/202605/shop_products/performance` (bate ao centavo com o export) + medição
+exata por pedido no lado afiliada. Responde as 3 perguntas fechadas (preço R$ 99,90 · concentração de afiliada ·
+mix vídeo×live), fecha ROI/CPA do GMV Max por SKU e o teste do refresh de criativo, e identifica a causa da alta
+da taxa efetiva. Novos scripts: `_pull_canais.py` · `_pull_canais_pedido.py` · `_calc_final.py` · `_build_canais_agosto.py`.
+
+⚠️ **GOTCHA registrado:** a **vitrine (`shop_tab`) NÃO é aditiva** — é superfície que atravessa os outros canais.
+Os 6 canais de atribuição somam exatamente o total; somar a vitrine dupla-conta.
+
+⚠️ **CAC:** por SKU é estruturalmente indisponível (a API do GMV Max não separa cliente novo por campanha).
+O **blended** foi fechado em 01/09 depois de reprocessar a tabela `cliente` (54.435 clientes, jan–ago):
+CAC R$ 12,18 (jun) → R$ 10,53 (jul) → **R$ 10,42** (ago), mas o **payback caiu de 1,75x para 1,17x** — o CAC
+baixou porque cortaram verba, e a contribuição por cliente novo caiu mais rápido.
+
+🔧 **Dívida técnica:** `coletar_clientes.py` aborta a janela inteira quando uma fatia devolve HTTP 503 (aconteceu
+na fatia de março; passou no retry manual). Falta **retry/backoff por fatia** — sem isso a rotina de CAC não é
+confiável em automação.
+
+### ✅ Fechamento de agosto/2026 — **ENTREGUE** (31/08/2026)
+
+Três relatórios gerados em `relatorios/2026-08/` (cada um `.xlsx` expert + `.md` gêmeo), todos a partir
+do pull consolidado `_pull_agosto.py`:
+- `Relatorio Fechamento Agosto 2026_2026-08-31` (8 abas) — GMV oficial R$518.748,96 (−12,0%; −8,4% na
+  régua [01–30]), lucro de contribuição R$26.791,11 (R$4,36/peça), ROI real 0,72x.
+- `Relatorio Margem por SKU e Live Agosto_2026-08-31` (6 abas, template travado) — **live própria
+  empatou**: lucro −R$71,09, mídia a 144% do teto por peça.
+- `Relatorio Seeding Agosto 2026_2026-08-31` (6 abas, template aprovado) — ROI 1,38x (0,87x sem a maior
+  creator), gargalo no despacho.
+
+Coletores rodados na geração (dados estavam parados em ~23-24/08): `coletar_pedidos_sku`,
+`coletar_gmvmax_api`, `coletar_statement_tx`, `coletar_lives_api`, `coletar_lives_attr_api`,
+`coletar_extrato`, `etl_devolucoes` + `etl_sample_applications` (sync seletivo), `coletar_vendas_seeding`.
 
 ### ✅ 8. Hardening de Segurança e Escala — **CONCLUÍDO** (jun/2026)
 
