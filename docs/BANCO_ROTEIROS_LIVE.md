@@ -510,6 +510,263 @@ existe troca**, errar o número não vira "manda o outro tamanho" — vira devol
 
 ---
 
+# FRAMEWORK DE 2 PRODUTOS · FASES · EIXOS DE PERSUASÃO
+
+
+## 👖 O framework de 2 produtos — Wide Leg e Mom
+
+A live inteira roda com **duas peças**. Não é limitação: é o que faz a sala aprender. Sala com muita peça cansa o espectador e o próprio TikTok recomenda reduzir o número de produtos ao mesmo tempo.
+
+- **👑 Wide Leg é a porta.** É a viralizada, a que todo mundo conhece, a que traz gente pra sala. Ela **carrega o volume** — é quase 7 em cada 10 peças que passam pelo palco.
+- **💎 Mom é a âncora.** Ela sai **mais cara** que a wide, tem **mais que o dobro de clique** e fecha igual ou melhor. E hoje ocupa **menos de 3% do palco**. É a peça mais subaproveitada da operação.
+- **🤝 A dupla é a segunda peça.** Mesma cintura alta, modelagens diferentes. Quem já sabe que a cintura serve nela, serve nas duas — é a venda de menor risco que existe na sua live.
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Wide Leg · a que disfarça** | porta | Vende **silhueta**: alonga, esconde, cai reto. É a calça de quem quer sumir com o que não gosta. |
+| **Mom · a que marca a cintura** | âncora | Vende **corpo**: empina, marca a cintura, mostra. É a calça de quem quer aparecer. |
+| **A escolha do dia** | 2ª peça | Não pergunte qual é melhor — mostre que são dias diferentes. |
+| **Mesma cintura, dois caimentos** | 2ª peça ⭐ | O argumento mais forte do par: o risco de tamanho já foi resolvido uma vez. |
+| **A Mom é pra quem acha wide demais** | âncora | Recupera quem ia sair da sala sem comprar nada. |
+| **Prova comparada** | clique + compra | Vestir as duas seguidas no mesmo corpo é a demonstração que mais converte a dupla. |
+
+**Falas:**
+
+> *Wide Leg · a que disfarça* — "Ela cai reta desde o quadril. Não marca nada, não puxa em lugar nenhum — você põe e esquece que tá usando jeans."
+
+> *Mom · a que marca a cintura* — "A Mom faz o contrário da wide: ela não esconde, ela **marca**. Sobe na cintura, empina atrás e afina no meio."
+
+> *A escolha do dia* — "Wide é o dia que você quer conforto e ficar bonita sem esforço. Mom é o dia que você quer que reparem. Não é uma ou outra — é segunda e sexta."
+
+> *Mesma cintura, dois caimentos* — "Se a wide serviu em você no [número], a Mom serve no mesmo. É a mesma cintura alta — muda só a perna."
+
+> *A Mom é pra quem acha wide demais* — "Achou a perna larga demais pra você? Então essa é a sua. Mesma cintura, mas a perna afunila."
+
+> *Prova comparada* — "Deixa eu botar as duas pra vocês verem no mesmo corpo, uma atrás da outra. Aí você decide qual é a sua."
+
+
+> ⚠️ 💡 **Onde a Mom entra em cada fase:** ela é a peça do **pico** e da **fase estável** — quando a sala está cheia e quando você já vendeu a wide para quem ia comprar. Nunca abra a live com ela: você mostra a peça de maior valor pra sala vazia.
+
+
+## ⏳ As 4 fases da live — o que o TikTok espera em cada uma
+
+Isso não é teoria nossa: é a estrutura do **playbook oficial do TikTok Shop**. Cada fase pede um tipo de peça e um tipo de oferta. Rodar a live inteira no mesmo tom é o erro que mais custa entrega.
+
+- **0–10min · Inicial · prender atenção** — Peça de **apelo**, a que todo mundo reconhece: a **Wide Leg**. Nos **3 primeiros segundos** a atenção vai pro cenário; aos **30s**, pra você; aos **3 min**, pro produto. Por isso cenário arrumado e luz quente não são vaidade.
+- **~20min · Pico · converter com urgência** — Sala cheia. Entra a **âncora** — a **Mom** — e entra **urgência de unidade**: "últimas peças no seu número". É a fase que o playbook manda usar best-seller com escassez.
+- **~65min · Estável · lucrar e testar** — Peça de **maior valor** e combinação. É a hora da **dupla** (wide + mom) e de testar o que a sala responde. Menos peça na tela ao mesmo tempo: live longa cansa quem assiste.
+- **–25min finais · Final · alta energia** — Volta pra peça de apelo, **promoção-relâmpago** e interação. Terminar morno joga fora a audiência mais quente do dia.
+
+> ⚠️ ⚠️ **Uma adaptação nossa ao playbook.** Ele manda abrir com produto **superdescontado** pra atrair. Na Rhode isso **não vale pro hero**: descontar a peça que carrega a margem foi exatamente o que quebrou um mês inteiro. Aqui a "isca" é **apelo, não preço** — a Wide Leg já é a viralizada, ela atrai sozinha. Se for usar isca de preço, que seja short ou saia, nunca a calça principal.
+
+
+> ⚠️ 📡 **Regularidade é entrada de tráfego.** O TikTok distribui audiência **antecipadamente** pra quem foi bem nas últimas lives. Live fraca hoje custa alcance na próxima — é por isso que 2h consistentes valem mais que uma mega live isolada.
+
+
+## 🔥 Urgência — 12 ângulos
+
+O playbook é direto: a urgência é o que transforma live em **compra por impulso**. Mas urgência inventada queima a sala. Todas as daqui têm lastro — ou é estoque real, ou é a condição que de fato acaba.
+
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Unidade contada** | impulso | Número exato, dito em voz alta. É a fala de urgência oficial do playbook. |
+| **Urgência de tamanho** | compra | A mais honesta que existe: o preço volta amanhã, o seu número não. |
+| **Placar ao vivo** | impulso | Narra o estoque caindo. Prova social e urgência na mesma frase. |
+| **Janela da sala** | impulso | A condição existe enquanto você está no ar. É verdade e cria relógio. |
+| **Contagem regressiva** | impulso + clique | Quando rodar oferta relâmpago: fixe o card **no instante** em que a contagem começa. |
+| **Fila do número** | impulso | Cria ordem sem inventar escassez. Funciona em sala cheia. |
+| **Reposição sem data** | compra | Escassez verdadeira: você realmente não sabe quando volta. |
+| **Acabou de verdade** | credibilidade | Anunciar o que acabou **aumenta** a urgência do que sobrou. E prova que você não mente. |
+| **Último bloco da peça** | impulso | Avisa que vai sair da peça. Quem estava adiando decide. |
+| **Carrinho que expira** | pagamento | Urgência aplicada a quem já decidiu e não pagou. |
+| **Cor que some primeiro** | impulso | Escassez por variante, não por peça. Mais crível e mais específica. |
+| **Sem pressão declarada** | confiança | Alivia a pressão de propósito — e converte quem resiste a vendedor. |
+
+**Falas:**
+
+> *Unidade contada* — "Só tem dez no 38 com essa condição. Dez. Quando acabar eu aviso aqui."
+
+> *Urgência de tamanho* — "O preço é o mesmo amanhã. O que pode não estar aqui amanhã é o seu número."
+
+> *Placar ao vivo* — "Saiu mais uma 40. Ó, agora foram três em dois minutos — o 40 tá indo embora."
+
+> *Janela da sala* — "Essa condição vale enquanto eu tô aqui. Quando eu sair, volta pro valor de catálogo."
+
+> *Contagem regressiva* — "Começou a contagem. Card fixado aqui embaixo — enquanto o relógio tá correndo, é esse valor."
+
+> *Fila do número* — "Quem é 38 fala agora, que eu vou dizendo quanto ainda tem enquanto vocês decidem."
+
+> *Reposição sem data* — "Essa cor eu não sei quando volta. Não é da boca pra fora — a próxima leva não tem data."
+
+> *Acabou de verdade* — "Acabou o 36. Acabou mesmo, não vai ter mais hoje — quem é 36 me escreve que eu aviso quando voltar."
+
+> *Último bloco da peça* — "É a última vez que eu mostro essa hoje. Depois dela eu vou pra Mom e não volto."
+
+> *Carrinho que expira* — "Pedido sem pagamento cai sozinho e o seu tamanho volta pro estoque. Finaliza agora que eu ainda tô aqui."
+
+> *Cor que some primeiro* — "A marmorizada clara sempre acaba antes da escura. Sempre. Se é essa que você quer, não espera."
+
+> *Sem pressão declarada* — "Prefiro que você compre amanhã com calma do que compre errado hoje. Mas se já é o seu número, não deixa passar."
+
+
+## ⚡ Impulso — 12 ângulos
+
+Live converte muito mais que loja parada porque decide **na hora**. Impulso não é gritar: é **tirar o que trava** a decisão. Cada ângulo aqui remove uma fricção específica.
+
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Guia do iniciante** | impulso ⭐ | Muita gente nunca comprou em live. O playbook manda oferecer socorro explícito. |
+| **Passo a passo narrado** | impulso | Ensinar a comprar é etapa oficial do roteiro. Ninguém compra o que não sabe operar. |
+| **Micro-compromisso** | clique → compra | Pede um passo minúsculo. Quem abre o card já entrou na decisão. |
+| **Risco zero** | impulso ⭐ | A trava número um é medo de errar o tamanho. Responder de frente destrava. |
+| **Decisão por eliminação** | impulso | Duas opções em vez de um catálogo. Escolha fácil vira compra. |
+| **Já é seu** | impulso | Posse antecipada. Faz ela imaginar usando, não comprando. |
+| **Custo de esperar** | impulso | Mostra o preço de adiar, sem ameaçar. |
+| **Frete único** | 2ª peça | Remove a fricção do custo de enviar duas vezes. |
+| **Cupom que reaquece** | impulso | Ferramenta oficial pra momento lento. Libera e anuncia uma vez. |
+| **Resolve na hora** | pagamento | Transforma travamento técnico em atendimento ao vivo. |
+| **Escolha por mim** | impulso | Para quem está paralisada. Você decide por ela. |
+| **Marco coletivo** | impulso + comentário | Transforma a compra num evento da sala. |
+
+**Falas:**
+
+> *Guia do iniciante* — "Primeira vez comprando em live? Escreve AJUDA no chat que eu te guio no passo a passo, com calma."
+
+> *Passo a passo narrado* — "Toca na sacolinha, escolhe o tamanho, aperta comprar. Três toques. Eu espero aqui."
+
+> *Micro-compromisso* — "Nem compra ainda. Só abre e vê se tem o seu número. Só isso."
+
+> *Risco zero* — "Se chegar e não servir, você devolve e recebe o reembolso. A devolução é gratuita — você não tá arriscando nada."
+
+> *Decisão por eliminação* — "São duas: clara ou escura. Só isso. Qual é a sua?"
+
+> *Já é seu* — "Imagina você com essa no domingo, com uma regatinha branca. Já tá vendo, né?"
+
+> *Custo de esperar* — "Você vai voltar aqui semana que vem pra comprar. Todo mundo volta. Só que aí pode não ter o seu número."
+
+> *Frete único* — "Leva as duas junto: um frete só. Comprar depois é pagar frete de novo."
+
+> *Cupom que reaquece* — "Acabei de liberar um cupom aqui na sala. Ele é da live — quem tá agora pega."
+
+> *Resolve na hora* — "Travou no pagamento? Escreve TRAVOU que a gente resolve com você agora, ao vivo."
+
+> *Escolha por mim* — "Tá na dúvida entre as duas? Se é a sua primeira, pega a escura. Combina com tudo e você usa amanhã mesmo."
+
+> *Marco coletivo* — "Se a gente bater dez nessa cor eu já abro a próxima. Tá em sete."
+
+
+## 💰 Percepção de valor — 14 ângulos
+
+Preço baixo sem valor construído vira suspeita: "por que é tão barata?". **Ancoragem sempre antes do preço** — nunca o contrário. E o playbook é explícito: credibilidade (review, depoimento, dado) é etapa do roteiro, não enfeite.
+
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Ancoragem de vitrine** | valor ⭐ | Compara com o que ela conhece, antes de dizer quanto custa. |
+| **Bastidor de fábrica** | valor ⭐ | Explica **por que** é mais barata. Sem isso, barato vira desconfiança. |
+| **Troca de unidade** | valor | Tira do preço e põe no que ela ganha usando. |
+| **Custo por uso** | valor | Divide o preço pelo uso real. Funciona melhor na Mom, que sai mais cara. |
+| **Prova de matéria** | valor | Toca, estica, mostra costura. Valor que se vê na tela. |
+| **Não desbota** | valor | Objeção silenciosa de quem já se decepcionou com jeans barato. |
+| **Review de cliente** | credibilidade ⭐ | Etapa oficial do roteiro: depoimento aumenta credibilidade. Leia um de verdade. |
+| **Prova de volume** | credibilidade | Prova social coletiva. Fecha quem já estava quase. |
+| **Todo mundo pergunta** | valor | Prova social projetada: o que vai acontecer quando ela usar. |
+| **Sem elastano como qualidade** | valor | Transforma possível objeção em argumento premium. |
+| **Comparação interna** | valor + 2ª peça | Justifica a Mom sair mais cara que a wide. |
+| **Versatilidade** | valor | Mais ocasiões = mais valor pelo mesmo preço. |
+| **O que você paga a mais** | valor | Nomeia o que a concorrente barata não entrega. |
+| **Investimento no corpo** | valor | Move de gasto pra autoestima — o que ela realmente está comprando. |
+
+**Falas:**
+
+> *Ancoragem de vitrine* — "Essa calça numa loja de shopping sai por duzentos e pouco. E não é força de expressão — vai olhar."
+
+> *Bastidor de fábrica* — "A diferença não é a calça — é que aqui não tem loja de shopping no meio. A gente é a fábrica."
+
+> *Troca de unidade* — "Você não tá pagando oitenta e nove numa calça. Tá pagando pra não ficar puxando o cós o dia inteiro."
+
+> *Custo por uso* — "Eu uso essa toda semana desde que chegou. Faz a conta de quanto saiu cada vez que eu usei."
+
+> *Prova de matéria* — "Sente a grossura: é jeans de verdade, 100% algodão. Não é aquele que amassa e perde a forma na segunda lavada."
+
+> *Não desbota* — "Já lavei essa um monte de vezes e ela não desbotou. A cor é essa mesma que vocês tão vendo."
+
+> *Review de cliente* — "Deixa eu ler o que a [nome] mandou: 'usei no casamento e todo mundo perguntou onde comprei'. É isso."
+
+> *Prova de volume* — "Essa é a que mais sai aqui, disparado. Não é à toa, né?"
+
+> *Todo mundo pergunta* — "Toda vez que eu saio com essa alguém pergunta onde comprei. E ninguém acredita que foi aqui."
+
+> *Sem elastano como qualidade* — "Ela não tem elastano — e é por isso que ela não cede e não deforma. Jeans de verdade não cede."
+
+> *Comparação interna* — "A Mom sai um pouquinho acima da wide, e tem motivo: é mais tecido na modelagem e ela marca a cintura de um jeito que a wide não faz."
+
+> *Versatilidade* — "Essa vai do mercado ao casamento. Troca o sapato e muda tudo — é uma calça que faz três looks."
+
+> *O que você paga a mais* — "Tem calça mais barata que essa por aí, tem. Só que ela abre na cintura quando você senta. Essa não."
+
+> *Investimento no corpo* — "Não é sobre a calça. É sobre você se olhar no espelho e gostar antes de sair de casa."
+
+
+## 👉 CTA — 14 ângulos
+
+CTA não é uma frase no fim: é uma **escada**. Pedir "compra agora" pra quem ainda não clicou queima o pedido. Cada degrau pede o próximo passo possível — e o playbook trata "instruções de compra" como etapa obrigatória do roteiro.
+
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **1 · Olha comigo** | tempo médio | Degrau zero: só atenção. Não pede nada. |
+| **2 · Abre sem compromisso** | clique | O clique mais fácil de conseguir: sem intenção de compra. |
+| **3 · Abre pra ver uma coisa** | clique ⭐ | Nomeia o que ela vai encontrar. Curiosidade concreta bate pedido genérico. |
+| **4 · Confere a medida** | clique + compra | Move o clique e mata devolução junto. O melhor CTA duplo da live. |
+| **5 · Vê se tem o seu** | clique | Convida a verificar, não a comprar. Passa por baixo da resistência. |
+| **6 · Instrução de compra** | compra ⭐ | Etapa oficial do playbook. Explica o mecanismo, não só o desejo. |
+| **7 · Garante a sua** | compra | O fechamento clássico da casa, com a recompensa embutida. |
+| **8 · Finaliza o pagamento** | pagamento ⭐ | O degrau que quase ninguém pede — e onde a venda vaza. |
+| **9 · Volta pra contar** | recompra | Fecha o ciclo e prepara prova social da próxima live. |
+| **CTA de comentário** | comentário | Resposta de uma palavra. Em sala fria, o único que funciona. |
+| **CTA de seguir com motivo** | seguidor | "Segue a loja" sozinho não converte. Dá a razão. |
+| **CTA de compartilhar** | alcance | Só com destinatário específico. Pedido vago não é atendido. |
+| **CTA da dupla** | 2ª peça ⭐ | Pede a segunda peça pra quem acabou de comprar a primeira. |
+| **CTA de retorno** | a próxima | Marca encontro com dia, hora e peça. Vago não traz ninguém. |
+
+**Falas:**
+
+> *1 · Olha comigo* — "Presta atenção nessa parte que é onde todo mundo se decide."
+
+> *2 · Abre sem compromisso* — "Nem precisa comprar. Só abre o card e olha qual é a sua cor."
+
+> *3 · Abre pra ver uma coisa* — "Toca no card e olha a terceira foto, a de lado. É de lado que se vê se marca."
+
+> *4 · Confere a medida* — "Abre e olha a medida em centímetro. Se você já comprou online e sobrou na cintura, foi por não ter aberto isso."
+
+> *5 · Vê se tem o seu* — "Vai lá e vê se ainda tem o seu número. Depois você decide."
+
+> *6 · Instrução de compra* — "Toca na sacolinha laranja, escolhe o tamanho, aperta comprar. Três toques."
+
+> *7 · Garante a sua* — "Garante a sua e depois volta aqui pra me agradecer — que você vai me agradecer."
+
+> *8 · Finaliza o pagamento* — "Quem colocou no carrinho: volta lá e **finaliza**. Pedido sem pagamento cai sozinho."
+
+> *9 · Volta pra contar* — "Quem comprou hoje volta semana que vem e me conta como ficou. Eu quero ver."
+
+> *CTA de comentário* — "Escreve CLARA ou ESCURA. Só isso. Eu visto a que ganhar."
+
+> *CTA de seguir com motivo* — "Segue aqui em cima: é por ali que eu aviso quando entra cor nova — e cor nova esgota na primeira live."
+
+> *CTA de compartilhar* — "Manda pra aquela amiga que vive falando que não acha calça que sirva. Ela vai te dever essa."
+
+> *CTA da dupla* — "Já que você vai levar a wide: põe a Mom junto. Mesmo número, mesmo frete, e você já sabe que a cintura serve."
+
+> *CTA de retorno* — "Amanhã, mesmo horário, eu volto com a reposição. Escreve ROSA que eu anoto o seu nome."
+
+
+> ⚠️ ⚠️ **Um CTA por bloco.** Empilhar "clica, compra, segue, comenta e compartilha" na mesma frase não faz nenhum dos cinco. Escolhe o degrau em que a sala está.
+
+---
+
 # ARSENAL POR MOMENTO — 54 ângulos
 
 A live é lida por partes. Em cada trecho o TikTok mede **uma coisa diferente** — e a fala que
