@@ -743,3 +743,86 @@ própria aquisição. Censuras declaradas: a janela começa em 2026-01-01 (quem 
 aparece como novo → CAC real um pouco MAIOR) e a % de recompra de agosto é censurada por tempo.
 
 Relatório: `relatorios/2026-08/Relatorio Fechamento Agosto por Canal_2026-09-01.xlsx` (+ `.md`).
+
+---
+
+## P13 · "O TikTok me subsidia 10% off, por isso a peça sai a R$ 71" ✅ CONFIRMADA (com correção de nível)
+
+**Premissa declarada pelo dono (02/09/2026), antes de calcular:** o preço baixo por peça na live
+não é desconto da Rhode — é `platform_discount`, subsídio que o TikTok banca. Logo a régua de
+margem não pode ser lida sobre o preço que a cliente paga.
+
+**Veredito: ✅ CONFIRMADA no mecanismo — ❌ desatualizada no nível.**
+
+Medido em `statement_tx` × `pedidos_sku`, pedidos **sem devolução** e com `settlement > 0`:
+
+| | jun/26 | jul/26 | ago/26 |
+|---|---:|---:|---:|
+| Preço anunciado / peça | R$ 89,60 | R$ 87,96 | R$ 86,00 |
+| **Subsídio TikTok / peça** | **R$ 8,33** | R$ 5,68 | **R$ 5,98** |
+| **% do que a cliente paga** | **10,2%** | 6,9% | **7,5%** |
+| Cliente paga / peça | R$ 81,27 | R$ 82,28 | R$ 80,02 |
+| Rhode recebe (settlement) / peça | R$ 65,83 | R$ 62,21 | R$ 59,93 |
+| **Contribuição / peça** (− imposto − CPV) | **R$ 16,69** | R$ 13,30 | **R$ 11,16** |
+
+- **O dono está certo:** o subsídio existe, é real, e em **junho foi exatamente 10,2%** — o
+  número que ele carregava. Não é desconto do próprio bolso.
+- **Mas caiu:** 10,2% → 6,9% → 7,5%. São **R$ 2,35 a menos por peça**, ≈ **R$ 10 mil/mês** que a
+  plataforma parou de bancar, sem que ninguém tenha decidido isso.
+- **Contribuição por peça caiu 33% em dois meses** (16,69 → 11,16) com a operação igual.
+- Consistente com [[reference_cofinanciamento_e_cpv_real]] (11/08): lá o co-financiamento foi
+  medido como **~3–4% do `gross_sales`**; aqui como **7,5% do que a cliente paga**. É a mesma
+  grandeza em bases diferentes — `gross_sales` é preço de catálogo (ficção, R$ 189).
+  **Não são leituras conflitantes.**
+
+**Consequências:**
+
+1. **A régua de preço é o anunciado, não o pago.** Break-even = **R$ 78,65 anunciado**
+   (`(CPV 44,93 + mídia 6,38) ÷ 0,70`). Virou a régua "R$ 79" do `BANCO_ROTEIROS_LIVE.md`.
+2. **Corrigi minha própria conta no meio do trabalho:** eu havia fixado break-even em R$ 76 sobre
+   o preço *pago*, aplicando taxa efetiva sem considerar que o settlement já embute o subsídio.
+   Base errada. O número certo é R$ 78,65 sobre o **anunciado**.
+3. **O co-financiamento é gated por campanha**, não default. Recuperar os 10,2% de junho vale
+   ~R$ 10k/mês — mais que qualquer ganho de pitch disponível. **É conversa com o parceiro TT,
+   não com a operação.**
+
+**⏳ Em aberto:** por que o subsídio caiu entre junho e julho. Junho tinha a campanha 6.6 ativa
+(ver [[project_campanha_66_tiktok]]) — a hipótese é que o nível de junho era gated pela campanha
+e não pelo relacionamento. Não testado.
+
+---
+
+## P14 · Tipologia de sala de live: "saldão vende muito, então ajuda" ❌ REFUTADA (02/09/2026)
+
+**Premissa declarada antes de calcular:** salas de saldão, por moverem muito volume, contribuem
+para o mês mesmo com preço menor.
+
+**Veredito: ❌ REFUTADA.** Classificando as 58 salas de agosto pelo título e usando o preço médio
+do mês (R$ 73,12) como break-even da base `live_attr` — válido porque a live própria fechou em
+~zero (−R$ 71,09):
+
+| Tipo | Salas | Peças/sala | Preço/peça | Contrib/peça | Total |
+|---|---:|---:|---:|---:|---:|
+| REPOSIÇÃO | 9 | 13,1 | R$ 79,97 | +R$ 4,80 | +R$ 567 |
+| PROMO/CUPOM | 6 | 76,2 | R$ 76,62 | +R$ 2,45 | +R$ 1.121 |
+| ROTINA | 35 | 36,6 | R$ 75,18 | +R$ 1,44 | +R$ 1.849 |
+| ÚLTIMA CHANCE | 6 | 55,8 | R$ 73,23 | +R$ 0,08 | +R$ 26 |
+| **SALDÃO** | **2** | **142,0** | **R$ 55,26** | **−R$ 12,52** | **−R$ 3.556** |
+| TOTAL | 58 | 42,7 | R$ 73,12 | ~0 | +R$ 6 |
+
+> **Duas salas de saldão (284 peças, 11,5% do volume) apagaram R$ 3.556 — exatamente o lucro que
+> as outras 56 salas geraram (R$ 3.562).** Agosto não teve problema difuso de margem: teve duas noites.
+
+**Achados laterais:**
+- **"Promo" no título não corta preço.** Salas de promo venderam a R$ 76,62 (acima da rotina) com
+  **2,1x mais peças por sala**. O rótulo puxa audiência; o cupom de valor fixo preserva a peça.
+  **É o formato a escalar.**
+- **Reposição é a sala mais rentável do mês e roda com 1/3 do volume da rotina.** Escassez real.
+- **Saldão tem o melhor attach do mês (1,40 vs 1,19).** A mecânica de segunda peça dele funciona;
+  o preço é que não. Aplicar a mecânica na rotina vale mais que rodar saldão.
+
+**⏳ Ressalva:** as 2 salas de saldão foram "SHORTS E SAIA" (CPV R$ 35–42, não R$ 44,93) — o
+prejuízo real é menor que R$ 12,52/peça. **O sinal é robusto** (negativo em qualquer CPV entre 35
+e 45); o tamanho não está cravado. Falta o export por-live de agosto.
+
+Registrado em `docs/BANCO_ROTEIROS_LIVE.md`.
