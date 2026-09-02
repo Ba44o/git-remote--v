@@ -4,6 +4,11 @@
 > As falas são para **falar**, não para ler no ar. Cada apresentadora reescreve com as
 > palavras dela — o que é travado é a **função** de cada fala e o **momento** dela.
 >
+> **Publicado (02/09/26)** em versão creator-safe no módulo *Live que vende* da
+> **Rhode Creators Academy** → creators.rhodejeans.com.br/academia (seção "📋 Os roteiros —
+> a live inteira", 6 roteiros em cards expansíveis). **Os números internos — CPV, margem,
+> break-even, subsídio — ficam FORA de lá:** a Academy é creator-facing e sem login.
+>
 > Complementa `PLAYBOOK_LIVE_CTA.md` (cartela de CTAs) e `REFERENCIA_LIVE_COMMERCE_TIKTOK.md`
 > (regras oficiais). A conta de margem que sustenta as réguas está em
 > `docs/DECISOES-E-PREMISSAS.md` (P13) — não precisa ler para apresentar.
@@ -455,9 +460,22 @@ mais converte e a mais fácil de fazer, porque é sobre o próprio corpo:
 > "Você não tá pagando oitenta e nove numa calça. Tá pagando pra não ficar puxando o cós."
 > "É 100% algodão e não desbota. Eu lavo essa toda semana e ela tá aqui."
 
-## "E se não servir?"
+## "E se não servir?" — resposta liberada pelo dono (02/09/26)
 
-> ⚠️ **[PENDENTE — política de troca por escrito. Não falar nada que não esteja na página.]**
+Responda **de frente**. Ela já sabe que pode dar errado — quem desconversa parece ter o que
+esconder. Falar a regra **aumenta** a compra.
+
+> "Amiga, não se preocupa: **TikTok é super seguro**. Se chegar na sua casa e não servir, você
+> devolve e recebe o seu reembolso."
+> "Meninas, **devolução é gratuita** — chegou e não serviu, você devolve e o seu dinheiro volta."
+> "Não serviu? Você tem **7 dias** depois que receber pra devolver, e o dinheiro volta pra você."
+> "No TikTok Shop **não existe troca direta** — não é a loja, é a plataforma. Você devolve,
+> recebe o reembolso e compra o número certo."
+> "O código de postagem sai no próprio app: seu perfil → pedidos → solicitar devolução."
+
+⚠️ **Não vá além disso.** Prazo, frete e garantia: só o que está escrito na página. Como **não
+existe troca**, errar o número não vira "manda o outro tamanho" — vira devolução e venda perdida.
+É exatamente por isso que o espelho de tamanho é o passo mais importante do bloco.
 
 ## Pagamento parado
 
@@ -557,8 +575,8 @@ Escala: advertência → suspensão de 24–48h → 7–30 dias → restrição 
 
 # PENDÊNCIAS
 
-- [ ] **Política de troca/devolução por escrito** — a objeção "e se não servir?" não tem fala
-      hoje porque ninguém pode prometer nada. É a maior lacuna do banco.
+- [x] ~~Política de troca/devolução~~ — **resolvido 02/09/26.** Falas liberadas pelo dono e
+      publicadas na Academy (devolução gratuita + reembolso + 7 dias + não há troca direta).
 - [ ] **Ficha de medidas de cada apresentadora** (altura, peso, quadril, tamanho) — o espelho de
       tamanho é individual. Sem isso, o roteiro mais importante não roda.
 - [ ] Confirmar se "quase 40 mil calças vendidas" continua verdade antes de falar no ar.
