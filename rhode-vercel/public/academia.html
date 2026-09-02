@@ -340,86 +340,86 @@
   .soon-box .st{font-weight:800;color:var(--ink);font-size:17px;margin-bottom:5px}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:99px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s ease;z-index:50}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  /* LIVE — bloco de 40s + banco de falas (escopado em #v-live) */
-  #v-live .lvbeats{display:flex;flex-direction:column;margin-top:6px}
-  #v-live .lvbeat{display:grid;grid-template-columns:62px 1fr;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
-  #v-live .lvbeat:first-child{border-top:none}
-  #v-live .lvbeat .lvbt{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--red);padding-top:2px;letter-spacing:-.02em}
-  #v-live .lvbeat>div>b{font-size:15px;display:block;margin-bottom:2px}
-  #v-live .lvbeat small{font-size:13.5px;color:var(--muted);line-height:1.5}
-  #v-live .lvbeat.hot{background:var(--red-wash);border-radius:10px;border-top-color:transparent;padding-left:10px;padding-right:10px;margin:0 -10px}
-  #v-live .falas{display:flex;flex-direction:column;gap:9px;margin-top:10px}
-  #v-live .fala{background:var(--paper);border:1px solid var(--line);border-left:2px solid var(--red);border-radius:8px;padding:11px 13px;font-size:15px;line-height:1.5}
-  #v-live .fala b{font-weight:700}
-  #v-live .lvangs{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-  #v-live .lvang{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 13px}
-  #v-live .lvang>b{font-size:14.5px;font-weight:800;display:inline}
-  #v-live .lvang>i{font-style:normal;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--red);background:var(--red-wash);padding:3px 7px;border-radius:6px;margin-left:7px;white-space:nowrap;display:inline-block;vertical-align:1px}
-  #v-live .lvang>p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:6px 0 0}
-  #v-live .lvang .fala{margin-top:9px;font-size:14.5px}
-  #v-live .falagrp{margin-top:18px}
-  #v-live .falagrp>h4{font-size:15px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-  #v-live .falagrp>p{font-size:13.5px;color:var(--muted);line-height:1.5}
-  #v-live .mv{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);background:var(--red-wash);padding:3px 7px;border-radius:6px;white-space:nowrap}
-  #v-live .faq summary{gap:9px;align-items:flex-start;flex-wrap:wrap}
-  #v-live .faq summary .sq{flex:1;min-width:0}
-  #v-live .faq .fa{color:var(--ink);max-width:none}
-  #v-live .fa .lbl{display:block;font-size:11px;font-family:var(--mono);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);margin:14px 0 5px}
-  #v-live .fa .lbl:first-child{margin-top:0}
-  #v-live .fa ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px}
-  #v-live .fa li{padding-left:17px;position:relative;font-size:14.5px;line-height:1.5}
-  #v-live .fa li::before{content:"→";position:absolute;left:0;color:var(--red);font-weight:700}
-  #v-live .diag{display:flex;flex-direction:column;gap:9px;margin-top:12px}
-  #v-live .dg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
-  #v-live .dg.key{border-color:var(--red);background:var(--red-wash)}
-  #v-live .dg .ve{font-size:15px;font-weight:700;line-height:1.35}
-  #v-live .dg .on{font-size:13px;color:var(--muted);margin-top:3px}
-  #v-live .dg .on b{color:var(--ink);font-weight:600}
-  #v-live .dg .ac{font-size:14.5px;line-height:1.5;margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
-  #v-live .dg.key .ac{border-top-color:var(--red-line,rgba(254,44,85,.3))}
-  #v-live .dg .ac::before{content:"→ ";color:var(--red);font-weight:700}
-  #v-live .papeis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
-  #v-live .papel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
-  #v-live .papel h5{font-size:14px;font-weight:800;margin:0 0 6px}
-  #v-live .papel p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0}
-  @media (max-width:680px){#v-live .papeis{grid-template-columns:1fr}}
+  /* LIVE — bloco de 40s + banco de falas (escopado em .livemod) */
+  .livemod .lvbeats{display:flex;flex-direction:column;margin-top:6px}
+  .livemod .lvbeat{display:grid;grid-template-columns:62px 1fr;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
+  .livemod .lvbeat:first-child{border-top:none}
+  .livemod .lvbeat .lvbt{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--red);padding-top:2px;letter-spacing:-.02em}
+  .livemod .lvbeat>div>b{font-size:15px;display:block;margin-bottom:2px}
+  .livemod .lvbeat small{font-size:13.5px;color:var(--muted);line-height:1.5}
+  .livemod .lvbeat.hot{background:var(--red-wash);border-radius:10px;border-top-color:transparent;padding-left:10px;padding-right:10px;margin:0 -10px}
+  .livemod .falas{display:flex;flex-direction:column;gap:9px;margin-top:10px}
+  .livemod .fala{background:var(--paper);border:1px solid var(--line);border-left:2px solid var(--red);border-radius:8px;padding:11px 13px;font-size:15px;line-height:1.5}
+  .livemod .fala b{font-weight:700}
+  .livemod .lvangs{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  .livemod .lvang{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 13px}
+  .livemod .lvang>b{font-size:14.5px;font-weight:800;display:inline}
+  .livemod .lvang>i{font-style:normal;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--red);background:var(--red-wash);padding:3px 7px;border-radius:6px;margin-left:7px;white-space:nowrap;display:inline-block;vertical-align:1px}
+  .livemod .lvang>p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:6px 0 0}
+  .livemod .lvang .fala{margin-top:9px;font-size:14.5px}
+  .livemod .falagrp{margin-top:18px}
+  .livemod .falagrp>h4{font-size:15px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .livemod .falagrp>p{font-size:13.5px;color:var(--muted);line-height:1.5}
+  .livemod .mv{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);background:var(--red-wash);padding:3px 7px;border-radius:6px;white-space:nowrap}
+  .livemod .faq summary{gap:9px;align-items:flex-start;flex-wrap:wrap}
+  .livemod .faq summary .sq{flex:1;min-width:0}
+  .livemod .faq .fa{color:var(--ink);max-width:none}
+  .livemod .fa .lbl{display:block;font-size:11px;font-family:var(--mono);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);margin:14px 0 5px}
+  .livemod .fa .lbl:first-child{margin-top:0}
+  .livemod .fa ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px}
+  .livemod .fa li{padding-left:17px;position:relative;font-size:14.5px;line-height:1.5}
+  .livemod .fa li::before{content:"→";position:absolute;left:0;color:var(--red);font-weight:700}
+  .livemod .diag{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+  .livemod .dg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+  .livemod .dg.key{border-color:var(--red);background:var(--red-wash)}
+  .livemod .dg .ve{font-size:15px;font-weight:700;line-height:1.35}
+  .livemod .dg .on{font-size:13px;color:var(--muted);margin-top:3px}
+  .livemod .dg .on b{color:var(--ink);font-weight:600}
+  .livemod .dg .ac{font-size:14.5px;line-height:1.5;margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
+  .livemod .dg.key .ac{border-top-color:var(--red-line,rgba(254,44,85,.3))}
+  .livemod .dg .ac::before{content:"→ ";color:var(--red);font-weight:700}
+  .livemod .papeis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+  .livemod .papel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+  .livemod .papel h5{font-size:14px;font-weight:800;margin:0 0 6px}
+  .livemod .papel p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0}
+  @media (max-width:680px){.livemod .papeis{grid-template-columns:1fr}}
   /* ENSAIO — timer do bloco de 40s */
-  #v-live .ens{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:12px}
-  #v-live .ens-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  #v-live .ens-clock{font-family:var(--mono);font-size:44px;font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--red);font-variant-numeric:tabular-nums;min-width:104px}
-  #v-live .ens-now{flex:1;min-width:150px}
-  #v-live .ens-now .lb2{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);font-weight:700}
-  #v-live .ens-now .tt{font-size:17px;font-weight:800;line-height:1.2;margin-top:2px}
-  #v-live .ens-bar{height:7px;background:var(--paper);border-radius:99px;overflow:hidden;margin-top:14px;border:1px solid var(--line)}
-  #v-live .ens-fill{height:100%;width:0;background:var(--red);border-radius:99px;transition:width .18s linear}
-  #v-live .ens-say{margin-top:12px;font-size:15.5px;line-height:1.5;min-height:3.6em;padding:12px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
-  #v-live .ens-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  #v-live .ens-btn{flex:1;min-width:110px;font-size:15px;font-weight:700;padding:12px 16px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
-  #v-live .ens-btn.pri{background:var(--red);color:#fff;border-color:var(--red)}
-  #v-live .ens-btn:focus-visible,#v-live .gen input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
-  #v-live .ens-dots{display:flex;gap:5px;margin-top:12px}
-  #v-live .ens-dot{flex:1;height:4px;border-radius:99px;background:var(--line)}
-  #v-live .ens-dot.on{background:var(--red)}
+  .livemod .ens{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:12px}
+  .livemod .ens-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .livemod .ens-clock{font-family:var(--mono);font-size:44px;font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--red);font-variant-numeric:tabular-nums;min-width:104px}
+  .livemod .ens-now{flex:1;min-width:150px}
+  .livemod .ens-now .lb2{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);font-weight:700}
+  .livemod .ens-now .tt{font-size:17px;font-weight:800;line-height:1.2;margin-top:2px}
+  .livemod .ens-bar{height:7px;background:var(--paper);border-radius:99px;overflow:hidden;margin-top:14px;border:1px solid var(--line)}
+  .livemod .ens-fill{height:100%;width:0;background:var(--red);border-radius:99px;transition:width .18s linear}
+  .livemod .ens-say{margin-top:12px;font-size:15.5px;line-height:1.5;min-height:3.6em;padding:12px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+  .livemod .ens-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .livemod .ens-btn{flex:1;min-width:110px;font-size:15px;font-weight:700;padding:12px 16px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+  .livemod .ens-btn.pri{background:var(--red);color:#fff;border-color:var(--red)}
+  .livemod .ens-btn:focus-visible,.livemod .gen input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  .livemod .ens-dots{display:flex;gap:5px;margin-top:12px}
+  .livemod .ens-dot{flex:1;height:4px;border-radius:99px;background:var(--line)}
+  .livemod .ens-dot.on{background:var(--red)}
   /* GERADOR — espelho de tamanho */
-  #v-live .gen{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:12px}
-  #v-live .gen-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  #v-live .gen label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:4px}
-  #v-live .gen input{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
-  #v-live .gen-out{margin-top:14px;display:flex;flex-direction:column;gap:9px}
-  #v-live .gen-empty{font-size:14px;color:var(--muted);padding:14px;background:var(--paper);border:1px dashed var(--line);border-radius:10px;text-align:center}
+  .livemod .gen{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:12px}
+  .livemod .gen-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .livemod .gen label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:4px}
+  .livemod .gen input{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+  .livemod .gen-out{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+  .livemod .gen-empty{font-size:14px;color:var(--muted);padding:14px;background:var(--paper);border:1px dashed var(--line);border-radius:10px;text-align:center}
   /* EXEMPLO PRÁTICO */
-  #v-live .ex40{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:12px}
-  #v-live .ex40 .xl{display:grid;grid-template-columns:70px 1fr;gap:11px;padding:13px 15px;border-top:1px solid var(--line)}
-  #v-live .ex40 .xl:first-child{border-top:none}
-  #v-live .ex40 .xt{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);letter-spacing:-.02em;padding-top:3px}
-  #v-live .ex40 .xt small{display:block;color:var(--soft);font-size:9.5px;letter-spacing:.06em;margin-top:3px}
-  #v-live .ex40 .xs{font-size:15.5px;line-height:1.5}
-  #v-live .ex40 .xa{font-size:12.5px;color:var(--soft);margin-top:4px;font-style:italic}
+  .livemod .ex40{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:12px}
+  .livemod .ex40 .xl{display:grid;grid-template-columns:70px 1fr;gap:11px;padding:13px 15px;border-top:1px solid var(--line)}
+  .livemod .ex40 .xl:first-child{border-top:none}
+  .livemod .ex40 .xt{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);letter-spacing:-.02em;padding-top:3px}
+  .livemod .ex40 .xt small{display:block;color:var(--soft);font-size:9.5px;letter-spacing:.06em;margin-top:3px}
+  .livemod .ex40 .xs{font-size:15.5px;line-height:1.5}
+  .livemod .ex40 .xa{font-size:12.5px;color:var(--soft);margin-top:4px;font-style:italic}
   /* fala copiável */
-  #v-live .fala{cursor:pointer;transition:border-color .15s,transform .1s}
-  #v-live .fala:hover{border-color:var(--red)}
-  #v-live .fala:active{transform:scale(.995)}
-  #v-live .fala.cp{border-color:var(--red);background:var(--red-wash)}
+  .livemod .fala{cursor:pointer;transition:border-color .15s,transform .1s}
+  .livemod .fala:hover{border-color:var(--red)}
+  .livemod .fala:active{transform:scale(.995)}
+  .livemod .fala.cp{border-color:var(--red);background:var(--red-wash)}
   @media (max-width:680px){.grid{grid-template-columns:1fr 1fr}.vocab,.fmts,.remix,.missoes{grid-template-columns:1fr}}
   @media (max-width:430px){.grid{grid-template-columns:1fr}}
   /* ===== MODO TOUR (?demo=tour) — vídeo de apresentação, estilo editorial ===== */
@@ -487,7 +487,7 @@
   </div></div>
 
   <!-- LIVE QUE VENDE -->
-  <div class="view" id="v-live"><div class="container">
+    <div class="view livemod" id="v-live"><div class="container">
     <div class="vhead"><div class="eyebrow">Módulo · live</div><h1>Ninguém <span class="hl">acompanha</span> a sua live</h1><p class="sub">Quem entra na sala fica menos de 30 segundos. Isso não é problema — é a regra do jogo. Este roteiro é feito pra ela.</p></div>
 
     <div class="why">
@@ -699,16 +699,6 @@
       <div class="aviso" style="margin-top:10px">💡 Como não existe troca, errar o número não vira "manda o outro tamanho" — vira devolução e venda perdida. É por isso que o <b>espelho de tamanho</b> é o passo mais importante do bloco.</div>
     </div>
 
-    <div class="blk"><h3>👗 A ordem das peças</h3>
-      <p class="sub" style="margin-bottom:6px">Nem toda peça faz a mesma coisa numa live. Essa ordem vem do que as lives da Rhode já fizeram:</p>
-      <div class="trilha"><ul>
-        <li><b>Abre com Mom ou Azul Médio.</b> São as que mais puxam clique — aquecem a sala. Uns dez minutos, não mais.</li>
-        <li><b>Vai pra Marmorizada e fica.</b> É ela que carrega a live. O problema dela não é atenção, é fechamento — então o espelho de tamanho entra em todo bloco.</li>
-        <li><b>Fecha bloco com short.</b> É a peça que mais converte por clique e a segunda peça mais fácil: mesma cintura, mesmo frete.</li>
-        <li><b>Deixa de fora</b> as peças de brilho, body e saia. Elas comem tempo de tela e vendem pouco — esse tempo rende mais em qualquer uma de cima.</li>
-      </ul></div>
-    </div>
-
     <div class="blk"><h3>🗣️ Como você fala na live</h3>
       <div class="vocab">
         <div><h4>✓ Usa</h4><div class="tags">
@@ -722,7 +712,13 @@
       <div class="aviso" style="margin-top:10px">🛒 O botão é <b>laranja</b>. "Carrinho laranja" e "sacolinha laranja" valem os dois — <b>amarelo</b> não. Escolhe um e repete o mesmo o vídeo inteiro: trocar de nome no meio faz a pessoa procurar a coisa errada.</div>
     </div>
 
-    <div class="blk"><h3>🎬 Cada momento e o que ele move</h3>
+        <div style="margin-top:22px"><button class="btn" onclick="show('conduzir')">Como conduzir a sala →</button></div>
+  </div></div>
+
+    <div class="view livemod" id="v-conduzir"><div class="container">
+    <div class="vhead"><div class="eyebrow">Módulo · live</div><h1>Conduzir a <span class="hl">sala</span></h1><p class="sub">Cada trecho da live decide um número diferente. Aqui está o que fazer quando a sala esquenta, quando esfria — e o único número que julga o seu pitch.</p></div>
+
+<div class="blk"><h3>🎬 Cada momento e o que ele move</h3>
       <p class="sub" style="margin-bottom:12px">A live não é uma coisa só. Cada hora dela decide um número diferente — e a ação certa às 20h05 é errada às 22h30. Abre o momento que você vai viver agora.</p>
       <div class="faq">
 
@@ -846,7 +842,54 @@
       </div>
     </div>
 
-        <div class="blk"><h3>👖 O framework de 2 produtos — Wide Leg e Mom</h3>
+        <div class="blk"><h3>🔍 Leitura ao vivo — o número caiu, e agora</h3>
+      <p class="sub" style="margin-bottom:6px">A regra é sempre a mesma: olha <b>onde</b> o funil quebrou, não o total. Impressão → clique → compra.</p>
+      <div class="diag">
+        <div class="dg"><div class="ve">Muita impressão, pouca gente entra</div><div class="on">O problema está em <b>capa, título e cenário</b></div><div class="ac">Troca a capa e o título. Não é a peça — ninguém chegou a ver a peça.</div></div>
+        <div class="dg"><div class="ve">Entra e sai rápido</div><div class="on">O problema está no <b>bloco que não fecha sozinho</b></div><div class="ac">Reabre do zero a cada 40 segundos: peça, seu número, preço.</div></div>
+        <div class="dg"><div class="ve">O produto aparece mas não clicam</div><div class="on">O problema está na <b>demonstração e no card</b></div><div class="ac">Mostra em movimento, nomeia a peça em voz alta e refixa o card.</div></div>
+        <div class="dg key"><div class="ve">Clicam mas não compram</div><div class="on">O problema é <b>dúvida</b>: tamanho, preço ou risco</div><div class="ac">Espelho de tamanho + preço em voz alta + a regra de devolução. É o número que mais vale — trata como emergência.</div></div>
+        <div class="dg"><div class="ve">Vende, mas o ticket cai</div><div class="on">É o <b>comprador tardio</b>, normal no fim da live</div><div class="ac">Oferece combo no lugar de peça avulsa.</div></div>
+        <div class="dg"><div class="ve">Chat parado</div><div class="on">A <b>pergunta está aberta demais</b></div><div class="ac">Pergunta de uma palavra só — e responde pelo nome.</div></div>
+        <div class="dg"><div class="ve">Subiu gente, não subiu pedido</div><div class="on">Você tem <b>atenção sem oferta</b></div><div class="ac">Fala o preço, fala o que fazer no card, dá um motivo pra ser agora.</div></div>
+        <div class="dg"><div class="ve">Peça com muito palco e pouca venda</div><div class="on">A <b>grade está errada</b></div><div class="ac">Tira da próxima live. O tempo de tela dela rende mais em qualquer outra.</div></div>
+      </div>
+    </div>
+
+    <div class="blk"><h3>👥 Quem faz o quê</h3>
+      <p class="sub">Se você estiver sozinha, faz os três — mas sabendo que são três trabalhos. Com duas pessoas, a conta muda muito.</p>
+      <div class="papeis">
+        <div class="papel"><h5>🎤 Host</h5><p>Fala, corpo, espelho de tamanho, fechamento. Não olha métrica durante a live — quem olha número para de vender.</p></div>
+        <div class="papel"><h5>📌 Card</h5><p><b>Pina</b> ao entrar na peça · <b>repina</b> quando a host falar o preço · <b>despina</b> ao sair. O card morre em 30s — esse ciclo é o trabalho inteiro. Acompanha clique e compra após clique e avisa a host.</p></div>
+        <div class="papel"><h5>💬 Moderação</h5><p>Quebra objeção no chat — tamanho, prazo, pagamento. Avisa a host do que está travando. Fica de olho em alerta de violação.</p></div>
+      </div>
+    </div>
+
+    <div class="blk"><h3>🚨 O que derruba a sua live</h3>
+      <p class="sub">Regra do TikTok, não da Rhode. Violação tira alcance, e reincidência suspende a sua live por dias. Vale a pena decorar.</p>
+      <div class="trilha"><ul>
+        <li><b>Voz de IA e áudio gravado estão proibidos</b> desde julho/2026. A fala tem que ser ao vivo, sua. Libras vale — narração de robô não.</li>
+        <li><b>Nada de print da página do produto</b> na tela. Imagem parada, slideshow ou gravação de tela não podem ocupar mais da metade da tela. A tabela de medidas você <b>fala</b> e manda abrir no card — não mostra print.</li>
+        <li><b>Seu rosto aparece e você fala.</b> Câmera parada em cima da peça, sem gente, conta como conteúdo de baixa qualidade.</li>
+        <li><b>Não manda ninguém pra fora do TikTok.</b> Nada de link externo, QR code ou "me chama no direct do Insta". Nem citar outras lojas ou outros apps.</li>
+        <li><b>Não fala de produto que não está listado</b> na live. Se não está no carrinho, não entra na conversa.</li>
+        <li><b>Nada de promessa que você não sustenta.</b> "Emagrece", "modela o corpo pra sempre", "cura" — não. Fala o que a calça faz de verdade.</li>
+      </ul></div>
+      <div class="aviso" style="margin-top:14px">💡 A luz e o microfone também entram nessa lista: imagem escura, borrada ou áudio com barulho de fundo contam como produção ruim — e produção ruim é violação, não só descuido.</div>
+    </div>
+
+    <div class="blk"><h3>📊 Um número julga a sua live</h3>
+      <p class="sub"><b>Taxa de compra após clique.</b> Não olha o total vendido pra saber se você foi bem — isso sobe só por ficar mais tempo no ar. Esse número mede a sua <b>fala</b>: de cada 100 pessoas que clicaram no produto, quantas compraram.</p>
+      <p class="sub" style="margin-top:10px">Sobe quando o espelho de tamanho aparece em todo bloco, quando você responde pelo nome e quando lembra do pagamento. Cai quando você troca de card rápido demais.</p>
+    </div>
+
+    <div style="margin-top:22px"><button class="btn" onclick="show('palco')">Montar o palco da live →</button></div>
+  </div></div>
+
+<div class="view livemod" id="v-palco"><div class="container">
+    <div class="vhead"><div class="eyebrow">Módulo · live</div><h1>Duas peças, <span class="hl">quatro fases</span></h1><p class="sub">A Wide Leg abre e sustenta, a Mom entra quando a sala enche. E cada fase da live pede um tipo de peça diferente — é assim que o TikTok espera que a sua sala funcione.</p></div>
+
+<div class="blk"><h3>👖 O framework de 2 produtos — Wide Leg e Mom</h3>
       <p class="sub">A live inteira roda com <b>duas peças</b>. Não é limitação: é o que faz a sala aprender. Sala com muita peça cansa o espectador e o próprio TikTok recomenda reduzir o número de produtos ao mesmo tempo.</p>
 
       <div class="why">
@@ -886,7 +929,44 @@
       <div class="aviso" style="margin-top:10px">📡 <b>Regularidade é entrada de tráfego.</b> O TikTok distribui audiência <b>antecipadamente</b> pra quem foi bem nas últimas lives. Live fraca hoje custa alcance na próxima — é por isso que 2h consistentes valem mais que uma mega live isolada.</div>
     </div>
 
-        <div class="blk"><h3>🎯 Arsenal por momento — o que o algoritmo quer agora</h3>
+        <div class="blk"><h3>👗 A ordem das peças</h3>
+      <p class="sub" style="margin-bottom:6px">Nem toda peça faz a mesma coisa numa live. Essa ordem vem do que as lives da Rhode já fizeram:</p>
+      <div class="trilha"><ul>
+        <li><b>Abre com Mom ou Azul Médio.</b> São as que mais puxam clique — aquecem a sala. Uns dez minutos, não mais.</li>
+        <li><b>Vai pra Marmorizada e fica.</b> É ela que carrega a live. O problema dela não é atenção, é fechamento — então o espelho de tamanho entra em todo bloco.</li>
+        <li><b>Fecha bloco com short.</b> É a peça que mais converte por clique e a segunda peça mais fácil: mesma cintura, mesmo frete.</li>
+        <li><b>Deixa de fora</b> as peças de brilho, body e saia. Elas comem tempo de tela e vendem pouco — esse tempo rende mais em qualquer uma de cima.</li>
+      </ul></div>
+    </div>
+
+    <div class="blk"><h3>🔥 Produto aquecido — por que ficar na peça</h3>
+      <p class="sub">O instinto quando uma peça vende é <b>trocar</b>, pra não repetir. É o erro que mais custa venda numa live. O TikTok aprende <b>por produto</b>: cada clique, cada compra e cada segundo em cima do mesmo card ensina a máquina a quem mostrar a sua sala.</p>
+
+      <div class="why">
+        <div class="wy"><b>🔁 Peça que vende, fica.</b> Emplacou? Você <b>não</b> troca. Trocar de peça no momento em que ela está convertendo é tirar do ar exatamente o que estava funcionando — e o aprendizado recomeça do zero na peça nova.</div>
+        <div class="wy"><b>📈 O card concentra sinal.</b> Fixar o <b>mesmo</b> produto, repetidamente, dentro de um bloco longo faz o TikTok entender qual é a peça da sala. Pular de card em card dilui: nenhuma peça aquece.</div>
+        <div class="wy"><b>🧊 Peça nova entra fria.</b> Produto que acabou de subir não tem histórico — ele precisa de tempo no ar pra aprender. Estreia de peça vai <b>no meio da live</b>, com a sala cheia, nunca no começo nem correndo.</div>
+      </div>
+
+      <p class="sub" style="margin-top:14px"><b>Como aquecer na prática:</b> escolhe a peça, fica nela por blocos seguidos, refixa o card a cada preço falado, narra cada venda que sai e só troca quando a sala esfriar de verdade — <b>não quando bater a sensação de "já falei isso demais"</b>. Essa sensação é uma armadilha: <b>você é a única pessoa que fica as duas horas inteiras.</b> Quem assiste fica meio minuto. Quando você já repetiu a fala vinte vezes, quem está na tela agora está ouvindo pela primeira vez — a sala não é a mesma sala, ela se troca a cada 30 segundos. Trocar de peça porque <b>você</b> cansou é jogar fora o produto quente por um cansaço que só é seu.</p>
+
+      <div class="falagrp"><h4>Falas que mantêm a peça quente</h4><p>Repetir sem soar repetido: muda a palavra, mantém a peça.</p></div>
+      <div class="lvangs">
+        <div class="lvang"><b>Recomeço para quem chegou</b> <i>aquece</i><p>Reabre a mesma peça como se fosse a primeira vez. Pra metade da sala, é.</p><div class="fala">"Entrou agora? Então volto do zero nessa aqui, que é a que tá saindo mais hoje."</div></div>
+        <div class="lvang"><b>Ângulo novo, mesma peça</b> <i>aquece</i><p>Troca o que você mostra, não o produto. Sentada, de costas, com outro sapato.</p><div class="fala">"Agora olha ela com tênis. Muda completamente — é outra calça."</div></div>
+        <div class="lvang"><b>Placar da peça</b> <i>aquece</i><p>Cada venda narrada é combustível pra próxima.</p><div class="fala">"Essa já é a sétima que sai hoje. Sétima."</div></div>
+        <div class="lvang"><b>Aviso de saída</b> <i>impulso</i><p>Só troque avisando — quem estava adiando decide na hora.</p><div class="fala">"É a última vez que eu mostro essa hoje. Depois dela eu vou pra Mom e não volto."</div></div>
+        <div class="lvang"><b>Estreia no pico</b> <i>aquece</i><p>Peça nova entra quando a sala está cheia, com apresentação inteira.</p><div class="fala">"Agora que tem bastante gente, deixa eu apresentar uma que chegou essa semana."</div></div>
+      </div>
+    </div>
+
+        <div style="margin-top:22px"><button class="btn" onclick="show('arsenal')">Ver o arsenal de falas →</button></div>
+  </div></div>
+
+  <div class="view livemod" id="v-arsenal"><div class="container">
+    <div class="vhead"><div class="eyebrow">Módulo · live</div><h1>O que dizer <span class="hl">em cada momento</span></h1><p class="sub">117 ângulos: por momento da live e por eixo de venda — urgência, impulso, valor e chamada. O ângulo é compartilhado; a frase é sua.</p></div>
+
+<div class="blk"><h3>🎯 Arsenal por momento — o que o algoritmo quer agora</h3>
       <p class="sub">A live é lida por partes. Em cada trecho o TikTok está medindo <b>uma coisa diferente</b> — e a fala que salva o minuto 5 é a errada no minuto 90. Aqui está o repertório de cada momento: <b>o ângulo, o que ele move e um exemplo</b>.</p>
       <p class="sub" style="margin-top:10px">Mesma regra do banco de ganchos: <b>o ângulo é compartilhado, a frase é sua.</b> Pega dois de cada momento, roda uma semana, troca. Quem repete a mesma frase a live inteira ensina a sala a ignorar você.</p>
 
@@ -1024,50 +1104,13 @@
       </div>
     </div>
 
-<div class="blk"><h3>🔍 Leitura ao vivo — o número caiu, e agora</h3>
-      <p class="sub" style="margin-bottom:6px">A regra é sempre a mesma: olha <b>onde</b> o funil quebrou, não o total. Impressão → clique → compra.</p>
-      <div class="diag">
-        <div class="dg"><div class="ve">Muita impressão, pouca gente entra</div><div class="on">O problema está em <b>capa, título e cenário</b></div><div class="ac">Troca a capa e o título. Não é a peça — ninguém chegou a ver a peça.</div></div>
-        <div class="dg"><div class="ve">Entra e sai rápido</div><div class="on">O problema está no <b>bloco que não fecha sozinho</b></div><div class="ac">Reabre do zero a cada 40 segundos: peça, seu número, preço.</div></div>
-        <div class="dg"><div class="ve">O produto aparece mas não clicam</div><div class="on">O problema está na <b>demonstração e no card</b></div><div class="ac">Mostra em movimento, nomeia a peça em voz alta e refixa o card.</div></div>
-        <div class="dg key"><div class="ve">Clicam mas não compram</div><div class="on">O problema é <b>dúvida</b>: tamanho, preço ou risco</div><div class="ac">Espelho de tamanho + preço em voz alta + a regra de devolução. É o número que mais vale — trata como emergência.</div></div>
-        <div class="dg"><div class="ve">Vende, mas o ticket cai</div><div class="on">É o <b>comprador tardio</b>, normal no fim da live</div><div class="ac">Oferece combo no lugar de peça avulsa.</div></div>
-        <div class="dg"><div class="ve">Chat parado</div><div class="on">A <b>pergunta está aberta demais</b></div><div class="ac">Pergunta de uma palavra só — e responde pelo nome.</div></div>
-        <div class="dg"><div class="ve">Subiu gente, não subiu pedido</div><div class="on">Você tem <b>atenção sem oferta</b></div><div class="ac">Fala o preço, fala o que fazer no card, dá um motivo pra ser agora.</div></div>
-        <div class="dg"><div class="ve">Peça com muito palco e pouca venda</div><div class="on">A <b>grade está errada</b></div><div class="ac">Tira da próxima live. O tempo de tela dela rende mais em qualquer outra.</div></div>
-      </div>
-    </div>
+    <div class="blk"><h3>🎯 Por eixo de venda</h3>
+      <p class="sub">Os quatro eixos que decidem a compra. Atravessam a live inteira — abre o que você precisa agora.</p>
+      <div class="faq">
 
-    <div class="blk"><h3>👥 Quem faz o quê</h3>
-      <p class="sub">Se você estiver sozinha, faz os três — mas sabendo que são três trabalhos. Com duas pessoas, a conta muda muito.</p>
-      <div class="papeis">
-        <div class="papel"><h5>🎤 Host</h5><p>Fala, corpo, espelho de tamanho, fechamento. Não olha métrica durante a live — quem olha número para de vender.</p></div>
-        <div class="papel"><h5>📌 Card</h5><p><b>Pina</b> ao entrar na peça · <b>repina</b> quando a host falar o preço · <b>despina</b> ao sair. O card morre em 30s — esse ciclo é o trabalho inteiro. Acompanha clique e compra após clique e avisa a host.</p></div>
-        <div class="papel"><h5>💬 Moderação</h5><p>Quebra objeção no chat — tamanho, prazo, pagamento. Avisa a host do que está travando. Fica de olho em alerta de violação.</p></div>
-      </div>
-    </div>
-
-    <div class="blk"><h3>🚨 O que derruba a sua live</h3>
-      <p class="sub">Regra do TikTok, não da Rhode. Violação tira alcance, e reincidência suspende a sua live por dias. Vale a pena decorar.</p>
-      <div class="trilha"><ul>
-        <li><b>Voz de IA e áudio gravado estão proibidos</b> desde julho/2026. A fala tem que ser ao vivo, sua. Libras vale — narração de robô não.</li>
-        <li><b>Nada de print da página do produto</b> na tela. Imagem parada, slideshow ou gravação de tela não podem ocupar mais da metade da tela. A tabela de medidas você <b>fala</b> e manda abrir no card — não mostra print.</li>
-        <li><b>Seu rosto aparece e você fala.</b> Câmera parada em cima da peça, sem gente, conta como conteúdo de baixa qualidade.</li>
-        <li><b>Não manda ninguém pra fora do TikTok.</b> Nada de link externo, QR code ou "me chama no direct do Insta". Nem citar outras lojas ou outros apps.</li>
-        <li><b>Não fala de produto que não está listado</b> na live. Se não está no carrinho, não entra na conversa.</li>
-        <li><b>Nada de promessa que você não sustenta.</b> "Emagrece", "modela o corpo pra sempre", "cura" — não. Fala o que a calça faz de verdade.</li>
-      </ul></div>
-      <div class="aviso" style="margin-top:14px">💡 A luz e o microfone também entram nessa lista: imagem escura, borrada ou áudio com barulho de fundo contam como produção ruim — e produção ruim é violação, não só descuido.</div>
-    </div>
-
-    <div class="blk"><h3>📊 Um número julga a sua live</h3>
-      <p class="sub"><b>Taxa de compra após clique.</b> Não olha o total vendido pra saber se você foi bem — isso sobe só por ficar mais tempo no ar. Esse número mede a sua <b>fala</b>: de cada 100 pessoas que clicaram no produto, quantas compraram.</p>
-      <p class="sub" style="margin-top:10px">Sobe quando o espelho de tamanho aparece em todo bloco, quando você responde pelo nome e quando lembra do pagamento. Cai quando você troca de card rápido demais.</p>
-    </div>
-
-<div class="blk"><h3>🔥 Urgência — 12 ângulos</h3>
-      <p class="sub">O playbook é direto: a urgência é o que transforma live em <b>compra por impulso</b>. Mas urgência inventada queima a sala. Todas as daqui têm lastro — ou é estoque real, ou é a condição que de fato acaba.</p>
-      <div class="lvangs">
+        <details onclick="try{track('abriu_eixo','urgencia')}catch(e){}"><summary><span class="sq">🔥 Urgência</span><span class="mv">12 ângulos</span></summary><div class="fa">
+          <p style="margin:0 0 10px">O playbook é direto: a urgência é o que transforma live em <b>compra por impulso</b>. Mas urgência inventada queima a sala. Todas as daqui têm lastro — ou é estoque real, ou é a condição que de fato acaba.</p>
+          <div class="lvangs">
         <div class="lvang"><b>Unidade contada</b> <i>impulso</i><p>Número exato, dito em voz alta. É a fala de urgência oficial do playbook.</p><div class="fala">"Só tem dez no 38 com essa condição. Dez. Quando acabar eu aviso aqui."</div></div>
         <div class="lvang"><b>Urgência de tamanho</b> <i>compra</i><p>A mais honesta que existe: o preço volta amanhã, o seu número não.</p><div class="fala">"O preço é o mesmo amanhã. O que pode não estar aqui amanhã é o seu número."</div></div>
         <div class="lvang"><b>Placar ao vivo</b> <i>impulso</i><p>Narra o estoque caindo. Prova social e urgência na mesma frase.</p><div class="fala">"Saiu mais uma 40. Ó, agora foram três em dois minutos — o 40 tá indo embora."</div></div>
@@ -1081,11 +1124,12 @@
         <div class="lvang"><b>Cor que some primeiro</b> <i>impulso</i><p>Escassez por variante, não por peça. Mais crível e mais específica.</p><div class="fala">"A marmorizada clara sempre acaba antes da escura. Sempre. Se é essa que você quer, não espera."</div></div>
         <div class="lvang"><b>Sem pressão declarada</b> <i>confiança</i><p>Alivia a pressão de propósito — e converte quem resiste a vendedor.</p><div class="fala">"Prefiro que você compre amanhã com calma do que compre errado hoje. Mas se já é o seu número, não deixa passar."</div></div>
       </div>
-    </div>
+    
+        </div></details>
 
-    <div class="blk"><h3>⚡ Impulso — 12 ângulos</h3>
-      <p class="sub">Live converte muito mais que loja parada porque decide <b>na hora</b>. Impulso não é gritar: é <b>tirar o que trava</b> a decisão. Cada ângulo aqui remove uma fricção específica.</p>
-      <div class="lvangs">
+        <details onclick="try{track('abriu_eixo','impulso')}catch(e){}"><summary><span class="sq">⚡ Impulso</span><span class="mv">12 ângulos</span></summary><div class="fa">
+          <p style="margin:0 0 10px">Live converte muito mais que loja parada porque decide <b>na hora</b>. Impulso não é gritar: é <b>tirar o que trava</b> a decisão. Cada ângulo aqui remove uma fricção específica.</p>
+          <div class="lvangs">
         <div class="lvang"><b>Guia do iniciante</b> <i>impulso ⭐</i><p>Muita gente nunca comprou em live. O playbook manda oferecer socorro explícito.</p><div class="fala">"Primeira vez comprando em live? Escreve AJUDA no chat que eu te guio no passo a passo, com calma."</div></div>
         <div class="lvang"><b>Passo a passo narrado</b> <i>impulso</i><p>Ensinar a comprar é etapa oficial do roteiro. Ninguém compra o que não sabe operar.</p><div class="fala">"Toca na sacolinha, escolhe o tamanho, aperta comprar. Três toques. Eu espero aqui."</div></div>
         <div class="lvang"><b>Micro-compromisso</b> <i>clique → compra</i><p>Pede um passo minúsculo. Quem abre o card já entrou na decisão.</p><div class="fala">"Nem compra ainda. Só abre e vê se tem o seu número. Só isso."</div></div>
@@ -1099,11 +1143,12 @@
         <div class="lvang"><b>Escolha por mim</b> <i>impulso</i><p>Para quem está paralisada. Você decide por ela.</p><div class="fala">"Tá na dúvida entre as duas? Se é a sua primeira, pega a escura. Combina com tudo e você usa amanhã mesmo."</div></div>
         <div class="lvang"><b>Marco coletivo</b> <i>impulso + comentário</i><p>Transforma a compra num evento da sala.</p><div class="fala">"Se a gente bater dez nessa cor eu já abro a próxima. Tá em sete."</div></div>
       </div>
-    </div>
+    
+        </div></details>
 
-    <div class="blk"><h3>💰 Percepção de valor — 14 ângulos</h3>
-      <p class="sub">Preço baixo sem valor construído vira suspeita: "por que é tão barata?". <b>Ancoragem sempre antes do preço</b> — nunca o contrário. E o playbook é explícito: credibilidade (review, depoimento, dado) é etapa do roteiro, não enfeite.</p>
-      <div class="lvangs">
+        <details onclick="try{track('abriu_eixo','valor')}catch(e){}"><summary><span class="sq">💰 Percepção de valor</span><span class="mv">14 ângulos</span></summary><div class="fa">
+          <p style="margin:0 0 10px">Preço baixo sem valor construído vira suspeita: "por que é tão barata?". <b>Ancoragem sempre antes do preço</b> — nunca o contrário. E o playbook é explícito: credibilidade (review, depoimento, dado) é etapa do roteiro, não enfeite.</p>
+          <div class="lvangs">
         <div class="lvang"><b>Ancoragem de vitrine</b> <i>valor ⭐</i><p>Compara com o que ela conhece, antes de dizer quanto custa.</p><div class="fala">"Essa calça numa loja de shopping sai por duzentos e pouco. E não é força de expressão — vai olhar."</div></div>
         <div class="lvang"><b>Bastidor de fábrica</b> <i>valor ⭐</i><p>Explica <b>por que</b> é mais barata. Sem isso, barato vira desconfiança.</p><div class="fala">"A diferença não é a calça — é que aqui não tem loja de shopping no meio. A gente é a fábrica."</div></div>
         <div class="lvang"><b>Troca de unidade</b> <i>valor</i><p>Tira do preço e põe no que ela ganha usando.</p><div class="fala">"Você não tá pagando oitenta e nove numa calça. Tá pagando pra não ficar puxando o cós o dia inteiro."</div></div>
@@ -1119,14 +1164,12 @@
         <div class="lvang"><b>O que você paga a mais</b> <i>valor</i><p>Nomeia o que a concorrente barata não entrega.</p><div class="fala">"Tem calça mais barata que essa por aí, tem. Só que ela abre na cintura quando você senta. Essa não."</div></div>
         <div class="lvang"><b>Investimento no corpo</b> <i>valor</i><p>Move de gasto pra autoestima — o que ela realmente está comprando.</p><div class="fala">"Não é sobre a calça. É sobre você se olhar no espelho e gostar antes de sair de casa."</div></div>
       </div>
-    </div>
+    
+        </div></details>
 
-    <div class="blk"><h3>👉 CTA — 14 ângulos</h3>
-      <p class="sub">CTA não é uma frase no fim: é uma <b>escada</b>. Pedir "compra agora" pra quem ainda não clicou queima o pedido. Cada degrau pede o próximo passo possível — e o playbook trata "instruções de compra" como etapa obrigatória do roteiro.</p>
-
-      <div class="falagrp"><h4>A escada — peça o próximo degrau, não o último</h4><p>Olhar → abrir o card → conferir tamanho → comprar → pagar → voltar.</p></div>
-
-      <div class="lvangs">
+        <details onclick="try{track('abriu_eixo','cta')}catch(e){}"><summary><span class="sq">👉 CTA</span><span class="mv">14 ângulos</span></summary><div class="fa">
+          <p style="margin:0 0 10px">CTA não é uma frase no fim: é uma <b>escada</b>. Pedir "compra agora" pra quem ainda não clicou queima o pedido. Cada degrau pede o próximo passo possível — e o playbook trata "instruções de compra" como etapa obrigatória do roteiro.</p>
+          <div class="lvangs">
         <div class="lvang"><b>1 · Olha comigo</b> <i>tempo médio</i><p>Degrau zero: só atenção. Não pede nada.</p><div class="fala">"Presta atenção nessa parte que é onde todo mundo se decide."</div></div>
         <div class="lvang"><b>2 · Abre sem compromisso</b> <i>clique</i><p>O clique mais fácil de conseguir: sem intenção de compra.</p><div class="fala">"Nem precisa comprar. Só abre o card e olha qual é a sua cor."</div></div>
         <div class="lvang"><b>3 · Abre pra ver uma coisa</b> <i>clique ⭐</i><p>Nomeia o que ela vai encontrar. Curiosidade concreta bate pedido genérico.</p><div class="fala">"Toca no card e olha a terceira foto, a de lado. É de lado que se vê se marca."</div></div>
@@ -1144,30 +1187,19 @@
       </div>
 
       <div class="aviso" style="margin-top:14px">⚠️ <b>Um CTA por bloco.</b> Empilhar "clica, compra, segue, comenta e compartilha" na mesma frase não faz nenhum dos cinco. Escolhe o degrau em que a sala está.</div>
-    </div>
+    
+        </div></details>
 
-    <div class="blk"><h3>🔥 Produto aquecido — por que ficar na peça</h3>
-      <p class="sub">O instinto quando uma peça vende é <b>trocar</b>, pra não repetir. É o erro que mais custa venda numa live. O TikTok aprende <b>por produto</b>: cada clique, cada compra e cada segundo em cima do mesmo card ensina a máquina a quem mostrar a sua sala.</p>
-
-      <div class="why">
-        <div class="wy"><b>🔁 Peça que vende, fica.</b> Emplacou? Você <b>não</b> troca. Trocar de peça no momento em que ela está convertendo é tirar do ar exatamente o que estava funcionando — e o aprendizado recomeça do zero na peça nova.</div>
-        <div class="wy"><b>📈 O card concentra sinal.</b> Fixar o <b>mesmo</b> produto, repetidamente, dentro de um bloco longo faz o TikTok entender qual é a peça da sala. Pular de card em card dilui: nenhuma peça aquece.</div>
-        <div class="wy"><b>🧊 Peça nova entra fria.</b> Produto que acabou de subir não tem histórico — ele precisa de tempo no ar pra aprender. Estreia de peça vai <b>no meio da live</b>, com a sala cheia, nunca no começo nem correndo.</div>
-      </div>
-
-      <p class="sub" style="margin-top:14px"><b>Como aquecer na prática:</b> escolhe a peça, fica nela por blocos seguidos, refixa o card a cada preço falado, narra cada venda que sai e só troca quando a sala esfriar de verdade — <b>não quando bater a sensação de "já falei isso demais"</b>. Essa sensação é uma armadilha: <b>você é a única pessoa que fica as duas horas inteiras.</b> Quem assiste fica meio minuto. Quando você já repetiu a fala vinte vezes, quem está na tela agora está ouvindo pela primeira vez — a sala não é a mesma sala, ela se troca a cada 30 segundos. Trocar de peça porque <b>você</b> cansou é jogar fora o produto quente por um cansaço que só é seu.</p>
-
-      <div class="falagrp"><h4>Falas que mantêm a peça quente</h4><p>Repetir sem soar repetido: muda a palavra, mantém a peça.</p></div>
-      <div class="lvangs">
-        <div class="lvang"><b>Recomeço para quem chegou</b> <i>aquece</i><p>Reabre a mesma peça como se fosse a primeira vez. Pra metade da sala, é.</p><div class="fala">"Entrou agora? Então volto do zero nessa aqui, que é a que tá saindo mais hoje."</div></div>
-        <div class="lvang"><b>Ângulo novo, mesma peça</b> <i>aquece</i><p>Troca o que você mostra, não o produto. Sentada, de costas, com outro sapato.</p><div class="fala">"Agora olha ela com tênis. Muda completamente — é outra calça."</div></div>
-        <div class="lvang"><b>Placar da peça</b> <i>aquece</i><p>Cada venda narrada é combustível pra próxima.</p><div class="fala">"Essa já é a sétima que sai hoje. Sétima."</div></div>
-        <div class="lvang"><b>Aviso de saída</b> <i>impulso</i><p>Só troque avisando — quem estava adiando decide na hora.</p><div class="fala">"É a última vez que eu mostro essa hoje. Depois dela eu vou pra Mom e não volto."</div></div>
-        <div class="lvang"><b>Estreia no pico</b> <i>aquece</i><p>Peça nova entra quando a sala está cheia, com apresentação inteira.</p><div class="fala">"Agora que tem bastante gente, deixa eu apresentar uma que chegou essa semana."</div></div>
       </div>
     </div>
 
-    <div class="blk"><h3>📋 Os roteiros — a live inteira</h3>
+    <div style="margin-top:22px"><button class="btn" onclick="show('roteiros')">Ver os roteiros prontos →</button></div>
+  </div></div>
+
+  <div class="view livemod" id="v-roteiros"><div class="container">
+    <div class="vhead"><div class="eyebrow">Módulo · live</div><h1>Os <span class="hl">roteiros</span> prontos</h1><p class="sub">Cinco tipos de live e um para a sua estreia — minuto a minuto, com a fala escrita. Abre o que você vai fazer hoje.</p></div>
+
+<div class="blk"><h3>📋 Os roteiros — a live inteira</h3>
       <p class="sub">O bloco de 40s é a célula. Agora o corpo: <b>como as duas horas se organizam</b>. Cinco tipos de live, cada um com um trabalho diferente — e um pra sua estreia. Abre o que você vai fazer hoje.</p>
 
       <p class="sub" style="margin-top:10px"><b>A ideia:</b> live não é uma apresentação de três horas, é o mesmo bloco de 40 segundos repetido — mas a <b>ordem</b> em que você repete muda o resultado. Quem abre com a peça principal queima a melhor carta na sala vazia.</p>
@@ -1464,6 +1496,10 @@ const CORE=[
 ];
 const EXTRA=[
   {id:'live',    i:'🔴',t:'Live que vende',d:'O bloco de 40s e as falas que fecham.', tags:['live','falas','fechar'], cov:'red'},
+  {id:'conduzir',i:'🎛️',t:'Conduzir a sala',d:'O que fazer quando a sala esquenta, esfria — e o número que julga.', tags:['live','ritmo','métricas'], cov:'red'},
+  {id:'palco',   i:'👖',t:'O palco da live',d:'Duas peças, quatro fases e como manter a peça quente.', tags:['live','produto','ritmo'], cov:'red'},
+  {id:'arsenal', i:'🎯',t:'Arsenal de falas',d:'117 ângulos: por momento e por urgência, impulso, valor e chamada.', tags:['live','falas','copy'], cov:'red'},
+  {id:'roteiros',i:'📋',t:'Roteiros de live',d:'Cinco tipos de live e a sua estreia — minuto a minuto.', tags:['live','roteiro'], cov:'red'},
   {id:'conteudo',i:'📚',t:'Conteúdo',d:'Todos os aulões + leituras rápidas.',         tags:['aulões','biblioteca'], cov:'gray', img:'/img/cover-semana.webp'},
   {id:'trends',i:'📈',t:'Trends',d:'Áudios e formatos em alta — em breve.',           tags:['em breve'],  cov:'gray', img:'/img/cover-trends.webp', soon:true}
 ];
@@ -2098,7 +2134,7 @@ function cpEx40(btn){
 }
 function cpTxt(t){try{navigator.clipboard.writeText(t)}catch(e){try{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta)}catch(e2){}}}
 document.addEventListener('click',function(e){
-  const f=e.target.closest('#v-live .fala');if(!f)return;
+  const f=e.target.closest('.livemod .fala');if(!f)return;
   cpTxt(f.textContent.trim());f.classList.add('cp');toast('Fala copiada ✓');
   setTimeout(function(){f.classList.remove('cp')},900);
   try{track('copiou_fala',{modulo:'live'})}catch(e2){}
