@@ -510,6 +510,282 @@ existe troca**, errar o número não vira "manda o outro tamanho" — vira devol
 
 ---
 
+# ARSENAL POR MOMENTO — 54 ângulos
+
+A live é lida por partes. Em cada trecho o TikTok mede **uma coisa diferente** — e a fala que
+salva o minuto 5 é a errada no minuto 90. Mesma regra do banco de ganchos: **o ângulo é
+compartilhado, a frase é sua.** Pegue dois de cada momento, rode uma semana, troque.
+
+
+## A · Os 5 primeiros minutos
+
+**Métrica:** entrada + tempo médio
+
+**O que o algoritmo está lendo agora:**
+
+- Ele mostra a sua sala pra **pouca gente** e mede se elas ficam. Esse teste decide o tamanho da audiência da live inteira. Não é a sua venda que ele lê aqui — é **quantos segundos** cada uma fica.
+- Por isso **sala vazia não é motivo pra ir devagar**: é justamente a hora em que cada pessoa vale mais.
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Promessa de saída** | tempo médio | Diz o que ela leva se ficar. Dá um motivo pra não deslizar. |
+| **Objeção nomeada** | tempo médio | Fala a dúvida dela antes que ela pense. Quem se sente lida, fica. |
+| **Prova adiada** | tempo médio | Anuncia a prova mais forte pra daqui a pouco. Cria uma razão de esperar. |
+| **Ritual de chegada** | comentário | Transforma quem entrou em participante em uma frase. Comentário cedo puxa entrega. |
+| **Recomeço permanente** | entrada | Toda vez que entra gente, você reabre. Nunca "quem chegou agora perdeu". |
+| **Espelho antecipado** | tempo médio | Suas medidas logo na abertura. Quem se reconhece no seu corpo fica pra ver o caimento. |
+| **Card no minuto 1** | clique | Sala sem card fixado é sala sem porta. Fixa antes de precisar. |
+| **Sala cheia por dentro** | tempo médio | Fala como se houvesse mil pessoas. Energia de sala vazia esvazia mais. |
+
+**Falas:**
+
+> *Promessa de saída* — "Fica dois minutos comigo que você sai daqui sabendo exatamente qual é o seu número."
+
+> *Objeção nomeada* — "Se você é baixinha e acha que wide leg não é pra você, é porque você provou a errada."
+
+> *Prova adiada* — "Daqui a pouco eu vou sentar com essa calça na frente de vocês. Porque calça bonita em pé todo mundo tem."
+
+> *Ritual de chegada* — "Escreve no chat só o seu número. 36, 38, 40, 42. Eu vou falando o caimento de cada um."
+
+> *Recomeço permanente* — "Chegou agora? Volto do zero: wide leg cintura alta, direto da fábrica, menos de cem reais."
+
+> *Espelho antecipado* — "Eu tenho [sua altura] e uso [seu número] — se você é parecida comigo, presta atenção nos próximos minutos."
+
+> *Card no minuto 1* — "Já deixei fixado aqui embaixo, pode ir abrindo enquanto eu mostro."
+
+> *Sala cheia por dentro* — "Gente, hoje eu trouxe uma que eu tava doida pra mostrar pra vocês."
+
+
+## B · Levar ao card
+
+**Métrica:** clique no produto
+
+**O que o algoritmo está lendo agora:**
+
+- Quantas das pessoas que **viram** o produto **tocaram** nele. É o sinal de que a sua sala é de compra, não de passeio — e é o que faz o TikTok mandar público comprador.
+- ⚠️ **Fixar mais não resolve.** Já medimos: sala com muito mais card na tela converteu **pior** por clique. O que funciona é **dar um motivo específico** pra abrir, não repetir "tá no carrinho".
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Manda ver uma coisa** | clique | Nomeia o que ela vai encontrar lá dentro. Curiosidade concreta > pedido genérico. |
+| **Permissão de não comprar** | clique | Tira o peso do clique. Ela abre — e quem abre, compara. |
+| **A medida em centímetro** | clique + compra | Manda ela conferir a tabela. Move o clique e mata a devolução junto. |
+| **Confirmação de identidade** | clique | Ela precisa saber se é **essa** a que você está usando. |
+| **Checagem de estoque** | clique | Convida a verificar, não a comprar. O clique vem sem resistência. |
+| **Comparar cor** | clique + 2ª peça | Manda abrir pra escolher entre duas. Já planta a segunda peça. |
+| **Preço só no card** | clique | Não repete o valor no ar; manda conferir. Funciona em dia de condição. |
+| **Prova pendurada** | clique | Mostra no corpo e só depois manda abrir. Card sem prova visual não converte. |
+
+**Falas:**
+
+> *Manda ver uma coisa* — "Toca no card e olha a terceira foto, a de lado. É de lado que se vê se marca ou não."
+
+> *Permissão de não comprar* — "Nem precisa comprar agora, só abre e olha qual é a sua cor."
+
+> *A medida em centímetro* — "Abre e olha a medida em centímetro. Se você já comprou online e sobrou na cintura, foi por não ter aberto isso."
+
+> *Confirmação de identidade* — "Card fixado, primeira linha: é essa a que eu tô com ela no corpo. Confere antes de escolher."
+
+> *Checagem de estoque* — "Vai lá e vê se ainda tem o seu número. Só isso, depois você decide."
+
+> *Comparar cor* — "Abre e olha as duas lavagens juntas. Você vai ver que são calças diferentes."
+
+> *Preço só no card* — "O valor de hoje tá lá no card. Abre que você vai gostar."
+
+> *Prova pendurada* — "Viu como fechou atrás? Então: toca no card agora, enquanto tá fresco na cabeça."
+
+
+## C · Clicou e não comprou ⭐
+
+**Métrica:** compra após clique
+
+**O que o algoritmo está lendo agora:**
+
+- **É aqui que está o dinheiro e é aqui que a sua live é julgada.** De cada 100 que clicam, poucas compram — e a diferença entre uma live boa e uma ruim é quase toda esse número, não o tanto de gente que entrou.
+- As lives melhores **não atraem mais**. Elas **fecham** melhor.
+- A objeção que trava é quase sempre a mesma: **"vai servir em mim?"** — a mesma dúvida que depois volta como devolução.
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Espelho de tamanho** | compra ⭐ | O ângulo mais forte da live. Suas medidas → a medida dela → o número dela. |
+| **Consultoria por nome** | compra ⭐ | Atende **uma** pessoa de verdade. Quem assiste resolve a dúvida por procuração. |
+| **Regra do meio** | compra | Resolve o caso mais comum: quem está entre dois números. |
+| **Medição caseira** | compra | Dá uma tarefa de 30 segundos que elimina o chute. |
+| **Corpo específico** | compra | Nomeia um corpo que costuma ser mal atendido. Quem é aquilo se identifica na hora. |
+| **Prova sentada** | compra | A prova física que decide. Em pé toda calça é bonita. |
+| **Risco zero** | compra | Responde de frente. Quem desconversa parece ter o que esconder. |
+| **Ancoragem de vitrine** | compra | Compara com o que ela conhece, antes de dizer o preço. |
+| **Bastidor de fábrica** | compra | Explica **por que** é mais barata. Sem isso, barato vira suspeita. |
+| **Troca de unidade** | compra | Tira do preço e põe no que ela ganha todo dia. |
+| **Prova de volume** | compra | Prova social coletiva. Fecha quem já estava quase. |
+| **Durabilidade** | compra | Mata a objeção silenciosa do "será que é boa?". |
+
+**Falas:**
+
+> *Espelho de tamanho* — "Eu tenho [altura] e [peso], tô com a [número] e sobra dois dedos no cós. Se você é mais baixa, desce um."
+
+> *Consultoria por nome* — "Juliana, você tem 1,55? Então desce um número — e se sobrar barra, dobra uma vez que fica lindo."
+
+> *Regra do meio* — "Entre dois números? Fica no menor. O cós não cede — mas também não sufoca, porque a modelagem é alta."
+
+> *Medição caseira* — "Pega uma calça sua que serve bem, mede a cintura dela deitada e compara com o card."
+
+> *Corpo específico* — "Quem é do popotão grandão e nunca acha calça que feche na cintura sem sobrar atrás: é essa."
+
+> *Prova sentada* — "Eu vou sentar. Ó — não abre na cintura, não aparece nada atrás."
+
+> *Risco zero* — "Amiga, não se preocupa: se chegar e não servir, você devolve e recebe o seu reembolso. Devolução é gratuita."
+
+> *Ancoragem de vitrine* — "Essa calça numa loja de shopping sai por duzentos e pouco. E não é força de expressão."
+
+> *Bastidor de fábrica* — "A diferença não é a calça — é que aqui não tem loja de shopping no meio. A gente é a fábrica."
+
+> *Troca de unidade* — "Você não tá pagando oitenta e nove numa calça. Tá pagando pra não ficar puxando o cós o dia inteiro."
+
+> *Prova de volume* — "Essa é a que mais sai aqui, disparado. Não é à toa, né?"
+
+> *Durabilidade* — "É 100% algodão, jeans de verdade — não amassa, não perde a forma e não desbota. Eu lavo toda semana."
+
+
+## D · Quando a sala esquenta
+
+**Métrica:** vendas por hora
+
+**O que o algoritmo está lendo agora:**
+
+- Sala vendendo **puxa mais entrega**. Quando emplacar, o erro é trocar de peça: você tira do ar exatamente o que está funcionando.
+- **Fica na peça enquanto ela vende.** Variedade é o instinto errado nessa hora.
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Narração de venda** | vendas/hora | Conta o que está acontecendo. Prova social em tempo real é a mais forte que existe. |
+| **Marco da sala** | comentário + vendas | Transforma o resultado num evento coletivo. |
+| **Fila de tamanho** | vendas/hora | Cria ordem e urgência sem inventar escassez. |
+| **Repin no pico** | clique | O card morre sozinho. No momento quente, refixa e fala de novo. |
+| **Segunda peça no calor** | peças por pedido | Quem acabou de decidir é quem mais aceita a segunda. |
+| **Aguenta mais um pouco** | tempo médio | Segura quem ia sair anunciando o que vem. |
+
+**Falas:**
+
+> *Narração de venda* — "Saiu mais uma 38 agora. Gente, o 38 tá voando hoje."
+
+> *Marco da sala* — "Se a gente bater dez nessa cor eu já abro a próxima. Tá em sete."
+
+> *Fila de tamanho* — "Quem é 40 responde aqui que eu vou falando quantas ainda tem enquanto vocês decidem."
+
+> *Repin no pico* — "Refixei aqui embaixo pra quem entrou agora — é essa mesma."
+
+> *Segunda peça no calor* — "Já que você vai levar: mesmo número, cor diferente. Você já sabe que serve."
+
+> *Aguenta mais um pouco* — "Não sai não que daqui a pouco eu mostro a que combina com essa."
+
+
+## E · Quando a sala esfria
+
+**Métrica:** comentário
+
+**O que o algoritmo está lendo agora:**
+
+- Silêncio derruba entrega. Quando o chat morre, o TikTok entende que a sala acabou — e para de mandar gente.
+- A saída é **pergunta fechada**: resposta de uma palavra. Pergunta aberta em sala fria não é respondida por ninguém.
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Duas opções** | comentário | O menor esforço possível pra responder. |
+| **Votação de peça** | comentário + tempo | Dá poder pra sala e cria expectativa do próximo bloco. |
+| **Chamada de dúvida** | comentário + compra | Puxa a objeção pra fora — e objeção escrita é venda que você pode salvar. |
+| **Quem já tem** | comentário | Ativa cliente antiga como prova social gratuita. |
+| **Presença declarada** | comentário | Funciona em sala muito fria: pede só um sinal de vida. |
+| **Troca de energia** | tempo médio | Muda o ritmo físico: levanta, anda, mostra outro ângulo. Sala fria costuma ser sala parada. |
+| **Convite pra amiga** | compartilhamento | Só com motivo. Pedido solto não é atendido. |
+| **Aviso de cor nova** | seguidor | Dá razão concreta pra seguir. "Segue a loja" sozinho não converte. |
+
+**Falas:**
+
+> *Duas opções* — "Escreve CLARA ou ESCURA. Só isso. Eu visto a que ganhar."
+
+> *Votação de peça* — "Vocês querem ver a Mom ou o short agora? Manda no chat que eu obedeço."
+
+> *Chamada de dúvida* — "Quem tá na dúvida escreve DÚVIDA que eu respondo a sua agora, pelo nome."
+
+> *Quem já tem* — "Quem já tem calça da Rhode em casa escreve TENHO. Quero ver quantas são."
+
+> *Presença declarada* — "Quem tá me assistindo deitada na cama agora escreve EU. Eu sei que tem gente."
+
+> *Troca de energia* — "Deixa eu levantar aqui e andar pra vocês verem o balanço da perna."
+
+> *Convite pra amiga* — "Manda pra aquela amiga que vive falando que não acha calça que sirva. Ela vai te dever essa."
+
+> *Aviso de cor nova* — "Segue aqui em cima: é por ali que eu aviso quando entra cor nova — e cor nova esgota na primeira live."
+
+
+## F · Pedido feito e não pago
+
+**Métrica:** pagamento
+
+**O que o algoritmo está lendo agora:**
+
+- **1 em cada 5 pedidos feitos na live não é pago.** É venda que você já fez e perdeu depois — e quase ninguém tem fala pra isso.
+- Roda **a cada 20 minutos**, não uma vez só. Quem entrou no minuto 70 nunca ouviu.
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **O tamanho volta pro estoque** | pagamento | Dá consequência concreta pra ela mesma, não pra loja. |
+| **Socorro ao vivo** | pagamento | Transforma travamento em atendimento. Muita gente desiste por bobagem. |
+| **Confirmação coletiva** | pagamento + comentário | Quem confirma puxa quem não terminou. |
+| **Checagem de carrinho** | pagamento | Lembrete neutro, sem cobrança. |
+| **Fechar antes de sair** | pagamento | No fim da live, a última chamada. |
+
+**Falas:**
+
+> *O tamanho volta pro estoque* — "Pedido sem pagamento cai sozinho e o seu tamanho volta pro estoque. Aí você perde."
+
+> *Socorro ao vivo* — "Travou no pagamento? Escreve TRAVOU que a gente resolve com você agora."
+
+> *Confirmação coletiva* — "Quem já finalizou escreve PAGUEI. Quero ver quantas conseguiram."
+
+> *Checagem de carrinho* — "Dá uma olhada rápida se ficou algo no carrinho sem finalizar."
+
+> *Fechar antes de sair* — "Antes de eu sair: quem deixou pedido aberto, finaliza agora que eu ainda tô aqui se precisar."
+
+
+## G · Últimos 15 minutos
+
+**Métrica:** compradoras + a próxima
+
+**O que o algoritmo está lendo agora:**
+
+- O fim da live decide **a próxima**: quem seguiu, quem comprou e quem vai voltar. Encerrar seco joga fora a audiência mais quente que você teve o dia todo.
+- Encore = repescar as que mais moveram. Não é hora de novidade.
+
+| Ângulo | Move | Quando / por quê |
+|---|---|---|
+| **Inventário honesto** | compra | Diz o que sobrou de verdade. Escassez real fecha; inventada queima. |
+| **Urgência de tamanho** | compra | A urgência é de número, nunca de preço. |
+| **Repescagem das campeãs** | compra | Volta nas duas que mais saíram, com o bloco completo. |
+| **Permissão de pensar** | confiança | Tira a pressão — e converte quem resiste a vendedor. |
+| **Encontro marcado** | a próxima | Dá dia, hora e peça. Vago não traz ninguém de volta. |
+| **Lista de espera** | a próxima | Transforma quem não achou o número em audiência garantida. |
+| **Volta pra contar** | recompra | Fecha o ciclo e prepara prova social da próxima live. |
+
+**Falas:**
+
+> *Inventário honesto* — "Deixa eu falar o que ainda tem: 38 tá acabando, 42 tem pouco, 40 tranquilo."
+
+> *Urgência de tamanho* — "O preço é o mesmo amanhã. O que pode não estar aqui amanhã é o seu número."
+
+> *Repescagem das campeãs* — "Voltando na que mais saiu hoje, pra quem chegou agora e não viu."
+
+> *Permissão de pensar* — "Prefiro que você compre amanhã com calma do que compre errado hoje."
+
+> *Encontro marcado* — "Amanhã mesmo horário eu volto com a reposição da rosa. Escreve ROSA que eu anoto."
+
+> *Lista de espera* — "Ficou sem o seu número? Me escreve que eu aviso você quando voltar."
+
+> *Volta pra contar* — "Quem comprou hoje: volta semana que vem e me conta como ficou. Eu quero ver."
+
+---
+
 # TREINO — 4 semanas
 
 **Semana 1 · A célula.** Só o bloco de 40s, gravado fora do ar. **10 blocos por dia**, mesma
