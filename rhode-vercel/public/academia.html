@@ -351,6 +351,12 @@
   #v-live .falas{display:flex;flex-direction:column;gap:9px;margin-top:10px}
   #v-live .fala{background:var(--paper);border:1px solid var(--line);border-left:2px solid var(--red);border-radius:8px;padding:11px 13px;font-size:15px;line-height:1.5}
   #v-live .fala b{font-weight:700}
+  #v-live .lvangs{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  #v-live .lvang{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 13px}
+  #v-live .lvang>b{font-size:14.5px;font-weight:800;display:inline}
+  #v-live .lvang>i{font-style:normal;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--red);background:var(--red-wash);padding:3px 7px;border-radius:6px;margin-left:7px;white-space:nowrap;display:inline-block;vertical-align:1px}
+  #v-live .lvang>p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:6px 0 0}
+  #v-live .lvang .fala{margin-top:9px;font-size:14.5px}
   #v-live .falagrp{margin-top:18px}
   #v-live .falagrp>h4{font-size:15px;font-weight:800;margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
   #v-live .falagrp>p{font-size:13.5px;color:var(--muted);line-height:1.5}
@@ -840,7 +846,145 @@
       </div>
     </div>
 
-    <div class="blk"><h3>🔍 Leitura ao vivo — o número caiu, e agora</h3>
+        <div class="blk"><h3>🎯 Arsenal por momento — o que o algoritmo quer agora</h3>
+      <p class="sub">A live é lida por partes. Em cada trecho o TikTok está medindo <b>uma coisa diferente</b> — e a fala que salva o minuto 5 é a errada no minuto 90. Aqui está o repertório de cada momento: <b>o ângulo, o que ele move e um exemplo</b>.</p>
+      <p class="sub" style="margin-top:10px">Mesma regra do banco de ganchos: <b>o ângulo é compartilhado, a frase é sua.</b> Pega dois de cada momento, roda uma semana, troca. Quem repete a mesma frase a live inteira ensina a sala a ignorar você.</p>
+
+      <div class="faq">
+
+        <details onclick="try{track('abriu_arsenal','entrada')}catch(e){}"><summary><span class="sq">A · Os 5 primeiros minutos</span><span class="mv">entrada + tempo médio</span></summary><div class="fa">
+          <span class="lbl">O que o algoritmo está lendo agora</span>
+          <ul><li>Ele mostra a sua sala pra <b>pouca gente</b> e mede se elas ficam. Esse teste decide o tamanho da audiência da live inteira. Não é a sua venda que ele lê aqui — é <b>quantos segundos</b> cada uma fica.</li>
+          <li>Por isso <b>sala vazia não é motivo pra ir devagar</b>: é justamente a hora em que cada pessoa vale mais.</li></ul>
+
+          <span class="lbl">Arsenal · 8 ângulos</span>
+          <div class="lvangs">
+            <div class="lvang"><b>Promessa de saída</b> <i>tempo médio</i><p>Diz o que ela leva se ficar. Dá um motivo pra não deslizar.</p><div class="fala">"Fica dois minutos comigo que você sai daqui sabendo exatamente qual é o seu número."</div></div>
+            <div class="lvang"><b>Objeção nomeada</b> <i>tempo médio</i><p>Fala a dúvida dela antes que ela pense. Quem se sente lida, fica.</p><div class="fala">"Se você é baixinha e acha que wide leg não é pra você, é porque você provou a errada."</div></div>
+            <div class="lvang"><b>Prova adiada</b> <i>tempo médio</i><p>Anuncia a prova mais forte pra daqui a pouco. Cria uma razão de esperar.</p><div class="fala">"Daqui a pouco eu vou sentar com essa calça na frente de vocês. Porque calça bonita em pé todo mundo tem."</div></div>
+            <div class="lvang"><b>Ritual de chegada</b> <i>comentário</i><p>Transforma quem entrou em participante em uma frase. Comentário cedo puxa entrega.</p><div class="fala">"Escreve no chat só o seu número. 36, 38, 40, 42. Eu vou falando o caimento de cada um."</div></div>
+            <div class="lvang"><b>Recomeço permanente</b> <i>entrada</i><p>Toda vez que entra gente, você reabre. Nunca "quem chegou agora perdeu".</p><div class="fala">"Chegou agora? Volto do zero: wide leg cintura alta, direto da fábrica, menos de cem reais."</div></div>
+            <div class="lvang"><b>Espelho antecipado</b> <i>tempo médio</i><p>Suas medidas logo na abertura. Quem se reconhece no seu corpo fica pra ver o caimento.</p><div class="fala">"Eu tenho [sua altura] e uso [seu número] — se você é parecida comigo, presta atenção nos próximos minutos."</div></div>
+            <div class="lvang"><b>Card no minuto 1</b> <i>clique</i><p>Sala sem card fixado é sala sem porta. Fixa antes de precisar.</p><div class="fala">"Já deixei fixado aqui embaixo, pode ir abrindo enquanto eu mostro."</div></div>
+            <div class="lvang"><b>Sala cheia por dentro</b> <i>tempo médio</i><p>Fala como se houvesse mil pessoas. Energia de sala vazia esvazia mais.</p><div class="fala">"Gente, hoje eu trouxe uma que eu tava doida pra mostrar pra vocês."</div></div>
+          </div>
+        </div></details>
+
+        <details onclick="try{track('abriu_arsenal','clique')}catch(e){}"><summary><span class="sq">B · Levar ao card</span><span class="mv">clique no produto</span></summary><div class="fa">
+          <span class="lbl">O que o algoritmo está lendo agora</span>
+          <ul><li>Quantas das pessoas que <b>viram</b> o produto <b>tocaram</b> nele. É o sinal de que a sua sala é de compra, não de passeio — e é o que faz o TikTok mandar público comprador.</li>
+          <li>⚠️ <b>Fixar mais não resolve.</b> Já medimos: sala com muito mais card na tela converteu <b>pior</b> por clique. O que funciona é <b>dar um motivo específico</b> pra abrir, não repetir "tá no carrinho".</li></ul>
+
+          <span class="lbl">Arsenal · 8 ângulos</span>
+          <div class="lvangs">
+            <div class="lvang"><b>Manda ver uma coisa</b> <i>clique</i><p>Nomeia o que ela vai encontrar lá dentro. Curiosidade concreta &gt; pedido genérico.</p><div class="fala">"Toca no card e olha a terceira foto, a de lado. É de lado que se vê se marca ou não."</div></div>
+            <div class="lvang"><b>Permissão de não comprar</b> <i>clique</i><p>Tira o peso do clique. Ela abre — e quem abre, compara.</p><div class="fala">"Nem precisa comprar agora, só abre e olha qual é a sua cor."</div></div>
+            <div class="lvang"><b>A medida em centímetro</b> <i>clique + compra</i><p>Manda ela conferir a tabela. Move o clique e mata a devolução junto.</p><div class="fala">"Abre e olha a medida em centímetro. Se você já comprou online e sobrou na cintura, foi por não ter aberto isso."</div></div>
+            <div class="lvang"><b>Confirmação de identidade</b> <i>clique</i><p>Ela precisa saber se é <b>essa</b> a que você está usando.</p><div class="fala">"Card fixado, primeira linha: é essa a que eu tô com ela no corpo. Confere antes de escolher."</div></div>
+            <div class="lvang"><b>Checagem de estoque</b> <i>clique</i><p>Convida a verificar, não a comprar. O clique vem sem resistência.</p><div class="fala">"Vai lá e vê se ainda tem o seu número. Só isso, depois você decide."</div></div>
+            <div class="lvang"><b>Comparar cor</b> <i>clique + 2ª peça</i><p>Manda abrir pra escolher entre duas. Já planta a segunda peça.</p><div class="fala">"Abre e olha as duas lavagens juntas. Você vai ver que são calças diferentes."</div></div>
+            <div class="lvang"><b>Preço só no card</b> <i>clique</i><p>Não repete o valor no ar; manda conferir. Funciona em dia de condição.</p><div class="fala">"O valor de hoje tá lá no card. Abre que você vai gostar."</div></div>
+            <div class="lvang"><b>Prova pendurada</b> <i>clique</i><p>Mostra no corpo e só depois manda abrir. Card sem prova visual não converte.</p><div class="fala">"Viu como fechou atrás? Então: toca no card agora, enquanto tá fresco na cabeça."</div></div>
+          </div>
+        </div></details>
+
+        <details onclick="try{track('abriu_arsenal','compra')}catch(e){}"><summary><span class="sq">C · Clicou e não comprou ⭐</span><span class="mv">compra após clique</span></summary><div class="fa">
+          <span class="lbl">O que o algoritmo está lendo agora</span>
+          <ul><li><b>É aqui que está o dinheiro e é aqui que a sua live é julgada.</b> De cada 100 que clicam, poucas compram — e a diferença entre uma live boa e uma ruim é quase toda esse número, não o tanto de gente que entrou.</li>
+          <li>As lives melhores <b>não atraem mais</b>. Elas <b>fecham</b> melhor.</li>
+          <li>A objeção que trava é quase sempre a mesma: <b>"vai servir em mim?"</b> — a mesma dúvida que depois volta como devolução.</li></ul>
+
+          <span class="lbl">Arsenal · 12 ângulos</span>
+          <div class="lvangs">
+            <div class="lvang"><b>Espelho de tamanho</b> <i>compra ⭐</i><p>O ângulo mais forte da live. Suas medidas → a medida dela → o número dela.</p><div class="fala">"Eu tenho [altura] e [peso], tô com a [número] e sobra dois dedos no cós. Se você é mais baixa, desce um."</div></div>
+            <div class="lvang"><b>Consultoria por nome</b> <i>compra ⭐</i><p>Atende <b>uma</b> pessoa de verdade. Quem assiste resolve a dúvida por procuração.</p><div class="fala">"Juliana, você tem 1,55? Então desce um número — e se sobrar barra, dobra uma vez que fica lindo."</div></div>
+            <div class="lvang"><b>Regra do meio</b> <i>compra</i><p>Resolve o caso mais comum: quem está entre dois números.</p><div class="fala">"Entre dois números? Fica no menor. O cós não cede — mas também não sufoca, porque a modelagem é alta."</div></div>
+            <div class="lvang"><b>Medição caseira</b> <i>compra</i><p>Dá uma tarefa de 30 segundos que elimina o chute.</p><div class="fala">"Pega uma calça sua que serve bem, mede a cintura dela deitada e compara com o card."</div></div>
+            <div class="lvang"><b>Corpo específico</b> <i>compra</i><p>Nomeia um corpo que costuma ser mal atendido. Quem é aquilo se identifica na hora.</p><div class="fala">"Quem é do popotão grandão e nunca acha calça que feche na cintura sem sobrar atrás: é essa."</div></div>
+            <div class="lvang"><b>Prova sentada</b> <i>compra</i><p>A prova física que decide. Em pé toda calça é bonita.</p><div class="fala">"Eu vou sentar. Ó — não abre na cintura, não aparece nada atrás."</div></div>
+            <div class="lvang"><b>Risco zero</b> <i>compra</i><p>Responde de frente. Quem desconversa parece ter o que esconder.</p><div class="fala">"Amiga, não se preocupa: se chegar e não servir, você devolve e recebe o seu reembolso. Devolução é gratuita."</div></div>
+            <div class="lvang"><b>Ancoragem de vitrine</b> <i>compra</i><p>Compara com o que ela conhece, antes de dizer o preço.</p><div class="fala">"Essa calça numa loja de shopping sai por duzentos e pouco. E não é força de expressão."</div></div>
+            <div class="lvang"><b>Bastidor de fábrica</b> <i>compra</i><p>Explica <b>por que</b> é mais barata. Sem isso, barato vira suspeita.</p><div class="fala">"A diferença não é a calça — é que aqui não tem loja de shopping no meio. A gente é a fábrica."</div></div>
+            <div class="lvang"><b>Troca de unidade</b> <i>compra</i><p>Tira do preço e põe no que ela ganha todo dia.</p><div class="fala">"Você não tá pagando oitenta e nove numa calça. Tá pagando pra não ficar puxando o cós o dia inteiro."</div></div>
+            <div class="lvang"><b>Prova de volume</b> <i>compra</i><p>Prova social coletiva. Fecha quem já estava quase.</p><div class="fala">"Essa é a que mais sai aqui, disparado. Não é à toa, né?"</div></div>
+            <div class="lvang"><b>Durabilidade</b> <i>compra</i><p>Mata a objeção silenciosa do "será que é boa?".</p><div class="fala">"É 100% algodão, jeans de verdade — não amassa, não perde a forma e não desbota. Eu lavo toda semana."</div></div>
+          </div>
+        </div></details>
+
+        <details onclick="try{track('abriu_arsenal','esquenta')}catch(e){}"><summary><span class="sq">D · Quando a sala esquenta</span><span class="mv">vendas por hora</span></summary><div class="fa">
+          <span class="lbl">O que o algoritmo está lendo agora</span>
+          <ul><li>Sala vendendo <b>puxa mais entrega</b>. Quando emplacar, o erro é trocar de peça: você tira do ar exatamente o que está funcionando.</li>
+          <li><b>Fica na peça enquanto ela vende.</b> Variedade é o instinto errado nessa hora.</li></ul>
+
+          <span class="lbl">Arsenal · 6 ângulos</span>
+          <div class="lvangs">
+            <div class="lvang"><b>Narração de venda</b> <i>vendas/hora</i><p>Conta o que está acontecendo. Prova social em tempo real é a mais forte que existe.</p><div class="fala">"Saiu mais uma 38 agora. Gente, o 38 tá voando hoje."</div></div>
+            <div class="lvang"><b>Marco da sala</b> <i>comentário + vendas</i><p>Transforma o resultado num evento coletivo.</p><div class="fala">"Se a gente bater dez nessa cor eu já abro a próxima. Tá em sete."</div></div>
+            <div class="lvang"><b>Fila de tamanho</b> <i>vendas/hora</i><p>Cria ordem e urgência sem inventar escassez.</p><div class="fala">"Quem é 40 responde aqui que eu vou falando quantas ainda tem enquanto vocês decidem."</div></div>
+            <div class="lvang"><b>Repin no pico</b> <i>clique</i><p>O card morre sozinho. No momento quente, refixa e fala de novo.</p><div class="fala">"Refixei aqui embaixo pra quem entrou agora — é essa mesma."</div></div>
+            <div class="lvang"><b>Segunda peça no calor</b> <i>peças por pedido</i><p>Quem acabou de decidir é quem mais aceita a segunda.</p><div class="fala">"Já que você vai levar: mesmo número, cor diferente. Você já sabe que serve."</div></div>
+            <div class="lvang"><b>Aguenta mais um pouco</b> <i>tempo médio</i><p>Segura quem ia sair anunciando o que vem.</p><div class="fala">"Não sai não que daqui a pouco eu mostro a que combina com essa."</div></div>
+          </div>
+        </div></details>
+
+        <details onclick="try{track('abriu_arsenal','esfria')}catch(e){}"><summary><span class="sq">E · Quando a sala esfria</span><span class="mv">comentário</span></summary><div class="fa">
+          <span class="lbl">O que o algoritmo está lendo agora</span>
+          <ul><li>Silêncio derruba entrega. Quando o chat morre, o TikTok entende que a sala acabou — e para de mandar gente.</li>
+          <li>A saída é <b>pergunta fechada</b>: resposta de uma palavra. Pergunta aberta em sala fria não é respondida por ninguém.</li></ul>
+
+          <span class="lbl">Arsenal · 8 ângulos</span>
+          <div class="lvangs">
+            <div class="lvang"><b>Duas opções</b> <i>comentário</i><p>O menor esforço possível pra responder.</p><div class="fala">"Escreve CLARA ou ESCURA. Só isso. Eu visto a que ganhar."</div></div>
+            <div class="lvang"><b>Votação de peça</b> <i>comentário + tempo</i><p>Dá poder pra sala e cria expectativa do próximo bloco.</p><div class="fala">"Vocês querem ver a Mom ou o short agora? Manda no chat que eu obedeço."</div></div>
+            <div class="lvang"><b>Chamada de dúvida</b> <i>comentário + compra</i><p>Puxa a objeção pra fora — e objeção escrita é venda que você pode salvar.</p><div class="fala">"Quem tá na dúvida escreve DÚVIDA que eu respondo a sua agora, pelo nome."</div></div>
+            <div class="lvang"><b>Quem já tem</b> <i>comentário</i><p>Ativa cliente antiga como prova social gratuita.</p><div class="fala">"Quem já tem calça da Rhode em casa escreve TENHO. Quero ver quantas são."</div></div>
+            <div class="lvang"><b>Presença declarada</b> <i>comentário</i><p>Funciona em sala muito fria: pede só um sinal de vida.</p><div class="fala">"Quem tá me assistindo deitada na cama agora escreve EU. Eu sei que tem gente."</div></div>
+            <div class="lvang"><b>Troca de energia</b> <i>tempo médio</i><p>Muda o ritmo físico: levanta, anda, mostra outro ângulo. Sala fria costuma ser sala parada.</p><div class="fala">"Deixa eu levantar aqui e andar pra vocês verem o balanço da perna."</div></div>
+            <div class="lvang"><b>Convite pra amiga</b> <i>compartilhamento</i><p>Só com motivo. Pedido solto não é atendido.</p><div class="fala">"Manda pra aquela amiga que vive falando que não acha calça que sirva. Ela vai te dever essa."</div></div>
+            <div class="lvang"><b>Aviso de cor nova</b> <i>seguidor</i><p>Dá razão concreta pra seguir. "Segue a loja" sozinho não converte.</p><div class="fala">"Segue aqui em cima: é por ali que eu aviso quando entra cor nova — e cor nova esgota na primeira live."</div></div>
+          </div>
+        </div></details>
+
+        <details onclick="try{track('abriu_arsenal','pagamento')}catch(e){}"><summary><span class="sq">F · Pedido feito e não pago</span><span class="mv">pagamento</span></summary><div class="fa">
+          <span class="lbl">Por que isso é um momento</span>
+          <ul><li><b>1 em cada 5 pedidos feitos na live não é pago.</b> É venda que você já fez e perdeu depois — e quase ninguém tem fala pra isso.</li>
+          <li>Roda <b>a cada 20 minutos</b>, não uma vez só. Quem entrou no minuto 70 nunca ouviu.</li></ul>
+
+          <span class="lbl">Arsenal · 5 ângulos</span>
+          <div class="lvangs">
+            <div class="lvang"><b>O tamanho volta pro estoque</b> <i>pagamento</i><p>Dá consequência concreta pra ela mesma, não pra loja.</p><div class="fala">"Pedido sem pagamento cai sozinho e o seu tamanho volta pro estoque. Aí você perde."</div></div>
+            <div class="lvang"><b>Socorro ao vivo</b> <i>pagamento</i><p>Transforma travamento em atendimento. Muita gente desiste por bobagem.</p><div class="fala">"Travou no pagamento? Escreve TRAVOU que a gente resolve com você agora."</div></div>
+            <div class="lvang"><b>Confirmação coletiva</b> <i>pagamento + comentário</i><p>Quem confirma puxa quem não terminou.</p><div class="fala">"Quem já finalizou escreve PAGUEI. Quero ver quantas conseguiram."</div></div>
+            <div class="lvang"><b>Checagem de carrinho</b> <i>pagamento</i><p>Lembrete neutro, sem cobrança.</p><div class="fala">"Dá uma olhada rápida se ficou algo no carrinho sem finalizar."</div></div>
+            <div class="lvang"><b>Fechar antes de sair</b> <i>pagamento</i><p>No fim da live, a última chamada.</p><div class="fala">"Antes de eu sair: quem deixou pedido aberto, finaliza agora que eu ainda tô aqui se precisar."</div></div>
+          </div>
+        </div></details>
+
+        <details onclick="try{track('abriu_arsenal','encore')}catch(e){}"><summary><span class="sq">G · Últimos 15 minutos</span><span class="mv">compradoras + a próxima</span></summary><div class="fa">
+          <span class="lbl">O que o algoritmo está lendo agora</span>
+          <ul><li>O fim da live decide <b>a próxima</b>: quem seguiu, quem comprou e quem vai voltar. Encerrar seco joga fora a audiência mais quente que você teve o dia todo.</li>
+          <li>Encore = repescar as que mais moveram. Não é hora de novidade.</li></ul>
+
+          <span class="lbl">Arsenal · 7 ângulos</span>
+          <div class="lvangs">
+            <div class="lvang"><b>Inventário honesto</b> <i>compra</i><p>Diz o que sobrou de verdade. Escassez real fecha; inventada queima.</p><div class="fala">"Deixa eu falar o que ainda tem: 38 tá acabando, 42 tem pouco, 40 tranquilo."</div></div>
+            <div class="lvang"><b>Urgência de tamanho</b> <i>compra</i><p>A urgência é de número, nunca de preço.</p><div class="fala">"O preço é o mesmo amanhã. O que pode não estar aqui amanhã é o seu número."</div></div>
+            <div class="lvang"><b>Repescagem das campeãs</b> <i>compra</i><p>Volta nas duas que mais saíram, com o bloco completo.</p><div class="fala">"Voltando na que mais saiu hoje, pra quem chegou agora e não viu."</div></div>
+            <div class="lvang"><b>Permissão de pensar</b> <i>confiança</i><p>Tira a pressão — e converte quem resiste a vendedor.</p><div class="fala">"Prefiro que você compre amanhã com calma do que compre errado hoje."</div></div>
+            <div class="lvang"><b>Encontro marcado</b> <i>a próxima</i><p>Dá dia, hora e peça. Vago não traz ninguém de volta.</p><div class="fala">"Amanhã mesmo horário eu volto com a reposição da rosa. Escreve ROSA que eu anoto."</div></div>
+            <div class="lvang"><b>Lista de espera</b> <i>a próxima</i><p>Transforma quem não achou o número em audiência garantida.</p><div class="fala">"Ficou sem o seu número? Me escreve que eu aviso você quando voltar."</div></div>
+            <div class="lvang"><b>Volta pra contar</b> <i>recompra</i><p>Fecha o ciclo e prepara prova social da próxima live.</p><div class="fala">"Quem comprou hoje: volta semana que vem e me conta como ficou. Eu quero ver."</div></div>
+          </div>
+        </div></details>
+
+      </div>
+
+      <div class="mission" style="margin-top:18px"><b>🧪 Seu teste desta semana</b>
+        <p>Escolhe <b>dois ângulos do momento C</b> (clicou e não comprou) que você ainda não usa e roda eles em <b>todas</b> as lives da semana, sem mudar mais nada. É o único momento que move a métrica que julga a sua live — e o único lugar onde dois ângulos novos aparecem no número em sete dias.</p>
+      </div>
+    </div>
+
+<div class="blk"><h3>🔍 Leitura ao vivo — o número caiu, e agora</h3>
       <p class="sub" style="margin-bottom:6px">A regra é sempre a mesma: olha <b>onde</b> o funil quebrou, não o total. Impressão → clique → compra.</p>
       <div class="diag">
         <div class="dg"><div class="ve">Muita impressão, pouca gente entra</div><div class="on">O problema está em <b>capa, título e cenário</b></div><div class="ac">Troca a capa e o título. Não é a peça — ninguém chegou a ver a peça.</div></div>
