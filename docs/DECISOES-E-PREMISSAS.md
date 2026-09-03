@@ -826,3 +826,104 @@ prejuízo real é menor que R$ 12,52/peça. **O sinal é robusto** (negativo em 
 e 45); o tamanho não está cravado. Falta o export por-live de agosto.
 
 Registrado em `docs/BANCO_ROTEIROS_LIVE.md`.
+
+---
+
+## P15 · "A taxa do TikTok subiu de novo em agosto e comeu o lucro" ❌ REFUTADA (03/09/2026)
+
+**Premissa declarada antes de calcular** (herdada do `Relatorio Fechamento Agosto 2026_2026-08-31`):
+a taxa efetiva do TikTok subiu pelo terceiro mês seguido — 19,64% (jun) → 25,33% (jul) → 26,09%
+(ago) — e essa alta de +0,76 pp custou **R$ 3.667,46** de lucro em agosto.
+
+**Veredito: ❌ REFUTADA.** Era artefato de **mês aberto**. Aquele relatório foi gerado no dia 31/08,
+com o statement de agosto ainda imaturo (4.895 pedidos). Rerodando os coletores em 03/09 (statement
+com **5.253** pedidos) e medindo a taxa na base não enviesada — `1 − settlement/customer_payment`
+nos pedidos **limpos** (sem devolução) que já liquidaram:
+
+| | Junho | Julho | Agosto | Δ ago-jul |
+|---|---:|---:|---:|---:|
+| Taxa efetiva (pedidos limpos) | 19,04% | 24,47% | **24,59%** | **+0,12 pp** |
+| Custo da variação no lucro | — | — | — | **R$ 587,69** |
+
+A taxa ficou **parada**. O custo real da variação é R$ 587,69 — **6,2x menor** que o alarme.
+
+**O que continua VERDADEIRO:** o degrau jun → jul (+5,43 pp) é real e já está incorporado. Não é
+vazamento novo. Confirma [[project_taxa_efetiva_subindo]] no que ela afirma (o degrau existiu) e
+corrige a extrapolação de que ele seguiria subindo.
+
+**Consequência:** a investigação de decomposição do fee aberta na recomendação nº 1 do fechamento
+de 31/08 **pode ser fechada** — a alavanca não vale a hora. Prioridade volta para volume.
+
+**Régua que evita a recaída:** não medir taxa efetiva de mês corrente antes do statement maturar.
+A cobertura do statement em agosto só chegou a **87,5%** dos pedidos pagos em 03/09 (jun e jul
+estão em ~100%). Medir sempre em pedidos LIMPOS e projetar sobre o GMV válido — somar o realizado
+subestima o mês recente.
+
+---
+
+## P16 · "O lucro de agosto caiu porque a operação piorou" ❌ REFUTADA · a economia unitária ficou IGUAL (03/09/2026)
+
+**Premissa declarada antes de calcular:** a queda do lucro de julho para agosto (−R$ 13.152,22 na
+régua de contribuição) reflete deterioração da economia da operação — margem, preço ou custo.
+
+**Veredito: ❌ REFUTADA. A economia unitária empatou; caiu volume.**
+
+Ponte do Δ do lucro, decomposição aritmética (resíduo **R$ 0,41**, não é estimativa):
+
+| Efeito | Impacto | Leitura |
+|---|---:|---|
+| **Volume (GMV válido)** | **−R$ 44.407,79** | o único efeito genuinamente negativo |
+| CPV (peças × custo) | +R$ 26.279,60 | espelho da queda de volume, não eficiência |
+| Mídia tradicional | +R$ 5.563,25 | 3º mês de corte de verba |
+| Taxa efetiva TikTok | −R$ 587,69 | neutra (ver P15) |
+| **= Δ lucro** | **−R$ 13.152,22** | |
+
+**Lucro após devolução por peça: R$ 3,43 (ago) vs R$ 3,42 (jul).** Empate técnico. Preço médio por
+peça R$ 76,81 vs R$ 79,35; CPV estável em R$ 44,99. **A operação não ficou pior — ficou menor.**
+
+**⚠️ Ressalva que impede comemorar:** dos R$ 31.255,16 que amortizaram a queda, **R$ 5.563,25 vieram
+de cortar mídia** — e o corte alimenta a queda de volume do mês seguinte. É lucro comprado com
+combustível do mês que vem. Terceiro mês seguido (R$ 54.545,82 → R$ 29.564,53 → R$ 24.001,28) com
+**ROAS SUBINDO** (8,14x): há demanda não comprada.
+
+**Consequência:** recuperar o volume de julho vale **+R$ 3.301,34**/mês na mesma economia unitária —
+5,6x mais que zerar a alta da taxa. Volume é a alavanca; margem não é o problema.
+
+---
+
+## P17 · "Devolução custa o valor reembolsado" ❌ REFUTADA · custa ~1/6 disso (03/09/2026)
+
+**Premissa declarada antes de calcular:** o custo da devolução para o lucro é o valor reembolsado
+ao cliente (agosto: R$ 88.428,53).
+
+**Veredito: ❌ REFUTADA. O custo líquido de agosto foi R$ 13.772,11 — 15,6% do reembolsado.**
+
+A devolução custa o **settlement que deixa de vir**, menos o **CPV da peça que volta ao estoque** e
+o **crédito de imposto**. Em agosto, **97,2%** das devoluções são `RETURN_AND_REFUND` (a mercadoria
+retorna); só 2,8% são `REFUND` puro (dinheiro sem peça de volta).
+
+| | Agosto | Julho | Junho |
+|---|---:|---:|---:|
+| Fatia do valor devolvida | 18,32% | 21,97% | 19,27% |
+| Settlement que deixa de vir | R$ 70.899,33 | R$ 100.099,42 | R$ 107.703,46 |
+| (+) CPV recuperado | R$ 51.354,86 | R$ 67.280,91 | R$ 68.373,16 |
+| (+) Imposto creditado | R$ 5.772,36 | R$ 7.823,76 | R$ 7.894,36 |
+| **= Custo líquido** | **R$ 13.772,11** | **R$ 24.994,75** | **R$ 31.435,93** |
+| por peça vendida | R$ 2,21 | R$ 3,66 | R$ 3,94 |
+
+**✅ Achado lateral que vale mais que a refutação:** a fatia devolvida **caiu de 21,97% para 18,32%**,
+o que devolveu **R$ 11.222,64** de lucro em agosto. Sem essa melhora o mês teria fechado em
+**R$ 10.185,63** em vez de R$ 21.408,27 — a devolução sozinha explica mais da metade do lucro do mês.
+**Foi o maior ganho silencioso do trimestre e ninguém o creditou.**
+
+**⏳ Em aberto — e é a prioridade:** *por que* a devolução caiu em agosto. Mix de tamanho? Size
+Finder exposto na compra? Gradação corrigida na fábrica? Não medido. É a alavanca mais barata da
+operação e a mais fácil de perder sem perceber. Ver [[project_perda_produto_modelagem]].
+
+**Premissas do modelo (não é medição direta):** (P1) fatia devolvida = participação dos pedidos
+devolvidos no valor pago da coorte com statement; (P2) peça devolvida volta vendável (97,2%);
+(P3) venda estornada gera crédito de imposto. Peça que volte avariada aumenta o custo real.
+
+**Consequência de régua:** todo relatório de lucro passa a ter **duas lentes** — contribuição
+(comparável com o histórico) e **após devolução** (o que sobra). A segunda é a que responde
+"quanto lucramos". Ambas são de contribuição: nenhuma desconta despesa fixa, folha ou estrutura.
