@@ -927,3 +927,85 @@ devolvidos no valor pago da coorte com statement; (P2) peça devolvida volta ven
 **Consequência de régua:** todo relatório de lucro passa a ter **duas lentes** — contribuição
 (comparável com o histórico) e **após devolução** (o que sobra). A segunda é a que responde
 "quanto lucramos". Ambas são de contribuição: nenhuma desconta despesa fixa, folha ou estrutura.
+
+---
+
+## P18 · "O faturamento do TikTok está caindo" ✅ CONFIRMADA — mas o buraco é 100% AFILIADA, e são 4 pessoas (04/09/2026)
+
+**Premissa declarada antes de calcular:** o faturamento vem caindo desde maio e a causa provável é
+alguma combinação de preço, taxa, estoque e corte de mídia — as suspeitas que circulavam nos
+fechamentos de jun/jul/ago.
+
+**Veredito: ✅ a queda é real (−42% abr→ago) · ❌ nenhuma das quatro causas suspeitas explica.**
+O buraco inteiro está no motor de **afiliadas**, e dentro dele em **4 creators**.
+
+### 1. O tamanho (GMV produto válido, `pedidos_sku` sem cancelado)
+
+| | jan | fev | mar | abr | mai | jun | jul | ago | set (3d) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| peças | 12.708 | 12.427 | 11.227 | 11.419 | 6.038 | 7.976 | 6.823 | 6.234 | 440 |
+| GMV | 868k | 904k | 827k | 828k | 478k | 622k | 541k | 479k | 34,8k |
+| R$/peça | 68,31 | 72,76 | 73,69 | 72,54 | 79,12 | 78,01 | 79,35 | 76,81 | 79,03 |
+
+Set/26 roda a **R$ 11,6k/dia** contra R$ 15,4k/dia em agosto (**−24%**) nos 3 primeiros dias.
+A queda não estabilizou.
+
+### 2. Onde o dinheiro sumiu (canal REAL por pedido, `pedidos_sku` × `extrato_pedidos`)
+
+| GMV | mar | abr | mai | jun | jul | ago | Δ mar→ago |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **vídeo afiliada** | 389.637 | 323.222 | 155.673 | 249.857 | 145.337 | **106.846** | **−282.791** |
+| **live afiliada** | 229.585 | 389.035 | 191.350 | 147.932 | 201.721 | **174.732** | **−54.853** |
+| loja própria | 208.041 | 116.075 | 130.703 | 224.402 | 194.326 | **197.242** | −10.799 |
+
+> **Afiliada: 619,2k → 281,6k (−337,6k). Loja própria: praticamente parada (208k → 197k).**
+> **97% da queda do negócio está no motor de afiliadas.** A loja própria — que é o que a mídia
+> compra — segurou o nível mesmo com a verba caindo.
+
+### 3. Dentro da afiliada, são 4 pessoas (GMV atribuído, deduplicado por handle)
+
+| creator | tipo | mar | abr | mai | jun | jul | ago | dias ativos abr→ago |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| psi.mirellarodrigues | LIVE | 94,8k | **158,0k** | 3,2k | 0,4k | 0,7k | **0,2k** | 30 → **2** |
+| natmarquesvi | LIVE | 73,4k | **188,5k** | 39,3k | 3,5k | 1,3k | **2,2k** | 30 → 12 |
+| maiconeandreia | LIVE | 0 | **80,2k** | 88,4k | 0,3k | 0 | **0,3k** | 14 → **2** |
+| tacianecreator | VÍDEO | 80,0k | 115,9k | 86,1k | **251,0k** | 152,5k | **77,9k** | 30 → **7** |
+| *(entrou)* amandadjehdian | — | 0 | 0 | 0 | 0 | 105,4k | 97,9k | — |
+
+- **Os 4 juntos: R$ 542,5k em abril → R$ 80,6k em agosto.** Uma a uma, em meses diferentes —
+  mirella e maicone pararam em maio, natmarques em junho, taciane em agosto.
+- **Concentração:** top10 = **79–81%** do GMV de afiliada em todos os meses. Creators faturando
+  ≥ R$5k/mês: **22 (abr) → 10 (ago)**. É uma carteira de baleias, não uma base.
+- **A reposição secou:** creators com 1ª venda no mês **302 (abr) → 131 → 114 → 90 → 71 (ago)**.
+  Ativas no mês: **428 → 155**. Amanda (jul) prova que uma baleia nova cobre ~R$100k/mês —
+  entrou **uma** em cinco meses.
+- **Não é falta de conteúdo:** vídeos postados 2.919 (abr) → 2.152 (ago) (−26%) e creators
+  postando 921 → 642 (−30%) — muito menos que os −67% de GMV. Caiu **quem vende**, não quanto se posta.
+
+### 4. O que foi DESCARTADO (com dado, não com opinião)
+
+- **Preço ❌** — R$ 72,54 (abr) → R$ 76,81 (ago). O preço *subiu* 6% enquanto o GMV caiu 42%.
+- **Estoque/ruptura ❌** — hero REF516: **6–7 tamanhos ativos todo mês, venda em 31/31 dias,
+  mínimo diário 17–45 peças**. Nenhuma assinatura de ruptura em nenhum mês, maio incluído.
+- **Taxa TikTok ❌** — já refutada em P15 (parada em ~24,6%; custo real da variação R$ 587).
+- **Mídia — parcial.** Verba 51,9k (abr) → 38,4k (ago) (−26%), tradicional 54,5k (jun) → 24,0k (ago)
+  (−56%), **com ROI subindo (7,56 → 8,16)**. Há demanda não comprada — mas o canal que a mídia
+  alimenta (loja própria) é justamente o que **não** caiu. Vale ~R$3k/mês (P16), não R$350k.
+
+### Consequência — a alavanca mudou de lugar
+
+O negócio é uma **carteira de 10–20 creators**, não uma operação de mídia e preço. O KPI que
+governa o mês é **nº de creators faturando ≥ R$5k** (hoje 10, precisa ~22 para voltar a 830k) e,
+para as de live, **dias ativos no mês**. Recuperar/repor **2 lives afiliadas diárias** vale mais
+que qualquer ajuste de preço, taxa ou verba já discutido em 2026. Seeding deixa de ser custo de
+relacionamento e passa a ser o **único mecanismo de reposição de receita**.
+
+**⏳ Em aberto (o que o dado não responde):** *por que* cada uma parou — saiu para concorrente,
+brigou com comissão, perdeu alcance, ou parou de fazer live. É pergunta de conversa, não de query.
+São 4 telefonemas e provavelmente o item de maior valor da semana.
+
+**Ressalvas de régua:** (1) `affiliate_perf` é GMV **atribuído** (soma > GMV oficial; serve como
+índice de participação/tendência, não como nível) e tem o bug de handles duplicados
+(taciane em 2 handles com valores idênticos em jun/jul) — números acima **deduplicados** pelo máximo.
+(2) `extrato_pedidos` de setembro ainda não populou → o split por canal de set/26 não vale.
+(3) `ads_campanha` para em 31/08 → **não há visibilidade de mídia de setembro**; rodar o coletor.
