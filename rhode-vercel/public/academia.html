@@ -288,6 +288,10 @@
   .viz-versus .vv .vv-h{font-weight:800;font-size:12px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}
   .viz-versus .vv.no .vv-h{color:var(--soft)} .viz-versus .vv.yes .vv-h{color:#1a8f4c}
   .viz-versus .vv .vv-b{font-size:12.5px;color:var(--ink);line-height:1.42}
+  .cola{margin:16px 0 4px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+  .cola .cl-row{padding:11px 14px;border-top:1px solid var(--line)} .cola .cl-row:first-child{border-top:none}
+  .cola .cl-when{display:block;font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+  .cola .cl-say{display:block;font-size:13.5px;color:var(--ink);line-height:1.5;font-style:italic}
   .lib-drive{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-bottom:8px}
   .lib-drive .li{font-size:30px}.lib-drive .lt{flex:1;min-width:200px}.lib-drive .lt b{font-size:16px}.lib-drive .lt div{color:var(--muted);font-size:14px;margin-top:2px}
   .lib-soon{font-family:var(--mono);font-size:13px;color:var(--soft);border:1px dashed var(--line);border-radius:99px;padding:9px 16px}
@@ -1739,6 +1743,16 @@ const AULOES=[
 <li><b>Confere a sacolinha</b> — a peça e a numeração certas, vinculadas, pra ela comprar em um clique.</li>
 <li><b>Cria o cupom no painel da live antes de começar</b> — aí você solta na hora certa, sem travar no meio.</li>
 </ul>
+<p><b>A sua cola pra não travar.</b> Não decora nada — deixa essas frases à mão e troca pelas suas palavras. É só um apoio pra manter o ritmo quando faltar o que dizer (o <b>[colchete]</b> você preenche):</p>
+<div class="cola">
+<div class="cl-row"><span class="cl-when">Abertura</span><span class="cl-say">"Oi, amores! Chegando aqui — hoje é dia da [peça], a que vocês mais pediram. Fica comigo que vou mostrar ela de todo jeito."</span></div>
+<div class="cl-row"><span class="cl-when">Quem chegou agora</span><span class="cl-say">"Chegou agora? Deixa eu apresentar: essa é a [nome], [o que resolve]. Tá fixada aqui em cima, ó."</span></div>
+<div class="cl-row"><span class="cl-when">Mostrando o caimento</span><span class="cl-say">"Olha a frente… de lado… sentei e não repuxa, viu? Anda comigo."</span></div>
+<div class="cl-row"><span class="cl-when">Estilizando</span><span class="cl-say">"Esse mesmo modelo com tênis fica assim; com salto vira outra vibe. Uma peça, vários looks."</span></div>
+<div class="cl-row"><span class="cl-when">Tirando dúvida de tamanho</span><span class="cl-say">"Quem tá na dúvida do número, manda sua altura no chat. Eu tenho [altura] e vesti a [tamanho]."</span></div>
+<div class="cl-row"><span class="cl-when">Oferta / escassez</span><span class="cl-say">"Restam poucas na [numeração]. Vou soltar o cupom por 10 minutos — depois volta o preço cheio."</span></div>
+<div class="cl-row"><span class="cl-when">Chamando pra comprar</span><span class="cl-say">"Toca no carrinho aqui embaixo, escolhe seu número e garante. Comenta a dúvida que eu respondo na hora."</span></div>
+</div>
 <div class="viz-callout"><span class="vk-ic">🔁</span><span class="vk-tx">Uma peça, mostrada de dez jeitos, vira <b>dez motivos pra comprar</b> — e a live que dura é a live que vende.</span></div>
 <p>Você não tem uma peça só. Você tem uma peça e a tarde inteira pra mostrar ela bem.</p>`}
 ];
