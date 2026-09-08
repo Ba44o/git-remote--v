@@ -1211,3 +1211,58 @@ de ativar. Vale mais que qualquer ajuste de preço ou de formato.
 | Preço único de promo serve para o catálogo | ❌ **REFUTADA** — R$ 4,37/pç no CPV 45 · R$ 0,50 no CPV 49 |
 
 Relatório: `relatorios/2026-09/Relatorio Impacto Promocao Relampago Live 04-09_2026-09-08.{md,xlsx}`
+
+---
+
+## P22 · Registro de apresentadora por live — ✅ DESTRAVADO pela escala do dono (08/09/2026)
+
+**A R21 continua correta e agora está exaustivamente confirmada.** Varredura multi-fonte
+(3 agentes independentes, verificação adversarial):
+
+- **Supabase:** 80 tabelas, **1.034 colunas** — grep por `apresent|host|staff|equipe|turno|bloco|
+  escala|cronogram|schedul|shift|anchor|operador|locutor` = **zero hits**. Nenhuma tabela que
+  carrega `room_id`/`live_key` carrega coluna de pessoa. Não há caminho de join.
+- **Exports do Seller Center:** 148 .xlsx, 3 schemas, 94 colunas distintas, 43.716 células de
+  texto varridas — **nenhuma coluna identifica quem apresentou**.
+- **Proxies testados e refutados:** `live_sessao.campanha` com nome de pessoa cobre 4,6% das
+  linhas (e é nome de campanha de ads, não de apresentadora) · `live_attr.titulo` com @handle
+  = 1 live em 827 · `extrato_pedidos.creator` **NÃO mapeia apresentadora** (é comissão de
+  afiliada; das 137 datas com live própria só 38 têm comissão LIVE, e a contagem de creators/dia
+  não bate com a de salas/dia).
+
+> **Conclusão: apresentadora não é extraível — tem que ser INSTRUMENTADA.** A escala do dono é
+> a instrumentação. Salva em `dados/lives/escala_setembro_2026.csv`.
+
+### O casamento funciona
+
+Escala × sala por **data + janela do bloco** (tolerância de 60 min antes do início previsto):
+**15 de 15 salas reais casaram, zero órfãs, zero turnos com sala de outro bloco.** Setembro tem
+3 blocos fixos: 06:00–09:00 e 19:30–22:00 (Ingrid) · 11:00–14:00 (Gabriela seg–sex, Ingrid sáb).
+
+### ⚠️ E o desenho da escala IMPEDE comparar as duas
+
+Ingrid e Gabriela têm blocos fixos e **disjuntos**. A única sobreposição em 01–08/09 é o sábado
+05/09 (Ingrid no bloco 11–14): **n=1, e sábado não é dia útil**. Comparar as duas é comparar
+blocos. Vale a mesma armadilha da R21 (horário que some ao controlar por duração), agravada pela
+amostra. **Para separar pessoa de contexto seria preciso rodízio na escala.**
+
+Números descritivos (01–08/09, 15 salas, 39,67h): Ingrid 9 salas · 7,1 pç/h · R$ 38,53/h ·
+Gabriela 6 salas · 15,1 pç/h · R$ 71,33/h. **Não usar como avaliação individual.**
+
+### Achados operacionais que o registro destravou
+
+- **Aderência de 81,0%** — 39,67h no ar contra 49,0h escaladas nos turnos já passados.
+- **3 turnos não rodaram** (8,0h): 03/09 19:30 (sem motivo no dado) · 07/09 11:00 e 19:30 (feriado
+  da Independência).
+- **07/09 06:00 rodou 1h das 3h e fechou com GMV zero** — live que abriu e não vendeu.
+- **Bloco 11–14 é o motor:** 45% das horas e 69% da contribuição. Bloco da noite rodou 2 de 5
+  escalas e é o de menor retorno por hora (R$ 19,89).
+
+### ⚠️ Gotcha de coleta encontrado no caminho
+
+**A atribuição do TikTok ainda liquida dias depois.** Entre duas coletas no mesmo dia, 05/09 subiu
+de R$ 1.848,08 para R$ 2.001,37 e a live de 07/09 **caiu de R$ 232,69 para zero**. Consequência:
+**GMV zero NÃO pode ser critério de "reinício técnico"** — a de 07/09 durou 1h e é live real que
+não vendeu. Critério correto: **duração < 15 min**, só isso.
+
+Relatório: `relatorios/2026-09/Registro de Lives Setembro 01-08_2026-09-08.{md,xlsx}`
