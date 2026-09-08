@@ -1009,3 +1009,91 @@ São 4 telefonemas e provavelmente o item de maior valor da semana.
 (taciane em 2 handles com valores idênticos em jun/jul) — números acima **deduplicados** pelo máximo.
 (2) `extrato_pedidos` de setembro ainda não populou → o split por canal de set/26 não vale.
 (3) `ads_campanha` para em 31/08 → **não há visibilidade de mídia de setembro**; rodar o coletor.
+
+---
+
+## P19 · "O gargalo da live está na janela de horário / na apresentadora dessa janela" ❌ REFUTADA (08/09/2026)
+
+**Premissa declarada antes de calcular:** a queda da live está concentrada na janela 06–09 /
+19:30–22, e o desempenho da apresentadora desse turno é a causa.
+
+**Veredito: ❌ REFUTADA. O gargalo é MÍDIA, e é um número só:**
+**a peça marginal custa R$ 16,09 de mídia e entrega R$ 8,21 de contribuição bruta — 1,96×.**
+
+Dose-resposta dentro das 55 salas com mídia (ago+set), regressão de peças/h contra mídia/h:
+r = **+0,556** · t = **+4,87** · inclinação **0,0621 peça/h por R$ 1/h**. A mídia **funciona** —
+ela traz peça com significância. O preço é que está errado.
+
+| Quartil de mídia/hora | mídia/h | peças/h | **contrib/hora** |
+|---|---:|---:|---:|
+| Q0 · sem mídia (n=17) | R$ 0 | 18,8 | **R$ 158,92** |
+| Q1 · menor (n=13) | R$ 24,68 | 9,6 | **R$ 86,65** |
+| Q2 (n=13) | R$ 100,73 | 16,4 | −R$ 3,08 |
+| Q3 (n=13) | R$ 158,44 | 24,2 | −R$ 5,23 |
+| Q4 · maior (n=16) | R$ 285,60 | 29,5 | R$ 8,11 |
+
+**Conta marginal:** cortar R$ 1 de mídia economiza R$ 1 e sacrifica 0,0621 × R$ 8,21 = R$ 0,51 →
+**sobra R$ 0,49 líquidos por R$ 1 cortado.** Cortar 50% da mídia de setembro (R$ 1.375) devolve
+**+R$ 674** — mais que os R$ 535 que o mês inteiro produziu. Em agosto o mesmo corte valeria +R$ 4.062.
+
+**Viés joga A FAVOR:** o GMV Max realoca verba para salas que já convertem, o que infla a
+eficiência aparente. O custo real da peça marginal é **≥ R$ 16,09**, nunca menor.
+
+### O que a janela realmente diz (e por que não é a apresentadora)
+
+| Janela | mês | salas | h/sala | peças/h | **contrib/h** |
+|---|---|---:|---:|---:|---:|
+| NOITE 19:30–22 | ago | 7 | 2,12 | 26,1 | **R$ 80,27** ← melhor slot da loja |
+| FORA (11h etc.) | ago | 51 | 1,82 | 24,0 | R$ 37,76 |
+| **MANHÃ 06–09** | set | 6 | **2,82** | **6,4** | **R$ 10,03** |
+| NOITE 19:30–22 | set | 2 | 2,37 | 9,1 | −R$ 5,62 |
+| FORA | set | 6 | 2,52 | 14,4 | R$ 25,97 |
+
+- **A janela da noite foi o MELHOR slot medido da operação** (ago). Ela não é o problema.
+- A janela 06–09 **não existia em agosto** — é nova em setembro e consome **46% das horas do mês**.
+- **O teste da R21 se inverte aqui:** a manhã tem as lives MAIS LONGAS (2,82 h/sala) e a MENOR
+  produção (6,4 pç/h). Controlar por duração **reforça** o achado — o slot é ruim de verdade.
+- **A queda de setembro é do mês inteiro:** o horário das 11h também caiu (R$ 37,76 → R$ 25,97/h).
+
+🔒 **Continua não mensurável quem apresentou** (confirma R21). A janela é proxy, não identidade.
+Ação de destravamento: 1 campo "apresentadora" no controle da operação.
+
+---
+
+## P20 · "Setembro está pior que agosto" ✅ CONFIRMADA — mas por VOLUME, não por margem (08/09/2026)
+
+**Veredito: ✅ CONFIRMADA.** Contribuição por hora de live: **R$ 78,67 (jul) → R$ 43,64 (ago) →
+R$ 14,56 (set) = −81% em dois meses.**
+
+Ponte aritmética (resíduo **R$ 0,00**, não é estimativa):
+
+| Transição | Δ contrib/hora | efeito VOLUME | efeito MARGEM |
+|---|---:|---:|---:|
+| julho → agosto | −R$ 35,03 | +R$ 23,21 | **−R$ 58,25** |
+| agosto → setembro | −R$ 29,08 | **−R$ 25,60** | −R$ 3,48 |
+
+**São dois problemas diferentes.** Agosto foi PREÇO (R$ 77,00 → R$ 73,40/peça, com volume
+subindo). Setembro é VOLUME (peças/hora 24,29 → 10,04, −59%), com o preço até se recuperando
+(R$ 75,04). Tratar os dois com a mesma alavanca — mais mídia — produziu o resultado atual.
+
+**O ROAS subiu nos três meses (9,02 → 9,90 → 10,46) enquanto a contribuição caiu 81%.**
+Prova direta de que ROAS não é a régua desta operação. Ver [[reference_regua_midia_contribuicao]].
+
+**⚠️ Faixa de setembro — única incerteza material:** só 213 pedidos de setembro liquidaram (~3%
+do mês) e a taxa parcial veio em 76,18% vs 72,39% de agosto. Testei se a amostra precoce prevê o
+fechamento: julho **+1,9 p.p. acima**, agosto **4,3 p.p. abaixo** — **não prevê**. O relatório roda
+na régua de agosto (conservadora). Na régua parcial de setembro, a contribuição/hora seria
+R$ 43,14 em vez de R$ 14,56. **O que não muda em nenhum cenário: peças/hora caíram 59% — é contagem.**
+
+### Ajustes em premissas anteriores
+
+- **R22 ("live sempre ≥ 2 h") ⏳ AJUSTADA.** Ela mediu GMV/hora. Em CONTRIBUIÇÃO/hora o ótimo é
+  **1–3 h**: 1–2 h rende R$ 70,90/h · 2–3 h R$ 52,88/h · 3 h+ **−R$ 16,15/h** (R$ 47,09 sem saldão),
+  porque acima de 3 h o preço por peça cede de R$ 77,06 para R$ 75,55. Volume continua subindo,
+  margem não. Não é refutação — é troca de métrica.
+- **P14 (saldão) ❌ REFUTADA de novo.** 2 salas em ago+set: **−R$ 2.571**, 27% de tudo que as
+  salas positivas construíram. Preço R$ 55,24 contra CPV R$ 44,99.
+- **`live_sessao` subnotifica ⏳ REVISAR.** Medido agora, a atribuição por sala cobre **97,1% (jul),
+  98,9% (ago) e 99,9% (set)** do headline de `ads_campanha`. Nesta janela dá para fazer P&L por live.
+
+Relatório: `relatorios/2026-09/Relatorio Geral de Live Agosto e Setembro_2026-09-08.{md,xlsx}`
