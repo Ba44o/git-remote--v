@@ -1100,67 +1100,79 @@ Relatório: `relatorios/2026-09/Relatorio Geral de Live Agosto e Setembro_2026-0
 
 ---
 
-## P21 · Promoção relâmpago na live de 04/09 — "o impulso paga o desconto" ❌ REFUTADA · a causa é EMPILHAMENTO DE CUPOM (08/09/2026)
+## P21 · Promoção relâmpago na live de 04/09 — "o impulso paga o desconto" ✅ CONFIRMADA (08/09/2026)
 
-**Premissa declarada antes de calcular:** a rajada de preço no hero (lista 78,90 → 69,99) durante a
-live das 11:00 impulsionou volume o bastante para pagar o desconto.
+> ⚠️ **Esta premissa foi registrada ERRADA na primeira versão (08/09) e corrigida no mesmo dia.**
+> Eu tratei o cupom de 10% da plataforma como se saísse do bolso da loja e conclui que a rajada
+> destruía contribuição. **O dono corrigiu: quem subsidia o cupom é o TikTok.** Ele estava certo —
+> e eu já tinha provado isso numa análise anterior sem aplicar aqui. Ver "a régua" abaixo.
+
+**Premissa declarada antes de calcular:** a rajada de preço no hero durante a live das 11:00
+impulsionou volume o bastante para pagar o desconto.
+
+**Veredito: ✅ CONFIRMADA, com folga de 2,1×.**
 
 **Desenho:** a própria live como controle — rajada × resto da mesma sessão (mesma audiência, mesmo
-dia, mesma apresentadora). Elimina os confundidores que day-level controls não eliminam.
+dia, mesma apresentadora). Universo: peça **paga, não cancelada e não devolvida** (dado de 08/09).
 
-### ✅ O impulso é REAL e é o maior ímã de conversão medido
+| segmento | min | peças | **peças/hora** | cliente pagou | **loja faturou** | contrib/peça | contrib/hora |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **RAJADAS** (3 blocos) | 35 | 57 | **97,7** | 62,88 | **69,89** | 3,68 | **359,70** |
+| resto da live | 151 | 34 | 13,5 | 74,57 | 82,01 | 12,71 | 171,76 |
 
-| Segmento | min | peças | **peças/hora** | preço pago | **contrib/peça** | contrib/hora |
-|---|---:|---:|---:|---:|---:|---:|
-| **RAJADAS** (3 blocos) | 35 | 72 | **123,4** | R$ 62,47 | **−R$ 0,28** | **−R$ 34,42** |
-| Resto da live | 151 | 52 | 20,7 | R$ 71,86 | +R$ 7,25 | +R$ 149,85 |
+**Lift 7,23× · necessário 3,45× · folga 2,10×.** Contribuição/hora +109% na rajada.
+Live fechou em **R$ 350,56** depois da mídia; sem as rajadas teria feito R$ 240,92 →
+**as rajadas valeram +R$ 109,63**.
 
-**6,0× o ritmo. Em 19% do tempo saíram 58% das peças da live.** O formato funciona.
+### ✅ A RÉGUA CERTA: a base é o REVENUE, não o que o cliente paga
 
-### ❌ E mesmo assim destrói contribuição — porque o CUPOM EMPILHOU
+`revenue = preço pago + platform_discount` em **2.130 de 2.143** pedidos liquidados de agosto
+(99,4%), ao centavo. **A loja fatura +10,2% acima do que o cliente paga — o cupom é subsídio do
+TikTok.** Isso já estava provado na P12 (mega live da Amanda, 10/08) e em
+`reference_extrato_inelegivel_cancelado`; eu simplesmente não apliquei.
 
-| | lista | (−) cupom 10% | = pago | contrib/peça |
+| | lista (loja fatura) | (−) cupom TT | = cliente paga | contrib/peça |
 |---|---:|---:|---:|---:|
-| base da live | 78,90 | −7,89 | 71,01 | **+6,40** |
-| promo pretendida | 69,99 | −7,00 | **62,99** | **+0,60** |
-| *se pagasse 69,90* | — | — | *69,90* | *+5,60* |
-| **PISO (contrib 0)** | 69,07 | — | **62,16** | **0,00** |
+| base da live | 78,90 | −7,89 | 71,01 | **+10,75** |
+| promoção | 69,99 | −7,00 | 62,99 | **+4,45** |
+| **PISO** | **63,69** | −6,37 | 57,32 | 0,00 |
 
-**O cupom de 10% da plataforma empilha sobre o preço de lista.** O dono desenhou uma promoção de
-R$ 69,90 e o cliente pagou R$ 62,99 — **abaixo do piso**. O empilhamento comeu **89%** da margem
-pretendida. Detecção: a razão lista÷pago é exatamente 0,90 nos dois patamares.
+**Régua:** `settlement ÷ revenue = 70,66%` (agosto, pedidos COM cupom, n=2.143 — mesma natureza
+desta live). **Nunca aplicar taxa sobre o que o cliente pagou.**
 
-> **Para o cliente PAGAR R$ 69,90 com cupom de 10% ativo, a lista tem que ser R$ 77,67.**
-> Com o cupom ligado, o hero praticamente não tem espaço de promoção (piso de lista R$ 69,07).
+### ❌ O desconto NÃO atraiu comprador ruim
 
-### ❌ O halo aumentou o prejuízo em vez de compensar
+Sobrevivência da peça (paga, não cancelada, não devolvida): **79,2% na rajada contra 65,4% no
+resto da live**. Compra por impulso costuma cancelar mais; aqui foi o contrário.
+Funil: 124 peças na janela → −30 nunca pagas → −2 canceladas pós-pagamento → −1 devolvida →
+**91 líquidas**.
 
-O não-hero saltou para **66,9 peças/hora** (5,1× o ritmo) — halo real. Mas o cupom valeu para o
-catálogo inteiro e o não-hero foi a **−R$ 1,18/peça**, somando **−R$ 46,14**. É o maior prejuízo
-isolado da rajada.
+### ✅ O halo é real e positivo
 
-### Custo
+Não-hero a **54,9 peças/hora** na rajada contra 7,9 fora (**6,9×**), somando **+R$ 81,18**.
+O cupom pegar o catálogo inteiro **ajudou**. Não escopar só ao hero.
 
-Desconto dado R$ 676,08 (72 pç × R$ 9,39). Contribuição da live R$ 357,04 − mídia R$ 291,54 =
-**R$ 65,50**. No ritmo do resto, sem rajada, teria dado **R$ 172,99**. **As rajadas custaram R$ 107,49.**
-Contrafactual: negativo em TODAS as hipóteses de incrementalidade (de −107 a −542), inclusive na
-mais generosa — porque com contribuição/peça negativa **nenhum volume conserta**.
+### ⚠️ A ressalva que importa — incrementalidade
+
+A rajada só é lucrativa se a venda for de fato incremental:
+
+| hipótese | Δ contribuição |
+|---|---:|
+| 100% incremental | **+109,63** |
+| 70% | −77,42 |
+| 50% | −203,12 |
+| 0% (só antecipou) | −514,64 |
+
+O ritmo de 7,2× sugere incrementalidade alta — ninguém compra sete vezes mais rápido por acaso —
+mas **isso é inferência, não medição**. É o ponto fraco do relatório.
 
 ### Regra que fica
 
-1. **Antes de soltar rajada, somar o cupom ativo e ler o preço que o cliente REALMENTE paga.**
-2. **Corte raso bate corte fundo:** lista R$ 74,90 (pago 67,41) rende R$ 3,80/peça e exige 1,68× —
-   e a rajada entrega 6×. O corte fundo exige 10,7×, que ninguém entrega.
-3. **Escopar a promoção ao hero** — o cupom pegando o catálogo inteiro foi o maior vazamento.
-4. **Manter o formato.** O problema é aritmético, não de mecânica.
-
-⚠️ **Inferência declarada:** as 3 rajadas (11:57–12:04 · 12:56–13:06 · 13:48–14:06) foram
-identificadas pelo cluster de peças a exatamente R$ 62,99 — `flash_sales` só guarda ONGOING, não há
-registro. A conclusão vem do PREÇO por peça, não da janela, então é robusta a erro de minutos.
-A janela captura todos os pedidos do período (inclui card/vídeo): infla os dois segmentos de forma
-parecida, a comparação se sustenta, os níveis absolutos ficam acima da live sozinha (`live_attr`
-atribui 90 peças; a janela tem 124).
-
-**Ação de destravamento:** log de flash sale (início, fim, produto, preço-alvo, cupom ativo).
+1. **Repetir o formato** — melhor mecânica de conversão medida na operação, e ela se paga.
+2. **R$ 69,99 de lista é bom ponto** (folga 2,1×). R$ 67,90 exige 3,61× — margem fina.
+3. **Piso de lista R$ 63,69.** Abaixo disso nenhum volume salva.
+4. **Não escopar o cupom só ao hero** — o halo paga.
+5. Registrar a promoção: `flash_sales` só guarda ONGOING, as 3 janelas (11:57–12:04 · 12:56–13:06 ·
+   13:48–14:06) foram inferidas pelo cluster de preço.
 
 Relatório: `relatorios/2026-09/Relatorio Impacto Promocao Relampago Live 04-09_2026-09-08.{md,xlsx}`
