@@ -1175,4 +1175,39 @@ mas **isso é inferência, não medição**. É o ponto fraco do relatório.
 5. Registrar a promoção: `flash_sales` só guarda ONGOING, as 3 janelas (11:57–12:04 · 12:56–13:06 ·
    13:48–14:06) foram inferidas pelo cluster de preço.
 
+### ⚠️ ADENDO (08/09, após o dono revisar): A PROMOÇÃO VAZOU
+
+O dono avisou que promoveu **só REF516 e REF551**. Testei comparando o preço de lista praticado na
+live com a mediana dos 15 dias anteriores, por família:
+
+| família | grupo | pç | preço normal | na live | desconto | CPV | contrib/pç |
+|---|---|---:|---:|---:|---:|---:|---:|
+| REF516 | INTENCIONAL | 22 | 78,90 | 69,89 | −9,01 (11%) | 45 | 4,38 |
+| REF551 | INTENCIONAL | 14 | 89,90 | 69,81 | −20,09 (22%) | 45 | 4,32 |
+| REF525 | colateral | 3 | 78,90 | 69,99 | −8,91 (11%) | 45 | 4,45 |
+| REF527 | colateral | 2 | 78,90 | 69,99 | −8,91 (11%) | 45 | 4,45 |
+| **REF549** | **VAZOU** | 7 | **94,90** | 70,18 | **−24,72 (26%)** | **49** | **0,59** |
+| **REF550** | **VAZOU** | 4 | **94,90** | 69,99 | **−24,91 (26%)** | **49** | **0,45** |
+| **REF562** | **VAZOU** | 9 | **94,90** | 69,99 | **−24,91 (26%)** | **49** | **0,45** |
+
+Cada família é um **`product_id` separado** (verificado em `affiliate_creator_product`) — não são
+variações do mesmo anúncio. REF525/527 caindo é inofensivo (mesma economia do hero). O problema são
+**REF549/550/562: CPV R$ 49 e preço normal R$ 94,90**, que foram a ~R$ 70.
+
+**Custo: as 20 peças que vazaram contribuíram R$ 10,04 quando teriam contribuído R$ 361,13 →
+−R$ 351,09.** Isso é **3,2× o ganho de +R$ 109,63** da promoção inteira. Sem o vazamento a live
+teria fechado em ~R$ 702 em vez de R$ 350,56.
+
+**Segundo achado:** "R$ 69,90 para as duas" virou **11% de desconto na REF516 e 22% na REF551**,
+porque os preços-base eram diferentes (78,90 × 89,90). **Definir promoção em % ou em
+contribuição-alvo, não em preço fixo.**
+
+**Ação #1 do relatório passa a ser:** auditar a lista de `product_id` no painel de promoção antes
+de ativar. Vale mais que qualquer ajuste de preço ou de formato.
+
+| Premissa | Veredito |
+|---|---|
+| A promoção atingiu só REF516 e REF551 | ❌ **REFUTADA** — 5 famílias extras caíram; 3 delas caras |
+| Preço único de promo serve para o catálogo | ❌ **REFUTADA** — R$ 4,37/pç no CPV 45 · R$ 0,50 no CPV 49 |
+
 Relatório: `relatorios/2026-09/Relatorio Impacto Promocao Relampago Live 04-09_2026-09-08.{md,xlsx}`
