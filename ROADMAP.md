@@ -133,6 +133,17 @@ Monitor operacional sobreposto à tela da LIVE no Seller Center: lê as métrica
 
 ## 🚧 Em desenvolvimento
 
+### Operador de Flash Sale (`operador_flash.py` + `criar_flash_sale.py`) — set/2026
+
+Escrita na Promotion API 202309 (escopo já autorizado — probe em 09/09 devolveu erro de parâmetro, não de permissão). Dois artefatos:
+
+- **`criar_flash_sale.py`** — CLI manual. Escopo explícito por REF no nível `VARIATION` e preço por **contribuição-alvo** resolvida por CPV (`preço = (CPV + alvo) ÷ 0,7066`; piso = `CPV ÷ 0,7066`). Dry-run é o padrão. É a resposta direta ao vazamento de escopo da P21 (custou 3,2× o ganho em 04/09) e ao "preço fixo não é desconto igual".
+- **`operador_flash.py`** — reconciliador idempotente rodando no Actions. Trilho *creators* (duplica a flash padrão por handle, renova faltando <48h) e trilho *live própria* (confirma room ativo em `live_sessao` e cria a escada de rajadas no hero a R$69,90). Regras em `config/operador_flash.json`. Relatório em `flash/OPERADOR_ATUAL.md` → rotina cloud posta no Notion (padrão do pace, sem chave do Notion no CI).
+
+**Achado que motivou:** as flashes "dedicadas por creator" eram 12 clones do catálogo inteiro (390 SKU, R$44,37–145,90) com nomes diferentes — o direcionamento por creator existia só no título.
+
+**Estado:** validado em dry-run contra a loja real; **falta o canário supervisionado** (1 criação real + encerramento) antes de ligar o cron.
+
 ### P&L por SKU × tamanho + motivo de cancelamento (conciliacao.html) — jul/2026
 Aponta o motor financeiro pro PRODUTO (grão = `seller_sku` = REF+tam). **Achado que reenquadra a conversa:** a perda não é ruptura — é **modelagem**. Jun/26: devolução por "não serviu" (`Item doesn't fit`) = 77% de todas as devoluções (963 peças, R$76.974 de GMV devolvido), pior no tam **46** (21,7% vs 13% no 36). **Ruptura real** (`cancel_reason='Fora de estoque'`) = só R$1.548/mês (50× menor). E apareceu um vazamento maior que os dois: **R$104k/mês de pedidos cujo pagamento nunca completou** (Pix expirando, `cancel_reason` "Pagamento atrasado", SYSTEM) — é checkout, não fábrica.
 - **A (dado):** `coletar_pedidos_sku.py` grava `cancel_reason`/`cancel_user` (item) + `cancel_reason`/`cancel_initiator`/`cancel_time` (pedido); upsert self-healing (RUNBOOK #13). `sql/pedidos_cancel_reason.sql`: ALTERs + views `cancelamento_motivo`/`cancelamento_resumo` (classifica por dono: ruptura/checkout_pagamento/logistica/arrependimento). Validado: view = R$1.547,57 ruptura jun = bate com a API.
