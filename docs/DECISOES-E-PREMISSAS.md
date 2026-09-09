@@ -1266,3 +1266,54 @@ de R$ 1.848,08 para R$ 2.001,37 e a live de 07/09 **caiu de R$ 232,69 para zero*
 não vendeu. Critério correto: **duração < 15 min**, só isso.
 
 Relatório: `relatorios/2026-09/Registro de Lives Setembro 01-08_2026-09-08.{md,xlsx}`
+
+---
+
+## P23 · "Devo subir outra campanha?" ❌ NÃO para live — e o ROAS estava enganando a decisão (09/09/2026)
+
+**Premissa declarada antes de calcular:** se a live está fraca, subir uma segunda campanha de live
+dividiria a entrega em dois leilões e recuperaria o clique.
+
+**Veredito: ❌ REFUTADA.** A saturação é por **volume/dia**, não por número de campanhas.
+
+| dia | impressões | impressão→view |
+|---|---|---|
+| 26/08 | 563.767 | 4,29% |
+| 08/09 | 252.558 | 5,15% |
+| 05/09 | 43.042 | 8,84% |
+| 07/09 | 11.614 | 12,28% |
+
+Os 3 dias com 2+ campanhas simultâneas deram i2v 10,58% — mas com 72k impressões/dia contra 199k
+dos dias de campanha única. **O efeito é do volume, e a "vantagem" das 2 campanhas é confundimento.**
+Dentro de 01–23/08 (antes do degrau) o contraste cai para 8,70% × 10,58% com a mesma diferença de
+volume. Não há evidência de que dividir a MESMA entrega em duas campanhas melhore o clique.
+
+Somando: peça marginal de live custa **R$ 16,18** de mídia e o teto que a peça aguenta pagar em
+setembro é **R$ 14,25** (ticket bruto R$ 84,21 × 0,7084 − CPV R$ 45,40). Mídia adicional em live
+destrói contribuição.
+
+### ✅ CONFIRMADO de quebra: o ROAS inverte a decisão
+
+Janela 10/08–09/09, mesma régua (`ticket × 0,7084 − CPV − CPA`):
+
+| motor | gasto | ROAS | ticket bruto | contrib/peça pós-mídia |
+|---|---|---|---|---|
+| Live | R$ 15.255 | **10,80×** | R$ 83,18 | **R$ 5,83** |
+| Produto | R$ 18.543 | 6,31× | R$ 96,14 | **R$ 7,48** |
+
+Live tem quase o **dobro** do ROAS e entrega **menos** contribuição por peça, porque o CPV é fixo
+em R$ 45,40 e o ticket da live é R$ 13 menor. **Decidir alocação por ROAS leva ao lado errado.**
+Reforça `reference_regua_midia_contribuicao`.
+
+### A alavanca real é subtração, não adição
+
+Campanhas de produto negativas na janela: **R$ 4.492 de mídia produzindo −R$ 1.430** de contribuição.
+A pior é `[GMV-MAX]-[MIX_PRODUTOS]-14.07.26` — 31 dias seguidos, R$ 3.214, CPA R$ 15,60,
+ticket R$ 77,29 → **−R$ 1.287**. Cortar recupera isso **com certeza**; realocar é aposta.
+
+**Nota contra a própria tese:** subir campanha nova não é o gargalo — o dono já subiu duas em 02–03/09
+e a taxa de acerto foi ~50%: `[WIDE LEG's]-03.09` fez **+R$ 843** em 7 dias (R$ 10,67/peça) e
+`[BAGGY][R.B]-02.09` fez **−R$ 124** em 8 dias (CPA R$ 35,38). O problema é seleção, não volume de
+campanhas.
+
+Relatório: aba "Subir outra campanha" em `relatorios/2026-09/Diagnostico Queda da Live Setembro_2026-09-09.xlsx`
