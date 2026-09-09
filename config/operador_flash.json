@@ -1,0 +1,29 @@
+{
+  "_doc": "Regras do operador de flash sale. Editar aqui é a forma de mudar a operação — o operador_flash.py só executa isto. Horários em BRT (UTC-3).",
+
+  "creators": {
+    "ativo": true,
+    "modo": "duplicar_template",
+    "template_activity_id": null,
+    "handles": [
+      "@lobarrosss", "@natcorreaofc", "@moniquealves228", "@larissaasoarexs",
+      "@_milenecarvalho", "@estilo.anashop", "@blessieayann2", "@adv.dayane",
+      "@dicasdala.br"
+    ],
+    "duracao_dias": 14,
+    "renovar_faltando_horas": 48,
+    "max_por_tick": 3
+  },
+
+  "live_propria": {
+    "ativo": true,
+    "dias_semana": [0, 1, 2, 3],
+    "hora_inicio": "08:00",
+    "janela_confirmacao_min": 60,
+    "escada": { "blocos": 3, "duracao_min": 12, "intervalo_min": 50, "atraso_inicial_min": 20 },
+    "refs": ["REF516", "REF525", "REF527"],
+    "preco_lista": 69.90,
+    "contrib_min": 0.0,
+    "encerrar_blocos_se_live_cair": true
+  }
+}

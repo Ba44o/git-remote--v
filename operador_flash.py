@@ -1,0 +1,360 @@
+#!/usr/bin/env python3
+"""
+Rhode Jeans — OPERADOR de Flash Sale (reconciliador idempotente)
+-----------------------------------------------------------------
+Opera o dia sozinho, em dois trilhos:
+
+  1. CREATORS — cada handle da config tem que ter uma flash ativa. Se falta (ou
+     está pra vencer), o operador DUPLICA a flash padrão da loja com o título
+     "Flash Sale- @handle" (mesmos produtos, mesmos preços — decisão do dono).
+  2. LIVE PRÓPRIA — nos dias/horário da regra, confirma que a live existe de
+     verdade e cria a ESCADA de rajadas do dia (blocos curtos de preço no hero).
+
+É RECONCILIADOR, não fila: a verdade é o estado das activities na TikTok Shop,
+lido a cada tick. Rodar 10x ou 1x no mesmo dia dá o mesmo resultado — ele só cria
+o que está faltando. Não guarda estado local pra dar errado.
+
+Régua de preço da rajada (P21, docs/DECISOES-E-PREMISSAS.md):
+  contrib/peça = lista × 0,7066 − CPV · piso = CPV ÷ 0,7066 (CPV 45 → R$ 63,69)
+  R$ 69,90 de lista no hero tem folga 2,1× — é o ponto medido, não chute.
+
+Uso:
+  python3 operador_flash.py                 # dry-run: diz o que faria
+  python3 operador_flash.py --executar      # opera (é o que o cron roda)
+  python3 operador_flash.py --executar --forcar-live   # ignora a checagem de live
+"""
+import os, re, sys, json, argparse
+from datetime import datetime, timedelta, timezone
+
+import requests
+import criar_flash_sale as F          # api(), catalogo(), cpv_por_ref(), piso(), contrib()
+
+BRT      = F.BRT
+BASE     = os.path.dirname(os.path.abspath(__file__))
+CFG_PATH = os.environ.get("OPERADOR_FLASH_CONFIG") or os.path.join(BASE, "config", "operador_flash.json")
+OUT_DIR  = os.path.join(BASE, "flash")
+MAX_SKU_POR_CALL = 250               # a API corta em 300 SKUs por chamada
+
+
+def agora():
+    return datetime.now(BRT)
+
+
+def cfg():
+    with open(CFG_PATH) as f:
+        return json.load(f)
+
+
+# ── ESTADO REAL (a TikTok Shop é a fonte de verdade) ────────────────────
+def activities(status=("ONGOING", "NOT_START")):
+    out = []
+    for st in status:
+        tok = None
+        while True:
+            body = {"page_size": 50, "status": st}
+            if tok:
+                body["page_token"] = tok
+            r = F.chamar("POST", "/promotion/202309/activities/search", params={}, body=body)
+            d = r.get("data") or {}
+            for a in d.get("activities", []) or []:
+                out.append({"id": str(a["id"]), "title": a.get("title") or "", "status": st,
+                            "tipo": a.get("activity_type"),
+                            "begin": int(a.get("begin_time") or 0), "end": int(a.get("end_time") or 0)})
+            tok = d.get("next_page_token")
+            if not tok:
+                break
+    return out
+
+
+def detalhe(aid):
+    r = F.chamar("GET", f"/promotion/202309/activities/{aid}", params={})
+    return (r.get("data") or {}) if r.get("code") == 0 else {}
+
+
+def produtos_do_template(det):
+    """Copia produtos+preços do template no formato do Update Activity Product."""
+    saida = []
+    for p in det.get("products", []) or []:
+        skus = []
+        for s in p.get("skus", []) or []:
+            amt = (s.get("activity_price") or {}).get("amount")
+            if not amt:
+                continue
+            skus.append({"id": str(s["id"]), "activity_price_amount": str(amt),
+                         "quantity_limit": -1, "quantity_per_user": -1})
+        if skus:
+            saida.append({"id": str(p["id"]), "quantity_limit": -1,
+                          "quantity_per_user": -1, "skus": skus})
+    return saida
+
+
+# ── ESCRITA ─────────────────────────────────────────────────────────────
+def criar(titulo, ini, fim, produtos, log):
+    """Cria a activity e anexa os produtos em lotes. Rollback se o anexo falhar."""
+    r = F.api("POST", "/promotion/202309/activities", params={}, body={
+        "title": titulo, "activity_type": "FLASHSALE", "product_level": "VARIATION",
+        "duration_type": "NORMAL", "begin_time": int(ini.timestamp()), "end_time": int(fim.timestamp()),
+        "participation_limit": [{"type": "BUYER_NO_LIMIT"}]})
+    if r.get("code") != 0:
+        log(f"✖ create '{titulo}': {r.get('code')} {r.get('message')}")
+        return None
+    aid = str((r.get("data") or {}).get("activity_id"))
+
+    # lotes de ≤250 SKUs (a API recusa acima de 300 por chamada)
+    lote, n_sku, enviados = [], 0, 0
+    def flush():
+        nonlocal lote, enviados
+        if not lote:
+            return True
+        r2 = F.api("PUT", f"/promotion/202309/activities/{aid}/products", params={},
+                   body={"activity_id": aid, "products": lote})
+        if r2.get("code") != 0:
+            log(f"✖ anexar em '{titulo}': {r2.get('code')} {r2.get('message')}")
+            return False
+        enviados += (r2.get("data") or {}).get("total_count") or 0
+        lote = []
+        return True
+
+    for p in produtos:
+        if n_sku + len(p["skus"]) > MAX_SKU_POR_CALL and lote:
+            if not flush():
+                F.api("POST", f"/promotion/202309/activities/{aid}/deactivate", params={}, body={})
+                log(f"  ↳ activity {aid} DESATIVADA (rollback)")
+                return None
+            n_sku = 0
+        lote.append(p); n_sku += len(p["skus"])
+    if not flush():
+        F.api("POST", f"/promotion/202309/activities/{aid}/deactivate", params={}, body={})
+        log(f"  ↳ activity {aid} DESATIVADA (rollback)")
+        return None
+
+    log(f"✓ criada '{titulo}' · id {aid} · {enviados} SKU · {ini:%d/%m %H:%M}→{fim:%d/%m %H:%M}")
+    return {"activity_id": aid, "titulo": titulo, "skus": enviados,
+            "begin": int(ini.timestamp()), "end": int(fim.timestamp())}
+
+
+def desativar(aid, log, motivo=""):
+    r = F.api("POST", f"/promotion/202309/activities/{aid}/deactivate", params={}, body={})
+    ok = r.get("code") == 0
+    log(f"{'✓' if ok else '✖'} encerrada {aid} {motivo}" if ok else
+        f"✖ encerrar {aid}: {r.get('code')} {r.get('message')}")
+    return ok
+
+
+# ── TRILHO 1 · CREATORS ─────────────────────────────────────────────────
+def handle_no_titulo(t):
+    m = re.findall(r"@([A-Za-z0-9_.]+)", t or "")
+    return "@" + m[0].lower() if m else None
+
+
+def trilho_creators(c, ativas, executar, log):
+    if not c.get("ativo"):
+        log("creators: desligado na config"); return []
+
+    tid = c.get("template_activity_id")
+    det = None
+    if not tid:
+        # A flash padrão é LONGA (14d). As rajadas da live também são FLASHSALE e têm
+        # MAIS SKUs, mas com preço de rajada — clonar uma delas num flash de 14 dias
+        # jogaria o preço de rajada no catálogo inteiro por duas semanas. Por isso o
+        # filtro de duração vem ANTES do critério de tamanho.
+        minimo = timedelta(days=max(2, c.get("duracao_dias", 14) // 2))
+        cands = [a for a in ativas if a["tipo"] == "FLASHSALE" and a["status"] == "ONGOING"
+                 and (a["end"] - a["begin"]) >= minimo.total_seconds()]
+        melhor, d_melhor, n_melhor = None, None, 0
+        for a in cands:
+            d = detalhe(a["id"])
+            n = sum(len(p.get("skus") or []) for p in (d.get("products") or []))
+            if n > n_melhor:
+                melhor, d_melhor, n_melhor = a, d, n
+        if not melhor:
+            log(f"✖ creators: nenhuma flash com ≥{minimo.days}d pra servir de template"); return []
+        tid, det = melhor["id"], d_melhor
+        dur = (melhor["end"] - melhor["begin"]) / 86400
+        log(f"template: '{melhor['title']}' (id {tid}, {n_melhor} SKU, {dur:.0f}d)")
+    produtos = produtos_do_template(det if det is not None else detalhe(tid))
+    if not produtos:
+        log(f"✖ creators: template {tid} sem produtos"); return []
+    precos = [float(s["activity_price_amount"]) for p in produtos for s in p["skus"]]
+    log(f"  preços do template: R$ {min(precos):.2f}–{max(precos):.2f} "
+        f"({sum(len(p['skus']) for p in produtos)} SKU)")
+
+    limite = agora() + timedelta(hours=c.get("renovar_faltando_horas", 48))
+    tem = {}
+    for a in ativas:
+        h = handle_no_titulo(a["title"])
+        if h and a["tipo"] == "FLASHSALE":
+            tem[h] = max(tem.get(h, 0), a["end"])
+
+    feitos, pendentes = [], []
+    for h in [x.lower() for x in c.get("handles", [])]:
+        fim_atual = tem.get(h)
+        if fim_atual and datetime.fromtimestamp(fim_atual, BRT) > limite:
+            continue
+        pendentes.append(h)
+
+    if not pendentes:
+        log(f"creators: {len(c.get('handles', []))} handles, todos com flash válida ✓")
+        return []
+
+    log(f"creators: {len(pendentes)} sem flash válida → {', '.join(pendentes)}")
+    for h in pendentes[:c.get("max_por_tick", 3)]:
+        ini = agora() + timedelta(minutes=5)
+        fim = ini + timedelta(days=c.get("duracao_dias", 14))
+        titulo = f"Flash Sale- {h} {ini:%d%m-%H%M}"[:50]
+        if not executar:
+            log(f"[dry] duplicaria template p/ {h} → '{titulo}' ({len(produtos)} anúncios)")
+            continue
+        r = criar(titulo, ini, fim, produtos, log)
+        if r:
+            r.update({"trilho": "creator", "handle": h, "template": tid})
+            feitos.append(r)
+    return feitos
+
+
+# ── TRILHO 2 · LIVE PRÓPRIA ─────────────────────────────────────────────
+def live_ativa_hoje():
+    """Sinal de live: room da loja com movimento hoje (live_sessao, via GMV Max).
+    Tem latência do report de ads — por isso é CONFIRMAÇÃO, não gatilho."""
+    hoje = agora().strftime("%Y-%m-%d")
+    try:
+        r = requests.get(f"{F.SB_URL}/rest/v1/live_sessao"
+                         f"?select=room_id,receita,pedidos,views,updated_at,origem"
+                         f"&data=eq.{hoje}&origem=eq.propria&order=id&limit=100",
+                         headers=F.SBH, timeout=60)
+        rows = r.json() if r.ok else []
+    except Exception:
+        rows = []
+    vivos = [x for x in rows if (x.get("views") or 0) > 0 or (x.get("pedidos") or 0) > 0]
+    return (len(vivos) > 0), vivos
+
+
+def blocos_do_dia(lp, base):
+    e = lp["escada"]
+    out = []
+    for i in range(e["blocos"]):
+        ini = base + timedelta(minutes=e["atraso_inicial_min"] + i * e["intervalo_min"])
+        out.append((i + 1, ini, ini + timedelta(minutes=e["duracao_min"])))
+    return out
+
+
+def trilho_live(lp, ativas, executar, forcar, log):
+    if not lp.get("ativo"):
+        log("live: desligado na config"); return []
+    ag = agora()
+    if ag.weekday() not in lp.get("dias_semana", []):
+        log(f"live: hoje ({ag:%a}) não é dia de live na regra"); return []
+
+    hh, mm = [int(x) for x in lp["hora_inicio"].split(":")]
+    base = ag.replace(hour=hh, minute=mm, second=0, microsecond=0)
+    if ag < base:
+        log(f"live: ainda antes do horário ({lp['hora_inicio']} BRT) — nada a fazer"); return []
+    if ag > base + timedelta(minutes=lp.get("janela_confirmacao_min", 60)):
+        log("live: passou da janela de confirmação do dia"); return []
+
+    viva, rooms = live_ativa_hoje()
+    if not viva and not forcar:
+        log(f"live: sem sinal de room ativo hoje ainda — não cria (use --forcar-live se estiver no ar)")
+        return []
+    log(f"live: confirmada ({len(rooms)} room ativo)" if viva else "live: FORÇADA pelo operador")
+
+    # preço da rajada: valida piso por CPV antes de qualquer escrita
+    cpvs = F.cpv_por_ref()
+    cat = F.catalogo()
+    preco = float(lp["preco_lista"])
+    produtos, linhas = [], []
+    for pid, p in cat.items():
+        skus = []
+        for s in p["skus"]:
+            if s["ref"] not in lp["refs"] or s["estoque"] <= 0:
+                continue
+            cpv = cpvs.get(s["ref"])
+            if not cpv:
+                log(f"✖ rajada: {s['ref']} sem CPV em custos_sku — abortando o trilho"); return []
+            c = F.contrib(preco, cpv)
+            if c < lp.get("contrib_min", 0.0):
+                log(f"✖ rajada: R$ {preco:.2f} dá contrib R$ {c:.2f} no {s['ref']} "
+                    f"(CPV {cpv:.0f}, piso R$ {F.piso(cpv):.2f}) — abortando"); return []
+            if preco >= s["preco"]:
+                continue
+            skus.append({"id": s["id"], "activity_price_amount": f"{preco:.2f}",
+                         "quantity_limit": -1, "quantity_per_user": -1})
+            linhas.append((s["ref"], s["preco"], preco, cpv, c))
+        if skus:
+            produtos.append({"id": pid, "quantity_limit": -1, "quantity_per_user": -1, "skus": skus})
+    if not produtos:
+        log(f"✖ rajada: nenhum SKU de {','.join(lp['refs'])} elegível (estoque/preço)"); return []
+    cs = [l[4] for l in linhas]
+    log(f"rajada: {sum(len(p['skus']) for p in produtos)} SKU a R$ {preco:.2f} · "
+        f"contrib/peça R$ {min(cs):.2f}–{max(cs):.2f}")
+
+    titulos = {a["title"] for a in ativas}
+    feitos = []
+    for idx, ini, fim in blocos_do_dia(lp, base):
+        titulo = f"Rajada {ini:%d/%m} B{idx} {ini:%H%M}"[:50]
+        if titulo in titulos:
+            log(f"  B{idx} já existe ✓"); continue
+        if fim <= ag:
+            log(f"  B{idx} já passou — pulando"); continue
+        if ini <= ag:
+            ini = ag + timedelta(minutes=2)   # begin_time tem que ser futuro (17029005)
+        if not executar:
+            log(f"[dry] criaria '{titulo}' {ini:%H:%M}→{fim:%H:%M}"); continue
+        r = criar(titulo, ini, fim, produtos, log)
+        if r:
+            r.update({"trilho": "rajada", "bloco": idx, "preco": preco})
+            feitos.append(r)
+    return feitos
+
+
+# ── MAIN ────────────────────────────────────────────────────────────────
+def main():
+    ap = argparse.ArgumentParser(description="Operador de flash sale da Rhode.")
+    ap.add_argument("--executar", action="store_true", help="escreve de verdade (sem isso é dry-run)")
+    ap.add_argument("--forcar-live", action="store_true", help="cria a escada mesmo sem sinal de room ativo")
+    ap.add_argument("--so", choices=["creators", "live"], help="roda só um trilho")
+    a = ap.parse_args()
+
+    linhas = []
+    def log(m):
+        print("  " + m); linhas.append(m)
+
+    ag = agora()
+    print(f"\n═══ Operador de Flash · {ag:%d/%m/%Y %H:%M} BRT "
+          f"{'(DRY-RUN)' if not a.executar else ''} ═══")
+    c = cfg()
+    ativas = activities()
+    log(f"estado: {len(ativas)} activities ONGOING/NOT_START na loja")
+
+    feitos = []
+    if a.so != "live":
+        print("\n── creators ──")
+        feitos += trilho_creators(c["creators"], ativas, a.executar, log)
+    if a.so != "creators":
+        print("\n── live própria ──")
+        feitos += trilho_live(c["live_propria"], ativas, a.executar, a.forcar_live, log)
+
+    # relatório: o Actions commita, a rotina cloud lê e posta no Notion (padrão do pace)
+    os.makedirs(OUT_DIR, exist_ok=True)
+    md = [f"# Operador de Flash — {ag:%d/%m/%Y %H:%M} BRT", ""]
+    md += [f"- {l}" for l in linhas]
+    if feitos:
+        md += ["", "## Criado neste tick", "",
+               "| trilho | título | id | SKUs | janela |", "|---|---|---|---:|---|"]
+        for f_ in feitos:
+            b = datetime.fromtimestamp(f_["begin"], BRT); e = datetime.fromtimestamp(f_["end"], BRT)
+            md.append(f"| {f_['trilho']} | {f_['titulo']} | {f_['activity_id']} | {f_['skus']} | "
+                      f"{b:%d/%m %H:%M}→{e:%d/%m %H:%M} |")
+    else:
+        md += ["", "**Nada criado neste tick.**"]
+    with open(os.path.join(OUT_DIR, "OPERADOR_ATUAL.md"), "w") as f:
+        f.write("\n".join(md) + "\n")
+    if a.executar and feitos:      # so loga tick que MEXEU (o cron commita por este arquivo)
+        with open(os.path.join(OUT_DIR, "operador_log.jsonl"), "a") as f:
+            f.write(json.dumps({"ts": ag.isoformat(), "linhas": linhas, "feitos": feitos},
+                               ensure_ascii=False) + "\n")
+    print(f"\n  → flash/OPERADOR_ATUAL.md ({len(feitos)} criada(s))\n")
+
+
+if __name__ == "__main__":
+    main()

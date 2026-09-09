@@ -1,0 +1,81 @@
+name: Rhode — Operador de Flash Sale
+
+# Opera as flash sales sozinho (operador_flash.py):
+#   • creators — garante flash ativa por handle, duplicando a flash padrão da loja
+#   • live própria — nos dias/horário da regra, confirma que a live existe e cria
+#     a escada de rajadas do dia
+# Idempotente: lê o estado real das activities na TikTok Shop a cada tick e só cria
+# o que falta. Rodar 10x no mesmo dia dá o mesmo resultado.
+#
+# Token da api_tokens SEM refresh (mesma regra do flash-sales.yml: quem renova é o
+# daily-collect, pra não correr o refresh_token em paralelo).
+# As regras ficam em config/operador_flash.json — mudar a operação é editar aquilo.
+on:
+  schedule:
+    # janela da live própria (08:00 BRT = 11:00 UTC), seg–qui, de 10 em 10 min
+    - cron: "*/10 11-12 * * 1-4"
+    # tick diário de manutenção: renovação das flashes de creator
+    - cron: "20 13 * * *"
+  workflow_dispatch:
+    inputs:
+      forcar_live:
+        description: "Criar a escada de rajadas mesmo sem sinal de room ativo"
+        required: false
+        default: "false"
+      so:
+        description: "Rodar só um trilho: creators | live | (vazio = os dois)"
+        required: false
+        default: ""
+
+concurrency:
+  group: rhode-operador-flash
+  cancel-in-progress: false      # NÃO cancelar: cortar no meio deixa activity sem produto
+
+jobs:
+  operar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      TIKTOK_APP_KEY:       ${{ secrets.TIKTOK_APP_KEY }}
+      TIKTOK_APP_SECRET:    ${{ secrets.TIKTOK_APP_SECRET }}
+      TIKTOK_SHOP_CIPHER:   ${{ secrets.TIKTOK_SHOP_CIPHER }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependências
+        run: pip install requests pandas openpyxl python-dotenv numpy
+
+      - name: Operar
+        run: |
+          ARGS="--executar"
+          if [ "${{ github.event.inputs.forcar_live }}" = "true" ]; then ARGS="$ARGS --forcar-live"; fi
+          if [ -n "${{ github.event.inputs.so }}" ]; then ARGS="$ARGS --so ${{ github.event.inputs.so }}"; fi
+          python3 operador_flash.py $ARGS
+
+      # Commita só quando MEXEU (o jsonl só cresce em tick que criou algo).
+      # A rotina cloud lê flash/OPERADOR_ATUAL.md e posta o resumo no Notion —
+      # mesmo caminho do pace, sem chave do Notion no CI.
+      - name: Registrar o que foi feito
+        if: always()
+        run: |
+          git config user.name  "rhode-flash-bot"
+          git config user.email "flash-bot@users.noreply.github.com"
+          # status --porcelain (e não diff): no 1º tick o jsonl ainda é untracked,
+          # e diff não enxerga untracked — o registro inicial se perderia.
+          if [ -z "$(git status --porcelain flash/operador_log.jsonl)" ]; then
+            echo "tick sem ação — nada a commitar"
+          else
+            git add flash/OPERADOR_ATUAL.md flash/operador_log.jsonl
+            git commit -m "chore(flash): operador $(date -u +'%Y-%m-%d %H:%M') UTC [skip ci]"
+            git pull --rebase --autostash origin main || true
+            git push || echo "push falhou (não-crítico)"
+          fi
