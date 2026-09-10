@@ -1317,3 +1317,60 @@ e a taxa de acerto foi ~50%: `[WIDE LEG's]-03.09` fez **+R$ 843** em 7 dias (R$ 
 campanhas.
 
 Relatório: aba "Subir outra campanha" em `relatorios/2026-09/Diagnostico Queda da Live Setembro_2026-09-09.xlsx`
+
+---
+
+## P24 · Live de 10/09 — ROAS 7,3× e PREJUÍZO de R$ 1.409. A saturação existe DENTRO da live (10/09/2026)
+
+**Premissa declarada antes de calcular:** uma live com ROAS 7,3× e R$ 21 mil de GMV pago é uma live saudável.
+
+**Veredito: ❌ REFUTADA.** A live 11:00–15:12 (4h12, sala 7683907251237997332) fechou em **−R$ 1.409,52**
+(−R$ 335,60/hora). ROAS não paga CPV: com preço médio de R$ 68,86 e CPV de R$ 45,40, cada peça deixa
+**R$ 7,16** de contribuição. 305 peças × R$ 7,16 = R$ 2.183 de contribuição bruta, contra R$ 3.383 de
+mídia e R$ 210 de apresentadora.
+
+### O prejuízo tem um endereço: a hora das 12:00
+
+| | 11h e 13h (base) | 12h | |
+|---|---:|---:|---|
+| Gasto | R$ 373,27 | R$ 2.380,38 | **6,4×** |
+| Pedidos | 75,0 | 99 | 1,32× |
+| Live views | 5.226 | 9.814 | 1,88× |
+| CPA | R$ 4,98 | R$ 24,04 | 4,8× |
+| Custo/live view | R$ 0,0714 | R$ 0,2425 | 3,4× |
+
+**CPA marginal = R$ 83,63** por pedido a mais, contra contribuição de **R$ 7,97** por pedido → destruiu
+R$ 75,66 × 24 pedidos = **R$ 1.815,86**. Sem esse excesso a live fecharia em **+R$ 478,14**.
+
+Isto é a mesma curva de saturação de [[P23]], agora medida **dentro de uma única transmissão** graças à
+granularidade horária recém-descoberta (`stat_time_hour`, ver `reference_gmvmax_sem_funil_api`).
+
+### ✅ CONFIRMADO: não foi o leilão nem a promoção
+
+- **Não foi o leilão:** as campanhas de PRODUTO rodaram nas mesmas horas com CPA R$ 25,26 / 17,10 / 6,04
+  — nenhuma inflação às 12h. Um leilão que infla por concorrência não desinfla em 1 hora (0,2425 → 0,0641).
+- **Não foi a promoção:** preço mediano às 11h e às 12h foi **idêntico** (R$ 63,92; hero R$ 63,20) e o CPA
+  quintuplicou. A oferta não mudou — o orçamento mudou. Promoção mexe na margem/peça, não no preço da impressão.
+
+### ✅ A meta de ROI travada em 10,0 virou FREIO, não proteção
+
+Às 14h e 15h o sistema entregou ROI **14,60×** e **23,64×** (46% a 136% acima da meta) com o tráfego no
+preço mais barato do dia (R$ 0,0607/view) — e mesmo assim o gasto caiu 91%. Ele **não achou tráfego barato:
+ele travou**. Meta de ROI alta = teto de agressividade de lance.
+
+### ⚠️ Achados laterais
+
+- **Inversão hero:** REF516 é 41% do volume a R$ 65,20 e deixa **R$ 4,37**/peça; o não-hero (REF549/550/562)
+  vende a ~R$ 78 e deixa **R$ 14,35** — 3,3× mais. Reforça [[reference_liquidacao_cor_canal]].
+- **24,7% das peças não viraram receita:** 88 UNPAID (R$ 6.109,84) + 12 CANCELLED (R$ 791,90). ⏳ remedir em
+  48h para separar atraso de perda — a mídia já foi paga por esses pedidos.
+- **Furo de grade:** REF551 (sem 44/46), REF525 e REF527 (sem 40/42) — zeros NO MEIO da curva, com vizinhos
+  vendendo. Assinatura de ruptura, não de demanda. Rotação de pin deve checar saldo dos tamanhos centrais.
+
+### ❌ Não medido (testado, não presumido)
+
+15 min (hora é o piso da API) · CPM · CPC · impressões · CTR/CTOR · ATC · PCU · pago×orgânico. Todas
+rejeitadas pelo endpoint como "Invalid metric" — só `live_views` é aceita. CTOR por SKU não existe em
+fonte nenhuma; o export do Seller Center dá CTOR só por SALA.
+
+Relatório: `relatorios/2026-09/Relatorio Live 10-09 Analise Completa_2026-09-10.xlsx` (8 abas)
