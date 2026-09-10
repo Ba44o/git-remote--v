@@ -1374,3 +1374,44 @@ rejeitadas pelo endpoint como "Invalid metric" — só `live_views` é aceita. C
 fonte nenhuma; o export do Seller Center dá CTOR só por SALA.
 
 Relatório: `relatorios/2026-09/Relatorio Live 10-09 Analise Completa_2026-09-10.xlsx` (8 abas)
+
+### 🔴 P24 · CORREÇÃO DE BASE (10/09/2026, mesma noite) — o veredito INVERTEU
+
+**O dono pegou o erro:** *"tem um contexto, o tiktok subsidiou cupom, deixou isso de fora?"* — sim, deixei.
+
+`pedidos_sku.gmv` é o **sub_total** (o que o cliente pagou), confirmado em **394/394** pedidos do dia.
+O `platform_discount` — **R$ 4.056,35** na janela da live, R$ 13,30/peça — é subsídio do TikTok e **volta
+para a loja**. Eu apliquei um gross-up médio de **1,0774**, que foi calibrado sobre `live_attr.gmv` (outra
+base). O gross-up **real** do dia é **1,1931** — subestimei a receita em 10,7%.
+
+| | errado | correto |
+|---|---:|---:|
+| Receita | R$ 22,6k (gross-up 1,0774) | **R$ 25.059,75** (lista) |
+| Contribuição/peça | R$ 7,16 | **R$ 12,80** |
+| Contribuição total | R$ 2.183,43 | **R$ 3.905,33** |
+| **Resultado da live** | **−R$ 1.409,52** | **+R$ 312,38** |
+
+**A live PAGOU.** Margem apertada (R$ 74,38/hora), mas positiva.
+
+**O que NÃO mudou:** o estouro das 12:00 segue destruindo valor — CPA marginal R$ 83,63 contra contribuição
+por pedido de R$ 14,25 (era R$ 7,97). O subsídio melhora a margem da peça, **não** o preço da impressão
+marginal. Saturação, trava de ROI e furo de grade seguem de pé. Sem o estouro a live daria **R$ 2.200,04**
+— 7× o resultado real.
+
+**O que ficou MAIOR:** a contribuição travada nos 88 UNPAID sobe de R$ 668 para **R$ 1.194,16** — quase
+4× o resultado inteiro da live. Virou a ação nº 3 do plano, à frente do preço do hero.
+Hero passa a R$ 10,61/peça e não-hero R$ 15,50 (1,46×, não 3,3× — o subsídio cai justamente sobre as peças
+mais descontadas, que são as do hero).
+
+### 🔧 FIX DE RAIZ — terceira reincidência do mesmo erro
+
+Mega-live 06/08, rajada 04/09 e agora live 10/09: três vezes calculando taxa sobre o preço pago. Pela regra
+de reincidência ([[feedback_fix_raiz_na_reincidencia]]), criado **`lib/receita.py`** como fonte única:
+
+- `receita_itens(itens, pagamentos)` — rateia o `platform_discount` do pedido para os itens, proporcional ao pago
+- `gross_up_real(...)` — fator **medido**, para auditar; nunca para estimar
+- **canário** (`python3 lib/receita.py`) — falha se `pedidos_sku.gmv` deixar de bater com `sub_total` (hoje 394/394)
+  ou se o `platform_discount` sumir da fonte
+
+⚠️ **Regra dura:** nunca aplicar fator de gross-up médio sobre `sub_total`. Fatores calibrados numa base não
+transferem para outra.
