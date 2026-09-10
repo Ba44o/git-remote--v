@@ -1415,3 +1415,75 @@ de reincidência ([[feedback_fix_raiz_na_reincidencia]]), criado **`lib/receita.
 
 ⚠️ **Regra dura:** nunca aplicar fator de gross-up médio sobre `sub_total`. Fatores calibrados numa base não
 transferem para outra.
+
+---
+
+## P25 · Linha do tempo das intervenções na live de 10/09 — as duas custaram R$ 3.087 (10/09/2026)
+
+**Premissa declarada antes de calcular:** a API do TikTok tem log de alterações de campanha, dá para ler
+o que foi mexido e quando.
+
+**Veredito: ❌ REFUTADA — não existe log.** 11 endpoints testados, **todos 404**: `/log/get/`,
+`/operation_log/get/`, `/tool/operation_log/`, `/campaign/log/get/`, `/gmv_max/campaign/log/get/`,
+`/advertiser/log/get/`, `/audit/log/get/`, `/change_log/get/`, `/gmv_max/campaign/history/get/`,
+`/campaign/update_log/get/`, `/tool/action_log/get/`.
+
+### ⚠️ ARMADILHA: `modify_time` NÃO é log de operação
+
+`gmv_max/campaign/get` traz `modify_time`, e é tentador usar. **Não use.** As 11 campanhas da conta
+aparecem "modificadas" em 10/09 entre **16:47:09 e 16:48:41** — 11 alterações em 92 segundos, depois da
+live já ter acabado (15:12). É varredura do próprio TikTok recalculando status quando o ativo da live
+ficou indisponível. Usar isso como log produz narrativa inteiramente falsa. Quase caí nela.
+
+### ✅ A linha do tempo é RECONSTRUÍVEL pelas digitais
+
+| Intervenção | Digital | Resolução | Confiança |
+|---|---|---|---|
+| Verba | curva `stat_time_hour` de cost/orders/roi | 1 hora | ALTA (salto de 6,4×) |
+| Promoção | **piso** do preço pago por produto em faixas de 15 min | 15 min | ALTA (piso idêntico em 9 faixas e some) |
+| Trava de ROI | — | — | ❌ **não datável** |
+
+O piso do REF516 ficou travado em **R$ 59,92** em todas as faixas de 11:00 a 13:15 e desaparece a partir
+de 13:30 → promoção desligada em **≈13:22**. Mesmo padrão simultâneo em REF551/525/527.
+A trava de ROI **não é separável** de um teto de verba (mesmo efeito observável) e não há campo `roi_goal`
+na API ("does not exist"). Fica em aberto até o dono informar o horário.
+
+### ✅ A promoção estava PAGANDO — e cortá-la custou R$ 1.200
+
+Teste limpo **dentro da hora 13** (mídia constante de R$ 373,06, então tráfego constante):
+
+| faixa | promo | peças/min | contrib/min |
+|---|---|---:|---:|
+| 13:00–13:15 | ON | **2,60** | R$ 32,03 |
+| 13:15–13:30 | OFF | 1,47 | R$ 25,13 |
+| 13:30–13:45 | OFF | 0,80 | R$ 10,85 |
+| 13:45–14:00 | OFF | **0,20** | R$ 2,48 |
+
+Queda monotônica atravessando exatamente a fronteira do corte, com tráfego constante → é efeito de
+**oferta**, não de tráfego. Com o estouro das 12:00 excluído da comparação: líquido/min cai de
+**R$ 15,23 → R$ 4,33** (−71,6%). Ganhou-se R$ 1,62 de margem por peça e perdeu-se 1,10 peça/minuto.
+Custo de oportunidade nos 110 min finais: **R$ 1.199,69**. Confirma [[P21]] (desconto em live se paga
+pelo ritmo, não pelo preço) — agora visível minuto a minuto dentro da mesma transmissão.
+
+### As duas intervenções, somadas
+
+| | custo |
+|---|---:|
+| Estouro de verba às 12:00 | R$ 1.887,66 |
+| Corte da promoção às 13:22 | R$ 1.199,69 |
+| **Total** | **R$ 3.087,35** |
+
+Contra uma live que fechou em **+R$ 312,38**. Elas puxam para lados opostos — a primeira gastou demais,
+a segunda vendeu de menos. Sem as duas, a live estaria na casa dos R$ 3 mil.
+
+⚠️ O custo da promoção é **estimativa**: audiência de live decai perto do fim e a mídia também caiu depois
+das 14h. Por isso o teste foi restrito à hora 13, onde a mídia é constante.
+
+### ⏳ EM ABERTO: proteção de ROI
+
+A campanha está com `roi_protection_compensation_status: **IN_EFFECT**` e a hora das 12:00 entregou
+ROI 3,46× contra meta 10,0. **O valor não sai por API** — 5 endpoints de compensação testados, todos 404.
+Conferir no Seller Center (Ads > GMV Max > proteção de ROI). "IN_EFFECT" significa cobertura ativa, não
+que há valor a receber — pode ser R$ 0.
+
+Relatório: `relatorios/2026-09/Relatorio Log GMV Max e Impacto na Live 10-09_2026-09-10.xlsx` (6 abas)
