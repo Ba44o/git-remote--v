@@ -36,6 +36,7 @@ jobs:
       TIKTOK_SHOP_CIPHER:   ${{ secrets.TIKTOK_SHOP_CIPHER }}
       GOOGLE_OAUTH_TOKEN:   ${{ secrets.GOOGLE_OAUTH_TOKEN }}
       DRIVE_FOLDER_ID:      ${{ vars.DRIVE_FOLDER_ID || '1tWpDpY6gpOijpEkw_EpWmylohL8BpRix' }}
+      EMAIL_AVISO:          ${{ vars.EMAIL_AVISO || 'humbertobasso9@gmail.com' }}
       PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v5

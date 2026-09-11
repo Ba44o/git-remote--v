@@ -133,7 +133,35 @@ def processar(room, L, dry=False):
         print(f"  ✗ publicação falhou: {(r.stderr or '')[-400:]}")
         return None
     print(f"  ✅ {url}")
+    if not os.environ.get("SEM_EMAIL"):
+        try:
+            sys.path.insert(0, os.path.join(ROOT, "automacao"))
+            from avisar import avisar
+            avisar(resumo_para_email(room, L, ini, url))
+        except Exception as e:
+            print(f"  ⚠ aviso não saiu (relatório está publicado): {str(e)[:140]}")
     return url
+
+
+def resumo_para_email(room, L, ini, url):
+    """Recalcula o resumo da live para o corpo do e-mail. Usa o MESMO gerador,
+    então os números do aviso batem com os da planilha por construção."""
+    sys.path.insert(0, ROOT)
+    from automacao.gerar_relatorio_live import montar
+    D = montar(room)
+    return dict(
+        quando=f'{ini.strftime("%d/%m")} às {ini.strftime("%H:%M")}',
+        titulo=(L["titulo"] or "(sala sem título)").strip(),
+        rev=D["REV"], qty=D["QTY"], ads=D["ADS"], contrib=D["CONTRIB"],
+        res=D["RES"], dur=D["dur"], url=url,
+        pico=({"h": D["pico"]["h"], "c": D["pico"]["c"], "share": D["pico"]["share"],
+               "cpa": D["pico"]["cpa"], "cpa_base": D["pico"]["cpa_base"]} if D["pico"] else None),
+        corte=({"quando": D["corte"]["quando"].strftime("%H:%M"),
+                "pm_antes": D["corte"]["A"]["pm"], "pm_depois": D["corte"]["B"]["pm"]}
+               if D["corte"] else None),
+        furos=len(D["furos"]),
+        unpaid_pecas=sum(r["qty"] for r in D["inw"] if r["status"] == "UNPAID"),
+        unpaid_contrib=D["cperda"])
 
 
 def main():

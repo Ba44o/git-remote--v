@@ -30,7 +30,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # registrar escopo na tela de consentimento nem verificação do Google, e já basta —
 # a automação cria as planilhas, então elas são "dela". A Sheets API também aceita
 # drive.file para arquivos criados pelo próprio app.
-SCOPES = ["https://www.googleapis.com/auth/drive.file"]
+SCOPES = ["https://www.googleapis.com/auth/drive.file",
+          # envia o aviso de relatório novo pela própria conta do dono, sem SMTP
+          # nem senha de app. gmail.send só PERMITE ENVIAR — não lê caixa nenhuma.
+          "https://www.googleapis.com/auth/gmail.send"]
 CS = os.path.join(ROOT, "client_secret.json")
 TK = os.path.join(ROOT, "token_google.json")
 
