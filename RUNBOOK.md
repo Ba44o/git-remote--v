@@ -1010,6 +1010,41 @@ dado mudado.
 
 ---
 
+## 20. Coleta diária (daily-collect.yml) falha com "API não retornou nenhum intervalo finalizado"
+
+**Sintoma.** GitHub Actions do `daily-collect` falha no passo `[2/13] ETL diário via API`.
+Log mostra `latest_available_date` da API TikTok Shop muito atrasado (ex: hoje 2026-09-11
+e API só entrega dados até 2026-08-10). Todos os chunks pedidos ficam DEPOIS de latest e
+são filtrados fora → 0 rows → `sys.exit(1)`.
+
+**Causa raiz.** A janela do ETL era ancorada em `hoje - dias` (default 14). Se a API do
+TikTok Shop entra num lag anormal (>3 dias — visto até 32d em set/2026), toda a janela
+pedida fica após `latest_available_date` e nada retorna. Como o script abortava com
+código 1, o workflow ficava vermelho e mandava e-mail.
+
+**Fix de raiz (aplicado set/2026).** `agente_rhode/etl_diario.py::coletar_api`:
+1. **Sonda inicial** chama `/analytics/202405/shop/performance` com janela de 3 dias antes
+   do envio principal só pra ler `latest_available_date` da resposta.
+2. Se `lag_dias > 3`, ancora a janela em `latest` (não em `hoje`): `[latest - dias, latest]`.
+3. Se ainda assim `rows` vem vazio, **sai com código 0** (warning, não erro) — API sem
+   dados não é falha do pipeline, é status transitório da fonte.
+
+Isso torna o ETL diário tolerante a qualquer lag da API TikTok Shop.
+
+**Verificar depois de fixar.**
+```bash
+python3 -c "
+from dotenv import load_dotenv; load_dotenv()
+import sys; sys.path.insert(0, 'agente_rhode')
+from etl_diario import coletar_api
+df = coletar_api(dias=14)
+print(f'OK: {len(df)} linhas · min={df.data.min()} max={df.data.max()}')"
+```
+
+Deve imprimir warning do lag + coletar N dias antes de `latest`, sem erro.
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:

@@ -132,13 +132,34 @@ def coletar_api(dias: int, chunk_dias: int = 10, chunk_retries: int = 3) -> pd.D
     # coletar_dados.py está na raiz do projeto (um nível acima de agente_rhode/)
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from coletar_dados import buscar_analytics
-    from datetime import date, timedelta
+    from datetime import date, datetime, timedelta
 
-    hoje   = date.today()
-    cursor = hoje - timedelta(days=dias)
+    hoje = date.today()
+    # Sonda inicial pra descobrir latest_available_date real da API
+    # (evita pedir janela toda no futuro se API tá com lag anormal)
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from coletar_dados import chamar
+    probe = chamar("GET", "/analytics/202405/shop/performance", params={
+        "start_date_ge": (hoje - timedelta(days=3)).strftime("%Y-%m-%d"),
+        "end_date_lt":   (hoje + timedelta(days=1)).strftime("%Y-%m-%d"),
+        "granularity":   "1D",
+    })
+    latest_str = (probe.get("data") or {}).get("latest_available_date")
+    try:
+        latest = datetime.strptime(latest_str, "%Y-%m-%d").date() if latest_str else hoje - timedelta(days=2)
+    except Exception:
+        latest = hoje - timedelta(days=2)
+    lag_dias = (hoje - latest).days
+    if lag_dias > 3:
+        print(f"  ⚠  API do TikTok Shop está atrasada em {lag_dias} dias (latest_available_date={latest}); janela será ancorada em `latest`.")
+
+    # Fim da janela = latest (não pede pra frente). Início = latest - dias.
+    fim_janela = latest
+    inicio_janela = fim_janela - timedelta(days=dias)
+    cursor = inicio_janela
     rows, gaps = [], []
-    while cursor <= hoje:
-        chunk_fim = min(cursor + timedelta(days=chunk_dias - 1), hoje)
+    while cursor <= fim_janela:
+        chunk_fim = min(cursor + timedelta(days=chunk_dias - 1), fim_janela)
         ini_s, fim_s = cursor.strftime("%Y-%m-%d"), chunk_fim.strftime("%Y-%m-%d")
         ivs = []
         for _ in range(chunk_retries):
@@ -147,15 +168,16 @@ def coletar_api(dias: int, chunk_dias: int = 10, chunk_retries: int = 3) -> pd.D
                 break
         if ivs:
             rows.extend(_map_interval(iv) for iv in ivs)
-        elif chunk_fim < hoje - timedelta(days=1):   # ignora janela do lag (esperada vazia)
+        else:
             gaps.append(f"{ini_s}→{fim_s}")
         cursor = chunk_fim + timedelta(days=1)
 
     if gaps:
-        print(f"  ⚠  {len(gaps)} janela(s) sem dados mesmo após retries (rode de novo p/ preencher): {', '.join(gaps)}")
+        print(f"  ⚠  {len(gaps)} janela(s) sem dados mesmo após retries: {', '.join(gaps)}")
     if not rows:
-        print("[ERRO] API não retornou nenhum intervalo finalizado.")
-        sys.exit(1)
+        # Não é erro: API pode estar temporariamente sem dados. Aborta com saída 0 pra não quebrar o pipeline.
+        print(f"  ⚠  API sem intervalos finalizados na janela {inicio_janela}→{fim_janela} — pulando ETL diário (nada a fazer).")
+        sys.exit(0)
 
     out = pd.DataFrame(rows).drop_duplicates("data", keep="last")
     return out.sort_values("data").reset_index(drop=True)
