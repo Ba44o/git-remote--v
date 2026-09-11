@@ -45,6 +45,31 @@ def cfg():
         return json.load(f)
 
 
+
+API_LOG = os.path.join(BASE, "logs", "flash_api.jsonl")
+
+
+def escrever(method, path, body):
+    """Chamada de ESCRITA com registro em disco (req + resp crus)."""
+    r = F.api(method, path, params={}, body=body)
+    try:
+        os.makedirs(os.path.dirname(API_LOG), exist_ok=True)
+        with open(API_LOG, "a") as f:
+            f.write(json.dumps({
+                "ts": agora().isoformat(), "method": method, "path": path,
+                "body_amostra": {
+                    "activity_id": (body or {}).get("activity_id"),
+                    "n_produtos": len((body or {}).get("products") or []),
+                    "n_skus": sum(len(p.get("skus") or []) for p in ((body or {}).get("products") or [])),
+                    "primeiro_produto": ((body or {}).get("products") or [{}])[0],
+                } if "products" in (body or {}) else body,
+                "resposta": r,
+            }, ensure_ascii=False) + "\n")
+    except Exception as e:
+        print(f"  (aviso: nao consegui gravar {API_LOG}: {e})")
+    return r
+
+
 # ── ESTADO REAL (a TikTok Shop é a fonte de verdade) ────────────────────
 def activities(status=("ONGOING", "NOT_START")):
     out = []
@@ -91,10 +116,18 @@ def produtos_do_template(det):
 # ── ESCRITA ─────────────────────────────────────────────────────────────
 def criar(titulo, ini, fim, produtos, log):
     """Cria a activity e anexa os produtos em lotes. Rollback se o anexo falhar."""
-    r = F.api("POST", "/promotion/202309/activities", params={}, body={
-        "title": titulo, "activity_type": "FLASHSALE", "product_level": "VARIATION",
-        "duration_type": "NORMAL", "begin_time": int(ini.timestamp()), "end_time": int(fim.timestamp()),
-        "participation_limit": [{"type": "BUYER_NO_LIMIT"}]})
+    base_titulo, r = titulo, None
+    for tentativa in range(6):
+        r = escrever("POST", "/promotion/202309/activities", {
+            "title": titulo, "activity_type": "FLASHSALE", "product_level": "VARIATION",
+            "duration_type": "NORMAL", "begin_time": int(ini.timestamp()), "end_time": int(fim.timestamp()),
+            "participation_limit": [{"type": "BUYER_NO_LIMIT"}]})
+        if r.get("code") != 17029004:
+            break
+        # nome ja usado por uma activity DEACTIVATED/EXPIRED (a busca de idempotencia
+        # so enxerga ONGOING/NOT_START). Varia o nome ate achar um livre.
+        titulo = f"{base_titulo} {chr(98 + tentativa)}"[:50]
+        log(f"  nome ocupado — tentando '{titulo}'")
     if r.get("code") != 0:
         log(f"✖ create '{titulo}': {json.dumps(r, ensure_ascii=False)}")
         return None
@@ -106,11 +139,17 @@ def criar(titulo, ini, fim, produtos, log):
         nonlocal lote, enviados
         if not lote:
             return True
-        r2 = F.api("PUT", f"/promotion/202309/activities/{aid}/products", params={},
-                   body={"activity_id": aid, "products": lote})
+        r2 = escrever("PUT", f"/promotion/202309/activities/{aid}/products",
+                      {"activity_id": aid, "products": lote})
         if r2.get("code") != 0:
             log(f"✖ anexar em '{titulo}' (lote {len(lote)} anúncios / {n_sku} SKU): "
                 f"{json.dumps(r2, ensure_ascii=False)}")
+            p0 = dict(lote[0]); p0["skus"] = p0["skus"][:1]
+            rp = escrever("PUT", f"/promotion/202309/activities/{aid}/products",
+                          {"activity_id": aid, "products": [p0]})
+            log(f"  sonda 1 SKU ({p0['skus'][0].get('id')} a R$ "
+                f"{p0['skus'][0].get('activity_price_amount')}): "
+                f"code={rp.get('code')} msg={rp.get('message')!r}")
             return False
         enviados += (r2.get("data") or {}).get("total_count") or 0
         lote = []
@@ -119,13 +158,13 @@ def criar(titulo, ini, fim, produtos, log):
     for p in produtos:
         if n_sku + len(p["skus"]) > MAX_SKU_POR_CALL and lote:
             if not flush():
-                F.api("POST", f"/promotion/202309/activities/{aid}/deactivate", params={}, body={})
+                escrever("POST", f"/promotion/202309/activities/{aid}/deactivate", {})
                 log(f"  ↳ activity {aid} DESATIVADA (rollback)")
                 return None
             n_sku = 0
         lote.append(p); n_sku += len(p["skus"])
     if not flush():
-        F.api("POST", f"/promotion/202309/activities/{aid}/deactivate", params={}, body={})
+        escrever("POST", f"/promotion/202309/activities/{aid}/deactivate", {})
         log(f"  ↳ activity {aid} DESATIVADA (rollback)")
         return None
 
@@ -135,7 +174,7 @@ def criar(titulo, ini, fim, produtos, log):
 
 
 def desativar(aid, log, motivo=""):
-    r = F.api("POST", f"/promotion/202309/activities/{aid}/deactivate", params={}, body={})
+    r = escrever("POST", f"/promotion/202309/activities/{aid}/deactivate", {})
     ok = r.get("code") == 0
     log(f"{'✓' if ok else '✖'} encerrada {aid} {motivo}" if ok else
         f"✖ encerrar {aid}: {r.get('code')} {r.get('message')}")

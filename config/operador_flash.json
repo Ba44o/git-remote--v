@@ -3,7 +3,7 @@
   "creators": {
     "ativo": true,
     "modo": "duplicar_template",
-    "template_activity_id": null,
+    "template_activity_id": "7683191773954459399",
     "handles": [
       "@lobarrosss",
       "@natcorreaofc",
@@ -17,8 +17,7 @@
     ],
     "duracao_dias": 14,
     "renovar_faltando_horas": 48,
-    "max_por_tick": 3,
-    "_template_pendente": "id da flash PADRAO de creator ainda nao informado — o 7684208788438370068 e da LIVE, nao serve aqui. Ate la, auto-pick por duracao >=7d."
+    "max_por_tick": 3
   },
   "live_propria": {
     "_doc": "Live propria: a flash EXPIRA e precisa ser resubida — por isso escada de blocos curtos encostados, nao uma promocao longa. Modo duplicar: clona o template (mesmos produtos e precos).",
