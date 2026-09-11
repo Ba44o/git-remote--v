@@ -47,5 +47,5 @@
       "contrib_min": 0.0
     }
   },
-  "_BLOQUEIO": "DESLIGADO 11/09/2026. A Promotion API recusa criar FLASHSALE em SKU ja ocupado (17029022) e o console da live NAO tem essa restricao. Como nenhuma flash pode ficar fora do ar nem por um minuto, criar por API exigiria desativar promocao existente — proibido pelo dono. Reativar so se: (a) a TikTok abrir endpoint de oferta de live, ou (b) a operacao passar a usar promocoes escopadas que nao se sobrepoem."
+  "_BLOQUEIO": "DESLIGADO 11/09/2026. A API so modela a flash GLOBAL (FLASHSALE), que colide com qualquer promocao no mesmo SKU (17029022). As duas modalidades que a loja usa — oferta relampago de LIVE (loja) e do CRIADOR — sao escopadas e NAO tem endpoint de criacao em nenhum modulo (live=so analytics, cupom=so leitura). Como nenhuma flash pode sair do ar nem um minuto, desativar pra liberar SKU esta proibido. Reativar so se a TikTok abrir endpoint escopado."
 }
