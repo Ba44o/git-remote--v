@@ -1487,3 +1487,40 @@ Conferir no Seller Center (Ads > GMV Max > proteção de ROI). "IN_EFFECT" signi
 que há valor a receber — pode ser R$ 0.
 
 Relatório: `relatorios/2026-09/Relatorio Log GMV Max e Impacto na Live 10-09_2026-09-10.xlsx` (6 abas)
+
+### ↻ P24/P25 · REMEDIÇÃO 11/09 — o UNPAID era PERDA, não atraso
+
+Refeita a coleta de `pedidos_sku` de 10/09 com os pedidos já pagos e finalizados (522 pedidos contra
+394 na primeira medição; 409 pagos contra 301).
+
+**Na janela da live 1 (11:00–15:12):**
+
+| status | 10/09 (2h após) | 11/09 (remedido) | Δ |
+|---|---:|---:|---:|
+| pagos (AWAITING_COLLECTION + SHIPMENT) | 304 | **309** | +5 |
+| UNPAID | 88 | **78** | −10 |
+| CANCELLED | 12 | **17** | +5 |
+
+**Veredito: ❌ a hipótese "parte do UNPAID é só atraso" está REFUTADA.** Passadas ~20 horas, só 10 das 88
+peças saíram do limbo — e **metade virou cancelamento, não venda**. Taxa de conversão do UNPAID: 11%.
+Contribuição travada cai de R$ 1.194,16 para **R$ 1.071,74** — ainda **2,9×** o resultado inteiro da live.
+Segue sendo o maior valor isolado do relatório, e o nº de cancelados ainda pode subir.
+
+**P&L atualizado da live 1:**
+
+| | 10/09 | 11/09 |
+|---|---:|---:|
+| Peças pagas | 305 | **310** |
+| Receita de lista | R$ 25.059,75 | **R$ 25.473,94** |
+| Contribuição bruta | R$ 3.905,33 | **R$ 3.971,74** |
+| Mídia | R$ 3.382,95 | R$ 3.393,51 |
+| **Resultado** | R$ 312,38 | **R$ 368,23** |
+
+Custo do corte da promoção recalculado: **R$ 1.243,38** (era R$ 1.199,69). Somado ao estouro das 12:00
+(R$ 1.887,66) = **R$ 3.131,05** de intervenções, contra uma live de +R$ 368,23.
+
+**⚠️ Descoberto na remedição:** houve uma **2ª live em 10/09** (sala 7684045713017146133, 20:02–22:09,
+R$ 2.328,71, 32 itens) que NÃO entra em nenhum dos dois relatórios — eles cobrem só a live de 11:00–15:12.
+
+**Nota de método:** o `ADS` do relatório de intervenções estava hard-coded; passou a ler da curva horária
+recoletada, para que a remedição propague sozinha.
