@@ -200,6 +200,11 @@ def main():
             continue
         fim = datetime.fromisoformat(L["fim"])
         ini = datetime.fromisoformat(L["inicio"])
+        if fim <= ini:
+            # end_time=0 (live NO AR) virava 1970 antes do fix em coletar_lives_attr_api.
+            # Trata como "sem fim", nunca como live encerrada.
+            print(f"  ⏺ sala {rid} sem fim válido (no ar?) — fim={L['fim'][:19]}")
+            continue
         dur = (fim - ini).total_seconds() / 3600
         if dur < DUR_MIN:
             continue                         # reinício técnico

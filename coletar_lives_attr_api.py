@@ -33,8 +33,14 @@ def f(x):
 
 
 def dt_brt(unix):
-    try: return datetime.fromtimestamp(int(unix), BRT)
-    except: return None
+    """A API devolve end_time=0 enquanto a live está NO AR. Sem este guarda, o 0 virava
+    1970-01-01 e a sala ficava com "fim" ANTERIOR ao início — visto em 11/09 na sala
+    7684278227361696533, que estava transmitindo. NULL é a representação correta."""
+    try:
+        u = int(unix)
+        return datetime.fromtimestamp(u, BRT) if u > 0 else None
+    except Exception:
+        return None
 
 
 def page_mes(sd, ed):
