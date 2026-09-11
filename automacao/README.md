@@ -86,6 +86,20 @@ nenhuma verificação. A Sheets API também honra `drive.file` para escrever nes
 ou à mão). Se você criar um relatório manualmente na pasta, o monitor não vai vê-lo e vai
 gerar o dele — deixe a pasta para a automação.
 
+## Aviso por e-mail
+
+Cada relatório novo dispara um e-mail para `EMAIL_AVISO` (padrão
+`humbertobasso9@gmail.com`), pela **Gmail API com a mesma autorização OAuth** — sem SMTP,
+sem senha de app, sem serviço de terceiro. Sai da própria conta do dono.
+O escopo `gmail.send` só **envia**; não lê caixa nenhuma.
+
+O corpo é montado pelo mesmo `montar()` do relatório, então os números do aviso batem com
+os da planilha por construção. O e-mail **nunca derruba o job**: se falhar, o log registra
+e o relatório segue publicado.
+
+Requer a **Gmail API habilitada** no projeto `creators-rhode` (feito em 11/09).
+Para mudar o destinatário: variável de repositório `EMAIL_AVISO` no GitHub.
+
 ## Limites conhecidos
 
 - **Atribuição por SKU é por JANELA DE TEMPO**, não por `room_id` — nenhuma fonte liga pedido
@@ -95,3 +109,14 @@ gerar o dele — deixe a pasta para a automação.
 - **Sem log de alterações**: 11 endpoints testados, todos 404. `modify_time` não serve —
   registra varredura do TikTok, não ação humana.
 - **Granularidade mínima é 1 hora** (`stat_time_hour`). 15 min não existe.
+
+## Armadilha já paga (não repita)
+
+Em 11/09 um run passou **verde** escondendo que `coletar_dados.py` importa `pandas`, que
+não estava no `pip install` do workflow — dois dos três coletores morriam. O relatório saiu
+assim mesmo, porque os dados já estavam no Supabase de uma rodada local, e parecia correto.
+
+Por isso `coletar()` hoje **levanta** se qualquer coletor falhar, e a sala é pulada com
+mensagem clara. Relatório com dado velho é pior que relatório nenhum: ninguém desconfia dele.
+Ao mexer nas dependências do workflow, confira que o log traz `· atualizando fontes…`
+seguido de `· gerando relatório…` **sem nenhum `falhou` no meio**.
