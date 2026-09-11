@@ -1,0 +1,82 @@
+name: Rhode — Placar Corrida de Vídeos (#CorridaRhode)
+
+# Refresca video_perf (coletor shop_videos), remonta o placar da corrida com as
+# regras V3 (metas 150/500 · Top 5 GMV desempate por views · Top 5 volume ·
+# qualificação 5/>5) e publica na planilha FIXA do Drive via service account.
+#
+# Janela da corrida: 07→13/09; apuração 14/09; pódio 15/09. O guard desliga sozinho
+# depois de 16/09 (o GMV matura por dias, então o run de 15/09 é o fechamento justo).
+#
+# 2 disparos/dia: 08:00 e 17:00 BRT — alimentam o ranking das 11h e o termômetro das
+# 18h/20h no grupo. workflow_dispatch pra rodar sob demanda (ex.: apuração final).
+on:
+  schedule:
+    - cron: "0 11 * * *"   # 08:00 BRT
+    - cron: "0 20 * * *"   # 17:00 BRT
+  workflow_dispatch: {}
+
+concurrency:
+  group: rhode-corrida-videos
+  cancel-in-progress: false
+
+env:
+  SHEET_ID: "1oXVpXW9UfWFIoOn9rVkVpqWn3i-1ylaxkeeuEZ4wlX4"
+  XLSX: "relatorios/2026-09/Corrida_Videos_Rhode_ATUAL.xlsx"
+
+jobs:
+  placar:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      TIKTOK_APP_KEY:       ${{ secrets.TIKTOK_APP_KEY }}
+      TIKTOK_APP_SECRET:    ${{ secrets.TIKTOK_APP_SECRET }}
+      TIKTOK_SHOP_CIPHER:   ${{ secrets.TIKTOK_SHOP_CIPHER }}
+      FORCE_SA: "1"
+      PYTHONUNBUFFERED: "1"
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Guard — só roda durante a corrida (≤ 16/09/2026)
+        id: guard
+        run: |
+          if [ "$(date -u +%Y%m%d)" -gt 20260916 ]; then
+            echo "Corrida encerrada — pulando."; echo "active=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "active=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.guard.outputs.active == 'true'
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependências
+        if: steps.guard.outputs.active == 'true'
+        run: pip install requests pandas openpyxl python-dotenv numpy google-api-python-client google-auth
+
+      - name: Setup credentials (service account p/ Google Sheets)
+        if: steps.guard.outputs.active == 'true'
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          echo "${GCP_CREDENTIALS}" > credentials.json
+          chmod 600 credentials.json
+
+      - name: Refrescar video_perf (coletor shop_videos, janela 40d)
+        if: steps.guard.outputs.active == 'true'
+        run: python3 coletar_shop_videos.py --dias 40
+
+      - name: Montar o placar (xlsx)
+        if: steps.guard.outputs.active == 'true'
+        run: python3 "relatorios/2026-09/corrida_videos_placar.py" --xlsx "${XLSX}"
+
+      - name: Publicar na planilha fixa do Drive
+        if: steps.guard.outputs.active == 'true'
+        run: python3 relatorios/_publicar_drive.py "${XLSX}" "${SHEET_ID}"
+
+      - name: Cleanup credentials
+        if: always()
+        run: rm -f credentials.json

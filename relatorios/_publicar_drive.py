@@ -41,6 +41,11 @@ def obter_credenciais():
     account tem quota zero de Drive); service account como fallback para escrever
     em planilha que já exista. Ver automacao/oauth_setup.py."""
     import json as _json
+    # FORCE_SA=1 → usa o service account direto (planilha criada fora do app OAuth,
+    # cujo token drive.file não a enxerga; e é o caminho do cron headless).
+    if os.environ.get("FORCE_SA") == "1":
+        return service_account.Credentials.from_service_account_file(
+            os.path.join(ROOT, "credentials.json"), scopes=SCOPES)
     raw = os.environ.get("GOOGLE_OAUTH_TOKEN")
     if not raw:
         tp = os.path.join(ROOT, "token_google.json")
