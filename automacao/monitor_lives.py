@@ -75,13 +75,19 @@ def ja_publicadas():
 
 
 def coletar(dia):
-    """Atualiza as fontes do dia antes de medir."""
+    """Atualiza as fontes do dia antes de medir.
+
+    Levanta se QUALQUER coletor falhar. Relatório com dado velho é pior que
+    relatório nenhum: ele parece certo e ninguém desconfia. Descoberto em 11/09,
+    quando faltava pandas no runner e o relatório saiu assim mesmo, com os dados
+    que por acaso já estavam no Supabase de uma rodada local."""
     for cmd in (["python3", "coletar_lives_attr_api.py", "--inicio", dia, "--fim", dia],
                 ["python3", "coletar_gmvmax_api.py", "--inicio", dia, "--fim", dia],
                 ["python3", "coletar_pedidos_sku.py", "--inicio", dia, "--fim", dia]):
         r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=900)
         if r.returncode != 0:
-            print(f"  ⚠ {cmd[1]} falhou: {(r.stderr or '')[-300:]}")
+            raise RuntimeError(f"{cmd[1]} falhou — NÃO vou gerar relatório com dado "
+                               f"desatualizado:\n{(r.stderr or '')[-500:]}")
 
 
 def criar_planilha(nome, room):
@@ -113,7 +119,11 @@ def processar(room, L, dry=False):
         print("  [dry-run] coletaria, geraria e publicaria")
         return None
     print("  · atualizando fontes…")
-    coletar(dia)
+    try:
+        coletar(dia)
+    except RuntimeError as e:
+        print(f"  ✗ {e}")
+        return None
     print("  · gerando relatório…")
     xlsx = os.path.join("/tmp", f"live_{room}.xlsx")
     r = subprocess.run(["python3", os.path.join(ROOT, "automacao", "gerar_relatorio_live.py"),

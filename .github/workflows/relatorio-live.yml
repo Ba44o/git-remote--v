@@ -47,7 +47,7 @@ jobs:
           cache: "pip"
 
       - name: Instalar dependências
-        run: pip install requests openpyxl python-dotenv google-api-python-client google-auth
+        run: pip install requests pandas openpyxl python-dotenv google-api-python-client google-auth
 
       - name: Credenciais da service account
         env:
