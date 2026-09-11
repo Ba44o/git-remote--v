@@ -35,6 +35,7 @@ import os, re, sys, json, time, hmac, math, hashlib, argparse, requests
 from datetime import datetime, timedelta, timezone
 
 from coletar_dados import chamar, APP_KEY, APP_SECRET, ACCESS_TOKEN, SHOP_CIPHER, BASE_URL, assinar
+from lib.receita import contribuicao_peca   # fonte unica da conta de contribuicao (fix de raiz a92604b)
 
 TAXA      = 0.7066          # settlement ÷ revenue (agosto/26, n=2.143 — P21)
 BRT       = timezone(timedelta(hours=-3))
@@ -145,7 +146,9 @@ def piso(cpv):
 
 
 def contrib(preco, cpv):
-    return round(preco * TAXA - cpv, 2)
+    """O preco da flash E a receita de lista: o cupom do TikTok entra por cima e e
+    subsidio da plataforma, nao desconto da loja (lib/receita.py)."""
+    return round(contribuicao_peca(preco, TAXA, cpv), 2)
 
 
 def termina_em_90(v):
