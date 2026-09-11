@@ -1,11 +1,19 @@
 name: Rhode — Relatório automático de live
 
-# A cada 15 min: procura lives que terminaram há 45+ minutos e ainda não têm relatório,
-# gera no template travado (8 abas) e publica na pasta do Drive "Relatorios de Live".
-# O estado é a própria pasta — cada planilha carrega o room_id em appProperties.
+# Procura lives que terminaram há 45+ minutos e ainda não têm relatório, gera no template
+# travado (8 abas) e publica na pasta do Drive "Relatorios de Live". Estado = a própria
+# pasta (room_id em appProperties).
+#
+# ⚠️ POR QUE O JOB FICA HORAS RODANDO EM LOOP, em vez de um cron de 15 min:
+# o GitHub ESTRANGULA workflows agendados. Medido neste repo em 11/09: o workflow de flash
+# sales pede "*/30" e é executado a cada 2–5 HORAS. Um cron de 15 min aqui simplesmente não
+# entrega — a promessa de "45 min após a live" morre. Então o job roda um laço próprio de
+# ~5h30 (teto de 6h do runner), checando a cada 15 min de verdade, e no fim dispara a si
+# mesmo. O `schedule` abaixo fica só como rede: se a corrente quebrar, ele religa.
+# Repositório público = minutos de Actions gratuitos, então o laço não custa nada.
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "17 */3 * * *"    # rede de segurança: religa a corrente se ela parar
   workflow_dispatch:
     inputs:
       room:
@@ -24,10 +32,14 @@ concurrency:
   group: rhode-relatorio-live
   cancel-in-progress: false
 
+permissions:
+  actions: write        # para o job disparar o próximo elo da corrente
+  contents: read
+
 jobs:
   relatorio:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 350        # 5h50 — abaixo do teto de 6h do runner
     env:
       SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -77,8 +89,35 @@ jobs:
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             ARGS="$ARGS --dry-run"
           fi
-          echo "args: $ARGS"
-          python3 automacao/monitor_lives.py $ARGS
+
+          # Um room específico é pedido pontual: roda uma vez e sai.
+          if [ -n "${{ github.event.inputs.room }}" ]; then
+            echo "modo pontual · args:$ARGS"
+            python3 automacao/monitor_lives.py $ARGS
+            exit 0
+          fi
+
+          # Laço: checa a cada 15 min por ~5h30. É isto que entrega a granularidade
+          # que o cron do GitHub não entrega.
+          FIM=$(( $(date +%s) + 19800 ))     # 5h30
+          N=0
+          while [ "$(date +%s)" -lt "$FIM" ]; do
+            N=$((N+1))
+            echo "───── ciclo $N · $(TZ=America/Sao_Paulo date '+%H:%M BRT') ─────"
+            python3 automacao/monitor_lives.py $ARGS || echo "⚠ ciclo falhou, seguindo"
+            sleep 900
+          done
+          echo "laço encerrado após $N ciclos"
+
+      - name: Passar o bastão para o próximo run
+        # Sempre — inclusive se o monitor falhar — senão a corrente morre em silêncio.
+        if: always() && github.event.inputs.room == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run relatorio-live.yml --repo "${{ github.repository }}" \
+            && echo "✓ próximo elo disparado" \
+            || echo "::warning::não consegui disparar o próximo elo — o cron de 3h religa"
 
       - name: Limpar credenciais
         if: always()
