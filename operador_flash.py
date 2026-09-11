@@ -257,13 +257,27 @@ def trilho_creators(c, ativas, executar, log):
         log(f"creators: {len(c.get('handles', []))} handles, todos com flash válida ✓")
         return []
 
-    log(f"creators: {len(pendentes)} sem flash válida → {', '.join(pendentes)}")
-    for h in pendentes[:c.get("max_por_tick", 3)]:
+    # RODÍZIO. Duas promoções catálogo-inteiro não coexistem pela API (17029022) —
+    # não importa a duração. Então é UMA creator por vez, servindo primeiro quem está
+    # há mais tempo sem flash. Encurtar a duração é o que faz a fila girar.
+    pendentes.sort(key=lambda h: tem.get(h, 0))
+    horas = c.get("duracao_horas") or c.get("duracao_dias", 14) * 24
+    log(f"creators: {len(pendentes)} sem flash válida · rodízio de {horas}h → "
+        f"{len(pendentes) * horas / 24:.1f}d pra fila inteira girar")
+
+    for h in pendentes[:c.get("max_por_tick", 1)]:
         ini = agora() + timedelta(minutes=5)
-        fim = ini + timedelta(days=c.get("duracao_dias", 14))
-        titulo = f"Flash Sale- {h} {ini:%d%m-%H%M}"[:50]
+        fim = ini + timedelta(hours=horas)
+        titulo = f"FLASH-{h}-{ini:%d%m}"[:50]           # taxonomia interna (regra do dono)
+        presos = conflitos(produtos, ativas, ini, fim)
+        if presos:
+            log(f"✖ {h}: catálogo preso por {len(presos)} promoção(ões) na janela — "
+                f"{', '.join(t[:26] for t in presos[:3])}")
+            log("  ↳ rode --liberar antes; criar agora só gastaria chamada e rollback")
+            break
         if not executar:
-            log(f"[dry] duplicaria template p/ {h} → '{titulo}' ({len(produtos)} anúncios)")
+            log(f"[dry] duplicaria template p/ {h} → '{titulo}' "
+                f"({len(produtos)} anúncios · {ini:%d/%m %H:%M}→{fim:%d/%m %H:%M})")
             continue
         r = criar(titulo, ini, fim, produtos, log)
         if r:
@@ -406,7 +420,7 @@ def trilho_duplicar(template_id, de, ate, cada, ativas, executar, log):
     titulos = {a["title"] for a in ativas}
     feitos = []
     for b_ini, b_fim in blocos:
-        titulo = f"Live {b_ini:%d/%m %H:%M}"
+        titulo = f"LIVE-{b_ini:%d%m}-{b_ini:%H%M}"      # taxonomia interna (regra do dono)
         if titulo in titulos:
             log(f"  {titulo} já existe ✓"); continue
         if b_fim <= ag:
@@ -426,6 +440,92 @@ def trilho_duplicar(template_id, de, ate, cada, ativas, executar, log):
     return feitos
 
 
+# ── CONFLITO DE SKU · a regra que manda na operação ─────────────────────
+def conflitos(produtos, ativas, ini, fim):
+    """Títulos das activities que prendem SKUs destes produtos na janela ini→fim.
+
+    A API recusa promoção nova que toque num SKU já preso (17029022). A UI da TikTok
+    NÃO passa por essa regra — foi por isso que a loja acumulou 14 promoções
+    catálogo-inteiro sobrepostas, e é por isso que nada entra por API enquanto elas
+    existirem. Checar antes evita criar activity que vai morrer no rollback.
+    """
+    alvo = {str(s["id"]) for p in produtos for s in p["skus"]}
+    fora = []
+    for a in ativas:
+        if not (a["begin"] < fim.timestamp() and a["end"] > ini.timestamp()):
+            continue                                    # não encosta na janela
+        d = detalhe(a["id"])
+        ids = {str(x["id"]) for q in (d.get("products") or []) for x in (q.get("skus") or [])}
+        if alvo & ids:
+            fora.append(a["title"])
+    return fora
+
+
+# ── LIBERAR · desativa o que prende os SKUs de uma janela ───────────────
+def trilho_liberar(template_id, de, ate, ativas, executar, log, tudo=False):
+    """Lista (e desativa) as activities que seguram SKUs do template numa janela.
+
+    DESTRUTIVO: dry-run é o padrão e a lista inteira sai antes de qualquer escrita.
+    """
+    det = detalhe(template_id)
+    produtos = produtos_do_template(det)
+    alvo = {str(s["id"]) for p in produtos for s in p["skus"]}
+    if not alvo:
+        log(f"✖ template {template_id} sem SKUs"); return []
+
+    ag = agora()
+    def hoje_as(hhmm):
+        h, m = [int(x) for x in hhmm.split(":")]
+        return ag.replace(hour=h, minute=m, second=0, microsecond=0)
+    ini, fim = hoje_as(de), hoje_as(ate)
+    log(f"template '{det.get('title')}' · {len(alvo)} SKU · janela {ini:%d/%m %H:%M}→{fim:%H:%M}")
+
+    bloqueiam, presos = [], set()
+    for a in ativas:
+        if not (a["begin"] < fim.timestamp() and a["end"] > ini.timestamp()):
+            continue
+        d = detalhe(a["id"])
+        ids = alvo & {str(x["id"]) for q in (d.get("products") or []) for x in (q.get("skus") or [])}
+        if ids:
+            bloqueiam.append((len(ids), a)); presos |= ids
+    if not bloqueiam:
+        log("nada bloqueia essa janela ✓"); return []
+
+    # FLASHSALE = promoção temporária (os clones). DIRECT_DISCOUNT / FIXED_PRICE são
+    # política de preço da loja (ex: 'Desconto Produto', 'Desconto Card Video') e NÃO
+    # entram no alvo por padrão — desativar isso seria mexer em precificação, não em flash.
+    alvos = [(n, a) for n, a in bloqueiam if a["tipo"] == "FLASHSALE"] if not tudo else bloqueiam
+    poupados = [(n, a) for n, a in bloqueiam if (n, a) not in alvos]
+
+    bloqueiam.sort(key=lambda x: -x[0]); alvos.sort(key=lambda x: -x[0])
+    log(f"{len(bloqueiam)} activity(ies) segurando SKUs do template:")
+    for n, a in bloqueiam:
+        f_ = datetime.fromtimestamp(a["end"], BRT)
+        marca = "→" if (n, a) in alvos else " "
+        log(f"  {marca} {n:>3} SKU · {a['tipo']:<15} · até {f_:%d/%m %H:%M} · "
+            f"{a['title'][:36]:<36} · {a['id']}")
+    log(f"→ {len(presos)}/{len(alvo)} SKUs presos · {len(alvo) - len(presos)} livres agora")
+
+    # quanto sobra preso DEPOIS de desativar só os alvos
+    resta = set()
+    for n, a in poupados:
+        d = detalhe(a["id"])
+        resta |= alvo & {str(x["id"]) for q in (d.get("products") or []) for x in (q.get("skus") or [])}
+    log(f"alvo: {len(alvos)} FLASHSALE · poupados: {len(poupados)} (política de preço)")
+    log(f"depois de liberar → {len(alvo) - len(resta)}/{len(alvo)} SKUs livres "
+        f"({len(resta)} seguem presos pelos poupados)")
+
+    if not executar:
+        log("[dry] nada desativado. Confira a lista e repita com --executar.")
+        return []
+    feitos = []
+    for n, a in alvos:
+        if desativar(a["id"], log, f"({n} SKU · {a['title'][:30]})"):
+            feitos.append({"trilho": "liberar", "activity_id": a["id"], "titulo": a["title"],
+                           "skus": n, "begin": a["begin"], "end": a["end"]})
+    return feitos
+
+
 # ── MAIN ────────────────────────────────────────────────────────────────
 def main():
     ap = argparse.ArgumentParser(description="Operador de flash sale da Rhode.")
@@ -433,6 +533,9 @@ def main():
     ap.add_argument("--forcar-live", action="store_true", help="cria a escada mesmo sem sinal de room ativo")
     ap.add_argument("--so", choices=["creators", "live"], help="roda só um trilho")
     ap.add_argument("--duplicar", help="activity_id do template a duplicar em escada")
+    ap.add_argument("--liberar", help="activity_id do template: desativa quem prende os SKUs dele")
+    ap.add_argument("--tudo", action="store_true",
+                    help="--liberar: inclui DIRECT_DISCOUNT/FIXED_PRICE (política de preço). Cuidado.")
     ap.add_argument("--de", default="11:00", help="início da live, HH:MM BRT")
     ap.add_argument("--ate", default="15:00", help="fim da live, HH:MM BRT")
     ap.add_argument("--cada", type=int, default=15, help="minutos por bloco")
@@ -450,6 +553,11 @@ def main():
     log(f"estado: {len(ativas)} activities ONGOING/NOT_START na loja")
 
     feitos = []
+    if a.liberar:                       # destrave: DESTRUTIVO, dry-run por padrão
+        print("\n── liberar SKUs ──")
+        feitos += trilho_liberar(a.liberar, a.de, a.ate, ativas, a.executar, log, a.tudo)
+        _fechar(ag, linhas, feitos, a.executar)
+        return
     if a.duplicar:                      # modo escada: ignora os trilhos recorrentes
         print("\n── escada (duplicar template) ──")
         feitos += trilho_duplicar(a.duplicar, a.de, a.ate, a.cada, ativas, a.executar, log)

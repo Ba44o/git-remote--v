@@ -15,9 +15,10 @@
       "@adv.dayane",
       "@dicasdala.br"
     ],
-    "duracao_dias": 14,
-    "renovar_faltando_horas": 48,
-    "max_por_tick": 3
+    "renovar_faltando_horas": 1,
+    "max_por_tick": 1,
+    "duracao_horas": 6,
+    "_doc": "RODIZIO: duas promocoes catalogo-inteiro nao coexistem pela API (17029022). Uma creator por vez, servindo quem esta ha mais tempo sem flash. duracao_horas define a velocidade da fila: 12 creators x 6h = 3 dias por volta."
   },
   "live_propria": {
     "_doc": "Live propria: a flash EXPIRA e precisa ser resubida — por isso escada de blocos curtos encostados, nao uma promocao longa. Modo duplicar: clona o template (mesmos produtos e precos).",
