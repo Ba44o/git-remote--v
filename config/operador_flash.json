@@ -1,29 +1,50 @@
 {
   "_doc": "Regras do operador de flash sale. Editar aqui é a forma de mudar a operação — o operador_flash.py só executa isto. Horários em BRT (UTC-3).",
-
   "creators": {
     "ativo": true,
     "modo": "duplicar_template",
     "template_activity_id": null,
     "handles": [
-      "@lobarrosss", "@natcorreaofc", "@moniquealves228", "@larissaasoarexs",
-      "@_milenecarvalho", "@estilo.anashop", "@blessieayann2", "@adv.dayane",
+      "@lobarrosss",
+      "@natcorreaofc",
+      "@moniquealves228",
+      "@larissaasoarexs",
+      "@_milenecarvalho",
+      "@estilo.anashop",
+      "@blessieayann2",
+      "@adv.dayane",
       "@dicasdala.br"
     ],
     "duracao_dias": 14,
     "renovar_faltando_horas": 48,
-    "max_por_tick": 3
+    "max_por_tick": 3,
+    "_template_pendente": "id da flash PADRAO de creator ainda nao informado — o 7684208788438370068 e da LIVE, nao serve aqui. Ate la, auto-pick por duracao >=7d."
   },
-
   "live_propria": {
+    "_doc": "Live propria: a flash EXPIRA e precisa ser resubida — por isso escada de blocos curtos encostados, nao uma promocao longa. Modo duplicar: clona o template (mesmos produtos e precos).",
     "ativo": true,
-    "dias_semana": [0, 1, 2, 3],
-    "hora_inicio": "08:00",
+    "modo": "duplicar_template",
+    "template_activity_id": "7684208788438370068",
+    "bloco_min": 15,
+    "dias_semana": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "de": "11:00",
+    "ate": "15:00",
     "janela_confirmacao_min": 60,
-    "escada": { "blocos": 3, "duracao_min": 12, "intervalo_min": 50, "atraso_inicial_min": 20 },
-    "refs": ["REF516", "REF525", "REF527"],
-    "preco_lista": 69.90,
-    "contrib_min": 0.0,
-    "encerrar_blocos_se_live_cair": true
+    "_alternativa_precificada": {
+      "_doc": "Desligado. Rajada com preco proprio por contribuicao-alvo em vez de clonar o template. Ver P21: R$69,90 de lista no hero tem folga 2,1x.",
+      "refs": [
+        "REF516",
+        "REF525",
+        "REF527"
+      ],
+      "preco_lista": 69.9,
+      "contrib_min": 0.0
+    }
   }
 }

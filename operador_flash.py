@@ -96,7 +96,7 @@ def criar(titulo, ini, fim, produtos, log):
         "duration_type": "NORMAL", "begin_time": int(ini.timestamp()), "end_time": int(fim.timestamp()),
         "participation_limit": [{"type": "BUYER_NO_LIMIT"}]})
     if r.get("code") != 0:
-        log(f"✖ create '{titulo}': {r.get('code')} {r.get('message')}")
+        log(f"✖ create '{titulo}': {json.dumps(r, ensure_ascii=False)}")
         return None
     aid = str((r.get("data") or {}).get("activity_id"))
 
@@ -109,7 +109,8 @@ def criar(titulo, ini, fim, produtos, log):
         r2 = F.api("PUT", f"/promotion/202309/activities/{aid}/products", params={},
                    body={"activity_id": aid, "products": lote})
         if r2.get("code") != 0:
-            log(f"✖ anexar em '{titulo}': {r2.get('code')} {r2.get('message')}")
+            log(f"✖ anexar em '{titulo}' (lote {len(lote)} anúncios / {n_sku} SKU): "
+                f"{json.dumps(r2, ensure_ascii=False)}")
             return False
         enviados += (r2.get("data") or {}).get("total_count") or 0
         lote = []
@@ -307,12 +308,75 @@ def trilho_live(lp, ativas, executar, forcar, log):
     return feitos
 
 
+
+# ── TRILHO 3 · DUPLICAR TEMPLATE EM ESCADA (live própria) ───────────────
+def trilho_duplicar(template_id, de, ate, cada, ativas, executar, log):
+    """Escada de blocos consecutivos duplicando um template.
+
+    Flash de live própria expira e precisa ser RESUBIDA — por isso blocos curtos
+    encostados um no outro cobrindo a live inteira, e não uma promoção longa.
+
+    Cria um bloco por vez e PARA no primeiro erro, com a resposta crua da API.
+    Queimar 16 tentativas repetindo o mesmo erro não ensina nada e suja a loja.
+    """
+    det = detalhe(template_id)
+    if not det:
+        log(f"✖ template {template_id} não encontrado"); return []
+    produtos = produtos_do_template(det)
+    if not produtos:
+        log(f"✖ template {template_id} sem produtos"); return []
+    n_sku = sum(len(p["skus"]) for p in produtos)
+    precos = [float(s["activity_price_amount"]) for p in produtos for s in p["skus"]]
+    log(f"template '{det.get('title')}' · {len(produtos)} anúncios · {n_sku} SKU · "
+        f"R$ {min(precos):.2f}–{max(precos):.2f}")
+
+    ag = agora()
+    def hoje_as(hhmm):
+        h, m = [int(x) for x in hhmm.split(":")]
+        return ag.replace(hour=h, minute=m, second=0, microsecond=0)
+    ini_live, fim_live = hoje_as(de), hoje_as(ate)
+    if fim_live <= ini_live:
+        log("✖ --ate tem que ser depois de --de"); return []
+
+    blocos, t = [], ini_live
+    while t < fim_live:
+        blocos.append((t, min(t + timedelta(minutes=cada), fim_live)))
+        t += timedelta(minutes=cada)
+    log(f"escada: {len(blocos)} blocos de {cada}min · {ini_live:%H:%M}→{fim_live:%H:%M} BRT")
+
+    titulos = {a["title"] for a in ativas}
+    feitos = []
+    for b_ini, b_fim in blocos:
+        titulo = f"Live {b_ini:%d/%m %H:%M}"
+        if titulo in titulos:
+            log(f"  {titulo} já existe ✓"); continue
+        if b_fim <= ag:
+            log(f"  {titulo} já passou — pulando"); continue
+        if b_ini <= ag:
+            b_ini = ag + timedelta(minutes=2)      # begin_time tem que ser futuro (17029005)
+            if b_ini >= b_fim:
+                log(f"  {titulo} curto demais agora — pulando"); continue
+        if not executar:
+            log(f"  [dry] criaria '{titulo}' {b_ini:%H:%M}→{b_fim:%H:%M} ({n_sku} SKU)"); continue
+        r = criar(titulo, b_ini, b_fim, produtos, log)
+        if not r:
+            log(f"  ⛔ PAREI no bloco {titulo} — {len(feitos)} criado(s) antes dele")
+            break
+        r.update({"trilho": "duplicar", "template": str(template_id)})
+        feitos.append(r)
+    return feitos
+
+
 # ── MAIN ────────────────────────────────────────────────────────────────
 def main():
     ap = argparse.ArgumentParser(description="Operador de flash sale da Rhode.")
     ap.add_argument("--executar", action="store_true", help="escreve de verdade (sem isso é dry-run)")
     ap.add_argument("--forcar-live", action="store_true", help="cria a escada mesmo sem sinal de room ativo")
     ap.add_argument("--so", choices=["creators", "live"], help="roda só um trilho")
+    ap.add_argument("--duplicar", help="activity_id do template a duplicar em escada")
+    ap.add_argument("--de", default="11:00", help="início da live, HH:MM BRT")
+    ap.add_argument("--ate", default="15:00", help="fim da live, HH:MM BRT")
+    ap.add_argument("--cada", type=int, default=15, help="minutos por bloco")
     a = ap.parse_args()
 
     linhas = []
@@ -327,6 +391,11 @@ def main():
     log(f"estado: {len(ativas)} activities ONGOING/NOT_START na loja")
 
     feitos = []
+    if a.duplicar:                      # modo escada: ignora os trilhos recorrentes
+        print("\n── escada (duplicar template) ──")
+        feitos += trilho_duplicar(a.duplicar, a.de, a.ate, a.cada, ativas, a.executar, log)
+        _fechar(ag, linhas, feitos, a.executar)
+        return
     if a.so != "live":
         print("\n── creators ──")
         feitos += trilho_creators(c["creators"], ativas, a.executar, log)
@@ -334,6 +403,10 @@ def main():
         print("\n── live própria ──")
         feitos += trilho_live(c["live_propria"], ativas, a.executar, a.forcar_live, log)
 
+    _fechar(ag, linhas, feitos, a.executar)
+
+
+def _fechar(ag, linhas, feitos, executar):
     # relatório: o Actions commita, a rotina cloud lê e posta no Notion (padrão do pace)
     os.makedirs(OUT_DIR, exist_ok=True)
     md = [f"# Operador de Flash — {ag:%d/%m/%Y %H:%M} BRT", ""]
@@ -349,7 +422,7 @@ def main():
         md += ["", "**Nada criado neste tick.**"]
     with open(os.path.join(OUT_DIR, "OPERADOR_ATUAL.md"), "w") as f:
         f.write("\n".join(md) + "\n")
-    if a.executar and feitos:      # so loga tick que MEXEU (o cron commita por este arquivo)
+    if executar and feitos:        # so loga tick que MEXEU (o cron commita por este arquivo)
         with open(os.path.join(OUT_DIR, "operador_log.jsonl"), "a") as f:
             f.write(json.dumps({"ts": ag.isoformat(), "linhas": linhas, "feitos": feitos},
                                ensure_ascii=False) + "\n")
