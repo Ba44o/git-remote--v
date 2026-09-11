@@ -7,3 +7,7 @@ __pycache__/
 /public/
 relatorios/
 dados/marketplace/tiktokshop/*.xlsx
+
+# OAuth do Google (automação de relatórios de live)
+token_google.json
+client_secret.json

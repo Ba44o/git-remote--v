@@ -23,7 +23,7 @@ Uso:
   python3 operador_flash.py --executar      # opera (é o que o cron roda)
   python3 operador_flash.py --executar --forcar-live   # ignora a checagem de live
 """
-import os, re, sys, json, argparse
+import os, re, sys, time, json, argparse
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -49,9 +49,29 @@ def cfg():
 API_LOG = os.path.join(BASE, "logs", "flash_api.jsonl")
 
 
-def escrever(method, path, body):
-    """Chamada de ESCRITA com registro em disco (req + resp crus)."""
-    r = F.api(method, path, params={}, body=body)
+PAUSA_ESCRITA = 2.5          # s entre escritas — a Promotion API corta rajada (36009002)
+_ultima_escrita = [0.0]
+
+
+def escrever(method, path, body, tentativas=4):
+    """Chamada de ESCRITA com pacing, backoff e registro em disco (req + resp crus).
+
+    A Promotion API derruba escrita em rajada com 36009002. Duas rodadas do canário
+    morreram assim: o retry de título disparou no mesmo segundo do create anterior.
+    Aqui todo write respeita um intervalo mínimo e recua quando leva rate limit.
+    """
+    r = None
+    for n in range(tentativas):
+        espera = PAUSA_ESCRITA - (time.time() - _ultima_escrita[0])
+        if espera > 0:
+            time.sleep(espera)
+        r = F.api(method, path, params={}, body=body)
+        _ultima_escrita[0] = time.time()
+        if r.get("code") != 36009002:
+            break
+        recuo = 15 * (n + 1)
+        print(f"  ⏳ rate limit — aguardando {recuo}s ({n+1}/{tentativas-1})")
+        time.sleep(recuo)
     try:
         os.makedirs(os.path.dirname(API_LOG), exist_ok=True)
         with open(API_LOG, "a") as f:

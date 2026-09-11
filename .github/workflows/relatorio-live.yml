@@ -1,0 +1,84 @@
+name: Rhode — Relatório automático de live
+
+# A cada 15 min: procura lives que terminaram há 45+ minutos e ainda não têm relatório,
+# gera no template travado (8 abas) e publica na pasta do Drive "Relatorios de Live".
+# O estado é a própria pasta — cada planilha carrega o room_id em appProperties.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      room:
+        description: "room_id específico (deixe vazio para o ciclo normal)"
+        required: false
+      espera:
+        description: "minutos de espera após o fim da live"
+        required: false
+        default: "45"
+      dry_run:
+        description: "true = só mostra o que faria"
+        required: false
+        default: "false"
+
+concurrency:
+  group: rhode-relatorio-live
+  cancel-in-progress: false
+
+jobs:
+  relatorio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      TIKTOK_APP_KEY:       ${{ secrets.TIKTOK_APP_KEY }}
+      TIKTOK_APP_SECRET:    ${{ secrets.TIKTOK_APP_SECRET }}
+      TIKTOK_SHOP_CIPHER:   ${{ secrets.TIKTOK_SHOP_CIPHER }}
+      GOOGLE_OAUTH_TOKEN:   ${{ secrets.GOOGLE_OAUTH_TOKEN }}
+      DRIVE_FOLDER_ID:      ${{ vars.DRIVE_FOLDER_ID || '1tWpDpY6gpOijpEkw_EpWmylohL8BpRix' }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependências
+        run: pip install requests openpyxl python-dotenv google-api-python-client google-auth
+
+      - name: Credenciais da service account
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          echo "${GCP_CREDENTIALS}" > credentials.json
+          chmod 600 credentials.json
+
+      - name: Conferir que o OAuth está configurado
+        run: |
+          if [ -z "${GOOGLE_OAUTH_TOKEN}" ]; then
+            echo "::error::Falta o secret GOOGLE_OAUTH_TOKEN. A service account tem quota ZERO de Drive e não cria planilha."
+            echo "::error::Rode automacao/oauth_setup.py localmente e cadastre o secret."
+            exit 1
+          fi
+          echo "OAuth presente."
+
+      - name: Rodar o monitor
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.room }}" ]; then
+            ARGS="$ARGS --room ${{ github.event.inputs.room }}"
+          fi
+          if [ -n "${{ github.event.inputs.espera }}" ]; then
+            ARGS="$ARGS --espera ${{ github.event.inputs.espera }}"
+          fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          echo "args: $ARGS"
+          python3 automacao/monitor_lives.py $ARGS
+
+      - name: Limpar credenciais
+        if: always()
+        run: rm -f credentials.json
