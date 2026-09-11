@@ -1,7 +1,7 @@
 {
   "_doc": "Regras do operador de flash sale. Editar aqui é a forma de mudar a operação — o operador_flash.py só executa isto. Horários em BRT (UTC-3).",
   "creators": {
-    "ativo": true,
+    "ativo": false,
     "modo": "duplicar_template",
     "template_activity_id": "7683191773954459399",
     "handles": [
@@ -22,7 +22,7 @@
   },
   "live_propria": {
     "_doc": "Live propria: a flash EXPIRA e precisa ser resubida — por isso escada de blocos curtos encostados, nao uma promocao longa. Modo duplicar: clona o template (mesmos produtos e precos).",
-    "ativo": true,
+    "ativo": false,
     "modo": "duplicar_template",
     "template_activity_id": "7684208788438370068",
     "bloco_min": 15,
@@ -46,5 +46,6 @@
       "preco_lista": 69.9,
       "contrib_min": 0.0
     }
-  }
+  },
+  "_BLOQUEIO": "DESLIGADO 11/09/2026. A Promotion API recusa criar FLASHSALE em SKU ja ocupado (17029022) e o console da live NAO tem essa restricao. Como nenhuma flash pode ficar fora do ar nem por um minuto, criar por API exigiria desativar promocao existente — proibido pelo dono. Reativar so se: (a) a TikTok abrir endpoint de oferta de live, ou (b) a operacao passar a usar promocoes escopadas que nao se sobrepoem."
 }
