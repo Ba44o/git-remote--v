@@ -1524,3 +1524,27 @@ R$ 2.328,71, 32 itens) que NÃO entra em nenhum dos dois relatórios — eles co
 
 **Nota de método:** o `ADS` do relatório de intervenções estava hard-coded; passou a ler da curva horária
 recoletada, para que a remedição propague sozinha.
+
+### 🔍 Auditoria de escopo (11/09) — a 2ª live de 10/09 está FORA
+
+Confirmado pelo dono: *"a segunda live nao entra"*. Auditoria feita no gerador, não só no texto.
+
+**Cálculos: já estavam corretos.** Os filtros são `11<=hora<=15` em `pedidos_sku` e `range(11,16)` na
+curva de mídia — a sala das 20:02 nunca entrou em número nenhum dos dois relatórios.
+
+**Textos: tinham contaminação.** 14 afirmações diziam **"do dia"** onde o correto era **"da live"** — e
+depois que a 2ª live apareceu na recoleta, "do dia" virou factualmente errado. Corrigidas, e os valores
+passaram a ser **calculados** em vez de escritos à mão, para não envelhecerem na próxima remedição:
+
+| era | virou |
+|---|---|
+| "70% da mídia do dia" | "70% da mídia DESTA LIVE" (2.380,38 ÷ 3.393,51 = 70,1%) |
+| "ROI 23,64× — o mais alto do dia — com R$ 33,95" | "ROI 17,97× — o mais alto DA LIVE — com R$ 44,51" |
+| "tráfego mais barato do dia" | "mais barato da live" (no dia inteiro é 20h, R$ 0,0254) |
+| "maior audiência do dia" | "maior audiência da live" |
+| "394 pedidos brutos na loja no dia" | escopo da janela, sem número de dia |
+| "gross-up real do dia" | "gross-up medido na janela da live" |
+| "394/394 pedidos" | "100% dos pedidos (canário)" — hoje 493/493 |
+
+**Lição de método:** número escrito à mão no texto de um relatório recolhível envelhece calado. Se o
+relatório pode ser re-rodado, todo número do texto tem que vir de variável. Vale para todo gerador novo.
