@@ -64,11 +64,27 @@ Ver o cabeçalho de `oauth_setup.py` para o passo a passo. Resumo:
 
 1. Criar um *OAuth client ID* tipo **Desktop** no projeto `creators-rhode`, salvar como
    `client_secret.json` na raiz
-2. `pip3 install google-auth-oauthlib && python3 automacao/oauth_setup.py`
-3. Cadastrar o conteúdo de `token_google.json` como secret **`GOOGLE_OAUTH_TOKEN`** no GitHub
+2. Adicionar o próprio e-mail em **Usuários de teste** da tela de consentimento
+   (senão dá `403 access_denied` mesmo sendo o dono)
+3. `pip3 install google-auth-oauthlib && python3 automacao/oauth_setup.py`
+4. Cadastrar o conteúdo de `token_google.json` como secret **`GOOGLE_OAUTH_TOKEN`** no GitHub
 
 Sem esse secret o workflow falha de propósito, com mensagem explicando — em vez de rodar e
 não entregar nada.
+
+### ⚠️ O escopo é `drive.file`, de propósito
+
+Na primeira tentativa pedi `drive` + `spreadsheets` completos e a tela de consentimento
+quebrou com **400 malformed** — são escopos *sensíveis*, exigem registro na tela e
+verificação do Google.
+
+`drive.file` dá acesso **só aos arquivos que este app criar** — que é exatamente o caso, já
+que a automação cria os relatórios. É escopo **não-sensível**: nenhuma configuração extra,
+nenhuma verificação. A Sheets API também honra `drive.file` para escrever nesses arquivos.
+
+**Consequência prática:** a automação não enxerga planilhas criadas por fora (pelo conector
+ou à mão). Se você criar um relatório manualmente na pasta, o monitor não vai vê-lo e vai
+gerar o dele — deixe a pasta para a automação.
 
 ## Limites conhecidos
 

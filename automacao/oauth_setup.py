@@ -26,8 +26,11 @@ PASSO 2 (aqui):
 import os, sys, json
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets",
-          "https://www.googleapis.com/auth/drive"]
+# drive.file = só os arquivos que ESTE app criar. É escopo NÃO-SENSÍVEL: não exige
+# registrar escopo na tela de consentimento nem verificação do Google, e já basta —
+# a automação cria as planilhas, então elas são "dela". A Sheets API também aceita
+# drive.file para arquivos criados pelo próprio app.
+SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 CS = os.path.join(ROOT, "client_secret.json")
 TK = os.path.join(ROOT, "token_google.json")
 

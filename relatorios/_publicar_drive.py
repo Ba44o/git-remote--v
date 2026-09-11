@@ -48,7 +48,9 @@ def obter_credenciais():
             raw = open(tp).read()
     if raw:
         from google.oauth2.credentials import Credentials
-        return Credentials.from_authorized_user_info(_json.loads(raw), SCOPES)
+        info = _json.loads(raw)
+        # respeita os escopos que o token realmente carrega (drive.file basta)
+        return Credentials.from_authorized_user_info(info, info.get("scopes") or SCOPES)
     return service_account.Credentials.from_service_account_file(
         os.path.join(ROOT, "credentials.json"), scopes=SCOPES)
 
