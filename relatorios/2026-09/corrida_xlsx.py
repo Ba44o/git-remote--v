@@ -29,7 +29,7 @@ def _hdr(ws, row, cols, start=1):
         c = ws.cell(row=row, column=start + j, value=t)
         c.font = F_HDR; c.fill = FILL_HDR; c.alignment = CEN; c.border = BORD
 
-def build_xlsx(path, p, creators, vids, agora, ini, fim_label):
+def build_xlsx(path, p, creators, vids, agora, ini, fim_label, tagd=None):
     wb = openpyxl.Workbook()
 
     # ── PAINEL ──────────────────────────────────────────────────────────
@@ -41,12 +41,16 @@ def build_xlsx(path, p, creators, vids, agora, ini, fim_label):
     ws["A2"] = f"#CorridaRhode · janela {ini[8:10]}/09 → {fim_label} · atualizado {agora}"
     ws["A2"].font = Font(italic=True, color="555555", size=10); ws["A2"].alignment = Alignment(indent=1)
 
-    # cartões de KPI
+    # cartões de KPI — a tag (TikTok, o que o grupo vê) vs o verificado (com link, base do GMV)
+    tagval = f"{p['tag_total']}" if p.get("tag_total") is not None else "—"
+    tagsub = (f"TikTok · informado {tagd} · faltam {p['faltam_150']} p/ 150" if p.get("tag_total") is not None
+              else "conte na #CorridaRhode no TikTok e me informe")
     cards = [
-        ("VÍDEOS POSTADOS", f"{p['total_videos']}", f"meta 150 · faltam {p['faltam_150']}"),
+        ("PUBLICAÇÕES NA TAG", tagval, tagsub),
+        ("VERIFICADOS C/ LINK", f"{p['verificados']}", "base do prêmio GMV"),
         ("GMV DA CORRIDA", f"R$ {p['gmv_total']:,.0f}".replace(",", "."), f"{p['pedidos_total']} pedidos"),
         ("VIEWS", f"{p['views_total']:,}".replace(",", "."), f"{p['n_creators']} creators"),
-        ("QUALIFICADAS", f"{p['n_meta1']}", f"≥5 víd (cupom) · {p['n_meta2']} c/ peça"),
+        ("QUALIFICADAS", f"{p['n_meta1']}", f"≥5 víd cupom · {p['n_meta2']} c/ peça"),
     ]
     r0 = 4
     for i, (lbl, val, sub) in enumerate(cards):
@@ -54,7 +58,7 @@ def build_xlsx(path, p, creators, vids, agora, ini, fim_label):
         ws.cell(row=r0, column=col, value=lbl).font = F_LBL
         vc = ws.cell(row=r0 + 1, column=col, value=val); vc.font = F_BIG
         ws.cell(row=r0 + 2, column=col, value=sub).font = Font(color="888888", size=9)
-        ws.column_dimensions[get_column_letter(col)].width = 22
+        ws.column_dimensions[get_column_letter(col)].width = 21
 
     # status das metas
     r = r0 + 4
@@ -72,7 +76,7 @@ def build_xlsx(path, p, creators, vids, agora, ini, fim_label):
     # dados do termômetro p/ gráfico
     rT = r + 5
     ws.cell(row=rT, column=1, value="Termômetro").font = F_LBL
-    ws.cell(row=rT + 1, column=1, value="Postados"); ws.cell(row=rT + 1, column=2, value=p["total_videos"])
+    ws.cell(row=rT + 1, column=1, value="Na tag"); ws.cell(row=rT + 1, column=2, value=p["gate"])
     ws.cell(row=rT + 2, column=1, value="Meta 150"); ws.cell(row=rT + 2, column=2, value=150)
     ws.cell(row=rT + 3, column=1, value="Meta 500"); ws.cell(row=rT + 3, column=2, value=500)
     ch = BarChart(); ch.type = "bar"; ch.title = "Vídeos postados vs metas"; ch.legend = None

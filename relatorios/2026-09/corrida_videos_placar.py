@@ -41,6 +41,28 @@ PREMIO_GMV = {1: 600, 2: 400, 3: 250, 4: 125, 5: 125}
 BONUS_VOL = 100
 CUPOM = "RHODE10"
 
+TAG_JSON = os.path.join(BASE, "corrida_tag_total.json")
+
+def load_tag():
+    """Retorna a contagem da tag no TikTok mais recente já informada (manual)."""
+    try:
+        d = json.load(open(TAG_JSON))
+        if d:
+            last = sorted(d.keys())[-1]
+            return {"value": int(d[last]), "date": last}
+    except Exception:
+        pass
+    return None
+
+def save_tag(n):
+    d = {}
+    try: d = json.load(open(TAG_JSON))
+    except Exception: pass
+    hoje = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d")
+    d[hoje] = int(n)
+    json.dump(d, open(TAG_JSON, "w"), ensure_ascii=False, indent=2)
+    return {"value": int(n), "date": hoje}
+
 def q(path):
     r = urllib.request.Request(f"{SB}/rest/v1/{path}", headers=H)
     return json.load(urllib.request.urlopen(r, timeout=90))
@@ -85,9 +107,13 @@ def agregar(vids, merge):
         })
     return out
 
-def placar(vids, creators):
-    total_v = len(vids)
-    b150 = total_v >= GATE_150; b500 = total_v >= GATE_500
+def placar(vids, creators, tag_info=None):
+    verificados = len(vids)                       # tag + link, em video_perf (base do GMV)
+    # Gate dos 150/500 usa a CONTAGEM DA TAG no TikTok (o que o grupo vê); se não informada,
+    # cai no verificado. Ver reference_hashtag_via_video_perf_title.
+    tag_total = (tag_info or {}).get("value")
+    gate = tag_total if tag_total is not None else verificados
+    b150 = gate >= GATE_150; b500 = gate >= GATE_500
     top_gmv = sorted(creators, key=lambda x: (-x["gmv"], -x["views"]))[:5]
     top_vol = sorted(creators, key=lambda x: (-x["videos"], -x["gmv"]))[:5]
     premios = {}
@@ -95,8 +121,10 @@ def placar(vids, creators):
         for i, c in enumerate(top_gmv, 1):
             premios[c["creator"]] = f"R$ {PREMIO_GMV[i]}" + (" + Ads" if i == 1 else " + Comissão turbo" if i in (2, 3) else "") + " + Peça"
     return {
-        "total_videos": total_v, "bateu_150": b150, "bateu_500": b500,
-        "faltam_150": max(0, GATE_150 - total_v), "faltam_500": max(0, GATE_500 - total_v),
+        "verificados": verificados, "tag_total": tag_total,
+        "tag_date": (tag_info or {}).get("date"), "gate": gate,
+        "bateu_150": b150, "bateu_500": b500,
+        "faltam_150": max(0, GATE_150 - gate), "faltam_500": max(0, GATE_500 - gate),
         "gmv_total": round(sum(c["gmv"] for c in creators), 2),
         "views_total": sum(c["views"] for c in creators),
         "pedidos_total": sum(c["pedidos"] for c in creators),
@@ -110,6 +138,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ini", default=JAN_INI); ap.add_argument("--fim", default=JAN_FIM)
     ap.add_argument("--inscritas", default=""); ap.add_argument("--merge", default="")
+    ap.add_argument("--tag_total", type=int, default=None,
+                    help="contagem de publicações na #CorridaRhode lida no TikTok (manual, persiste)")
     ap.add_argument("--xlsx", default="")
     a = ap.parse_args()
     inscritas = [x.strip().lstrip("@").lower() for x in a.inscritas.split(",") if x.strip()]
@@ -118,17 +148,21 @@ def main():
         if "=" in par:
             k, v = par.split("=", 1); merge[k.strip().lstrip("@").lower()] = v.strip().lstrip("@").lower()
 
+    tag_info = save_tag(a.tag_total) if a.tag_total is not None else load_tag()
     vids = puxar(a.ini, a.fim, inscritas)
     creators = agregar(vids, merge)
-    p = placar(vids, creators)
+    p = placar(vids, creators, tag_info)
     agora = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M")
+    tagd = (p["tag_date"][8:10] + "/" + p["tag_date"][5:7]) if p["tag_date"] else None
 
     print(f"═════ 🏁 CORRIDA DE VÍDEOS RHODE · #{HASHTAG} · {a.ini}→13/09 · {agora} ═════")
     imaturos = sum(1 for v in vids if float(v.get('gmv') or 0) == 0)
-    print(f"  TERMÔMETRO: {p['total_videos']}/150 vídeos  (faltam {p['faltam_150']} p/ destravar R$1.500)"
+    tagtxt = f"{p['tag_total']} publicações na tag (TikTok, informado {tagd})" if p["tag_total"] is not None else f"{p['verificados']} (sem contagem da tag informada)"
+    print(f"  TERMÔMETRO: {p['gate']}/150  →  {tagtxt}")
+    print(f"  Verificados com link (base do prêmio GMV): {p['verificados']}  ·  faltam {p['faltam_150']} p/ R$1.500"
           f"{'  ✅ 150 BATIDA' if p['bateu_150'] else ''}{'  🚀 500 BATIDA' if p['bateu_500'] else ''}")
     print(f"  {p['n_creators']} creators · {p['views_total']:,} views · R$ {p['gmv_total']:,.0f} GMV · "
-          f"{p['pedidos_total']} pedidos · {imaturos}/{len(vids)} vídeos ainda com GMV=0 (imaturos)")
+          f"{p['pedidos_total']} pedidos · {imaturos}/{len(vids)} verificados com GMV=0 (imaturos)")
     print(f"  Qualificação: {p['n_meta1']} creators com ≥5 vídeos (cupom) · {p['n_meta2']} com >5 (peça)")
 
     print(f"\n  🏆 TOP 5 GMV (desempate por views){'  — provisório: GMV imaturo, manda o alcance' if p['gmv_total']==0 else ''}")
@@ -148,7 +182,7 @@ def main():
 
     if a.xlsx:
         from corrida_xlsx import build_xlsx
-        build_xlsx(a.xlsx, p, creators, vids, agora, a.ini, "13/09/2026 23h59")
+        build_xlsx(a.xlsx, p, creators, vids, agora, a.ini, "13/09/2026 23h59", tagd)
         print(f"  ✓ xlsx → {a.xlsx}")
 
 if __name__ == "__main__":
