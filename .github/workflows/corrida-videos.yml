@@ -71,7 +71,7 @@ jobs:
 
       - name: Montar o placar (xlsx)
         if: steps.guard.outputs.active == 'true'
-        run: python3 "relatorios/2026-09/corrida_videos_placar.py" --xlsx "${XLSX}"
+        run: python3 "relatorios/2026-09/corrida_videos_placar.py" --excluir rhodejeans --xlsx "${XLSX}"
 
       - name: Publicar na planilha fixa do Drive
         if: steps.guard.outputs.active == 'true'

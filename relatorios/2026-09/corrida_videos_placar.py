@@ -81,7 +81,11 @@ def puxar(ini, fim, inscritas):
                 vids[v["id"]] = {**v, "via_tag": False, "via_inscrita": True}
     return list(vids.values())
 
-def agregar(vids, merge):
+def agregar(vids, merge, excluir=None):
+    """excluir = contas não-competidoras (ex.: rhodejeans, conta da marca): saem do
+    ranking/qualificação, MAS os vídeos delas continuam em `vids` → seguem contando
+    na # / termômetro (pedido do dono 12/09: 'exclua do GMV, mantenha na #')."""
+    excluir = excluir or set()
     cre = defaultdict(lambda: {"n": 0, "views": 0, "gmv": 0.0, "ord": 0, "un": 0,
                                "cliques": 0.0, "tag": False, "insc": False})
     for v in vids:
@@ -96,6 +100,8 @@ def agregar(vids, merge):
         c["insc"] = c["insc"] or v.get("via_inscrita", False)
     out = []
     for u, c in cre.items():
+        if u in excluir:
+            continue
         out.append({
             "creator": u, "videos": c["n"], "views": c["views"],
             "gmv": round(c["gmv"], 2), "pedidos": c["ord"], "unidades": c["un"],
@@ -138,11 +144,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ini", default=JAN_INI); ap.add_argument("--fim", default=JAN_FIM)
     ap.add_argument("--inscritas", default=""); ap.add_argument("--merge", default="")
+    ap.add_argument("--excluir", default="", help="contas fora do ranking mas contam na # (ex.: rhodejeans)")
     ap.add_argument("--tag_total", type=int, default=None,
                     help="contagem de publicações na #CorridaRhode lida no TikTok (manual, persiste)")
     ap.add_argument("--xlsx", default="")
     a = ap.parse_args()
     inscritas = [x.strip().lstrip("@").lower() for x in a.inscritas.split(",") if x.strip()]
+    excluir = {x.strip().lstrip("@").lower() for x in a.excluir.split(",") if x.strip()}
     merge = {}
     for par in a.merge.split(","):
         if "=" in par:
@@ -150,7 +158,7 @@ def main():
 
     tag_info = save_tag(a.tag_total) if a.tag_total is not None else load_tag()
     vids = puxar(a.ini, a.fim, inscritas)
-    creators = agregar(vids, merge)
+    creators = agregar(vids, merge, excluir)
     p = placar(vids, creators, tag_info)
     agora = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M")
     tagd = (p["tag_date"][8:10] + "/" + p["tag_date"][5:7]) if p["tag_date"] else None
@@ -178,11 +186,13 @@ def main():
 
     if merge:
         print(f"\n  🔗 handles fundidos: {merge}")
+    if excluir:
+        print(f"  🚫 fora do ranking (mas contam na #): {', '.join(sorted(excluir))}")
     print()
 
     if a.xlsx:
         from corrida_xlsx import build_xlsx
-        build_xlsx(a.xlsx, p, creators, vids, agora, a.ini, "13/09/2026 23h59", tagd)
+        build_xlsx(a.xlsx, p, creators, vids, agora, a.ini, "13/09/2026 23h59", tagd, sorted(excluir))
         print(f"  ✓ xlsx → {a.xlsx}")
 
 if __name__ == "__main__":

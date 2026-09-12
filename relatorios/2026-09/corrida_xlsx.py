@@ -29,7 +29,7 @@ def _hdr(ws, row, cols, start=1):
         c = ws.cell(row=row, column=start + j, value=t)
         c.font = F_HDR; c.fill = FILL_HDR; c.alignment = CEN; c.border = BORD
 
-def build_xlsx(path, p, creators, vids, agora, ini, fim_label, tagd=None):
+def build_xlsx(path, p, creators, vids, agora, ini, fim_label, tagd=None, excluir=None):
     wb = openpyxl.Workbook()
 
     # ── PAINEL ──────────────────────────────────────────────────────────
@@ -91,6 +91,11 @@ def build_xlsx(path, p, creators, vids, agora, ini, fim_label, tagd=None):
         w = ws.cell(row=rT + 6, column=1,
                     value="⚠️ GMV ainda imaturo (vídeos com 1-3 dias). Ranking de dinheiro só fecha ~15/09; hoje vale o alcance.")
         w.font = Font(italic=True, color=AMBER, size=9)
+    if excluir:
+        ws.merge_cells(f"A{rT+7}:F{rT+7}")
+        w2 = ws.cell(row=rT + 7, column=1,
+                     value=f"Fora do ranking/GMV (contam na # e no verificado): {', '.join(excluir)} — conta(s) da marca, não competem.")
+        w2.font = Font(italic=True, color="666666", size=9)
 
     # ── TOP 5 GMV ───────────────────────────────────────────────────────
     ws2 = wb.create_sheet("Top 5 GMV"); ws2.sheet_view.showGridLines = False
