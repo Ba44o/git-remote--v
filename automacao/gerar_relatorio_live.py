@@ -98,8 +98,12 @@ def montar(room_id):
     horas = list(range(ini.hour, fim.hour + 1))
 
     LIVE, PROD = curva_horaria(dia)
-    sk = qall(f"pedidos_sku?select=order_id,sku,seller_sku,produto,qty,gmv,status,order_time&data=eq.{dia}")
-    PAG = {p["order_id"]: p for p in qall(f"pedido_pagamento?select=*&data=eq.{dia}", "order_id")}
+    # ⚠️ o campo `data` de pedidos_sku é a data UTC: pedido feito depois das 21h BRT cai no dia
+    # SEGUINTE (medido 14/09: 18,6% das peças). Buscar dia e dia+1 e deixar a janela da live
+    # (order_time) decidir — senão live noturna perde tudo que entrou depois das 21h.
+    dia_seg = (ini + timedelta(days=1)).strftime("%Y-%m-%d")
+    sk = qall(f"pedidos_sku?select=order_id,sku,seller_sku,produto,qty,gmv,status,order_time&data=gte.{dia}&data=lte.{dia_seg}")
+    PAG = {p["order_id"]: p for p in qall(f"pedido_pagamento?select=*&data=gte.{dia}&data=lte.{dia_seg}", "order_id")}
     RM = receita_itens(sk, PAG)
     def t(r): return datetime.fromtimestamp(int(r["order_time"]), BRT)
     inw = [r for r in sk if ini <= t(r) <= fim]
@@ -195,7 +199,10 @@ def montar(room_id):
         prh[h] = sta.median([r["gmv"] / r["qty"] for r in sub]) if sub else 0
 
     FUN = funil_de(room_id, dia)          # funil real da API — ver automacao/funil_live.py
-    return dict(FUN=FUN, L=L, ini=ini, fim=fim, dur=dur, dia=dia, horas=horas, LIVE=LIVE, PROD=PROD,
+    # o detector de estouro exige 3+ horas com 3+ pedidos: live curta nunca "estoura" porque
+    # não dá para medir — ausência de estouro nela NÃO é evidência de teto funcionando
+    pico_testavel = len(cand) >= 3
+    return dict(FUN=FUN, pico_testavel=pico_testavel, L=L, ini=ini, fim=fim, dur=dur, dia=dia, horas=horas, LIVE=LIVE, PROD=PROD,
                 QTY=QTY, PAGO=PAGO, REV=REV, SUBS=SUBS, GU=GU, PED=PED, CONTRIB=CONTRIB,
                 ADS=ADS, REC=REC, APRE=APRE, RES=RES, CPED=CPED, pico=pico, corte=corte,
                 g=g, hq=hq, hv=hv, hc=hc, furos=furos, stt=stt, cperda=cperda, prh=prh,
@@ -216,6 +223,7 @@ CUR='R$ #,##0.00';INT='#,##0';PCT='0.0%';X1='0.00"x"';N2='0.00';N4='0.0000'
 
 def C(ws,r,c,v=None,f=None,fmt=None,fill=None,al=None):
     x=ws.cell(r,c,v)
+    if isinstance(v,str) and v.startswith("= "): x.data_type="s"   # rótulo, não fórmula
     if f:x.font=f
     if fmt:x.number_format=fmt
     if fill:x.fill=fill

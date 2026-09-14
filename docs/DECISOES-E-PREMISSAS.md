@@ -1548,3 +1548,76 @@ passaram a ser **calculados** em vez de escritos à mão, para não envelhecerem
 
 **Lição de método:** número escrito à mão no texto de um relatório recolhível envelhece calado. Se o
 relatório pode ser re-rodado, todo número do texto tem que vir de variável. Vale para todo gerador novo.
+
+---
+
+## P26 · Relatório Semanal Head — a semana 37 não pagou a estrutura, e 4 premissas caíram no caminho (14/09/2026)
+
+Pedido do dono: um head de dados olhando o core inteiro, principalmente TikTok Shop, **toda terça 08:00**
+(semana seg–dom), com check curto na sexta. Construído em `automacao/{dados_semana,recomendacoes,
+gerar_relatorio_head,check_sexta,monitor_semanal}.py`, rodando na mesma corrente de jobs dos relatórios de
+live e loja. Primeira prévia: semana 37 (07–13/09).
+
+### ❌ Premissa 1 — "uma taxa de settlement única (0,7084) serve para todo canal"
+
+Calibrada em 5.041 pedidos liquidados e sem devolução (criados 20/07–19/08):
+
+| canal | settlement ÷ receita |
+|---|---:|
+| loja própria | 0,7549 |
+| live própria | 0,7224 |
+| live afiliada | 0,6935 |
+| vídeo afiliada | 0,6475 |
+
+10 pontos de diferença. O semanal recalibra toda semana numa janela já liquidada.
+
+### ❌ Premissa 2 — "VL é mídia que sai do caixa"
+
+A Vendas Líquidas é cobrada dentro da taxa e já está no settlement. Subtraí-la de novo dupla-conta:
+7,8% do custo de GMV Max (31/08–13/09). **Mídia de caixa = só Tradicional.** Corrigido também no
+relatório diário da loja e no e-mail.
+
+### ❌ Premissa 3 — "`pedidos_sku.data` é a data de Brasília"
+
+É **UTC**: 18,6% das peças (pedido após 21h BRT) caem no dia seguinte. Live noturna perdia metade:
+10/09 20:02 **21 → 42 peças**, R$ 60,96 → **R$ 297,46**. Loja 13/09 **344 → 274 peças**. Três relatórios de
+live e o da loja republicados. Ver memória `reference_pedidos_sku_data_utc`.
+
+### ❌ Premissa 4 — "extrato_pedidos está completo até ontem"
+
+Estava incompleto em vários dias; sem ele pedido de afiliada vira "loja própria". Depois de coletar:
+loja própria **476 → 88 peças**, live afiliada 280 → 520, vídeo afiliada 305 → 466.
+
+### ✅ CONFIRMADA — P23 estava certa: a campanha de live de 09/09 não se paga
+
+`LIVE GMV-MAX- EXECUTACAO TESTE Dia 09/09`, subida contra a recomendação: **CPA de caixa R$ 10,18 contra
+R$ 8,47 de contribuição líquida por peça** de live própria na W37. Primeiro loop de recomendação fechado com
+medição.
+
+### Veredito da W37 (07–13/09)
+
+| | |
+|---|---:|
+| Receita de lista | R$ 154.522,86 · 1.851 peças |
+| Resultado operacional | **−R$ 2.902,34** |
+| Estrutura da semana | R$ 16.098,56 |
+| **Resultado final** | **−R$ 19.000,91** |
+
+Tendência do operacional, mesma régua: +R$ 2.246 → +R$ 2.161 → −R$ 901 → **−R$ 2.902**.
+8 de 12 lives com estouro de verba numa hora (R$ 3.210,26). Nenhuma das 6 recomendações do registro com
+sinal verde.
+
+### 🔧 Modos de falha fechados na raiz
+
+- **Rótulo "= …" virava `#ERROR!`** no Sheets (openpyxl marca como fórmula). Estava em **todos os 12
+  relatórios de live e no da loja** — 14 células corrigidas no lugar, links preservados. Fix no publicador
+  (vale para todo gerador) + nos geradores (vale para o .xlsx).
+- **Canário pós-publicação:** `_publicar_drive.py` agora varre o que o Sheets renderizou e reporta células de
+  erro em toda publicação. Era regra manual e foi pulada.
+- **Verde falso:** "nenhum estouro — o teto funciona" aparecia com 1 live, ou com live curta demais para o
+  detector disparar. Agora vermelho basta observar; **verde exige 3+ lives mensuráveis**.
+
+### ⏳ Em aberto (perguntar ao dono)
+
+O que está dentro dos R$ 70k · a apresentadora está dentro dos R$ 70k · site/Shopee/Shein faturam ·
+base do imposto é a lista ou o pago. Todos os donos das recomendações estão "a definir".

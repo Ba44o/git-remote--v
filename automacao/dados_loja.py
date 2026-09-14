@@ -41,10 +41,16 @@ def qall(p, o="id"):
 
 # ───────── 1. receita ─────────
 def receita_do_dia(dia):
-    sk = qall(f"pedidos_sku?select=order_id,seller_sku,sku,produto,qty,gmv,status,order_time&data=eq.{dia}")
+    # ⚠️ o campo `data` é a data UTC: pedido depois das 21h BRT cai no dia seguinte (18,6% das
+    # peças, medido 14/09). O dia do relatório é o dia de BRASÍLIA — busca dia e dia+1 e filtra
+    # pela hora real do pedido.
+    prox = (datetime.strptime(dia, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    bruto = qall(f"pedidos_sku?select=order_id,seller_sku,sku,produto,qty,gmv,status,order_time&data=gte.{dia}&data=lte.{prox}")
+    sk = [r for r in bruto if r.get("order_time")
+          and datetime.fromtimestamp(int(r["order_time"]), BRT).strftime("%Y-%m-%d") == dia]
     if not sk:
         return None
-    pag = {p["order_id"]: p for p in qall(f"pedido_pagamento?select=*&data=eq.{dia}", "order_id")}
+    pag = {p["order_id"]: p for p in qall(f"pedido_pagamento?select=*&data=gte.{dia}&data=lte.{prox}", "order_id")}
     rev = receita_itens(sk, pag)
     ok = [r for r in sk if PAGO_OK(r["status"])]
     qty = sum(r["qty"] or 0 for r in ok)
@@ -96,6 +102,10 @@ def midia_do_dia(dia):
     vl = [x for x in ac if (x["net_cost"] or 0) == 0 and (x["cost"] or 0) > 0]
     return dict(total=bl(ac), live=bl(live), produto=bl(prod),
                 tradicional=bl(trad), vendas_liquidas=bl(vl),
+                # CAIXA de mídia = só Tradicional. A VL é cobrada DENTRO da taxa do TikTok e já
+                # está no settlement (0,7084) — subtraí-la de novo dupla-conta. Medido 31/08–13/09:
+                # VL = 7,8% do custo de GMV Max. Definição fixada no Relatório Semanal Head.
+                caixa=bl(trad),
                 campanhas=sorted(ac, key=lambda x: -(x["cost"] or 0)))
 
 

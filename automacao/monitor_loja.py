@@ -60,7 +60,8 @@ def ja_feitos():
 def coletar(dia):
     """Atualiza as fontes ANTES de medir. Levanta se qualquer uma falhar — relatório
     com dado velho é pior que relatório nenhum (lição de 11/09 e 14/09)."""
-    for cmd in (["python3", "coletar_pedidos_sku.py", "--inicio", dia, "--fim", dia],
+    prox = (datetime.strptime(dia, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    for cmd in (["python3", "coletar_pedidos_sku.py", "--inicio", dia, "--fim", prox],   # data é UTC
                 ["python3", "coletar_gmvmax_api.py", "--inicio", dia, "--fim", dia],
                 ["python3", "coletar_lives_attr_api.py", "--inicio", dia, "--fim", dia]):
         r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=1200)

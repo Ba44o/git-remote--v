@@ -86,7 +86,10 @@ projeto/
 ## Formato padrão de relatório
 
 - **Formato de saída principal:** Excel (.xlsx) e Markdown (.md)
-- **Periodicidade:** semanal (toda segunda-feira) e mensal
+- **Periodicidade:** semanal — **toda terça-feira às 08:00 BRT**, fechando a semana de segunda a domingo (decidido pelo dono em 14/09/2026) — e mensal
+  - **Por que terça e não segunda:** o fim de semana só amadurece na terça — funil da loja consolida em D-2, pedido não pago leva ~48h para virar perda ou venda, e o coletor de margem (`statement_tx`) roda na segunda. Fechar na segunda publicaria sábado e domingo crus.
+  - **Check curto toda sexta-feira às 08:00 BRT:** as decisões da terça estão em pé antes das lives de fim de semana? Algum alarme estourou? Sem análise nova.
+  - Relatórios automáticos contínuos (live 45 min após o fim; loja diária sobre D-1) seguem à parte e não substituem o semanal.
 - **Estrutura obrigatória de todo relatório:**
   1. Resumo executivo (máximo 5 linhas)
   2. KPIs do período vs período anterior (tabela)

@@ -36,6 +36,7 @@ SEMDADO="sem dado"
 
 def C(ws,r,c,v=None,f=None,fmt=None,fill=None,al=None):
     x=ws.cell(r,c,v)
+    if isinstance(v,str) and v.startswith("= "): x.data_type="s"   # rótulo, não fórmula
     if f:x.font=f
     if fmt:x.number_format=fmt
     if fill:x.fill=fill
@@ -106,11 +107,11 @@ def render(D):
         C(ws,r,5,fo,MUTF,al=Lw); r+=1
     band(ws,r0,r-1,5); r+=1
     # contribuição líquida de mídia — o número que decide
-    liq=r_["contrib"]-(ads["total"]["custo"] if ads else 0)
+    liq=r_["contrib"]-(ads["caixa"]["custo"] if ads else 0)
     C(ws,r,1,"CONTRIBUIÇÃO APÓS MÍDIA",BOLD,fill=OKF if liq>0 else ALERT)
     C(ws,r,2,liq,GF if liq>0 else RF,fmt=CUR,fill=OKF if liq>0 else ALERT)
     for c in (3,4): ws.cell(r,c).fill=OKF if liq>0 else ALERT
-    C(ws,r,5,"contribuição bruta − investimento em mídia" + ("" if ads else " (mídia sem dado)"),MUTF,al=Lw,fill=OKF if liq>0 else ALERT)
+    C(ws,r,5,"contribuição bruta − mídia TRADICIONAL (a VL já está dentro da taxa)" + ("" if ads else " (mídia sem dado)"),MUTF,al=Lw,fill=OKF if liq>0 else ALERT)
     r+=2
     C(ws,r,1,"O DIA EM UM PARÁGRAFO",H2); r+=1
     p=(f"A loja faturou R$ {BRn(r_['lista'])} de receita de lista em {r_['pecas']} peças e "
@@ -121,7 +122,8 @@ def render(D):
     p+=(f"Cada peça deixou R$ {BRn(r_['contrib_peca'])} de contribuição — R$ {BRn(r_['contrib'])} no total. ")
     if ads:
         p+=(f"Foram R$ {BRn(ads['total']['custo'])} de mídia, com ROAS de {BRn(ads['total']['roas'])}× e CPA de "
-            f"R$ {BRn(ads['total']['cpa'])}, sobrando R$ {BRn(liq)} depois de pagar o tráfego. ")
+            f"R$ {BRn(ads['total']['cpa'])}. Descontada a mídia que sai do caixa (Tradicional, R$ "
+            f"{BRn(ads['caixa']['custo'])} — a VL já vem dentro da taxa), sobraram R$ {BRn(liq)}. ")
     else:
         p+="O investimento em mídia do dia ainda não estava disponível quando este relatório rodou. "
     if lv["n"]:
@@ -327,14 +329,15 @@ def render(D):
           f"{r_['nao_virou']} peças ({BRn(r_['nao_virou_pct']*100,1)}%) ficaram em UNPAID ou CANCELLED, "
           f"segurando R$ {BRn(perda)} de contribuição. A mídia por esses pedidos já foi paga.",
           "Remedir em 48h para separar atraso de perda; atacar prazo/meio de pagamento.",perda))
-    if ads and ads["total"]["cpa"]>0:
-        teto=r_["contrib_peca"]
-        if ads["total"]["cpa"]>teto:
+    if ads and ads["caixa"]["pedidos"]:
+        # CPA de CAIXA (só Tradicional): a VL já está dentro da taxa e não é desembolso de mídia
+        teto=r_["contrib_peca"]; cpa=ads["caixa"]["cpa"]
+        if cpa>teto:
             alertas.append(("CPA acima do que a peça aguenta",
-              f"CPA de R$ {BRn(ads['total']['cpa'])} contra contribuição de R$ {BRn(teto)} por peça. "
-              f"Cada pedido comprado destrói R$ {BRn(ads['total']['cpa']-teto)}.",
+              f"CPA de caixa de R$ {BRn(cpa)} (mídia Tradicional) contra contribuição de R$ {BRn(teto)} por peça. "
+              f"Cada pedido comprado destrói R$ {BRn(cpa-teto)}.",
               "Revisar teto de lance ou subir preço de lista antes de escalar verba.",
-              (ads["total"]["cpa"]-teto)*(ads["total"]["pedidos"] or 0)))
+              (cpa-teto)*(ads["caixa"]["pedidos"] or 0)))
     if ra and ra["lista"] and delta(r_["lista"],ra["lista"]) is not None and delta(r_["lista"],ra["lista"])<-0.25:
         alertas.append(("Queda forte de receita vs dia anterior",
           f"Receita de lista caiu {BRn(delta(r_['lista'],ra['lista'])*100,1)}% "
@@ -343,7 +346,7 @@ def render(D):
           ra["lista"]-r_["lista"]))
     if liq<0:
         alertas.append(("Contribuição não cobriu a mídia",
-          f"Contribuição bruta de R$ {BRn(r_['contrib'])} contra R$ {BRn(ads['total']['custo'] if ads else 0)} "
+          f"Contribuição bruta de R$ {BRn(r_['contrib'])} contra R$ {BRn(ads['caixa']['custo'] if ads else 0)} "
           f"de mídia — resultado R$ {BRn(liq)}.",
           "Não escalar verba enquanto a peça não pagar o tráfego.",abs(liq)))
     if dv and dv["n"]>0 and r_["pecas"]:

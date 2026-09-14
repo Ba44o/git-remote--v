@@ -1,4 +1,4 @@
-name: Rhode — Relatórios automáticos (live + loja)
+name: Rhode — Relatórios automáticos (live + loja + semanal head)
 
 # Procura lives que terminaram há 45+ minutos e ainda não têm relatório, gera no template
 # travado (8 abas) e publica na pasta do Drive "Relatorios de Live". Estado = a própria
@@ -21,6 +21,9 @@ on:
         required: false
       data_loja:
         description: "AAAA-MM-DD para forçar o relatório da loja de um dia"
+        required: false
+      semana_head:
+        description: "segunda-feira AAAA-MM-DD para forçar o relatório semanal head"
         required: false
       espera:
         description: "minutos de espera após o fim da live"
@@ -52,6 +55,7 @@ jobs:
       GOOGLE_OAUTH_TOKEN:   ${{ secrets.GOOGLE_OAUTH_TOKEN }}
       DRIVE_FOLDER_ID:      ${{ vars.DRIVE_FOLDER_ID || '1tWpDpY6gpOijpEkw_EpWmylohL8BpRix' }}
       DRIVE_FOLDER_LOJA:    ${{ vars.DRIVE_FOLDER_LOJA || '1ubpK3GZLdLUbzfnJrafyW63p9NdadR4a' }}
+      DRIVE_FOLDER_HEAD:    ${{ vars.DRIVE_FOLDER_HEAD || '1lT2xshXVJBaS3WlGJIwCEDAMJ06a7fmC' }}
       EMAIL_AVISO:          ${{ vars.EMAIL_AVISO || 'humbertobasso9@gmail.com' }}
       PYTHONUNBUFFERED: "1"
     steps:
@@ -63,7 +67,7 @@ jobs:
           cache: "pip"
 
       - name: Instalar dependências
-        run: pip install requests pandas openpyxl python-dotenv google-api-python-client google-auth
+        run: pip install requests pandas numpy xlrd openpyxl python-dotenv google-api-python-client google-auth
           # pandas é exigido por coletar_dados.py — sem ele os coletores morrem calados
 
       - name: Credenciais da service account
@@ -101,6 +105,11 @@ jobs:
             python3 automacao/monitor_lives.py $ARGS
             exit 0
           fi
+          if [ -n "${{ github.event.inputs.semana_head }}" ]; then
+            echo "modo pontual (semanal head) · ${{ github.event.inputs.semana_head }}"
+            python3 automacao/monitor_semanal.py --forcar-semana "${{ github.event.inputs.semana_head }}"
+            exit 0
+          fi
           if [ -n "${{ github.event.inputs.data_loja }}" ]; then
             echo "modo pontual (loja) · ${{ github.event.inputs.data_loja }}"
             python3 automacao/monitor_loja.py --data "${{ github.event.inputs.data_loja }}"
@@ -118,6 +127,8 @@ jobs:
             # Relatório diário da loja: idempotente (checa a pasta do Drive antes),
             # então roda a cada ciclo sem custo — sai uma vez por dia, quando D-1 fecha.
             python3 automacao/monitor_loja.py || echo "⚠ monitor da loja falhou, seguindo"
+            # Semanal head (terça 08:00) + check de sexta (08:00). Idempotente pelo estado no Drive.
+            python3 automacao/monitor_semanal.py || echo "⚠ monitor semanal falhou, seguindo"
             sleep 900
           done
           echo "laço encerrado após $N ciclos"

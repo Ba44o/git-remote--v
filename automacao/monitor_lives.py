@@ -83,7 +83,9 @@ def coletar(dia):
     que por acaso já estavam no Supabase de uma rodada local."""
     for cmd in (["python3", "coletar_lives_attr_api.py", "--inicio", dia, "--fim", dia],
                 ["python3", "coletar_gmvmax_api.py", "--inicio", dia, "--fim", dia],
-                ["python3", "coletar_pedidos_sku.py", "--inicio", dia, "--fim", dia]):
+                # data de pedidos_sku é UTC: live noturna tem pedido gravado no dia seguinte
+                ["python3", "coletar_pedidos_sku.py", "--inicio", dia,
+                 "--fim", (datetime.strptime(dia, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")]):
         r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=900)
         if r.returncode != 0:
             raise RuntimeError(f"{cmd[1]} falhou — NÃO vou gerar relatório com dado "

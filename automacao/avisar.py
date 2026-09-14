@@ -110,7 +110,7 @@ def _corpo_loja(D, url):
     r_ = D["rec"]; ra = D["rec_ant"]; lv = D["live"]; ads = D["ads"]; cr = D["creators"]
     from datetime import datetime
     dt = datetime.strptime(D["dia"], "%Y-%m-%d")
-    liq = r_["contrib"] - (ads["total"]["custo"] if ads else 0)
+    liq = r_["contrib"] - (ads["caixa"]["custo"] if ads else 0)
     cor = "#0E9F6E" if liq > 0 else "#FE2C55"
     peso = (lv["gmv"] / r_["lista"] * 100) if r_["lista"] else 0
     def dl(a, b):
@@ -163,7 +163,7 @@ def avisar_loja(D, url):
         from googleapiclient.discovery import build
         from datetime import datetime
         r_ = D["rec"]; ads = D["ads"]
-        liq = r_["contrib"] - (ads["total"]["custo"] if ads else 0)
+        liq = r_["contrib"] - (ads["caixa"]["custo"] if ads else 0)
         dt = datetime.strptime(D["dia"], "%Y-%m-%d")
         msg = EmailMessage()
         msg["To"] = DESTINO
@@ -180,3 +180,80 @@ def avisar_loja(D, url):
     except Exception as e:
         print(f"  ⚠ e-mail falhou (o relatório está publicado): {str(e)[:160]}")
         return False
+
+
+# ───────── aviso do RELATÓRIO SEMANAL HEAD (terça) ─────────
+def _br(v, n=2):
+    if v is None: return "sem dado"
+    return f"{v:,.{n}f}".replace(",", "\x00").replace(".", ",").replace("\x00", ".")
+
+
+def avisar_head(R, medidas, decisoes, url):
+    try:
+        cred = _cred()
+        if not tem_escopo_email(cred):
+            print("  ⚠ token sem gmail.send"); return False
+        from googleapiclient.discovery import build
+        W = R["semanas"][0]; fin = W["resultado_final"]; cor = "#0E9F6E" if fin >= 0 else "#FE2C55"
+        per = f"{R['seg'].strftime('%d/%m')} a {R['dom'].strftime('%d/%m')}"
+        dec = "".join(f'<li style="margin-bottom:8px"><b>{d["titulo"]}</b> — R$ {_br(d["em_jogo"])}/semana'
+                      f'<br><span style="color:#6B6B76;font-size:13px">{d["porque"]}</span></li>' for d in decisoes)
+        sinais = "".join(f'<tr><td style="padding:4px 8px 4px 0;font-size:13px">{m["titulo"]}</td>'
+                         f'<td style="font-size:13px">{m["sinal"]}</td></tr>' for m in medidas)
+        html = f"""<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;color:#1A1A1E">
+<p style="margin:0 0 4px"><b style="font-size:18px">Semana {R['id'][-3:]} — {per}</b></p>
+<p style="margin:0 0 16px;color:#6B6B76;font-size:13px">Relatório Semanal Head · TikTok Shop</p>
+<table style="border-collapse:collapse;font-size:14px;width:100%">
+<tr><td style="padding:5px 0;color:#6B6B76">Receita de lista</td><td style="text-align:right">R$ {_br(W['lista'])}</td></tr>
+<tr><td style="padding:5px 0;color:#6B6B76">Peças</td><td style="text-align:right">{_br(W['pecas'],0)}</td></tr>
+<tr><td style="padding:5px 0;color:#6B6B76">Resultado operacional</td><td style="text-align:right">R$ {_br(W['resultado_operacional'])}</td></tr>
+<tr><td style="padding:5px 0;color:#6B6B76">Estrutura da semana</td><td style="text-align:right">− R$ {_br(W['estrutura_semana'])}</td></tr>
+<tr style="border-top:1px solid #EFEFF2"><td style="padding:10px 0"><b>Resultado final</b></td>
+<td style="text-align:right"><b style="color:{cor};font-size:17px">R$ {_br(fin)}</b></td></tr></table>
+<p style="margin:20px 0 6px"><b>As decisões em jogo</b></p><ol style="padding-left:18px;margin:0">{dec}</ol>
+<p style="margin:20px 0 6px"><b>Registro de recomendações — sinal medido</b></p>
+<table style="border-collapse:collapse">{sinais}</table>
+<p style="margin:24px 0"><a href="{url}" style="background:#FE2C55;color:#fff;padding:11px 20px;border-radius:7px;
+text-decoration:none;font-weight:600;font-size:14px">Abrir o relatório</a></p>
+<p style="font-size:12px;color:#9A9AA5;border-top:1px solid #EFEFF2;padding-top:12px">
+Toda terça 08:00 · só dado maduro · check curto na sexta. Donos "a definir" precisam ser atribuídos.</p></div>"""
+        msg = EmailMessage(); msg["To"] = DESTINO
+        msg["Subject"] = f"Semana {R['id'][-3:]} ({per}) — resultado final R$ {_br(fin)}"
+        msg.set_content(f"Semana {R['id']} — resultado final R$ {_br(fin)}\n\n{url}")
+        msg.add_alternative(html, subtype="html")
+        build("gmail", "v1", credentials=cred).users().messages().send(
+            userId="me", body={"raw": base64.urlsafe_b64encode(msg.as_bytes()).decode()}).execute()
+        print(f"  ✉ semanal enviado para {DESTINO}"); return True
+    except Exception as e:
+        print(f"  ⚠ e-mail do semanal falhou: {str(e)[:160]}"); return False
+
+
+# ───────── aviso do CHECK DE SEXTA ─────────
+def avisar_check(R, url_terca):
+    try:
+        cred = _cred()
+        if not tem_escopo_email(cred):
+            print("  ⚠ token sem gmail.send"); return False
+        from googleapiclient.discovery import build
+        sinais = "".join(f'<li style="margin-bottom:4px;font-size:13px">{m["sinal"]} — {m["titulo"]}</li>' for m in R["medidas"])
+        alarmes = ("".join(f'<li style="margin-bottom:4px;font-size:13px">{a}</li>' for a in R["alarmes"])
+                   or '<li style="font-size:13px">Nenhum alarme desde terça.</li>')
+        link = (f'<p style="margin:20px 0"><a href="{url_terca}" style="color:#FE2C55;font-weight:600">'
+                f'Relatório de terça →</a></p>') if url_terca else ""
+        html = f"""<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;color:#1A1A1E">
+<p style="margin:0 0 4px"><b style="font-size:17px">Check de sexta — {R['seg'].strftime('%d/%m')} a {R['qui'].strftime('%d/%m')}</b></p>
+<p style="margin:0 0 14px;color:#6B6B76;font-size:13px">Antes das lives de fim de semana. Sem análise nova.</p>
+<p style="margin:0 0 6px"><b>{len(R['vermelhos'])} de {len(R['medidas'])} recomendações com sinal vermelho</b></p>
+<ul style="padding-left:18px;margin:0">{sinais}</ul>
+<p style="margin:18px 0 6px"><b>Alarmes desde terça</b></p><ul style="padding-left:18px;margin:0">{alarmes}</ul>
+{link}</div>"""
+        msg = EmailMessage(); msg["To"] = DESTINO
+        msg["Subject"] = (f"Check de sexta — {len(R['vermelhos'])} recomendação(ões) no vermelho, "
+                          f"{len(R['alarmes'])} alarme(s)")
+        msg.set_content(f"Check de sexta {R['id']}: {len(R['vermelhos'])} vermelho(s), {len(R['alarmes'])} alarme(s).")
+        msg.add_alternative(html, subtype="html")
+        build("gmail", "v1", credentials=cred).users().messages().send(
+            userId="me", body={"raw": base64.urlsafe_b64encode(msg.as_bytes()).decode()}).execute()
+        print(f"  ✉ check de sexta enviado"); return True
+    except Exception as e:
+        print(f"  ⚠ e-mail do check falhou: {str(e)[:160]}"); return False

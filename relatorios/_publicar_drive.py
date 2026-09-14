@@ -101,6 +101,15 @@ def rgb(c):
     except ValueError: return None
     return {"red": r / 255, "green": g / 255, "blue": b / 255}
 
+def parece_rotulo(v):
+    """Texto que só PARECE fórmula. O openpyxl marca como fórmula (data_type 'f') toda string que
+    começa com '=', inclusive rótulo de cascata como '= RESULTADO FINAL' — e o Sheets devolve
+    #ERROR!. Fórmula de verdade nunca tem espaço logo depois do '=' nos geradores deste repo.
+    Reincidência (14/09): 4 #ERROR! no semanal head e o mesmo padrão em live e loja → fix aqui,
+    uma vez, para todos os geradores."""
+    return isinstance(v, str) and v.startswith("= ")
+
+
 def conv(path, sheet_id):
     wb = openpyxl.load_workbook(path)
     meta = API.get(spreadsheetId=sheet_id).execute()
@@ -123,7 +132,7 @@ def conv(path, sheet_id):
     for ws in wb.worksheets:
         linhas = []
         for row in ws.iter_rows(min_row=1, max_row=ws.max_row, max_col=ws.max_column):
-            linhas.append([("" if c.value is None else formula_ptbr(c.value, c.data_type == "f"))
+            linhas.append([("" if c.value is None else formula_ptbr(c.value, c.data_type == "f" and not parece_rotulo(c.value)))
                            for c in row])
         data.append({"range": f"'{ws.title}'!A1", "values": linhas})
     API.values().batchUpdate(spreadsheetId=sheet_id, body={
@@ -406,6 +415,29 @@ def transferir(xlsx, sheet_id):
 
 
 
+def varrer_erros(sheet_id, mostrar=10):
+    """Canário pós-publicação: lê o que o Sheets RENDERIZOU e conta células de erro. Era regra
+    manual ("0 #ERROR! antes de mandar o link") e foi pulada — agora roda em toda publicação."""
+    try:
+        abas = [x["properties"]["title"] for x in
+                API.get(spreadsheetId=sheet_id, fields="sheets.properties.title").execute()["sheets"]]
+        vals = API.values().batchGet(spreadsheetId=sheet_id, ranges=[f"'{a}'" for a in abas],
+                                     valueRenderOption="FORMATTED_VALUE").execute()
+    except Exception as e:
+        print(f"  ⚠ não consegui varrer erros: {str(e)[:100]}"); return -1
+    achados = []
+    for vr in vals.get("valueRanges", []):
+        aba = vr["range"].split("!")[0].strip("'")
+        for i, row in enumerate(vr.get("values", []), 1):
+            for j, c in enumerate(row, 1):
+                if isinstance(c, str) and c.startswith("#") and any(
+                        e in c for e in ("ERROR", "REF", "N/A", "VALUE", "DIV", "NAME", "NUM")):
+                    achados.append(f"{aba}!L{i}C{j} = {c}")
+    for a in achados[:mostrar]:
+        print(f"    ✗ {a}")
+    return len(achados)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print(__doc__); raise SystemExit(1)
@@ -418,4 +450,6 @@ if __name__ == "__main__":
     if md and os.path.exists(md):
         k = aplicar(md, sid)
         print(f"  ✓ aba 'Leitura' com {k} linhas do .md")
+    n_err = varrer_erros(sid)
+    print(f"  {'✓' if n_err == 0 else '✗'} {n_err} célula(s) com erro (#ERROR!/#REF!/#N/A…)")
     print(f"  → https://docs.google.com/spreadsheets/d/{sid}/edit")

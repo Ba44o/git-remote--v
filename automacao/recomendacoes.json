@@ -1,0 +1,89 @@
+{
+  "_leia": "Registro de recomendações do Relatório Semanal Head. Cada item tem um MEDIDOR que o relatório calcula sozinho toda semana, para que a recomendação não fique só apontada. 'dono' fica 'a definir' até o Humberto atribuir — nunca inventar dono. Status: aberta | feita | descartada | contrariada.",
+  "recomendacoes": [
+    {
+      "id": "teto_gasto_hora",
+      "titulo": "Teto de gasto por hora na campanha de live",
+      "acao": "Limitar o gasto horário da campanha de live a ~1,2× uma hora normal, para cortar o estouro de uma hora que apareceu em quase toda live.",
+      "recomendado_em": "2026-09-10",
+      "origem": "P24 (live 10/09) · repetido nos relatórios automáticos de live",
+      "dono": "a definir",
+      "status": "aberta",
+      "medidor": "estouros_live"
+    },
+    {
+      "id": "campanha_live_0909",
+      "titulo": "Avaliar a campanha LIVE GMV-MAX- EXECUTACAO TESTE Dia 09/09",
+      "acao": "P23 recomendava NÃO subir outra campanha de live (peça marginal custava mais do que deixava). A campanha foi subida em 09/09. Medir se ela se paga.",
+      "recomendado_em": "2026-09-09",
+      "origem": "P23",
+      "dono": "a definir",
+      "status": "contrariada",
+      "medidor": "campanha_live_0909",
+      "campanha": "LIVE GMV-MAX- EXECUTACAO TESTE Dia 09/09"
+    },
+    {
+      "id": "cortar_mix_produtos",
+      "titulo": "Cortar [GMV-MAX]-[MIX_PRODUTOS]-14.07.26",
+      "acao": "Campanha de produto com contribuição negativa por 31 dias seguidos (−R$ 1.287). Desligar.",
+      "recomendado_em": "2026-09-09",
+      "origem": "P23",
+      "dono": "a definir",
+      "status": "aberta",
+      "medidor": "campanha_desligada",
+      "campanha": "[GMV-MAX]-[MIX_PRODUTOS]-14.07.26"
+    },
+    {
+      "id": "promo_ate_fim_live",
+      "titulo": "Não cortar a promoção no meio da live",
+      "acao": "Na live de 10/09 o corte da promoção às 13:22 derrubou o ritmo em 64% com mídia constante (custo estimado R$ 1.243). Manter a promo até o fim.",
+      "recomendado_em": "2026-09-10",
+      "origem": "P25",
+      "dono": "a definir",
+      "status": "aberta",
+      "medidor": "cortes_promo"
+    },
+    {
+      "id": "atacar_nao_pagos",
+      "titulo": "Atacar pedidos não pagos",
+      "acao": "UNPAID é perda, não atraso: só 11% saíram do limbo em 20h na live de 10/09, metade virando cancelamento. Atacar prazo e meio de pagamento.",
+      "recomendado_em": "2026-09-11",
+      "origem": "P24 · remedição de 11/09",
+      "dono": "a definir",
+      "status": "aberta",
+      "medidor": "nao_pagos"
+    },
+    {
+      "id": "preco_lista_hero",
+      "titulo": "Rever o preço de lista do hero",
+      "acao": "O hero (REF516/525/527) tem a pior contribuição por peça e é a maior fatia do volume. Subir a lista em R$ 5 vale ~R$ 3,54 por peça sem tocar em mídia.",
+      "recomendado_em": "2026-09-10",
+      "origem": "P24",
+      "dono": "a definir",
+      "status": "aberta",
+      "medidor": "preco_hero"
+    }
+  ],
+  "perguntas_abertas": [
+    {
+      "id": "composicao_estrutura",
+      "pergunta": "O que está dentro dos R$ 70 mil/mês de estrutura? Se inclui pró-labore, é decisão e não custo; se inclui overhead já embutido no CPV, há dupla contagem.",
+      "aberta_desde": "2026-09-03"
+    },
+    {
+      "id": "apresentadora_na_estrutura",
+      "pergunta": "O custo de apresentadora (R$ 50/hora) já está dentro dos R$ 70 mil? O semanal hoje desconta os dois — se estiver dentro, o resultado real é melhor do que o mostrado.",
+      "aberta_desde": "2026-09-14"
+    },
+    {
+      "id": "faturamento_fora_tiktok",
+      "pergunta": "Site, Shopee e Shein faturam? Nenhuma das 80 tabelas tem dado desses canais — todo o P&L é 100% TikTok Shop.",
+      "aberta_desde": "2026-09-03"
+    },
+    {
+      "id": "base_do_imposto",
+      "pergunta": "O imposto de 6,4% incide sobre a receita de lista (pago + cupom subsidiado) ou só sobre o pago? O semanal usa a lista, que é a base de faturamento — confirmar com o Lucas.",
+      "aberta_desde": "2026-09-14"
+    }
+  ]
+}
