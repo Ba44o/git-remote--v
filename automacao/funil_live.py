@@ -44,10 +44,15 @@ def funil_por_sala(dia, dias_janela=2):
         from coletar_dados import chamar
         own = (os.environ.get("RHODE_LIVE_USERNAME") or "rhodejeans").lower()
         out = {}
-        for page in range(1, 6):
-            r = chamar("GET", "/analytics/202509/shop_lives/performance",
-                       params={"start_date_ge": ini, "end_date_lt": fim, "granularity": "ALL",
-                               "page_size": 100, "sort_field": "gmv", "sort_order": "DESC"})
+        # ⚠️ (14/09/2026) a janela tem 1.900+ sessões da loja inteira (afiliadas incluídas) e vem por GMV
+        # DESC: sem repassar o page_token, o laço relia a página 1 e live própria de GMV baixo ficava SEM
+        # funil (as duas de 14/09). Paginar até acabar o token.
+        tok = None
+        for _ in range(60):
+            params = {"start_date_ge": ini, "end_date_lt": fim, "granularity": "ALL",
+                      "page_size": 100, "sort_field": "gmv", "sort_order": "DESC"}
+            if tok: params["page_token"] = tok
+            r = chamar("GET", "/analytics/202509/shop_lives/performance", params=params)
             if r.get("code") != 0: break
             d = r.get("data") or {}
             for x in d.get("live_stream_sessions") or []:
@@ -66,7 +71,8 @@ def funil_por_sala(dia, dias_janela=2):
                     compart=_num(ip.get("shares")), novos_seguidores=_num(ip.get("new_followers")),
                     produtos_vendidos=_num(sp.get("different_products_sold")),
                     produtos_no_palco=_num(sp.get("products_added")))
-            if not (d.get("next_page_token") or d.get("has_more")): break
+            tok = d.get("next_page_token")
+            if not tok or not (d.get("live_stream_sessions") or []): break
         _CACHE[ck] = out
         return out
     except Exception as e:

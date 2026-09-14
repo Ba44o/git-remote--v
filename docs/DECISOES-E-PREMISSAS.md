@@ -1686,3 +1686,45 @@ peça de `project_estrutura_nao_paga`. Perguntas abertas agora: crédito de PIS/
 
 **Live de 14/09 11:00 recalculada:** GMV R$ 6.340,58 · 92 peças · contribuição R$ 1.290,92 ·
 **resultado R$ 610,80** (o e-mail tinha R$ 801,64). Todos os relatórios de live republicados no mesmo link.
+
+---
+
+## P28 · Lives da Ingrid — "a 2ª semana melhorou só porque entrou mais gente" ❌ REFUTADA (14/09/2026)
+
+**Pedido do dono:** um relatório para a apresentadora acompanhar as janelas dela (manhã, noite e sábado), didático,
+com elogios e pontos de melhoria. Entregue em `relatorios/2026-09/Relatorio Performance Ingrid Lives Setembro_2026-09-14.docx`
+(build em `relatorios/2026-09/_build_relatorio_ingrid/`).
+
+**Premissa testada:** a alta de vendas da 1ª para a 2ª semana veio do volume de público (horário, mídia), não da condução.
+
+| 16 lives da Ingrid (01–14/09) | 01–07/09 (8) | 08–14/09 (8) | Δ |
+|---|---:|---:|---:|
+| GMV atribuído | R$ 12.722 | R$ 23.154 | +82% |
+| GMV por hora | R$ 596 | R$ 947 | +59% |
+| Entradas (views) por hora | 1.572 | 1.833 | **+17%** |
+| Retenção média | 26,7s | 30,3s | +14% |
+| Peças a cada 1.000 views | 4,9 | 6,7 | **+36%** |
+
+**Veredito ❌:** o público cresceu 17%, mas as peças por 1.000 entradas cresceram 36%. A maior parte do ganho foi
+conversão. ⏳ **Não prova** que foi o plano de 09/09: são 8 lives por semana, 1 sábado em cada, e o calendário
+(feriado 07/09, dia 10) também mexe.
+
+**O que os dados mostraram (e viraram as recomendações do relatório):**
+- **Manhã converte mal o clique:** CTOR 1,7% contra 2,3% da loja. Em 14/09 teve a MAIOR retenção (36s) e CTOR de 1,1%:
+  o público ficou e não fechou.
+- **Ritmo oposto entre janelas** (peças pagas por meia hora, sem afiliada):
+  - a manhã sobe de 2,4 para 5,0 depois de 2h30;
+  - a noite cai de 7,6 para 4,5;
+  - o sábado cai de 9,5 (pico) para 4,0.
+  - Os trechos finais têm n=2.
+- **Noite:** maior CTR (8,9% contra 8,3%) e mais pedidos com 2+ peças (10,6%).
+- **Manhã:** traz 70% dos novos seguidores (248/352).
+
+**Regras do relatório para apresentadora:**
+- Não nomear a outra apresentadora; a régua principal é ela contra ela mesma.
+- A média da loja entra só como referência, com a ressalva de horário (a manhã tem ~1.600 views/h, as lives das 11h ~2.400).
+- Nada de margem ou contribuição.
+
+**Gotcha corrigido na raiz:** `automacao/funil_live.py` relia a página 1 cinco vezes, sem repassar o `page_token`. A
+janela tem 1.900+ sessões (afiliadas incluídas) ordenadas por GMV, e as lives próprias de GMV baixo ficavam sem funil
+(as duas de 14/09). Agora pagina até acabar o token; testado com as salas de 12–14/09, todas com funil.
