@@ -134,11 +134,9 @@ def relatorio_semanal(seg, forcar=False):
             from dados_semana import montar_semana
             from recomendacoes import medir, decisoes_da_semana
             from avisar import avisar_head
-            from dados_semana import recalcular
             R = pickle.load(open("/tmp/semana_head.pkl", "rb")) if os.path.exists("/tmp/semana_head.pkl") else None
             if not R or R["id"] != sid:
                 R = montar_semana(seg)
-            recalcular(R["semanas"])
             med, _ = medir(R)
             avisar_head(R, med, decisoes_da_semana(R, med), url)
         except Exception as e:

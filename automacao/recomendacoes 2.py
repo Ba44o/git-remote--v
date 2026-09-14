@@ -20,19 +20,13 @@ def carregar():
         return json.load(f)
 
 
-def _contrib_pc_liquida(S, canal=None, credito=None):
-    """contribuição por peça depois de PIS/COFINS (Lucro Real) — o teto que um CPA de caixa pode atingir."""
-    try:
-        from dados_semana import PIS_COFINS, CPV, CREDITO_SOBRE_CPV
-    except ImportError:
-        from automacao.dados_semana import PIS_COFINS, CPV, CREDITO_SOBRE_CPV
+def _contrib_pc_liquida(S, canal=None, imposto=0.064):
+    """contribuição por peça depois de imposto — o teto que um CPA de caixa pode atingir."""
     cn = S["canal"]["canais"]
     zs = [cn[canal]] if canal else list(cn.values())
     pecas = sum(z["pecas"] for z in zs); contrib = sum(z["contrib"] for z in zs)
     lista = sum(z["lista"] for z in zs)
-    usa_credito = CREDITO_SOBRE_CPV if credito is None else credito
-    base = lista - (CPV * pecas if usa_credito else 0.0)
-    return ((contrib - PIS_COFINS * max(base, 0.0)) / pecas) if pecas else None
+    return ((contrib - lista * imposto) / pecas) if pecas else None
 
 
 def _camp(S, nome):
@@ -73,26 +67,17 @@ def medir(R):
                 d["sinal"] = "sem dado de mídia — não dá para afirmar nada"
                 out.append(d); continue
             c = _camp(W, rec.get("campanha", ""))
-            # dois cenários de imposto: com crédito de PIS/COFINS sobre o CPV o teto é MAIOR
-            teto = _contrib_pc_liquida(W, "live_propria", credito=True)
-            teto_s = _contrib_pc_liquida(W, "live_propria", credito=False)
+            teto = _contrib_pc_liquida(W, "live_propria")
             if c and c["custo"] > 0:
                 cpa = (c["trad"] / c["pedidos"]) if c["pedidos"] else None
                 d["semana"] = (f"R$ {c['custo']:,.2f} gastos ({c['dias']} dias) · ROAS "
                                f"{c['receita']/c['custo']:.2f}× · CPA de caixa "
                                + (f"R$ {cpa:,.2f}" if cpa else "sem dado"))
-                d["cpa"] = cpa; d["teto_com_credito"] = teto; d["teto_sem_credito"] = teto_s
-                if cpa and teto is not None and teto_s is not None:
-                    if cpa <= teto_s:
-                        d["sinal"] = (f"✅ se paga nos dois cenários de imposto — CPA R$ {cpa:,.2f} ≤ "
-                                      f"R$ {teto_s:,.2f}/peça (sem crédito) e R$ {teto:,.2f} (com crédito)")
-                    elif cpa <= teto:
-                        d["sinal"] = (f"⚠️ depende do imposto — CPA R$ {cpa:,.2f}: se paga COM crédito de PIS/COFINS "
-                                      f"(teto R$ {teto:,.2f}/peça) e NÃO se paga sem (teto R$ {teto_s:,.2f})")
-                        d["em_jogo"] = (cpa - teto_s) * c["pedidos"]
+                if cpa and teto is not None:
+                    if cpa <= teto:
+                        d["sinal"] = f"✅ se paga — CPA R$ {cpa:,.2f} ≤ contribuição líquida de R$ {teto:,.2f}/peça"
                     else:
-                        d["sinal"] = (f"❌ não se paga nem com crédito — CPA R$ {cpa:,.2f} > R$ {teto:,.2f}/peça "
-                                      f"(sem crédito o teto cai para R$ {teto_s:,.2f})")
+                        d["sinal"] = f"❌ não se paga — CPA R$ {cpa:,.2f} > contribuição líquida de R$ {teto:,.2f}/peça"
                         d["em_jogo"] = (cpa - teto) * c["pedidos"]
             else:
                 d["semana"] = "sem gasto na semana"; d["sinal"] = "campanha parada"

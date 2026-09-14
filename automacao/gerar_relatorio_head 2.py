@@ -20,7 +20,7 @@ from openpyxl.formatting.rule import DataBarRule, CellIsRule
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT); sys.path.insert(0, os.path.join(ROOT, "automacao"))
 from dados_semana import (montar_semana, CANAIS, ROTULO, CPV, IMPOSTO, ESTRUTURA_MES,
-                          HORA_APRESENTADORA, BRT, PIS_COFINS, PARTICIPACAO_TIKTOK, recalcular)
+                          HORA_APRESENTADORA, BRT)
 from recomendacoes import medir, decisoes_da_semana
 
 INK="1A1A1E";MUT="6B6B76";RED="FE2C55";GREEN="0E9F6E";RHODE="FE2C55"
@@ -75,7 +75,7 @@ def render(R, medidas, perguntas, decisoes):
     ws=wb.active; ws.title="Veredito da semana"
     r=cab(ws,f"SEMANA {R['id'][-3:]} — {periodo}",
           f"TikTok Shop · semana seg–dom · fechada terça {datetime.now(BRT).strftime('%d/%m %H:%M')} BRT · "
-          f"só dado maduro · Lucro Real. Estrutura: 90% de R$ {BRn(ESTRUTURA_MES,0)}/mês (parte do TikTok) = R$ {BRn(EST)} por semana.")
+          f"só dado maduro. Estrutura R$ {BRn(ESTRUTURA_MES,0)}/mês = R$ {BRn(EST)} por semana.")
     ruins=[s["fonte"] for s in R["saude"] if not s["ok"]]
     if ruins:
         C(ws,3,1,f"⚠ Fonte(s) atrasada(s) no fechamento: {', '.join(ruins)} — confira a aba Saúde do dado antes de decidir.",RF)
@@ -83,11 +83,12 @@ def render(R, medidas, perguntas, decisoes):
     A_op=A["resultado_operacional"] if A else None
     linhas=[("Receita de lista (memo)",W["lista"],A["lista"] if A else None,"pago + cupom subsidiado pelo TikTok",False),
             ("Contribuição",W["contrib"],A["contrib"] if A else None,"lista × taxa do canal − CPV",True),
-            ("(−) PIS/COFINS 9,25%",-W["pis_cofins"],-A["pis_cofins"] if A else None,"Lucro Real, não cumulativo, com crédito sobre o CPV (hipótese)",True),
+            ("(−) Imposto 6,4%",-W["imposto"],-A["imposto"] if A else None,"Lucro Presumido, sobre a lista",True),
             ("(−) Devoluções (custo líquido)",-W["devolucoes"]["custo_liquido"],-A["devolucoes"]["custo_liquido"] if A else None,
              "peças devolvidas × custo medido ago/26",True),
             ("(−) Mídia de live (caixa)",-W["midia"]["caixa_live"],-A["midia"]["caixa_live"] if A else None,"GMV Max Tradicional",True),
-            ("(−) Mídia de produto (caixa)",-W["midia"]["caixa_produto"],-A["midia"]["caixa_produto"] if A else None,"GMV Max Tradicional",True)]
+            ("(−) Mídia de produto (caixa)",-W["midia"]["caixa_produto"],-A["midia"]["caixa_produto"] if A else None,"GMV Max Tradicional",True),
+            ("(−) Apresentadora",-W["apresentadora"],-A["apresentadora"] if A else None,f"horas de live × R$ {BRn(HORA_APRESENTADORA,0)}",True)]
     r_first=r+1; rows={}
     for k,a,b,o,soma in linhas:
         C(ws,r,1,k,BOLD if soma else MUTF)
@@ -103,23 +104,15 @@ def render(R, medidas, perguntas, decisoes):
     if A: C(ws,r,4,f"=B{r}-C{r}",fmt=CUR,fill=TOTF)
     C(ws,r,5,"antes de pagar a estrutura",MUTF,fill=TOTF); r+=1
     r_est=r
-    C(ws,r,1,"(−) Estrutura (parte do TikTok)",BOLD); C(ws,r,2,-EST,fmt=CUR); C(ws,r,3,-EST if A else SEMDADO,fmt=CUR if A else None)
-    C(ws,r,5,f"90% de R$ {BRn(ESTRUTURA_MES,0)}/mês × 7 ÷ 30,44 · apresentadora já está dentro",MUTF); r+=1
-    r_ir=r
-    C(ws,r,1,"(−) IRPJ/CSLL",BOLD); C(ws,r,2,-W["irpj_csll"],fmt=CUR)
-    C(ws,r,3,-A["irpj_csll"] if A else SEMDADO,fmt=CUR if A else None)
-    C(ws,r,5,"Lucro Real: 24% (+10% acima de R$ 20 mil/mês) — só quando há lucro",MUTF); r+=1
+    C(ws,r,1,"(−) Estrutura da semana",BOLD); C(ws,r,2,-EST,fmt=CUR); C(ws,r,3,-EST if A else SEMDADO,fmt=CUR if A else None)
+    C(ws,r,5,f"R$ {BRn(ESTRUTURA_MES,0)}/mês × 7 ÷ 30,44 dias",MUTF); r+=1
     fin_ok=W["resultado_final"]>=0; fl=OKF if fin_ok else ALERT
     C(ws,r,1,"= RESULTADO FINAL",BOLD,fill=fl)
-    C(ws,r,2,f"=B{r_op}+B{r_est}+B{r_ir}",GF if fin_ok else RF,fmt=CUR,fill=fl)
-    C(ws,r,3,f"=C{r_op}+C{r_est}+C{r_ir}" if A else SEMDADO,BOLD,fmt=CUR,fill=fl)
+    C(ws,r,2,f"=B{r_op}+B{r_est}",GF if fin_ok else RF,fmt=CUR,fill=fl)
+    C(ws,r,3,f"=C{r_op}+C{r_est}" if A else SEMDADO,BOLD,fmt=CUR,fill=fl)
     if A: C(ws,r,4,f"=B{r}-C{r}",fmt=CUR,fill=fl)
     C(ws,r,5,"a operação pagou a estrutura?",MUTF,fill=fl); r_fin=r; r+=1
     ws.conditional_formatting.add(f"B{r_first}:D{r_fin}",CellIsRule(operator="lessThan",formula=["0"],font=RF))
-    r+=1
-    r=nota(ws,r,(f"SENSIBILIDADE DO IMPOSTO: o cenário acima supõe crédito de PIS/COFINS sobre o CPV (R$ {BRn(W['pis_cofins'])} na semana). "
-                 f"Sem crédito, o PIS/COFINS seria R$ {BRn(W['pis_cofins_sem_credito'])} e o resultado final R$ "
-                 f"{BRn(W['resultado_final_sem_credito'])}. ICMS não está modelado. Quem confirma é o contador."),5,46,RF)
     r+=1
     ritmo=W["resultado_operacional"]*30.4375/7
     gap_pc=(-W["resultado_final"]/W["pecas"]) if W["pecas"] and W["resultado_final"]<0 else 0
@@ -128,13 +121,13 @@ def render(R, medidas, perguntas, decisoes):
     neg=sum(1 for o in ops if o<0)
     C(ws,r,1,"A SEMANA EM 5 LINHAS",H2); r+=1
     p=(f"O TikTok Shop vendeu {BRn(W['pecas'],0)} peças e R$ {BRn(W['lista'])} de receita de lista entre {periodo}. "
-       f"Depois de PIS/COFINS, devoluções e mídia sobraram R$ {BRn(W['resultado_operacional'])} — "
+       f"Depois de imposto, devoluções, mídia e apresentadora sobraram R$ {BRn(W['resultado_operacional'])} — "
        f"{'antes' if W['resultado_operacional']<EST else 'e isso'} de pagar os R$ {BRn(EST)} de estrutura da semana. "
        f"Resultado final: R$ {BRn(W['resultado_final'])}. "
        + (f"Faltaram R$ {BRn(gap_pc)} por peça para empatar. " if gap_pc else "A semana pagou a estrutura. ")
        + f"Nas últimas {len(ops)} semanas o operacional está {tend} ({' → '.join('R$ '+BRn(o,0) for o in reversed(ops))}), "
        f"com {neg} semana(s) negativa(s). No ritmo desta semana o mês fecha em R$ {BRn(ritmo,0)} de operacional "
-       f"contra R$ {BRn(ESTRUTURA_MES*PARTICIPACAO_TIKTOK,0)} de estrutura do TikTok.")
+       f"contra R$ {BRn(ESTRUTURA_MES,0)} de estrutura.")
     r=nota(ws,r,p,5,112,BOLD)
 
     # ═══ 2 · DECISÕES ═══
@@ -169,23 +162,13 @@ def render(R, medidas, perguntas, decisoes):
         C(ws,r,9,m["em_jogo"] if m["em_jogo"] else "—",fmt=CUR if m["em_jogo"] else None)
         ws.row_dimensions[r].height=48; r+=1
     band(ws,r0,r-1,9); r+=1
-    abertas=[q for q in perguntas if q.get("status","aberta")!="respondida"]
-    respondidas=[q for q in perguntas if q.get("status")=="respondida"]
-    C(ws,r,1,"PERGUNTAS EM ABERTO",H2); r+=1; r0=r
-    for q in abertas:
-        tx=q["pergunta"]
-        if q["id"]=="credito_pis_cofins_cpv":
-            tx+=f" Nesta semana: R$ {BRn(W['pis_cofins'])} com crédito × R$ {BRn(W['pis_cofins_sem_credito'])} sem crédito."
-        if q.get("resposta"): tx+=f" — {q['resposta']}"
-        C(ws,r,1,tx,RF if q.get("status","aberta")=="aberta" else MUTF,al=Lw)
-        ws.merge_cells(start_row=r,start_column=1,end_row=r,end_column=7)
-        C(ws,r,8,f"desde {datetime.strptime(q['aberta_desde'],'%Y-%m-%d').strftime('%d/%m')}",MUTF,al=Cc)
-        ws.row_dimensions[r].height=46; r+=1
-    band(ws,r0,r-1,8); r+=1
-    if respondidas:
-        C(ws,r,1,"RESPONDIDAS PELO DONO",H2); r+=1
-        for q in respondidas:
-            r=nota(ws,r,f"✓ {q['pergunta']} — {q.get('resposta','')}",8,36)
+    C(ws,r,1,"PERGUNTAS EM ABERTO",H2); r+=1
+    hdr(ws,r,["Pergunta","Aberta desde"],None); r+=1; r0=r
+    for q in perguntas:
+        C(ws,r,1,q["pergunta"],al=Lw); ws.merge_cells(start_row=r,start_column=1,end_row=r,end_column=7)
+        C(ws,r,8,datetime.strptime(q["aberta_desde"],"%Y-%m-%d").strftime("%d/%m/%Y"),RF,al=Cc)
+        ws.row_dimensions[r].height=40; r+=1
+    band(ws,r0,r-1,8)
 
     # ═══ 4 · MOTORES ═══
     ws=wb.create_sheet("Motores TikTok Shop")
@@ -255,7 +238,7 @@ def render(R, medidas, perguntas, decisoes):
     ws=wb.create_sheet("Lives da semana")
     L=W.get("lives") or []
     r=cab(ws,"LIVES PRÓPRIAS DA SEMANA",
-          "Resultado por live vem do relatório de live e inclui a hora da apresentadora como custo de oportunidade — no Veredito ela não sai de novo, já está na estrutura. KPI-mãe: contribuição por HORA.")
+          "Resultado por live vem do relatório automático de live (mesma régua). KPI-mãe: contribuição por HORA no ar.")
     if L:
         hdr(ws,r,["Live","Duração","Peças","Resultado","R$/hora","Estouro de verba","Corte de promo","Views","% pagas","Retenção","CTR","CTOR"],
             [30,9,8,13,11,20,16,10,9,10,8,8]); r+=1; r0=r
@@ -289,12 +272,13 @@ def render(R, medidas, perguntas, decisoes):
 
     # ═══ 6 · TENDÊNCIA ═══
     ws=wb.create_sheet("Tendencia 4 semanas")
-    r=cab(ws,"4 SEMANAS, MESMA RÉGUA","Todas as semanas com a mesma régua: Lucro Real, 90% da estrutura, devoluções em todas, apresentadora dentro da estrutura.")
+    r=cab(ws,"4 SEMANAS, MESMA RÉGUA","Todas as semanas com a mesma conta — apresentadora e devoluções incluídas em todas.")
     hdr(ws,r,["Linha"]+[f"{S['id'][-3:]} ({dm(S['seg'])})" for S in sems],[30]+[16]*len(sems)); r+=1; r0=r
     met=[("Receita de lista",lambda S:S["lista"],CUR),("Peças",lambda S:S["pecas"],INT),
-         ("Contribuição",lambda S:S["contrib"],CUR),("(−) PIS/COFINS",lambda S:-S["pis_cofins"],CUR),
+         ("Contribuição",lambda S:S["contrib"],CUR),("(−) Imposto",lambda S:-S["imposto"],CUR),
          ("(−) Devoluções",lambda S:-S["devolucoes"]["custo_liquido"],CUR),
-         ("(−) Mídia caixa",lambda S:-(S["midia"]["caixa_live"]+S["midia"]["caixa_produto"]),CUR)]
+         ("(−) Mídia caixa",lambda S:-(S["midia"]["caixa_live"]+S["midia"]["caixa_produto"]),CUR),
+         ("(−) Apresentadora",lambda S:-S["apresentadora"],CUR)]
     rr={}
     for nome,fn,fm in met:
         C(ws,r,1,nome,BOLD)
@@ -303,18 +287,15 @@ def render(R, medidas, perguntas, decisoes):
     r_opt=r; C(ws,r,1,"= Resultado operacional",BOLD,fill=TOTF)
     for j in range(len(sems)):
         col=ws.cell(1,2+j).column_letter
-        C(ws,r,2+j,f"=SUM({col}{rr['Contribuição']}:{col}{rr['(−) Mídia caixa']})",BOLD,fmt=CUR,fill=TOTF)
+        C(ws,r,2+j,f"=SUM({col}{rr['Contribuição']}:{col}{rr['(−) Apresentadora']})",BOLD,fmt=CUR,fill=TOTF)
     r+=1
-    C(ws,r,1,"(−) Estrutura (parte do TikTok)",BOLD)
+    C(ws,r,1,"(−) Estrutura",BOLD)
     for j in range(len(sems)): C(ws,r,2+j,-EST,fmt=CUR)
     r_estt=r; r+=1
-    C(ws,r,1,"(−) IRPJ/CSLL",BOLD)
-    for j,S in enumerate(sems): C(ws,r,2+j,-S["irpj_csll"],fmt=CUR)
-    r_irt=r; r+=1
     C(ws,r,1,"= Resultado final",BOLD,fill=ALERT)
     for j in range(len(sems)):
         col=ws.cell(1,2+j).column_letter
-        C(ws,r,2+j,f"={col}{r_opt}+{col}{r_estt}+{col}{r_irt}",BOLD,fmt=CUR,fill=ALERT)
+        C(ws,r,2+j,f"={col}{r_opt}+{col}{r_estt}",BOLD,fmt=CUR,fill=ALERT)
     r+=1
     C(ws,r,1,"Contribuição por peça",BOLD)
     for j in range(len(sems)):
@@ -367,18 +348,15 @@ def render(R, medidas, perguntas, decisoes):
       ("Contribuição","receita de lista × taxa do canal − CPV (R$ 45,40).","Antes de imposto, devolução e mídia."),
       ("Mídia de caixa","GMV Max Tradicional (net_cost > 0).","A VL é cobrada dentro da taxa e já está no settlement — somar de novo dupla-conta."),
       ("ROAS","receita atribuída ÷ custo de mídia.","Não decide alocação: ignora o CPV. Já inverteu a leitura de campanha (P23)."),
-      ("PIS/COFINS","9,25% não cumulativo sobre a receita de lista, com crédito sobre o CPV (hipótese).","Rhode é Lucro Real (dono, 14/09). Sem crédito o imposto sobe — o Veredito mostra os dois cenários."),
-      ("IRPJ/CSLL","24% sobre o lucro da semana (+10% acima de R$ 20 mil/mês), só quando há lucro.","No Lucro Real, prejuízo não paga IRPJ/CSLL."),
-      ("Resultado operacional","contribuição − PIS/COFINS − devoluções − mídia de caixa.","A apresentadora já está dentro da estrutura (dono, 14/09) — não sai de novo aqui."),
-      ("Resultado final","operacional − 90% de R$ 70.000/mês (× 7 ÷ 30,44) − IRPJ/CSLL.","O TikTok responde por ~90% do faturamento (dono, 14/09) e carrega 90% da estrutura."),
+      ("Resultado operacional","contribuição − imposto − devoluções − mídia de caixa − apresentadora.","O que a operação deixa antes da estrutura."),
+      ("Resultado final","resultado operacional − estrutura semanal (R$ 70.000 × 7 ÷ 30,44).","A operação se paga?"),
       ("Canal (motor)","afiliada pelo content_type do extrato; sem afiliada e dentro de live própria = live própria; resto = loja própria.",
        "Atribuição exata por pedido para afiliada; por janela de horário para live própria."),
     ]:
         C(ws,r,1,t,BOLD,al=Lw); C(ws,r,2,d_,al=Lw); C(ws,r,3,w_,MUTF,al=Lw); ws.row_dimensions[r].height=44; r+=1
     band(ws,r0,r-1,3); r+=1
     C(ws,r,1,"O QUE NÃO ESTÁ AQUI — e por quê",H2); r+=1
-    for t in ["Site, Shopee, Shein, Meta e Google Ads: nenhuma das 80 tabelas tem dado desses canais. O dono estima o TikTok em ~90% do faturamento; o semanal carrega 90% da estrutura no TikTok e não mede os outros ~10%.",
-              "ICMS: não modelado (ST não confirmada). Composição dos R$ 70 mil: o dono não tem acesso ao detalhe — usado como declarado.",
+    for t in ["Site, Shopee, Shein, Meta e Google Ads: nenhuma das 80 tabelas tem dado desses canais. Todo o resultado é 100% TikTok Shop.",
               "Margem REALIZADA da semana: statement_tx liquida com 2–4 semanas de atraso; por isso a taxa é calibrada em semanas já liquidadas.",
               "CPM, CPC e CTR de anúncio: a GMV Max Report API rejeita. O funil que existe é o da SALA de live (retenção, CTR de produto, CTOR).",
               "Conversão de e-commerce com sessões: não há fonte de sessão de site. O funil disponível é de marketplace, em D-2."]:
@@ -395,10 +373,8 @@ def escrever_md(R, medidas, perguntas, decisoes, path):
        f"- Receita de lista: **R$ {BRn(W['lista'])}** · {BRn(W['pecas'],0)} peças",
        f"- Contribuição: R$ {BRn(W['contrib'])}",
        f"- Resultado operacional: **R$ {BRn(W['resultado_operacional'])}**",
-       f"- (−) Estrutura (90% de R$ 70 mil, parte do TikTok): R$ {BRn(W['estrutura_semana'])}",
-       f"- (−) IRPJ/CSLL: R$ {BRn(W['irpj_csll'])}",
-       f"- **Resultado final: R$ {BRn(W['resultado_final'])}**",
-       f"- Sem crédito de PIS/COFINS sobre o CPV: R$ {BRn(W['resultado_final_sem_credito'])}","",
+       f"- Estrutura da semana: R$ {BRn(W['estrutura_semana'])}",
+       f"- **Resultado final: R$ {BRn(W['resultado_final'])}**","",
        "## As decisões em jogo",""]
     for i,d in enumerate(decisoes,1):
         L+=[f"**{i}. {d['titulo']}** — R$ {BRn(d['em_jogo'])}/semana · dono: {d['dono']}", f"{d['porque']}",""]
@@ -409,7 +385,7 @@ def escrever_md(R, medidas, perguntas, decisoes, path):
     for k in CANAIS:
         z=W["canal"]["canais"][k]
         L.append(f"| {ROTULO[k]} | {z['pecas']} | R$ {BRn(z['contrib']/z['pecas'] if z['pecas'] else 0)} |")
-    L+=["","## Perguntas em aberto",""]+[f"- {q['pergunta']}" for q in perguntas if q.get("status","aberta")!="respondida"]
+    L+=["","## Perguntas em aberto",""]+[f"- {q['pergunta']}" for q in perguntas]
     open(path,"w").write("\n".join(L))
 
 
@@ -417,12 +393,10 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--seg"); ap.add_argument("--pkl"); ap.add_argument("--saida")
     a=ap.parse_args()
-    if a.pkl:
-        R=pickle.load(open(a.pkl,"rb")); recalcular(R["semanas"])   # aplica a régua ATUAL ao dado salvo
+    if a.pkl: R=pickle.load(open(a.pkl,"rb"))
     else:
         seg=datetime.strptime(a.seg,"%Y-%m-%d").date() if a.seg else None
         R=montar_semana(seg)
-        pickle.dump(R,open("/tmp/semana_head.pkl","wb"))            # o e-mail reusa, sem recalcular a semana
     medidas,perguntas=medir(R); decisoes=decisoes_da_semana(R,medidas)
     wb=render(R,medidas,perguntas,decisoes)
     hoje=datetime.now(BRT).strftime("%Y-%m-%d")

@@ -1621,3 +1621,29 @@ sinal verde.
 
 O que está dentro dos R$ 70k · a apresentadora está dentro dos R$ 70k · site/Shopee/Shein faturam ·
 base do imposto é a lista ou o pago. Todos os donos das recomendações estão "a definir".
+
+
+### ↻ P26 · ADENDO 14/09 — respostas do dono mudam a régua (e uma conclusão acima)
+
+**Respostas:** (1) composição dos R$ 70k: **sem acesso** → usado como declarado; (2) **apresentadora já está dentro**
+dos R$ 70k → deixa de ser subtraída de novo; (3) **~90% do faturamento é TikTok** → o TikTok carrega 90% da estrutura
+(R$ 63 mil/mês); (4) **regime é LUCRO REAL**, não Presumido — substitui o registro de jul/26. Lucas não vai responder.
+
+**❌ Premissa refutada — "Rhode é Lucro Presumido (6,4% sobre faturamento)".** Lucro Real: PIS/COFINS **9,25% não
+cumulativo** + IRPJ/CSLL **24%** (+10% acima de R$ 20k/mês) **só sobre lucro**. A incógnita que manda no número é o
+**crédito de PIS/COFINS sobre o CPV** — só o contador confirma.
+
+| W37 (07–13/09) | régua antiga | com crédito s/ CPV | sem crédito |
+|---|---:|---:|---:|
+| PIS/COFINS (Presumido: R$ 9.889,46) | — | R$ 6.520,09 | R$ 14.293,36 |
+| Resultado operacional | −R$ 2.902,34 | **R$ 2.326,66** | — |
+| Estrutura (parte do TikTok) | −R$ 16.098,56 | −R$ 14.488,71 | −R$ 14.488,71 |
+| **Resultado final** | −R$ 19.000,91 | **R$ -12.162,05** | **R$ -19.935,33** |
+
+A operação **se paga antes da estrutura** (antes não aparecia — a apresentadora contava duas vezes), mas **o TikTok não
+paga a sua parte da estrutura em nenhum cenário de imposto**. Final semana a semana: R$ -8.693 → R$ -8.513 → R$ -11.465 → R$ -12.162.
+
+**Campanha de live de 09/09 com a régua nova:** ⚠️ **depende do imposto** — CPA de caixa R$ 10,18: se paga COM crédito de PIS/COFINS (teto R$ 10,34/peça) e não se paga SEM (teto R$ 6,14). A confirmação de P23 registrada acima ("não se paga", com a régua do Presumido) fica **suspensa até o contador dizer se há crédito**.
+
+Consumidores ainda no Presumido (atualizar quando mexer): `conciliacao.html` (TX_VENDA=6,4 / TX_IR=0) e a tabela por
+peça de `project_estrutura_nao_paga`. Perguntas abertas agora: crédito de PIS/COFINS sobre o CPV · ICMS (ST ou destacado).

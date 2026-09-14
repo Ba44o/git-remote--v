@@ -68,42 +68,22 @@
     {
       "id": "composicao_estrutura",
       "pergunta": "O que está dentro dos R$ 70 mil/mês de estrutura? Se inclui pró-labore, é decisão e não custo; se inclui overhead já embutido no CPV, há dupla contagem.",
-      "aberta_desde": "2026-09-03",
-      "status": "sem acesso",
-      "resposta": "O dono não tem acesso ao detalhe (14/09). Usado R$ 70 mil como declarado."
+      "aberta_desde": "2026-09-03"
     },
     {
       "id": "apresentadora_na_estrutura",
       "pergunta": "O custo de apresentadora (R$ 50/hora) já está dentro dos R$ 70 mil? O semanal hoje desconta os dois — se estiver dentro, o resultado real é melhor do que o mostrado.",
-      "aberta_desde": "2026-09-14",
-      "status": "respondida",
-      "resposta": "Sim — já está dentro dos R$ 70 mil (dono, 14/09). Deixou de ser subtraída de novo."
+      "aberta_desde": "2026-09-14"
     },
     {
       "id": "faturamento_fora_tiktok",
       "pergunta": "Site, Shopee e Shein faturam? Nenhuma das 80 tabelas tem dado desses canais — todo o P&L é 100% TikTok Shop.",
-      "aberta_desde": "2026-09-03",
-      "status": "respondida",
-      "resposta": "~90% do faturamento é TikTok (dono, 14/09). O TikTok carrega 90% da estrutura."
+      "aberta_desde": "2026-09-03"
     },
     {
       "id": "base_do_imposto",
       "pergunta": "O imposto de 6,4% incide sobre a receita de lista (pago + cupom subsidiado) ou só sobre o pago? O semanal usa a lista, que é a base de faturamento — confirmar com o Lucas.",
-      "aberta_desde": "2026-09-14",
-      "status": "respondida",
-      "resposta": "Regime é LUCRO REAL (dono, 14/09) — substitui o registro de jul/26 (Presumido). Lucas não vai responder."
-    },
-    {
-      "id": "credito_pis_cofins_cpv",
-      "status": "aberta",
-      "aberta_desde": "2026-09-14",
-      "pergunta": "No Lucro Real, a compra de tecido/facção/mercadoria gera crédito de PIS/COFINS? É a maior incerteza do veredito — só o contador confirma."
-    },
-    {
-      "id": "icms",
-      "status": "aberta",
-      "aberta_desde": "2026-09-14",
-      "pergunta": "ICMS: há substituição tributária embutida no CPV ou o imposto é destacado na venda? Hoje não está modelado."
+      "aberta_desde": "2026-09-14"
     }
   ]
 }

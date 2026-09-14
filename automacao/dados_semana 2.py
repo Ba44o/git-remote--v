@@ -36,17 +36,9 @@ H = {"apikey": SK, "Authorization": "Bearer " + SK}
 BRT = timezone(timedelta(hours=-3))
 
 CPV = 45.40
-# REGIME — dono, 14/09/2026: LUCRO REAL. Substitui o registro de jul/26 (Lucro Presumido, 6,4%).
-PIS_COFINS = 0.0925            # não cumulativo: PIS 1,65% + COFINS 7,60%
-CREDITO_SOBRE_CPV = True       # cenário base: insumo/mercadoria comprado de PJ gera crédito (A CONFIRMAR)
-IRPJ_CSLL = 0.24               # IRPJ 15% + CSLL 9% — só sobre LUCRO; prejuízo não paga
-IRPJ_ADICIONAL = 0.10          # sobre o lucro que excede R$ 20 mil/mês
-IRPJ_LIMITE_MES = 20000.0
-IMPOSTO = PIS_COFINS           # compat com consumidores antigos
-ESTRUTURA_MES = 70000.0        # composição desconhecida (dono sem acesso ao detalhe, 14/09)
-PARTICIPACAO_TIKTOK = 0.90     # dono, 14/09: ~90% do faturamento é TikTok → carrega 90% da estrutura
+IMPOSTO = 0.064
+ESTRUTURA_MES = 70000.0
 HORA_APRESENTADORA = 50.0
-APRESENTADORA_NA_ESTRUTURA = True   # dono, 14/09: já está dentro dos R$ 70 mil — não subtrair de novo
 TAXA_FALLBACK = 0.7084
 HERO = ("REF516", "REF525", "REF527")
 CANAIS = ("live_propria", "loja_propria", "live_afiliada", "video_afiliada")
@@ -295,39 +287,6 @@ def saude(dom):
     return out
 
 
-# ───────── régua financeira ─────────
-def recalcular(semanas):
-    """Deriva o financeiro de cada semana a partir do dado bruto (canais, mídia, devoluções, horas de
-    live). Separado da coleta: mudar a RÉGUA (regime, rateio da estrutura) não exige re-coletar."""
-    est_sem = ESTRUTURA_MES * PARTICIPACAO_TIKTOK * 7 / 30.4375
-    lim_sem = IRPJ_LIMITE_MES * 7 / 30.4375
-    ir = lambda base: (IRPJ_CSLL * base + IRPJ_ADICIONAL * max(base - lim_sem, 0.0)) if base > 0 else 0.0
-    for S in semanas:
-        cn = S["canal"]["canais"]
-        S["lista"] = sum(z["lista"] for z in cn.values())
-        S["pecas"] = sum(z["pecas"] for z in cn.values())
-        S["pedidos"] = sum(z["pedidos"] for z in cn.values())
-        S["contrib"] = sum(z["contrib"] for z in cn.values())
-        S["pago"] = S["canal"]["pago"]
-        credito = CPV * S["pecas"] if CREDITO_SOBRE_CPV else 0.0
-        S["pis_cofins"] = PIS_COFINS * max(S["lista"] - credito, 0.0)
-        S["pis_cofins_sem_credito"] = PIS_COFINS * S["lista"]
-        S["imposto"] = S["pis_cofins"]
-        S["apresentadora"] = S["live_api"]["horas"] * HORA_APRESENTADORA          # memo
-        S["apresentadora_subtraida"] = 0.0 if APRESENTADORA_NA_ESTRUTURA else S["apresentadora"]
-        dev = S["devolucoes"]["custo_liquido"]
-        S["resultado_operacional"] = (S["contrib"] - S["pis_cofins"] - dev
-                                      - S["midia"]["caixa_live"] - S["midia"]["caixa_produto"]
-                                      - S["apresentadora_subtraida"])
-        S["estrutura_semana"] = est_sem
-        S["resultado_antes_ir"] = S["resultado_operacional"] - est_sem
-        S["irpj_csll"] = ir(S["resultado_antes_ir"])
-        S["resultado_final"] = S["resultado_antes_ir"] - S["irpj_csll"]
-        ai_sc = S["resultado_antes_ir"] + S["pis_cofins"] - S["pis_cofins_sem_credito"]
-        S["resultado_final_sem_credito"] = ai_sc - ir(ai_sc)
-    return semanas
-
-
 # ───────── montagem ─────────
 def montar_semana(seg=None, com_lives=True, semanas_tendencia=4):
     if seg is None: seg, dom = semana_de()
@@ -348,7 +307,23 @@ def montar_semana(seg=None, com_lives=True, semanas_tendencia=4):
         if A: A["lives"] = lives(A["seg"], A["dom"])
     W["superficies"] = superficies(seg, dom)
     if A: A["superficies"] = superficies(A["seg"], A["dom"])
-    recalcular(semanas)
+    for S in semanas:
+        cn = S["canal"]["canais"]
+        S["lista"] = sum(z["lista"] for z in cn.values())
+        S["pecas"] = sum(z["pecas"] for z in cn.values())
+        S["pedidos"] = sum(z["pedidos"] for z in cn.values())
+        S["contrib"] = sum(z["contrib"] for z in cn.values())
+        S["imposto"] = S["lista"] * IMPOSTO
+        S["pago"] = S["canal"]["pago"]
+        # mesma régua em TODAS as semanas — senão a tendência compara conta diferente
+        S["apresentadora"] = S["live_api"]["horas"] * HORA_APRESENTADORA
+        dev = S["devolucoes"]["custo_liquido"]
+        S["resultado_operacional"] = (S["contrib"] - S["imposto"] - dev
+                                      - S["midia"]["caixa_live"] - S["midia"]["caixa_produto"]
+                                      - (S["apresentadora"] or 0))
+    est_sem = ESTRUTURA_MES * 7 / 30.4375
+    W["estrutura_semana"] = est_sem
+    W["resultado_final"] = W["resultado_operacional"] - est_sem
     return dict(seg=seg, dom=dom, id=semana_id(seg), calibracao=cal, semanas=semanas,
                 saude=saude(dom), gerado_em=datetime.now(BRT))
 
