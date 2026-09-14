@@ -1,3 +1,32 @@
+# Relatórios automáticos
+
+Dois produtos, uma corrente de jobs:
+
+| relatório | quando | onde |
+|---|---|---|
+| **Live** (8 abas) | 45 min após cada live terminar | [Relatorios de Live](https://drive.google.com/drive/folders/1tWpDpY6gpOijpEkw_EpWmylohL8BpRix) |
+| **Diário da Loja** (8 abas + aba Leitura) | uma vez por dia, sobre D-1 | [Relatorios Diarios da Loja](https://drive.google.com/drive/folders/1ubpK3GZLdLUbzfnJrafyW63p9NdadR4a) |
+
+Os dois publicam planilha nativa e mandam e-mail. Estado = a própria pasta do Drive.
+
+## Relatório diário da loja
+
+`automacao/dados_loja.py` (camada de dados) · `gerar_relatorio_loja.py` (xlsx + md) ·
+`monitor_loja.py` (orquestra, idempotente por data em `appProperties`).
+
+Abas: Resumo executivo · Receita e caixa · Tráfego pago · Live e creators · Funil da loja ·
+Diagnósticos · Plano de ação · Premissas.
+
+**O que NÃO existe e o relatório declara como "sem dado"** (tudo testado, nada presumido):
+conversão de e-commerce com sessões de site (não há fonte alguma — só funil de marketplace
+do TikTok, e em D-2) · CPM/CPC/impressões/CTR de mídia (9 métricas rejeitadas pela GMV Max
+Report API) · pico de audiência (morto desde 31/03) · retenção de live (morta desde 30/05) ·
+estoque/ruptura real (nenhuma tabela no Supabase). CTOR existe na API e **não está sendo
+gravado** — é o unlock mais barato.
+
+⚠️ **O funil consolida só em D-2.** Num relatório de D-1 ele vem vazio, e o gerador então
+mostra o último dia consolidado **rotulado como referência**, nunca fingindo ser do dia.
+
 # Relatório automático de live
 
 A cada 15 minutos o GitHub Actions procura lives que **terminaram há 45+ minutos** e ainda

@@ -100,3 +100,83 @@ def avisar(d):
 
 if __name__ == "__main__":
     print("escopo gmail.send presente:", tem_escopo_email())
+
+
+# ───────── aviso do relatório DIÁRIO DA LOJA ─────────
+def _corpo_loja(D, url):
+    def br(v, n=2):
+        if v is None: return "sem dado"
+        return f"{v:,.{n}f}".replace(",", "\x00").replace(".", ",").replace("\x00", ".")
+    r_ = D["rec"]; ra = D["rec_ant"]; lv = D["live"]; ads = D["ads"]; cr = D["creators"]
+    from datetime import datetime
+    dt = datetime.strptime(D["dia"], "%Y-%m-%d")
+    liq = r_["contrib"] - (ads["total"]["custo"] if ads else 0)
+    cor = "#0E9F6E" if liq > 0 else "#FE2C55"
+    peso = (lv["gmv"] / r_["lista"] * 100) if r_["lista"] else 0
+    def dl(a, b):
+        if a is None or not b: return ""
+        v = (a / b - 1) * 100
+        c = "#0E9F6E" if v >= 0 else "#FE2C55"
+        return f'<span style="color:{c};font-size:12px"> {br(v,1)}%</span>'
+    linhas = "".join(
+        f'<tr><td style="padding:6px 0;color:#6B6B76">{k}</td>'
+        f'<td style="text-align:right"><b>{p}{br(v)}</b>{d}</td></tr>'
+        for k, v, p, d in [
+            ("Receita de lista", r_["lista"], "R$ ", dl(r_["lista"], ra["lista"] if ra else None)),
+            ("Peças pagas", r_["pecas"], "", dl(r_["pecas"], ra["pecas"] if ra else None)),
+            ("Pedidos", r_["pedidos"], "", dl(r_["pedidos"], ra["pedidos"] if ra else None)),
+            ("AOV por pedido", r_["aov_lista"], "R$ ", dl(r_["aov_lista"], ra["aov_lista"] if ra else None)),
+            ("Mídia", ads["total"]["custo"] if ads else None, "R$ ", ""),
+            ("Contribuição bruta", r_["contrib"], "R$ ", dl(r_["contrib"], ra["contrib"] if ra else None)),
+        ])
+    extras = []
+    if lv["n"]:
+        extras.append(f"Live: R$ {br(lv['gmv'])} ({br(peso,1)}% do total) em {lv['n']} transmissão(ões).")
+    else:
+        extras.append("Sem live neste dia.")
+    if cr:
+        extras.append(f"{cr['n_creators']} creators com venda · GMV de afiliadas R$ {br(cr['gmv'])}.")
+    if r_["nao_virou"]:
+        extras.append(f"<b>{r_['nao_virou']} peças ({br(r_['nao_virou_pct']*100,1)}%) não viraram receita.</b>")
+    return f"""<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;color:#1A1A1E">
+<p style="margin:0 0 4px"><b style="font-size:17px">Relatório da loja — {dt.strftime('%d/%m/%Y')}</b></p>
+<p style="margin:0 0 16px;color:#6B6B76;font-size:13px">Comparado com {D['anterior']}</p>
+<table style="border-collapse:collapse;font-size:14px;width:100%">{linhas}
+<tr style="border-top:1px solid #EFEFF2"><td style="padding:10px 0"><b>Contribuição após mídia</b></td>
+<td style="text-align:right"><b style="color:{cor};font-size:16px">R$ {br(liq)}</b></td></tr>
+</table>
+<p style="font-size:13px;color:#6B6B76;margin:10px 0 16px">{"<br>".join(extras)}</p>
+<p style="margin:22px 0"><a href="{url}" style="background:#FE2C55;color:#fff;padding:11px 20px;
+border-radius:7px;text-decoration:none;font-weight:600;font-size:14px">Abrir o relatório</a></p>
+<p style="font-size:12px;color:#9A9AA5;margin-top:22px;border-top:1px solid #EFEFF2;padding-top:12px">
+Receita de LISTA = pago + cupom subsidiado pelo TikTok · settlement 0,7084 · CPV R$ 45,40.<br>
+Conversão, CPM, retenção e pico de audiência não existem em fonte alguma — ver aba Premissas.</p></div>"""
+
+
+def avisar_loja(D, url):
+    """Aviso do relatório diário da loja. Nunca levanta."""
+    try:
+        cred = _cred()
+        if not tem_escopo_email(cred):
+            print("  ⚠ token sem escopo gmail.send — e-mail não enviado")
+            return False
+        from googleapiclient.discovery import build
+        from datetime import datetime
+        r_ = D["rec"]; ads = D["ads"]
+        liq = r_["contrib"] - (ads["total"]["custo"] if ads else 0)
+        dt = datetime.strptime(D["dia"], "%Y-%m-%d")
+        msg = EmailMessage()
+        msg["To"] = DESTINO
+        val = f"{liq:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        msg["Subject"] = f"Loja {dt.strftime('%d/%m')} — contribuição após mídia R$ {val}"
+        msg.set_content(f"Relatório diário da loja — {dt.strftime('%d/%m/%Y')}\n\n"
+                        f"Contribuição após mídia: R$ {val}\n\n{url}")
+        msg.add_alternative(_corpo_loja(D, url), subtype="html")
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+        build("gmail", "v1", credentials=cred).users().messages().send(
+            userId="me", body={"raw": raw}).execute()
+        print(f"  ✉ aviso da loja enviado para {DESTINO}")
+        return True
+    except Exception as e:
+        print(f"  ⚠ e-mail falhou (o relatório está publicado): {str(e)[:160]}")
+        return False
