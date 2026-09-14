@@ -6,8 +6,15 @@ Fonte: Partner Analytics /analytics/202509/shop_lives/performance (única versã
   Retorna TODAS as salas de live atribuídas à loja (creators + própria), ordenadas por GMV.
   Filtramos username == "rhodejeans" (lives da própria Rhode) → bate com o export do
   Seller Center a ~0,02% (é snapshot ao vivo; converge conforme a atribuição liquida).
-  sales_performance.gmv.amount = "Attributed GMV". NÃO traz views (o export traz — o
-  importar_live_performance.py enriquece views por cima, casando por room_id).
+  sales_performance.gmv.amount = "Attributed GMV".
+
+  ⚠️ CORRIGIDO 14/09/2026: a API TRAZ o funil, sim. O bloco `interaction_performance`
+  vem preenchido em 39/39 salas próprias testadas (25/08–14/09) com views, viewers,
+  avg_viewing_duration, click_through_rate, product_impressions, product_clicks,
+  comments, likes, shares e new_followers — e `sales_performance.click_to_order_rate`
+  traz o CTOR. Nada disso era coletado: este arquivo gravava views=0 e impressions=0
+  fixos, e os relatórios declaravam essas métricas como "não existe na API".
+  O export manual do Seller Center deixa de ser a única fonte de funil.
 
 Popula live_attr. Uso:  python3 coletar_lives_attr_api.py --inicio 2026-01-01 --fim 2026-07-06
                         python3 coletar_lives_attr_api.py --dias 40
@@ -61,6 +68,7 @@ def page_mes(sd, ed):
             if (x.get("username") or "").lower() != OWN:
                 continue
             sp = x.get("sales_performance") or {}
+            ip = x.get("interaction_performance") or {}
             dt = dt_brt(x.get("start_time"))
             if not dt: continue
             gmv = f((sp.get("gmv") or {}).get("amount"))
@@ -76,7 +84,8 @@ def page_mes(sd, ed):
                 "sku_orders": int(f(sp.get("sku_orders"))),
                 "customers": int(f(sp.get("customers"))),
                 "aov": round(f((sp.get("avg_price") or {}).get("amount")), 2),
-                "views": 0, "impressions": 0,
+                "views": int(f(ip.get("views"))),
+                "impressions": int(f(ip.get("product_impressions"))),
             })
         tok = d.get("next_page_token"); pg += 1
         if not tok: break
@@ -100,6 +109,8 @@ def upsert(rows, chunk=500):
             pass
     for r in rows:
         v = have.get(r["id"])
+        # só preserva o valor antigo quando a API não trouxe nada — desde 14/09 ela traz,
+        # então na prática o da API (mais fresco) manda.
         if v and v[0] and not r["views"]: r["views"] = v[0]
         if v and v[1] and not r["impressions"]: r["impressions"] = v[1]
     for i in range(0, len(rows), chunk):

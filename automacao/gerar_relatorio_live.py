@@ -27,6 +27,7 @@ try:
 except ImportError:
     pass
 from lib.receita import receita_itens
+from automacao.funil_live import funil_de
 
 SB = os.environ["SUPABASE_URL"]; SK = os.environ["SUPABASE_SERVICE_KEY"]
 HDRS = {"apikey": SK, "Authorization": "Bearer " + SK}
@@ -193,7 +194,8 @@ def montar(room_id):
         sub = [r for r in ok if t(r).hour == h and r["qty"]]
         prh[h] = sta.median([r["gmv"] / r["qty"] for r in sub]) if sub else 0
 
-    return dict(L=L, ini=ini, fim=fim, dur=dur, dia=dia, horas=horas, LIVE=LIVE, PROD=PROD,
+    FUN = funil_de(room_id, dia)          # funil real da API — ver automacao/funil_live.py
+    return dict(FUN=FUN, L=L, ini=ini, fim=fim, dur=dur, dia=dia, horas=horas, LIVE=LIVE, PROD=PROD,
                 QTY=QTY, PAGO=PAGO, REV=REV, SUBS=SUBS, GU=GU, PED=PED, CONTRIB=CONTRIB,
                 ADS=ADS, REC=REC, APRE=APRE, RES=RES, CPED=CPED, pico=pico, corte=corte,
                 g=g, hq=hq, hv=hv, hc=hc, furos=furos, stt=stt, cperda=cperda, prh=prh,
@@ -342,9 +344,35 @@ def render(D):
     else:
         r=nota(ws,r,"Não houve hora com preço de tráfego fora da curva. A entrega ficou estável.",7,30)
     r+=1
-    C(ws,r,1,"TRÁFEGO PAGO x ORGÂNICO NA RETENÇÃO",H2); r+=1
-    r=nota(ws,r,"❌ NÃO MEDIDO. A separação pago/orgânico e a retenção (views > 1 min) só existem no export do Seller Center "
-     "(performance_detail). A API de GMV Max não expõe impressões, retenção nem origem de tráfego — só live_views atribuídas.",7,38,RF)
+    C(ws,r,1,"FUNIL DA SALA — audiência, retenção e conversão",H2); r+=1
+    F=D.get("FUN")
+    if F:
+        hdr(ws,r,["Métrica","Valor","O que significa"],[26,14,66]); r+=1; r0=r
+        pagas=sum(LIVE[h][3] for h in horas)
+        for k,v,fm,o in [
+          ("Views totais",F.get("views"),INT,"audiência total da sala (paga + orgânica)"),
+          ("Views atribuídas a ads",pagas,INT,(f"{pagas/F['views']*100:.0f}% do total veio de mídia" if F.get("views") else "")),
+          ("Espectadores únicos",F.get("viewers"),INT,"pessoas distintas, não visualizações"),
+          ("Retenção média",F.get("retencao_s"),'0"s"',"tempo médio assistido por espectador"),
+          ("Impressões de produto",F.get("prod_impressoes"),INT,"vitrine exibida"),
+          ("Cliques em produto",F.get("prod_cliques"),INT,""),
+          ("CTR de produto",(F["ctr"]/100) if F.get("ctr") is not None else None,PCT,"cliques ÷ impressões de produto"),
+          ("CTOR",(F["ctor"]/100) if F.get("ctor") is not None else None,PCT,"pedidos ÷ cliques — o fundo do funil"),
+          ("Novos seguidores",F.get("novos_seguidores"),INT,""),
+          ("Comentários",F.get("comentarios"),INT,""),
+          ("Curtidas",F.get("curtidas"),INT,""),
+        ]:
+            C(ws,r,1,k,BOLD)
+            C(ws,r,2,v if v is not None else "sem dado",fmt=fm if v is not None else None)
+            C(ws,r,3,o,MUTF,al=Lw); r+=1
+        band(ws,r0,r-1,3); r+=1
+        if F.get("views") and pagas:
+            org=F["views"]-pagas
+            r=nota(ws,r,("PAGO x ORGÂNICO: das %s views, %s vieram de mídia (%.0f%%) e %s são orgânicas (%.0f%%). "
+              "A live não vive só do que se compra.")%(BRn(F["views"],0),BRn(pagas,0),pagas/F["views"]*100,
+              BRn(org,0),org/F["views"]*100),7,34,BOLD)
+    else:
+        r=nota(ws,r,"Funil da sala indisponível na API para esta janela.",7,26)
 
     # ═══ 3 · POR PRODUTO ═══
     ws=wb.create_sheet("Por produto"); ws.sheet_view.showGridLines=False
@@ -388,10 +416,14 @@ def render(D):
         else:
             r=nota(ws,r,f"✓ O hero entrega R$ {BRn(ch_)} por peça contra R$ {BRn(cn)} do não-hero — sem inversão de margem nesta live.",7,30,GF)
     r+=1
-    C(ws,r,1,"CTOR POR PRODUTO",H2); r+=1
-    r=nota(ws,r,"❌ NÃO MEDIDO — e não é possível medir. As métricas impressions, clicks, ctr, cpm, cpc, product_impressions e "
-     "conversion_rate são todas rejeitadas pelo endpoint /gmv_max/report/get/ ('Invalid metric'). A única métrica de tráfego aceita é "
-     "live_views. CTOR existe no export do Seller Center, mas só no nível da SALA — nunca por SKU.",7,46,RF)
+    C(ws,r,1,"CTOR — o fundo do funil",H2); r+=1
+    F=D.get("FUN")
+    if F and F.get("ctor") is not None:
+        r=nota(ws,r,("CTOR desta sala: %.2f%%%% — de cada 100 cliques em produto, %.1f viraram pedido. "
+          "Vem de sales_performance.click_to_order_rate na API /shop_lives, no nível da SALA.")
+          %(F["ctor"],F["ctor"]),7,32,BOLD)
+    r=nota(ws,r,("⚠️ CTOR por SKU não existe em fonte alguma — a API só reporta no nível da sala. E as métricas de "
+     "LEILÃO (impressions, clicks, cpm, cpc) seguem rejeitadas pela /gmv_max/report/get/."),7,32)
 
     # ═══ 4 · GRADE ═══
     ws=wb.create_sheet("Grade de tamanho"); ws.sheet_view.showGridLines=False
@@ -545,18 +577,23 @@ def render(D):
     r+=1
     C(ws,r,1,"❌ PEDIDO E NÃO DISPONÍVEL — testado, não presumido",H2); r+=1
     hdr(ws,r,["Métrica","Status","Por quê"],[30,18,74]); r+=1; r0=r
-    for m,s,w in [("Curva de 15 em 15 min","❌ não existe","stat_time_hour é a menor granularidade da API."),
-     ("CPM / CPC","❌ não existe","Rejeitadas pelo endpoint: 'Invalid metric'."),
-     ("Impressões","❌ não existe","Rejeitada. Só live_views é aceita."),
-     ("CTR / CTOR","❌ não existe","Rejeitadas na API. No export do Seller Center só por SALA, nunca por SKU."),
+    for m,s,w in [("Curva de 15 em 15 min","❌ não existe","stat_time_hour é a menor granularidade da API de ads."),
+     ("CPM / CPC de anúncio","❌ não existe","Rejeitadas pela /gmv_max/report/get/. São do leilão, e o leilão não itemiza GMV Max."),
+     ("Impressões de produto","✅ EXISTE","interaction_performance.product_impressions — 39/39 salas. Só não era coletado."),
+     ("CTR de produto","✅ EXISTE","interaction_performance.click_through_rate."),
+     ("CTOR (da sala)","✅ EXISTE","sales_performance.click_to_order_rate. Por SKU segue não existindo."),
+     ("Retenção média","✅ EXISTE","interaction_performance.avg_viewing_duration, em segundos."),
+     ("Audiência (views/viewers)","✅ EXISTE","interaction_performance.views e .viewers."),
+     ("Pago x orgânico","✅ CALCULÁVEL","views totais (API) − live_views atribuídas (GMV Max) = orgânico."),
      ("ATC (add-to-cart)","❌ não existe","Nenhuma métrica de carrinho é exposta."),
-     ("PCU (pico de simultâneos)","❌ não existe","Nem na API nem no export. Só na UI ao vivo."),
-     ("Pago x orgânico","❌ não existe","A API só reporta o atribuído à campanha."),
-     ("Log de alterações","❌ não existe","11 endpoints testados, todos 404. modify_time é varredura do TikTok."),
-     ("Retenção (views > 1 min)","⏳ possível","Está no export do Seller Center, que não é gerado automaticamente.")]:
+     ("PCU (pico de simultâneos)","❌ não existe","A API dá views e viewers, não o pico instantâneo."),
+     ("Log de alterações","❌ não existe","11 endpoints testados, todos 404. modify_time é varredura do TikTok.")]:
         C(ws,r,1,m,BOLD,al=Lw); C(ws,r,2,s,RF if "❌" in s else None,al=Cc); C(ws,r,3,w,MUTF,al=Lw)
         ws.row_dimensions[r].height=28; r+=1
     band(ws,r0,r-1,3); r+=2
+    r=nota(ws,r,("↻ CORRIGIDO EM 14/09/2026: versões anteriores deste relatório declaravam retenção, CTR, CTOR e "
+     "audiência como 'não existem na API'. Estava ERRADO — o bloco interaction_performance do /shop_lives traz "
+     "tudo isso, preenchido em 39/39 salas próprias testadas. Apenas nunca era coletado."),7,42,RF)
     r=nota(ws,r,("⚠ LIMITE DE ATRIBUIÇÃO: a análise por SKU usa a JANELA DE TEMPO da live como recorte, porque nenhuma fonte liga pedido a "
      f"room_id no nível de SKU. Isso inclui pedidos da loja que teriam acontecido sem a live e exclui os da live que fecharam depois do fim. "
      f"Tamanho do viés nesta live: o pago na janela é R$ {BRn(D['PAGO'])} e o GMV que a API atribui à sala é R$ {BRn(L['gmv'] or 0)} "
