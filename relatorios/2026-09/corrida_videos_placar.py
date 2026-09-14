@@ -118,7 +118,10 @@ def placar(vids, creators, tag_info=None):
     # Gate dos 150/500 usa a CONTAGEM DA TAG no TikTok (o que o grupo vê); se não informada,
     # cai no verificado. Ver reference_hashtag_via_video_perf_title.
     tag_total = (tag_info or {}).get("value")
-    gate = tag_total if tag_total is not None else verificados
+    # gate = o MAIOR entre a contagem da tag (manual, pode estar velha) e o verificado
+    # com link. A tag no TikTok é sempre ≥ verificado, então o verificado é PISO do gate:
+    # se ele já passou de 150, o gate está batido, não importa se a tag informada atrasou.
+    gate = max(tag_total or 0, verificados)
     b150 = gate >= GATE_150; b500 = gate >= GATE_500
     top_gmv = sorted(creators, key=lambda x: (-x["gmv"], -x["views"]))[:5]
     top_vol = sorted(creators, key=lambda x: (-x["videos"], -x["gmv"]))[:5]
