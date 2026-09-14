@@ -42,8 +42,11 @@ def _corpo_html(d):
                     f'R$ {br(d["pico"]["c"])} ({d["pico"]["share"]*100:.0f}% da mídia) '
                     f'a um CPA de R$ {br(d["pico"]["cpa"])} contra R$ {br(d["pico"]["cpa_base"])} nas demais.</li>')
     if d.get("corte"):
-        alertas += (f'<li>Promoção cortada ≈<b>{d["corte"]["quando"]}</b> — velocidade caiu de '
-                    f'{d["corte"]["pm_antes"]:.2f} para {d["corte"]["pm_depois"]:.2f} peças/min.</li>')
+        a_, b_ = d["corte"]["pm_antes"], d["corte"]["pm_depois"]
+        verbo = "caiu" if b_ < a_ else "subiu"
+        extra = "" if b_ < a_ else " — o corte não derrubou o ritmo"
+        alertas += (f'<li>Promoção cortada ≈<b>{d["corte"]["quando"]}</b> — velocidade {verbo} de '
+                    f'{br(a_)} para {br(b_)} peças/min{extra}.</li>')
     if d.get("furos"):
         alertas += f'<li>Furo de grade em <b>{d["furos"]}</b> dos produtos mais vendidos.</li>'
     if d.get("unpaid_pecas"):
@@ -55,8 +58,9 @@ def _corpo_html(d):
 <p style="margin:0 0 4px"><b style="font-size:17px">Relatório novo: live de {d['quando']}</b></p>
 <p style="margin:0 0 16px;color:#6B6B76;font-size:13px">{d['titulo']}</p>
 <table style="border-collapse:collapse;font-size:14px;width:100%">
-<tr><td style="padding:6px 0;color:#6B6B76">Receita de lista</td><td style="text-align:right"><b>R$ {br(d['rev'])}</b></td></tr>
-<tr><td style="padding:6px 0;color:#6B6B76">Peças pagas</td><td style="text-align:right"><b>{d['qty']}</b></td></tr>
+<tr><td style="padding:6px 0;color:#6B6B76">GMV atribuído à sala (painel)</td><td style="text-align:right"><b>R$ {br(d.get('gmv_attr') or 0)}</b></td></tr>
+<tr><td style="padding:6px 0;color:#6B6B76">Peças atribuídas</td><td style="text-align:right"><b>{br(d['qty'],0)}</b></td></tr>
+<tr><td style="padding:6px 0;color:#6B6B76">Receita de lista (base da margem)</td><td style="text-align:right">R$ {br(d['rev'])}</td></tr>
 <tr><td style="padding:6px 0;color:#6B6B76">Mídia</td><td style="text-align:right">R$ {br(d['ads'])}</td></tr>
 <tr><td style="padding:6px 0;color:#6B6B76">Contribuição</td><td style="text-align:right">R$ {br(d['contrib'])}</td></tr>
 <tr style="border-top:1px solid #EFEFF2"><td style="padding:10px 0"><b>Resultado</b></td>

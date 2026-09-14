@@ -106,14 +106,37 @@ def montar(room_id):
     PAG = {p["order_id"]: p for p in qall(f"pedido_pagamento?select=*&data=gte.{dia}&data=lte.{dia_seg}", "order_id")}
     RM = receita_itens(sk, PAG)
     def t(r): return datetime.fromtimestamp(int(r["order_time"]), BRT)
-    inw = [r for r in sk if ini <= t(r) <= fim]
+    inw_bruto = [r for r in sk if ini <= t(r) <= fim]
+    # ⚠️ ATRIBUIÇÃO (14/09/2026): o horário da live NÃO é a live. Em 14/09 11:00, das 106 peças pagas no
+    # horário, 6 eram de vídeo de AFILIADA e 8 de card/busca da loja — R$ 1.053,59 pagos que não saíram da
+    # sala. (1) afiliada sai pedido a pedido pelo extrato; (2) o resto é calibrado ao que a API atribui.
+    dia_ant = (ini - timedelta(days=1)).strftime("%Y-%m-%d")
+    ex_af = {e["order_id"] for e in qall(f"extrato_pedidos?select=order_id&data=gte.{dia_ant}&data=lte.{dia_seg}")}
+    inw = [r for r in inw_bruto if r["order_id"] not in ex_af]
+    afil = [r for r in inw_bruto if r["order_id"] in ex_af and r["status"] not in ("CANCELLED", "UNPAID")]
     ok = [r for r in inw if r["status"] not in ("CANCELLED", "UNPAID")]
     if not ok: raise SystemExit(f"sala {room_id}: nenhum pedido pago na janela — nada a reportar")
 
-    QTY = sum(r["qty"] for r in ok); PAGO = sum(r["gmv"] for r in ok)
-    REV = sum(RM[id(r)] for r in ok); SUBS = REV - PAGO; GU = REV / PAGO if PAGO else 1
-    PED = len({r["order_id"] for r in ok})
-    CONTRIB = sum((RM[id(r)] / r["qty"] * SR - CPV) * r["qty"] for r in ok if r["qty"])
+    J_QTY = sum(r["qty"] for r in ok); J_PAGO = sum(r["gmv"] for r in ok)
+    J_REV = sum(RM[id(r)] for r in ok); J_PED = len({r["order_id"] for r in ok})
+    J_CONTRIB = sum((RM[id(r)] / r["qty"] * SR - CPV) * r["qty"] for r in ok if r["qty"])
+    ATR_ITENS = int(L.get("itens") or 0); ATR_GMV = float(L.get("gmv") or 0.0)
+    ATR_OK = ATR_ITENS > 0 and ATR_GMV > 0 and J_QTY > 0
+    if ATR_OK:
+        # TOTAIS = o que a API atribui à sala (é o número do painel de live). O GMV da API está na base
+        # do PAGO; a receita de lista aplica o gross-up medido nos pedidos da janela.
+        K = ATR_ITENS / J_QTY
+        QTY = ATR_ITENS; PAGO = ATR_GMV
+        REV = PAGO * (J_REV / J_PAGO if J_PAGO else 1.0)
+        PED = max(1, round(J_PED * K))
+    else:
+        K = 1.0; QTY = J_QTY; PAGO = J_PAGO; REV = J_REV; PED = J_PED
+    SUBS = REV - PAGO; GU = REV / PAGO if PAGO else 1
+    CONTRIB = REV * SR - CPV * QTY
+    ATR = dict(ATR_OK=ATR_OK, K=K, J_QTY=J_QTY, J_PAGO=J_PAGO, J_REV=J_REV, J_PED=J_PED, J_CONTRIB=J_CONTRIB,
+               J_QTY_BRUTO=sum(r["qty"] for r in inw_bruto if r["status"] not in ("CANCELLED", "UNPAID")),
+               J_PAGO_BRUTO=sum(r["gmv"] for r in inw_bruto if r["status"] not in ("CANCELLED", "UNPAID")),
+               AFIL_QTY=sum(r["qty"] for r in afil), AFIL_PAGO=sum(r["gmv"] for r in afil))
     ADS = sum(LIVE[h][0] for h in horas); REC = sum(LIVE[h][1] for h in horas)
     APRE = dur * HORA; RES = CONTRIB - ADS - APRE
     CPED = CONTRIB / PED if PED else 0
@@ -206,7 +229,7 @@ def montar(room_id):
                 QTY=QTY, PAGO=PAGO, REV=REV, SUBS=SUBS, GU=GU, PED=PED, CONTRIB=CONTRIB,
                 ADS=ADS, REC=REC, APRE=APRE, RES=RES, CPED=CPED, pico=pico, corte=corte,
                 g=g, hq=hq, hv=hv, hc=hc, furos=furos, stt=stt, cperda=cperda, prh=prh,
-                inw=inw, ok=ok, room=str(room_id))
+                inw=inw, ok=ok, room=str(room_id), **ATR)
 
 
 # ─────────── render ───────────
@@ -261,7 +284,7 @@ def render(D):
     hdr(ws,r,["Indicador","Valor","Leitura"],[30,20,84]); r+=1; r0=r
     veredito=("A live PAGOU." if RES>0 else "A live deu PREJUÍZO.")+f" {BRn(abs(RES))} em {D['dur']:.2f}h = R$ {BRn(RES/D['dur'])} por hora no ar."
     for k,v,fm,nt,fn in [
-     ("Pago pelo cliente",D["PAGO"],CUR,f"{QTY} peças pagas em {D['PED']} pedidos. É o sub_total — o que saiu do bolso do cliente.",None),
+     ("GMV atribuído à sala (painel)",D["PAGO"],CUR,(f"{BRn(QTY,0)} peças que a API atribui à sala — é o número do painel de live do TikTok." if D.get("ATR_OK") else f"{QTY} peças no horário da live (atribuição da API indisponível — pode incluir venda de outros canais)."),None),
      ("(+) Cupom subsidiado pelo TikTok",D["SUBS"],CUR,f"R$ {BRn(D['SUBS']/QTY)} por peça. O TikTok banca esse gap e ele VOLTA para a loja.",None),
      ("= RECEITA DE LISTA",REV,CUR,f"Base de toda taxa e de toda margem. Gross-up medido nesta live: {D['GU']:.4f}.","V"),
      ("Total de pedidos",D["PED"],INT,"Pedidos PAGOS gerados na janela desta live.",None),
@@ -282,6 +305,19 @@ def render(D):
             ws.cell(r,1).font=BOLD; ws.cell(r,2).font=GF if fn=="V" else RF
         ws.row_dimensions[r].height=30; r+=1
     band(ws,r0,r-1,3); r+=1
+    if D.get("ATR_OK"):
+        C(ws,r,1,"PONTE: O QUE FOI VENDIDO NO HORÁRIO × O QUE A SALA VENDEU",H2); r+=1
+        hdr(ws,r,["Linha","Peças","Valor pago"],None); r+=1; r0p=r
+        for k_,q_,v_ in [("Tudo que foi pago no horário da live",D["J_QTY_BRUTO"],D["J_PAGO_BRUTO"]),
+                         ("(−) pedidos de afiliada no horário",-D["AFIL_QTY"],-D["AFIL_PAGO"]),
+                         ("(−) card, busca e vídeo da loja no horário",-(D["J_QTY"]-D["QTY"]),-(D["J_PAGO"]-D["PAGO"])),
+                         ("= atribuído à sala pela API (painel)",D["QTY"],D["PAGO"])]:
+            C(ws,r,1,k_,BOLD if k_.startswith("=") else None); C(ws,r,2,q_,fmt=INT); C(ws,r,3,v_,fmt=CUR); r+=1
+        band(ws,r0p,r-1,3)
+        r=nota(ws,r,("O relatório mede a sala pelo que a API atribui a ela. Vender no horário da live não é vender na live: "
+                     "afiliada e card da loja continuam vendendo enquanto a sala está no ar. As tabelas de produto, grade e "
+                     "curva de preço usam os pedidos do horário SEM afiliada, porque nenhuma fonte liga pedido a sala por SKU."),7,44)
+        r+=1
     C(ws,r,1,"A SAÚDE DA MARGEM EM UM PARÁGRAFO",H2); r+=1
     p=(f"O cliente pagou R$ {BRn(D['PAGO'])} pelas {QTY} peças; o TikTok subsidiou mais R$ {BRn(D['SUBS'])} em cupom, que volta para a loja. "
        f"A receita de lista, base de toda taxa e de toda margem, foi de R$ {BRn(REV)} (R$ {BRn(REV/QTY)} por peça). "
@@ -383,6 +419,7 @@ def render(D):
         r=nota(ws,r,"Funil da sala indisponível na API para esta janela.",7,26)
 
     # ═══ 3 · POR PRODUTO ═══
+    JQ,JR,JP,JC=D["J_QTY"],D["J_REV"],D["J_PAGO"],D["J_CONTRIB"]   # composição = pedidos do horário sem afiliada
     ws=wb.create_sheet("Por produto"); ws.sheet_view.showGridLines=False
     C(ws,1,1,"PERFORMANCE POR PRODUTO",H1)
     C(ws,2,1,"Peças PAGAS na janela da live, por REF-base (o sufixo do SKU é o tamanho). Contribuição = receita de LISTA/peça × settlement − CPV.",MUTF)
@@ -395,7 +432,7 @@ def render(D):
         lp=z[1]/z[0] if z[0] else 0; cpc=lp*SR-CPV
         C(ws,r,1,i,al=Cc); C(ws,r,2,b,BOLD); C(ws,r,3,z[4],al=Lw)
         C(ws,r,4,"HERO" if b in HERO else "não-hero",BOLD if b in HERO else None,al=Cc)
-        C(ws,r,5,z[0],fmt=INT); C(ws,r,6,z[0]/QTY,fmt=PCT); C(ws,r,7,z[1],fmt=CUR)
+        C(ws,r,5,z[0],fmt=INT); C(ws,r,6,z[0]/JQ,fmt=PCT); C(ws,r,7,z[1],fmt=CUR)
         C(ws,r,8,z[5]/z[0] if z[0] else 0,fmt=CUR); C(ws,r,9,lp,fmt=CUR)
         C(ws,r,10,cpc,GF if cpc>0 else RF,fmt=CUR); C(ws,r,11,cpc*z[0],GF if cpc>0 else RF,fmt=CUR)
         if i<=3:
@@ -403,24 +440,24 @@ def render(D):
         r+=1
     band(ws,r0,r-1,11)
     ws.conditional_formatting.add(f"E{r0}:E{r-1}",DataBarRule(start_type="num",start_value=0,end_type="max",color=RHODE))
-    C(ws,r,1,"TOTAL",BOLD,fill=TOTF); C(ws,r,5,QTY,BOLD,fmt=INT,fill=TOTF)
-    C(ws,r,7,REV,BOLD,fmt=CUR,fill=TOTF); C(ws,r,8,D["PAGO"]/QTY,BOLD,fmt=CUR,fill=TOTF)
-    C(ws,r,9,REV/QTY,BOLD,fmt=CUR,fill=TOTF); C(ws,r,11,D["CONTRIB"],BOLD,fmt=CUR,fill=TOTF)
+    C(ws,r,1,"TOTAL",BOLD,fill=TOTF); C(ws,r,5,JQ,BOLD,fmt=INT,fill=TOTF)
+    C(ws,r,7,JR,BOLD,fmt=CUR,fill=TOTF); C(ws,r,8,JP/JQ,BOLD,fmt=CUR,fill=TOTF)
+    C(ws,r,9,JR/JQ,BOLD,fmt=CUR,fill=TOTF); C(ws,r,11,JC,BOLD,fmt=CUR,fill=TOTF)
     for cc in (2,3,4,6,10): ws.cell(r,cc).fill=TOTF
     r+=2
     hq,hv,hc=D["hq"],D["hv"],D["hc"]
-    if hq and QTY-hq:
+    if hq and JQ-hq:
         C(ws,r,1,"HERO x NÃO-HERO",H2); r+=1
         hdr(ws,r,["Grupo","Peças","% peças","Receita de lista","Lista/peça","Contrib/peça","CONTRIBUIÇÃO"],[18,10,11,16,13,13,16]); r+=1; r0=r
-        for lb,q,v,c in [("HERO (516/525/527)",hq,hv,hc),("não-hero",QTY-hq,REV-hv,D["CONTRIB"]-hc)]:
-            C(ws,r,1,lb,BOLD); C(ws,r,2,q,fmt=INT); C(ws,r,3,q/QTY,fmt=PCT); C(ws,r,4,v,fmt=CUR)
+        for lb,q,v,c in [("HERO (516/525/527)",hq,hv,hc),("não-hero",JQ-hq,JR-hv,JC-hc)]:
+            C(ws,r,1,lb,BOLD); C(ws,r,2,q,fmt=INT); C(ws,r,3,q/JQ,fmt=PCT); C(ws,r,4,v,fmt=CUR)
             C(ws,r,5,v/q,fmt=CUR); C(ws,r,6,c/q,GF if c/q>0 else RF,fmt=CUR); C(ws,r,7,c,fmt=CUR); r+=1
         band(ws,r0,r-1,7); r+=1
-        ch_,cn=hc/hq,(D["CONTRIB"]-hc)/(QTY-hq)
+        ch_,cn=hc/hq,(JC-hc)/(JQ-hq)
         if cn>ch_:
-            r=nota(ws,r,(f"INVERSÃO: o hero é {hq/QTY*100:.0f}% das peças e entrega R$ {BRn(ch_)} de contribuição por peça. "
+            r=nota(ws,r,(f"INVERSÃO: o hero é {hq/JQ*100:.0f}% das peças e entrega R$ {BRn(ch_)} de contribuição por peça. "
               f"O não-hero entrega R$ {BRn(cn)} — {cn/ch_:.1f}× mais. Motivo: o hero saiu a R$ {BRn(hv/hq)} de lista e o não-hero a "
-              f"R$ {BRn((REV-hv)/(QTY-hq))}. Com CPV fixo, a diferença de preço vai quase inteira para a contribuição."),7,44,BOLD)
+              f"R$ {BRn((JR-hv)/(JQ-hq))}. Com CPV fixo, a diferença de preço vai quase inteira para a contribuição."),7,44,BOLD)
         else:
             r=nota(ws,r,f"✓ O hero entrega R$ {BRn(ch_)} por peça contra R$ {BRn(cn)} do não-hero — sem inversão de margem nesta live.",7,30,GF)
     r+=1
@@ -528,6 +565,7 @@ def render(D):
      "apenas 11% saíram do limbo e METADE virou cancelamento. Trate como perda provável até a remedição provar o contrário."),7,36)
 
     # ═══ 7 · PLANO ═══
+    JQ,JR,JP,JC=D["J_QTY"],D["J_REV"],D["J_PAGO"],D["J_CONTRIB"]   # composição = pedidos do horário sem afiliada
     ws=wb.create_sheet("Plano de ação"); ws.sheet_view.showGridLines=False
     C(ws,1,1,"O QUE FAZER NA PRÓXIMA LIVE",H1)
     C(ws,2,1,"Gerado dos achados desta live, ordenado por R$ em jogo.",MUTF)
@@ -549,7 +587,7 @@ def render(D):
         acoes.append(("Checar saldo dos tamanhos centrais antes de fixar o pin",
           f"{len(D['furos'])} dos produtos mais vendidos têm buraco NO MEIO da curva de tamanhos "
           f"({'; '.join(b+' sem '+'/'.join(m) for b,m,_ in D['furos'][:3])}). Fixar produto com grade furada gasta palco em algo que não pode converter.","sem dado"))
-    ch_=D["hc"]/D["hq"] if D["hq"] else 0; cn=(D["CONTRIB"]-D["hc"])/(QTY-D["hq"]) if QTY-D["hq"] else 0
+    ch_=D["hc"]/D["hq"] if D["hq"] else 0; cn=(JC-D["hc"])/(JQ-D["hq"]) if JQ-D["hq"] else 0
     if ch_ and cn>ch_*1.2:
         acoes.append(("Rever o preço de lista do hero",
           f"O hero deixa R$ {BRn(ch_)} por peça contra R$ {BRn(cn)} do não-hero. Subir a lista em R$ 5 adicionaria "
@@ -602,7 +640,10 @@ def render(D):
     r=nota(ws,r,("↻ CORRIGIDO EM 14/09/2026: versões anteriores deste relatório declaravam retenção, CTR, CTOR e "
      "audiência como 'não existem na API'. Estava ERRADO — o bloco interaction_performance do /shop_lives traz "
      "tudo isso, preenchido em 39/39 salas próprias testadas. Apenas nunca era coletado."),7,42,RF)
-    r=nota(ws,r,("⚠ LIMITE DE ATRIBUIÇÃO: a análise por SKU usa a JANELA DE TEMPO da live como recorte, porque nenhuma fonte liga pedido a "
+    r=nota(ws,r,(f"⚠ ATRIBUIÇÃO: totais (GMV, peças, receita, contribuição, resultado) = o que a API atribui à sala; fator "
+     f"{D.get('K',1):.2f} sobre as peças do horário sem afiliada. Composição (produto, grade, curva de preço) = pedidos do horário "
+     f"sem afiliada. Afiliada no horário: {D.get('AFIL_QTY',0)} peças fora da conta."),7,40)
+    r=nota(ws,r,("⚠ LIMITE DE ATRIBUIÇÃO (composição): a análise por SKU usa a JANELA DE TEMPO da live como recorte, porque nenhuma fonte liga pedido a "
      f"room_id no nível de SKU. Isso inclui pedidos da loja que teriam acontecido sem a live e exclui os da live que fecharam depois do fim. "
      f"Tamanho do viés nesta live: o pago na janela é R$ {BRn(D['PAGO'])} e o GMV que a API atribui à sala é R$ {BRn(L['gmv'] or 0)} "
      f"({abs(D['PAGO']/(L['gmv'] or 1)-1)*100:.1f}% de diferença)."),7,46)

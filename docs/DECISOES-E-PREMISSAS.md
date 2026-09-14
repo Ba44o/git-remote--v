@@ -1647,3 +1647,42 @@ paga a sua parte da estrutura em nenhum cenário de imposto**. Final semana a se
 
 Consumidores ainda no Presumido (atualizar quando mexer): `conciliacao.html` (TX_VENDA=6,4 / TX_IR=0) e a tabela por
 peça de `project_estrutura_nao_paga`. Perguntas abertas agora: crédito de PIS/COFINS sobre o CPV · ICMS (ST ou destacado).
+
+
+---
+
+## P27 · "O que vende no horário da live é venda da live" ❌ REFUTADA (14/09/2026)
+
+**Achado pelo dono:** o e-mail da live de 14/09 11:00 mostrou **R$ 8.885** e o painel de live do TikTok **R$ 6.255**.
+
+**Ponte medida** (números da API no momento da medição, R$ 6.340,58 / 92 peças — o print era anterior):
+
+| | peças | valor |
+|---|---:|---:|
+| Receita de LISTA no horário (pagos) — o que o e-mail mostrou | 106 | R$ 8.885,04 |
+| (−) cupom subsidiado pelo TikTok — **lente, não erro** | | −R$ 1.490,87 (58,6%) |
+| (−) pedidos de **vídeo de afiliada** no horário — **erro** | −6 | −R$ 579,42 (22,8%) |
+| (−) **card/busca da loja** no horário — **erro** | −8 | −R$ 474,17 (18,6%) |
+| **= GMV atribuído à sala pela API (painel)** | **92** | **R$ 6.340,58** |
+
+**41,4% da diferença era erro de atribuição**: o gerador de live contava tudo que foi pago no horário da sala.
+
+### ✅ Verificado em 14 lives (07–14/09)
+
+- **O GMV da API está na base do PAGO** (mais perto do pago que da lista em 12/14; as 2 exceções: uma live de 3 peças e
+  a de 08/09 11:06, com janela muito inflada).
+- **A janela erra muito POR LIVE — de 0,81× a 1,43× as peças da sala** (08/09 11:06 inflava 43%). No agregado da
+  semana dá só 1,02×, e por isso a média escondia o problema.
+
+### Régua nova do relatório de live
+
+- **Totais** (GMV, peças, receita de lista, contribuição, resultado) = **o que a API atribui à sala**. A receita de
+  lista aplica o gross-up medido nos pedidos do horário.
+- **Afiliada sai pedido a pedido** (`extrato_pedidos`), e o monitor passa a coletar o extrato antes de gerar.
+- **Composição** (produto, grade, curva de preço, corte de promoção) = pedidos do horário **sem afiliada** — nenhuma
+  fonte liga pedido a sala por SKU. A planilha ganha a ponte fixa horário → sala.
+- **O e-mail abre com o GMV atribuído (o número do painel)**; receita de lista vira linha secundária ("base da margem").
+- Bug de texto corrigido: "velocidade **caiu** de 0,49 para 1,23" — agora diz a direção certa.
+
+**Live de 14/09 11:00 recalculada:** GMV R$ 6.340,58 · 92 peças · contribuição R$ 1.290,92 ·
+**resultado R$ 610,80** (o e-mail tinha R$ 801,64). Todos os relatórios de live republicados no mesmo link.

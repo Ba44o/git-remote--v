@@ -81,6 +81,14 @@ def coletar(dia):
     relatório nenhum: ele parece certo e ninguém desconfia. Descoberto em 11/09,
     quando faltava pandas no runner e o relatório saiu assim mesmo, com os dados
     que por acaso já estavam no Supabase de uma rodada local."""
+    # extrato de afiliadas: sem ele, pedido de afiliada feito no horário conta como venda da live
+    # (14/09 11:00: 6 peças de vídeo de afiliada). Não-crítico: falhar não impede o relatório.
+    _prox = (datetime.strptime(dia, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    _ant = (datetime.strptime(dia, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
+    _r = subprocess.run(["python3", "coletar_extrato.py", "--inicio", _ant, "--fim", _prox, "--no-forward"],
+                        cwd=ROOT, capture_output=True, text=True, timeout=1200)
+    if _r.returncode != 0:
+        print(f"  ⚠ extrato de afiliadas falhou (segue): {(_r.stderr or '')[-160:]}")
     for cmd in (["python3", "coletar_lives_attr_api.py", "--inicio", dia, "--fim", dia],
                 ["python3", "coletar_gmvmax_api.py", "--inicio", dia, "--fim", dia],
                 # data de pedidos_sku é UTC: live noturna tem pedido gravado no dia seguinte
@@ -164,7 +172,7 @@ def resumo_para_email(room, L, ini, url):
     return dict(
         quando=f'{ini.strftime("%d/%m")} às {ini.strftime("%H:%M")}',
         titulo=(L["titulo"] or "(sala sem título)").strip(),
-        rev=D["REV"], qty=D["QTY"], ads=D["ADS"], contrib=D["CONTRIB"],
+        rev=D["REV"], qty=D["QTY"], ads=D["ADS"], contrib=D["CONTRIB"], gmv_attr=D["PAGO"],
         res=D["RES"], dur=D["dur"], url=url,
         pico=({"h": D["pico"]["h"], "c": D["pico"]["c"], "share": D["pico"]["share"],
                "cpa": D["pico"]["cpa"], "cpa_base": D["pico"]["cpa_base"]} if D["pico"] else None),
