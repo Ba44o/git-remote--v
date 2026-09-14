@@ -191,6 +191,21 @@ def main():
 
     # olha os últimos 3 dias para não perder nada se o job ficar fora do ar
     desde = (agora - timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # ⚠️ ATUALIZAR live_attr ANTES de decidir o que está pendente.
+    # Sem isto o monitor fica CEGO: ele lia a tabela sem nunca recarregá-la, e só
+    # coletava dentro de processar() — que por sua vez só roda para sala já considerada
+    # pendente. Resultado (medido em 14/09): a live de 12/09 ficou com fim=NULL por dois
+    # dias, e as lives de 13 e 14/09 nunca chegaram a existir na tabela. Deadlock silencioso.
+    print("  · atualizando a lista de salas…")
+    r = subprocess.run(["python3", "coletar_lives_attr_api.py", "--inicio", desde,
+                        "--fim", agora.astimezone(BRT).strftime("%Y-%m-%d")],
+                       cwd=ROOT, capture_output=True, text=True, timeout=900)
+    if r.returncode != 0:
+        print(f"  ✗ não consegui atualizar live_attr — abortando o ciclo para não "
+              f"decidir sobre dado velho:\n{(r.stderr or '')[-400:]}")
+        return
+
     salas = q(f"live_attr?select=room_id,titulo,inicio,fim,data&data=gte.{desde}&order=inicio")
     feitas = ja_publicadas()
     pend = []
