@@ -284,15 +284,28 @@ def buscar_analytics(inicio, fim, granularidade="1D"):
     if resp.get("code") == 0:
         data = resp.get("data", {})
         intervalos = data.get("performance", {}).get("intervals", [])
-        # Lag de ~2 dias: a API só consolida dias até latest_available_date.
-        # Descarta dias recentes ainda não finalizados pra não ingerir parcial.
-        latest = data.get("latest_available_date")
-        if latest:
-            antes = len(intervalos)
-            intervalos = [i for i in intervalos if i.get("start_date", "") <= latest]
-            if len(intervalos) < antes:
-                print(f"  → {antes - len(intervalos)} dia(s) não finalizado(s) ignorado(s) (dados até {latest})")
-        print(f"  → Analytics OK, {len(intervalos)} dia(s) finalizado(s)")
+        # ⚠️ NÃO use latest_available_date como gate — ele MENTE.
+        # Medido em 14/09/2026: a API declarava latest_available_date=2026-08-10 e, na
+        # MESMA resposta, devolvia dado real para os 12 dias de 01 a 12/09. O gate antigo
+        # (`start_date <= latest`) descartava tudo isso — foi o que manteve
+        # performance_diario congelada em 10/08 e store_daily em 13/05.
+        #
+        # O detector correto é o próprio conteúdo: dia não consolidado volta com TUDO
+        # zerado (a API nunca omite o dia, ela devolve zeros silenciosos). Confirmado:
+        # 13/09 veio gmv=0, orders=0, pageviews=0 enquanto 12/09 veio cheio.
+        latest = data.get("latest_available_date")   # mantido só como informação
+        def _n(v):
+            if isinstance(v, dict): v = v.get("amount")
+            try: return float(str(v or 0).replace(",", ""))
+            except Exception: return 0.0
+        def _vazio(i):
+            return all(_n(i.get(k)) == 0 for k in ("gmv", "orders", "product_page_views"))
+        antes = len(intervalos)
+        intervalos = [i for i in intervalos if not _vazio(i)]
+        if len(intervalos) < antes:
+            print(f"  → {antes - len(intervalos)} dia(s) ainda não consolidado(s) ignorado(s) "
+                  f"(tudo zerado; latest_available_date da API = {latest})")
+        print(f"  → Analytics OK, {len(intervalos)} dia(s) com dado real")
         return intervalos
     print(f"  ⚠  Analytics: {resp.get('message')} (code {resp.get('code')})")
     return []

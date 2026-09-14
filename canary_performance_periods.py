@@ -182,6 +182,39 @@ def check_identidades(quiet):
                       f"Consolidar via HANDLE_ALIASES (mexe em tier creator-facing — decisão humana)")
 
 
+def check_frescor_diario(hoje, quiet):
+    """4. FRESCOR de performance_diario — pega congelamento silencioso.
+
+    PORQUÊ (14/09/2026): a tabela ficou parada em 10/08 por CINCO SEMANAS enquanto o
+    job reportava success. Causa: `latest_available_date` da API estava obsoleto
+    (declarava 2026-08-10 e na mesma resposta devolvia dado real até 12/09), e tanto
+    o gate de buscar_analytics quanto a âncora da janela de etl_diario confiavam nele.
+    Ninguém percebeu porque nada quebrava — só parava.
+
+    A fronteira real de consolidação é D-2. Tolerância de 4 dias cobre fim de semana
+    e atraso normal da API; acima disso é congelamento.
+    """
+    TOLERANCIA = 4
+    try:
+        req = urllib.request.Request(
+            f"{SB_URL}/rest/v1/performance_diario?select=data&order=data.desc&limit=1", headers=SBH)
+        r = json.load(urllib.request.urlopen(req, timeout=60))
+    except Exception as e:
+        avisos.append(f"não consegui medir o frescor de performance_diario: {str(e)[:80]}")
+        return
+    if not r:
+        falhas.append("performance_diario está VAZIA")
+        return
+    ult = datetime.strptime(r[0]["data"], "%Y-%m-%d").date()
+    lag = (hoje - ult).days
+    if not quiet:
+        print(f"  · performance_diario: último dia {ult} (lag {lag}d)")
+    if lag > TOLERANCIA:
+        falhas.append(f"performance_diario CONGELADA: último dia {ult}, {lag} dias atrás "
+                      f"(tolerância {TOLERANCIA}). Confira se voltou o gate por "
+                      f"latest_available_date — ver coletar_dados.py e agente_rhode/etl_diario.py.")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true")
@@ -192,6 +225,7 @@ def main():
     check_janela(hoje, a.quiet)
     check_cobertura(hoje, a.quiet)
     check_identidades(a.quiet)
+    check_frescor_diario(hoje, a.quiet)
 
     for w in avisos:
         print(f"  ⚠ AVISO: {w}")

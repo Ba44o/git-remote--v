@@ -153,8 +153,15 @@ def coletar_api(dias: int, chunk_dias: int = 10, chunk_retries: int = 3) -> pd.D
     if lag_dias > 3:
         print(f"  ⚠  API do TikTok Shop está atrasada em {lag_dias} dias (latest_available_date={latest}); janela será ancorada em `latest`.")
 
-    # Fim da janela = latest (não pede pra frente). Início = latest - dias.
-    fim_janela = latest
+    # ⚠️ NÃO ancorar em `latest`: ele mente. Em 14/09/2026 a API declarava
+    # latest_available_date=2026-08-10 e devolvia dado real até 12/09 — ancorar aí fazia
+    # a janela nem CHEGAR a pedir setembro, e performance_diario ficou congelada 5 semanas.
+    # A fronteira real de consolidação é D-2, e quem filtra dia vazio é buscar_analytics()
+    # (detector de "tudo zerado"). Aqui a janela vai até D-2 de verdade.
+    fim_janela = min(hoje - timedelta(days=2), max(latest, hoje - timedelta(days=2)))
+    if lag_dias > 3:
+        print(f"  → ignorando latest={latest} (obsoleto) e pedindo até {fim_janela}; "
+              f"dia não consolidado é descartado por conteúdo, não por data.")
     inicio_janela = fim_janela - timedelta(days=dias)
     cursor = inicio_janela
     rows, gaps = [], []
