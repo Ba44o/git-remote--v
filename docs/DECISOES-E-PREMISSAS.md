@@ -1728,3 +1728,58 @@ conversão. ⏳ **Não prova** que foi o plano de 09/09: são 8 lives por semana
 **Gotcha corrigido na raiz:** `automacao/funil_live.py` relia a página 1 cinco vezes, sem repassar o `page_token`. A
 janela tem 1.900+ sessões (afiliadas incluídas) ordenadas por GMV, e as lives próprias de GMV baixo ficavam sem funil
 (as duas de 14/09). Agora pagina até acabar o token; testado com as salas de 12–14/09, todas com funil.
+
+---
+
+## P29 · Vídeos das creators — orgânico × GMV Max POR VÍDEO dá para medir, em duas lentes (15/09/2026)
+
+Pedido do dono: um relatório de vídeos das creators (orgânicos e em GMV Max) para acompanhar a performance
+de cada uma. Semana 07–14/09 contra 30/08–06/09. Entregue em
+`relatorios/2026-09/Relatorio Videos Creators Organico x GMV Max_2026-09-15` (build `_build_relatorio_videos.py`).
+
+| # | premissa | veredito | evidência |
+|---|---|---|---|
+| 1 | As métricas da `shop_videos` são lifetime por vídeo | ❌ | São **da janela consultada**: o mesmo vídeo deu R$ 10.398 em 01–14/09 e R$ 11.954 em 15/08–14/09. `video_perf` guarda a última janela coletada. |
+| 2 | O GMV da `shop_videos` é a venda do vídeo | ❌ | Outra base (≈ pago): 01–14/09 somou R$ 54,4 mil contra R$ 82,4 mil de vídeo no extrato. Venda por vídeo sai da Affiliate Orders API. |
+| 3 | O split vídeo orgânico × vídeo impulsionado não é mensurável (jul/26) | ❌ | A Affiliate Orders API traz `content_id` e `estimated_paid_shop_ads_commission` por item. 01–14/09: 38,8% da venda de vídeo de afiliada teve comissão de anúncio; 07–14/09: 41,4% (33,3% na semana anterior). |
+| 4 | Comissão de anúncio = tudo que o GMV Max vende | ❌ | Nos vídeos da campanha Marmorizada (07–14/09): o painel atribui **294 pedidos**, só **152 itens** tiveram comissão de anúncio, de **322 vendidos**. |
+| 5 | Custo/ROI/gancho por vídeo no GMV Max só existem na UI | ✅ | Confirmado. A raspagem precisa de `product_id` na URL. Sem filtro de status, a tabela vem ordenada por custo desc e a pág. 1 cobre ~92% do custo. |
+| 6 | As datas da URL (`campaign_start_date`) definem a janela da tabela de criativos | ❌ | A tabela usa o próprio seletor ("últimos 7 dias"). As duas semanas vieram iguais: R$ 738,24 × R$ 738,73. Quem manda é `list_start_date/_end`, e o raspador confere as datas na tela. As raspagens inválidas foram para `criativos/semanas/_invalido_datas_ignoradas_0809_1509/`. |
+
+**Regra que sai daqui — duas lentes de atribuição do GMV Max por vídeo:**
+- **Painel** (pedidos que o GMV Max atribui ao criativo) absorve venda orgânica → **otimista**.
+- **Comissão de anúncio** (item com comissão de Shop Ads) → **piso**.
+- Veredito de corte pela régua de mídia (teto vídeo afiliada R$ 14,11, ago/26) só é **conclusivo quando as duas
+  lentes concordam**. Exemplo: o principal vídeo da thami.brambilla custa R$ 13,04 por pedido pelo painel
+  (SEGURAR) e R$ 19,97 por item com comissão (PREJUÍZO). Divergência = teste de pausa, não corte.
+
+**Ferramentas novas:**
+- `tools/tiktok-seller-scraper/raspar_criativos_semana.py`: campanha × produto × janela, carimba a janela no JSON.
+- `tools/tiktok-seller-scraper/raspar_semana_produtos.py`: acha a campanha de cada produto.
+
+---
+
+## P30 · Corrida de Vídeos V1 — "a gamificação funcionou perfeitamente e se paga" (15/09/2026)
+
+Pedido do dono: relatório para a diretoria justificando mais orçamento para a próxima corrida. Entregue em
+`relatorios/2026-09/Relatorio Diretoria Corrida Rhode V1_2026-09-15.docx` (+ `.md`).
+
+| # | premissa | veredito | evidência |
+|---|---|---|---|
+| 1 | A gamificação gera conteúdo em massa | ✅ | 244 posts na # (TikTok, 14/09); 239 vídeos de afiliadas com produto marcado + 3 da marca (Shop API, 15/09); 24 creators, 14 sem vídeo Rhode na semana anterior |
+| 2 | Conteúdo orgânico barato | ✅ | Custo R$ 4.012–4.330 → R$ 16,8–18,1/vídeo; R$ 167–180/creator |
+| 3 | Converte em venda com bom custo de aquisição | ⏳ | Venda direta dos vídeos # (Affiliate Orders, pedidos 07–14/09): **R$ 983,94 · 11 peças**, 7/239 vídeos, 80,3% thami. Três lentes de retorno (contrib R$ 17,11/pç): direto −R$ 3,8 a −4,1 mil · Marmorizada acima da tendência da loja (+68 pç) −R$ 2,8 a −3,2 mil · toda a alta da Marmorizada (+378 pç) +R$ 2,1 a +2,5 mil |
+| 4 | "Funcionou perfeitamente" | ❌ | Prêmio de GMV apurado antes de maturar (só 3 creators com venda); 35,1% dos vídeos de 1 creator, 15,9% < 50 views; cupom "Corrida V1" com mínimo R$ 88,90 (1 peça); 47/100 usos em perfis sem vídeo # |
+| 5 | "O +59% da Marmorizada é sinal limpo da corrida" (impacto v2, 14/09) | ❌ | A loja inteira subiu +46,9% em peças; a Marmorizada ganhou só +3,7 p.p. de participação (52,6% → 56,2%). Mídia GMV Max total +77,4% sobre a média (live +121,9%, produto +41,8%); campanha dedicada da Marmorizada desligada desde 16/08 |
+| 6 | "A corrida vendeu por HALO: loja própria +99%, vídeo afiliada só +9%" (impacto v2, 14/09) | ❌ | Artefato do extrato incompleto (P26 premissa 4) + `pedidos_sku.data` em UTC (P26 premissa 3). Refeito com extrato completo e `order_time` BRT: **vídeo afiliada +65,1%** (468 vs 284), live afiliada +55,9%, loja própria +34,3% |
+
+**Cupons "Corrida V1-@handle" (Promotion API, detalhe por id):** 15 criados entre 10 e 12/09 (2 duplicados, 2 desativados),
+121 resgates / 100 usos: thami 49, tacianemorais 37, nandaemackreal 10 = 96. 10 dos 15 com zero uso.
+`usage_stats` só vem no GET de detalhe — o search devolve `null`. `create_time` em milissegundos.
+
+**Regra que sai daqui:** relatório de campanha de creator não credita alta da loja sem checar (a) a mídia da mesma
+semana e (b) o share do produto foco na loja. Lente defensável = produto acima da tendência da loja, com a mídia
+congelada. Pedido à diretoria virou V2 de R$ 5 mil com mídia de produto congelada + gate para V3 (custo por peça
+incremental ≤ R$ 14,11 e ≥ 150 vídeos/20 creators).
+
+⚠️ O `Relatorio Impacto Corrida na Loja_2026-09-14` (Drive) ainda mostra a leitura de halo — não republicado sem ok do dono.
