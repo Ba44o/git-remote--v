@@ -2,8 +2,12 @@
 """
 Rhode — Coletor de PERFORMANCE POR VÍDEO × CREATOR → tabela `video_perf`.
 Fonte: Shop Partner API GET /analytics/202409/shop_videos/performance (HMAC via coletar_dados.chamar).
-Métricas são LIFETIME por vídeo; a janela (start_date_ge/end_date_lt) filtra QUAIS vídeos voltam
-(por atividade, não por data de post) → UMA janela só + dedup por id. Fatiar por mês DUPLICARIA vídeos.
+⚠️ As métricas (views, CTR, GMV, pedidos) são DA JANELA consultada, NÃO lifetime — medido 15/09/2026:
+o mesmo vídeo deu R$ 10.398 em 01–14/09 e R$ 11.954 em 15/08–14/09. A janela também filtra QUAIS vídeos
+voltam (por atividade, não por data de post). Logo `video_perf` guarda os números da ÚLTIMA janela
+coletada (--dias), e comparar semanas exige uma chamada por semana. UMA janela por chamada + dedup por id.
+O GMV daqui usa outra base (≈ valor pago) e não bate com o extrato (base de comissão): venda por vídeo
+sai da Affiliate Orders API; daqui só alcance.
 
 Por que existe: hoje o pipeline só rastreia creator que VENDE (extrato/affiliate_creator_product).
 Quem posta e ainda não converteu é invisível. Este coletor abastece o "Radar de creators de potencial"

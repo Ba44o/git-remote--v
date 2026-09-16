@@ -1783,3 +1783,177 @@ congelada. Pedido à diretoria virou V2 de R$ 5 mil com mídia de produto congel
 incremental ≤ R$ 14,11 e ≥ 150 vídeos/20 creators).
 
 ⚠️ O `Relatorio Impacto Corrida na Loja_2026-09-14` (Drive) ainda mostra a leitura de halo — não republicado sem ok do dono.
+
+---
+
+## P31 · Premiação final da Corrida V1 — apuração de 15/09 14h (15/09/2026)
+
+Pedido do dono: tabelas de pagamento (Top 5 GMV, Top 5 postagem) e checklist de PV para pagar hoje.
+Entregue em `relatorios/2026-09/Relatorio Premiacao Pagamentos Corrida Rhode V1_2026-09-15.docx`.
+
+| # | premissa do pedido | veredito | evidência |
+|---|---|---|---|
+| 1 | O bônus de R$ 100 do Top 5 de postagem é devido | ❌ | Gate de 500 vídeos; a # teve 244 (TikTok, 14/09). O template do pódio já dizia "sem bônus de volume". |
+| 2 | A apuração de 14/09 serve para pagar | ❌ | Tinha 162 vídeos verificados; em 15/09 são 242. Entraram 4 classificadas (@jhenniferlet, @rosaacesariinoo, @taniaribeiro_creator, @kellypsilvaa_) e o volume da @natcorreaofc foi de 56 para 84. |
+| 3 | O Top 5 GMV é o mesmo em qualquer base | ❌ | Pedidos de afiliada: 3º @amandadjehdian (R$ 94,91; o painel da shop_videos mostra R$ 0). Placar do grupo (shop_videos): @_mareiis no 5º. Recomendado: pedidos, a mesma base que a V2 adota. |
+| 4 | O cupom 10% "ativado no perfil" já existe | ❌ | Os 15 cupons "Corrida V1-@handle" estão EXPIRED (fim 14/09 23:59; gleicysoares4 12/09). 6 das 16 classificadas nunca tiveram cupom. |
+| 5 | As regras de hoje são as divulgadas | ❌ | Divulgado (V3/template): peça para quem fez >5 vídeos e para o Top 5, comissão turbinada para o 2º e 3º. Regra de hoje: amostra para quem fez ≥5. Diferença: +2 com exatamente 5 vídeos; −2 do Top 5 com <5 vídeos. Decisão do dono. |
+| 6 | Quem vendeu entra no Top 5 mesmo com menos de 5 vídeos | ❌ | Regra confirmada pelo dono em 15/09: o Top 5 GMV exige 5+ vídeos com # de 07 a 14/09. Saem @amandadjehdian (4 com a # + 5 sem a #, R$ 94,91) e @thainabeautyoficial (2, R$ 0). Com o mínimo aplicado, a base (pedidos × placar) deixa de mudar o pódio: nas duas, o Top 5 elegível é o mesmo. |
+
+**Top 5 GMV (base pedidos, só quem fez 5+ vídeos):**
+
+| # | creator | venda | Pix |
+|---|---|---:|---:|
+| 1 | @thami.brambilla | R$ 890,47 | R$ 600 + Ads |
+| 2 | @natcorreaofc | R$ 98,46 | R$ 400 |
+| 3 | @adv.dayane | R$ 0 · 1.908 views | R$ 250 |
+| 4 | @_mareiis | R$ 0 · 1.603 views | R$ 125 |
+| 5 | @jhenniferlet | R$ 0 · 1.231 views | R$ 125 |
+
+- **Ads:** vídeo 7684298796381080852 da thami (R$ 532,01 · 6 pedidos · 4.823 views).
+- **Top 5 postagem:** natcorreaofc 84 · adv.dayane 15 · jackmundomabu 14 · _mareiis 13 · thami 12 — bônus R$ 0.
+
+---
+
+## P32 · Impacto da Corrida V1 em vídeo de afiliada e no GMV Max, sem live (15/09/2026)
+
+**Pergunta do dono:** "conseguimos medir o impacto dessa corrida? especialmente em vídeo e GMV Max? sem contar com lives"
+
+**Entregue:**
+- `relatorios/2026-09/Relatorio Impacto Corrida em Video e GMV Max_2026-09-15` (sheet `1wu1E3Z7HOEAZ3PBhLKekKw_jgRQOCxFDjFl0zE86anM`)
+- build `_build_impacto_corrida_video_gmvmax.py`
+- dados em `dados/creators/impacto_corrida/`
+
+Corrida = 07–13/09. Base = semana anterior (31/08–06/09) e média de 10/08–06/09. Só itens VIDEO de afiliada, sem cancelados.
+
+| # | premissa | veredito | evidência |
+|---|---|---|---|
+| 1 | A venda de vídeo de afiliada cresceu na corrida | ✅ | R$ 40.333 vs média R$ 24.435 (+65,1%) e vs anterior R$ 33.771 (+19,4%) |
+| 2 | O crescimento veio da corrida | ❌ | **Sem a thami, a semana empata com a anterior (−1,2%)**; orgânico sem thami −12,6%. Um vídeo dela de 27/08 (7678796145417522452), turbinado pelo GMV Max, vendeu R$ 9,2 mil. Vídeos da # = R$ 984 (2,4%). |
+| 3 | Participantes venderam mais que não participantes | ⏳ | Sem thami: participantes +59,8% vs média (+23,6% vs anterior); não participantes +18,5% (−4,6%). Diferença das diferenças ≈ **R$ 1.076/semana** (R$ 951 contra a anterior), base de R$ 2,6 mil. Sinal positivo e fraco. |
+| 4 | Os vídeos da corrida alimentaram o GMV Max | ❌ | Raspagem 07–14/09 (~95% do custo): 2,5% do gasto (R$ 144), 22 de 242 vídeos com gasto, 9 pedidos. Custo por pedido R$ 15,98, ≈ aos antigos (R$ 16,07). Gancho 2s 26,6% vs 32,3% dos vídeos antigos. Vídeos antigos levaram 90,4% do gasto. |
+| 5 | O efeito continuou depois | ⏳ | 14/09: venda de vídeo R$ 2.710 vs R$ 5.762/dia na corrida, com mídia de produto R$ 500 no dia (≈ metade). Vídeos da # R$ 99,90 em 14–15/09. Releitura 28/09. |
+
+**Contexto que confunde:**
+- Mídia de produto na corrida: R$ 6.294 (+41,8% vs média).
+- Venda via anúncio por R$ 1 de mídia: 2,65 com thami; **1,63 sem thami**, abaixo da média de 1,88.
+- A semana anterior já tinha subido (começo de mês).
+- Vídeos de afiliadas postados: 629 vs média 579 (+8,7%), com 239 da #. Fora da corrida postou-se menos.
+
+**Regra que sai daqui:** impacto de campanha de creator se mede com três checagens obrigatórias:
+1. Rodar sem o maior vídeo/creator (outlier).
+2. Comparar participantes × não participantes (diferença das diferenças).
+3. Olhar a mídia da mesma semana.
+
+O total bruto engana, como já tinha acontecido em P30.
+
+**Refresh 16/09/2026 10h (P32):**
+- **Pedidos:** a recoleta bate semana a semana com a de 15/09. Só entram os pedidos de 14/09 em diante e alguns cancelamentos.
+- **Números:** venda de vídeo na corrida R$ 40.250 (+64,7% vs média). Sem a thami fica −1,5% vs a semana anterior. A diferença das diferenças dá R$ 1.087.
+- **Premissa 5 virou ❌:** de 14 a 15/09, a venda de vídeo foi R$ 2.553/dia contra R$ 5.750/dia na corrida (−55,6%). A mídia de produto caiu na mesma proporção (R$ 436 vs R$ 899/dia). A venda não ficou; ela acompanha a mídia.
+- **⚠️ API com atraso:** apareceram **10 vídeos com a # postados em 14/09** (natcorreaofc 5, realmanumarques 2, monikandrade__, taniaribeiro_creator, andreaferreira.shop). A apuração de 15/09 dizia "nenhum vídeo com a # em 14/09", e isso ficou **refutado**.
+  - Pela regra do dono (período 07–14/09), **@andreaferreira.shop chega a 5 vídeos** e vira classificada (cupom + amostra). O Top 5 GMV e o Top 5 de postagem não mudam.
+  - Na análise de impacto, "participante" passou a ser quem postou de 07 a 13/09 (24). O vídeo de 14/09 não define grupo.
+- **Regra:** vídeo recém-postado leva 1 a 2 dias para aparecer na shop_videos. Não fechar premiação no dia seguinte ao fim da janela sem uma recoleta D+2.
+
+---
+
+## P28 · adendo — atualização do relatório da Ingrid (16/09/2026)
+
+**Entregue:**
+- `relatorios/2026-09/Relatorio Performance Ingrid Lives Setembro_2026-09-16.docx`
+- Build reutilizável em `relatorios/2026-09/_build_relatorio_ingrid_v2/`: `dados_ingrid.py` gera os dados, os destaques e os gráficos; `build.js` não tem nenhuma data de live fixa.
+
+**Correção do dono:** a noite de 14/09 (19:30, R$ 10.212) foi feita pela **Dayane**.
+- Saiu da conta da Ingrid pela lista `EXCLUIR` do script e fica só na média da loja.
+- **Regra:** a janela de horário não prova quem apresentou. Antes de atribuir uma live à apresentadora, conferir a escala; sem escala, perguntar.
+
+**Objetivos de 14/09, primeiras 2 lives (15/09 noite e 16/09 manhã):**
+
+| objetivo | antes | agora | veredito |
+|---|---:|---:|---|
+| conversão da manhã | 1,7% | 2,7% | ✅ |
+| retenção | 28,8s | 37s (2 de 2 ≥ 30s) | ✅ |
+| pedidos com 2+ peças | 8,0% | 10,9% | ✅ |
+| manhã com 2h30+ | — | 1 de 1 | ✅ |
+| noite de 3h | — | a de 15/09 durou 2h08, com 925 entradas/h | ⏳ |
+
+Amostra de 2 lives: sinal, não prova.
+
+---
+
+## P33 · Diagnóstico de funil das lives: pico (10–14/09) × queda (15–16/09) (16/09/2026)
+
+**Pedido:** quebrar a queda do GMV das lives em topo, meio e fundo de funil.
+
+**Base:** export "Creator Live Performance" do Seller Center (`dados/lives/funil_1016/`), mais GMV Max de live por hora e pedidos não pagos no horário.
+
+**Entregue:** `relatorios/2026-09/Relatorio Diagnostico Funil Lives Pico x Queda_2026-09-16` (build `_build_diagnostico_funil_lives.py`).
+
+Venda por hora: **R$ 2.172 → R$ 661 (−69,6%)**. A decomposição em log (impressões/h × entrada × clique × pedido × ticket) dá o peso de cada etapa:
+- **impressões/h −59% → 76%** da queda;
+- **clique em produto por view −30% → 30%**;
+- pedido por clique −6% → 5%;
+- taxa de entrada +9% e ticket +4% seguraram.
+
+| # | premissa | veredito | evidência |
+|---|---|---|---|
+| 1 | O algoritmo parou de entregar | ❌ | A verba de live do GMV Max caiu de R$ 250/h para R$ 90/h (−64%). ~90% das views vêm do anúncio. O custo por mil impressões ficou parecido. É orçamento. |
+| 2 | O CTR do feed caiu | ❌ | A taxa de entrada (views ÷ impressões) subiu de 4,71% para 5,14%. |
+| 3 | A vitrine fadigou | ✅ | As exibições de produto por view ficaram iguais (5,06 → 5,04), mas o clique por exibição caiu de 8,9% para 6,3%. Coincide com o fim das promoções: peça de R$ 72 para R$ 78. |
+| 4 | Retenção caiu | ⏳ | 38,1s → 34,0s. Comentários/1.000 views: 49 → 28. |
+| 5 | Conversão e abandono pioraram | ❌ | Pedido por clique −6%. Não pagos no horário (proxy de abandono): 23,7% → 18,7%. |
+
+**Achado que vira regra:** sem oferta, a mídia de live comprou peça mais cara, R$ 8,29 → R$ 10,62 por peça, acima do teto de live de ago/26 (R$ 9,40). Não liberar verba de live sem condição especial programada.
+
+**Semântica do export:**
+- `Tap through rate` = views ÷ impressões.
+- `LIVE CTR` = cliques em produto ÷ views.
+- `CTR` = cliques ÷ exibições de produto.
+- `CTOR` = pedidos ÷ cliques.
+- Não traz abandono de carrinho.
+
+---
+
+## P34 · "A queda de mídia de live vem do ROI alvo 12 estar alto" — ⏳ em parte (16/09/2026)
+
+**Dados:**
+- A campanha ativa é "LIVE GMV-MAX- EXECUTACAO TESTE Dia 09/09".
+- A API (`gmv_max/campaign/get`) **não expõe ROI alvo nem orçamento**. Ela mostra só `modify_time` = **14/09 20:10** e `roi_protection_compensation_status = IN_EFFECT`.
+- O dono informou alvo 12. Em 10/09 o alvo era 10 (análise daquele dia).
+
+| dia | gasto live | ROI entregue |
+|---|---:|---:|
+| 10/09 | R$ 3.500 | 8,1 |
+| 11/09 | R$ 949 | 9,0 |
+| 12/09 | R$ 561 | 10,2 |
+| 14/09 | R$ 1.820 | 12,0 |
+| 15/09 | R$ 445 | 9,7 |
+| 16/09 (parcial) | R$ 304 | 12,2 |
+
+**Leitura:** o alvo funciona como teto de entrega. O GMV Max só compra leilão cuja conversão prevista cabe no ROI. Com oferta (14/09, "PROMOS ESPECIAIS"), gastou R$ 1.820 entregando 12,0. Sem oferta (15/09), a conversão prevista cai e quase nada cabe. **Alvo e oferta agem juntos**; o alvo sozinho não explica a queda.
+
+**O 12 está alto? Depende do crédito de PIS/COFINS.** Base: teto da live própria no semanal W37, receita GMV Max por pedido de R$ 84,52 (10–16/09) e 1,11 peça/pedido.
+- ROI de empate ≈ **7,3 com crédito**.
+- ROI de empate ≈ **12,4 sem crédito**.
+
+Sem o contador confirmar, **12 é o valor seguro** (≈ empate no pior cenário). Baixar para 10 só dá lucro se o crédito valer.
+
+A média também esconde a hora cara: 10/09 12h gastou R$ 2.380 com ROI 3,5. Baixar o alvo libera principalmente horas assim.
+
+**Recomendação:**
+1. Manter 12 nas lives sem condição especial.
+2. Testar 10 apenas em live com oferta programada, medindo a mídia por peça contra o teto.
+3. Fechar a pergunta do crédito com o contador (já aberta em `recomendacoes.json`).
+
+**Adendo 16/09 15h (P32) — vendas dos vídeos da corrida no orgânico:** nova aba "Corrida no orgânico". A venda direta na semana (07–13/09) foi de R$ 983,94.
+
+| lente | orgânico |
+|---|---:|
+| teto (item sem comissão de anúncio) | R$ 357,42, 4 peças |
+| piso (nem comissão nem painel veem anúncio) | R$ 94,91, 1 vídeo da amandadjehdian |
+
+- Via anúncio: R$ 626,52. Cancelado: R$ 273,77.
+- **R$ 9,18 de orgânico a cada 1.000 views, contra R$ 30,10 da base de vídeos de afiliadas (3,3× menos).**
+- Depois da corrida (14–16/09): R$ 99,90 orgânico (thami).
+- Veredito ❌ para "os vídeos da corrida venderam sozinhos".
