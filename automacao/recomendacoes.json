@@ -95,9 +95,10 @@
     },
     {
       "id": "credito_pis_cofins_cpv",
-      "status": "aberta",
+      "status": "sem acesso",
       "aberta_desde": "2026-09-14",
-      "pergunta": "No Lucro Real, a compra de tecido/facção/mercadoria gera crédito de PIS/COFINS? É a maior incerteza do veredito — só o contador confirma."
+      "pergunta": "No Lucro Real, a compra de tecido/facção/mercadoria gera crédito de PIS/COFINS? É a maior incerteza do veredito — só o contador confirma.",
+      "resposta": "O dono não consegue confirmar a parte de imposto (16/09) e o contador não responde. Não perguntar de novo: o semanal segue mostrando os dois cenários (com e sem crédito)."
     },
     {
       "id": "icms",
