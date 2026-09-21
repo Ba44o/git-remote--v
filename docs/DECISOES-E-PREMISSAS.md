@@ -1992,3 +1992,26 @@ A média também esconde a hora cara: 10/09 12h gastou R$ 2.380 com ROI 3,5. Bai
 **⛔ Não medível hoje:** nota/avaliação da loja (nenhuma fonte instrumentada) — é a maior hipótese que sobrou sem teste. Sessão de site próprio também não existe: "visitante" aqui é visitante de página de produto dentro do TikTok Shop.
 
 **⚠️ Viés da base:** o período anterior inclui junho (campanha 6.6, subsídio 9,7%). Mesmo sem junho a linha cai: conversão pv→pedido 1,23% (jul) → 1,06% (ago) → 1,01% (set).
+
+**Adendo 21/09 (P35) — "o canal INTEIRO caiu de conversão?" ❌ não por igual.** O dono questionou a
+generalização, com razão. As duas janelas de 2 meses misturam o pico de junho com as quebras. Em
+**semanas fechadas — 01/06–12/07 × 10/08–19/09**:
+
+| canal | antes | hoje | Δ | share de cliques | fatia da queda |
+|---|---:|---:|---:|---:|---:|
+| Live do vendedor | 3,24% | 2,86% | −11,6% | 19,0% | 17,1% |
+| Live de afiliada | 2,43% | 1,85% | −24,1% | 15,6% | 21,9% |
+| Vídeo de afiliada | 1,00% | 0,58% | −42,2% | 42,4% | 42,8% |
+| Card do vendedor | 0,47% | 0,28% | −40,6% | 10,6% | 4,8% |
+| Vídeo do vendedor | 0,65% | 0,08% | −88,4% | 12,3% | 17,0% |
+
+- **A LIVE segurou:** live somada 2,79% → 2,40% (−13,9%). **Vídeo + card: 0,89% → 0,43% (−51,0%)**.
+- **Não foi ladeira, foram dois degraus:** semana de **13/07** (loja 1,49% → 1,15%) e semana de
+  **10/08** (1,25% → 0,98%); entre eles, estável.
+- **Parte é diluição, não perda:** na semana de 10/08 o vídeo do vendedor saltou de 1.244 para
+  15.592 cliques/semana (×12,5) convertendo 0,08% — hoje 12,3% dos cliques da loja. **Tirando esse
+  canal, a queda passa de −27,2% para −18,5%.** Coincide com 11/08: `[MARMORIZADA-CARD-PRINCIPAL]`
+  parou e `Product GMV Max_Receita bruta` começou. **Coincidência de data, não causa provada** —
+  teste: pausar 7 dias e ver se o clique some e o GMV fica.
+- Fica de pé o núcleo do P35: o tráfego não caiu e a perda é de conversão. Muda a mira: **vídeo de
+  afiliada (42,8% da queda) é o alvo**, não "a loja inteira".
