@@ -2053,3 +2053,28 @@ O dono apontou dois IDs: `1873253065502882` (teste para baixar CAC) e `187160493
 **Consequência prática:** em ago+set, R$ 6.546 foram para campanhas acima do teto (CPA médio 22,19) e compraram 295 pedidos. No CPA da campanha boa comprariam 482 — **+187 pedidos com a mesma verba**.
 
 **E cai a recomendação de pausar a `Product GMV Max`:** ela é a mais eficiente. O salto de cliques do vídeo do vendedor em 10/08 coincide com ela, mas o painel atribui 30 pedidos/dia à campanha enquanto a API de produto vê quase nenhum pedido na superfície de vídeo do vendedor — é atribuição cruzada (clique conta na superfície, pedido conta em outra), não tráfego inútil. Ver [[reference_video_afiliada_e_canal_de_midia]].
+
+## P36 · "O ROI alvo alto puxa o vídeo para baixo, e o ticket do vídeo é maior que o da live" — ✅ CONFIRMADA (21/09/2026)
+
+Hipótese do dono, testada na janela **10/08–19/09** com `ads_campanha` (painel do GMV Max) e o extrato de afiliada. **Ele está certo, e o efeito é mensurável.**
+
+**1. O ticket do vídeo é maior mesmo.** No extrato de afiliada: **R$ 93,87/peça no vídeo contra R$ 80,72 na live** (na base de junho era R$ 96,19 × R$ 79,02). Pelos números do painel, por motor: produto R$ 86,74 × live R$ 75,44.
+
+**2. Com CPV fixo (R$ 45,40), ticket maior vira contribuição desproporcional:**
+
+| por peça | Produto (vídeo e card) | Live |
+|---|---:|---:|
+| preço | R$ 86,74 | R$ 75,44 |
+| contribuição antes da mídia | R$ 16,05 | R$ 8,04 |
+| mídia | R$ 13,60 | R$ 7,34 |
+| **contribuição depois da mídia** | **R$ 2,44** | **R$ 0,70** |
+| R$ de contribuição por R$ de mídia | R$ 0,18 | R$ 0,10 |
+| ROAS real | 6,38 | 10,28 |
+| **ROI de empate** | **5,41** | **9,38** |
+| **ROI para ganhar R$ 3/peça** | **6,65** | **14,96** |
+
+**3. Por que o alvo único de 12 estrangula o vídeo:** a ROI 12 a mídia do produto teria que caber em **R$ 7,23/peça**, quando a peça custa **R$ 13,60** hoje. A campanha não acha entrega no alvo e definha — e é justamente o motor de ticket maior e maior contribuição. Na live acontece o inverso: 12 é **baixo** (ela empata em 9,38 e só ganha R$ 3/peça em 14,96), então ela gasta devolvendo R$ 0,70/peça.
+
+**Alvos coerentes: ~6,5–7 no produto e ~15 na live** — quase o inverso de um 12 para todos. Isso fecha o circuito com o adendo anterior: mídia de produto ↓ → venda puxada por anúncio no vídeo de afiliada ↓ 62,6% → conversão do canal ↓ → conversão da loja ↓ (r = +0,92).
+
+⚠️ **Lente:** os níveis vêm do painel (atribuição otimista) — tratar como ponto de partida de teste, não como verdade. A **ordem** entre os motores é robusta: depende de preço e CPV, não de atribuição. Confirma e atualiza o P23 ([[reference_regua_midia_contribuicao]]) com dados de setembro, e responde o ⏳ que ficou no P34.
