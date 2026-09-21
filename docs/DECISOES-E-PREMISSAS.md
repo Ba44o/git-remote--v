@@ -2078,3 +2078,23 @@ Hipótese do dono, testada na janela **10/08–19/09** com `ads_campanha` (paine
 **Alvos coerentes: ~6,5–7 no produto e ~15 na live** — quase o inverso de um 12 para todos. Isso fecha o circuito com o adendo anterior: mídia de produto ↓ → venda puxada por anúncio no vídeo de afiliada ↓ 62,6% → conversão do canal ↓ → conversão da loja ↓ (r = +0,92).
 
 ⚠️ **Lente:** os níveis vêm do painel (atribuição otimista) — tratar como ponto de partida de teste, não como verdade. A **ordem** entre os motores é robusta: depende de preço e CPV, não de atribuição. Confirma e atualiza o P23 ([[reference_regua_midia_contribuicao]]) com dados de setembro, e responde o ⏳ que ficou no P34.
+
+## P37 · O gargalo da queda é CONCENTRAÇÃO EM CREATOR, não mídia nem conversão da loja (21/09/2026)
+
+Aberto por creator (Affiliate Orders API, base de comissão, cancelado fora), **base 01/06–12/07 × hoje 10/08–19/09**:
+
+| creator | R$/dia base | R$/dia hoje | perda | % da queda da afiliada |
+|---|---:|---:|---:|---:|
+| @tacianemoraisofc | 5.407 | 922 | **4.484** | **86,5%** |
+| @adv.dayane | 1.381 | 352 | 1.029 | 19,9% |
+| @alinecavanellas | 685 | 164 | 521 | 10,0% |
+
+- **@tacianemoraisofc era 42,5% de TODA a venda de afiliada** e caiu −82,9%. As três maiores eram 59,0%.
+- **Não foi a mídia que a derrubou:** o orgânico dela caiu −78,1% e a parte puxada por anúncio −88,4% — **as duas pernas juntas**. Postagem: 31 vídeos (jun) · 39 (jul) · 24 (ago) · **9** (set até 21).
+- **Ela é 80,6% da queda da venda puxada por anúncio.** Ou seja: o que eu havia lido como "a mídia de produto parou de puxar venda no vídeo de afiliada" (adendo anterior) é, em grande parte, **o sumiço do criativo que a mídia amplificava**. A mídia caiu ATRÁS dela. Isso reordena as causas, sem apagar a régua do P36 — que continua válida como regra de alocação.
+- **A base não morreu:** 155 creators cresceram, +R$ 3.691/dia (@amandadjehdian +1.592, @thami.brambilla +489).
+- Na live de afiliada o padrão é outro: creators que venderam 55 → 36 (−35%), mas **quem ficou vende +8,5%** — é problema de base, não de performance. No vídeo, a base ficou igual (114 → 112) e a venda por creator caiu −49%.
+
+**Ação:** conversa com a creator antes de qualquer mexida em mídia; e tratar concentração como risco (nenhuma creator acima de 20% da venda de afiliada).
+
+**Lição de método (registrada em memória):** eu respondi "todos os canais caíram" quando o dono perguntou se a queda era geral, e só abri por canal depois que ele insistiu — e mesmo assim parei no canal, sem descer para creator. **Para diagnóstico de queda: sempre descer até a menor unidade com nome (creator, campanha, SKU) antes de concluir.** A concentração transforma um evento individual em "tendência" falsa.
