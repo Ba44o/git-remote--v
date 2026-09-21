@@ -2115,3 +2115,18 @@ Relatório `Relatorio Criativos de Video_2026-09-21` ([planilha](https://docs.go
 **Hooks dos campeões** (frequência nos 40 maiores vs catálogo): #wideleg, #jeans, calça, #modafeminina, #calcajeans, "perfeita".
 
 ⛔ **Sem dado:** retenção/watch time (só TikTok Studio) e **custo de mídia por criativo** (a API do GMV Max não abre custo por vídeo; só raspando a tela do Seller Center). Sem isso, o multiplicador do anúncio fica sem denominador.
+
+**Adendo 21/09 (P38) — legenda com frase vende 60% mais por view, e o plano de impulsionamento.**
+
+Comparação limpa (só vídeos SEM anúncio, medida por R$ a cada mil views, o que controla alcance):
+
+| legenda | vídeos | R$ por 1.000 views |
+|---|---:|---:|
+| com frase escrita | 87 | **R$ 95,60** |
+| só hashtag | 71 | R$ 59,89 |
+
+⚠️ Na média simples por vídeo o resultado se INVERTE (só hashtag R$ 536 × com frase R$ 364) — porque os vídeos de hashtag têm mais alcance. **A régua certa é por mil views**, senão a conclusão sai ao contrário.
+
+**Entregas ligadas a isso (21/09):**
+- `Relatorio Plano de Impulsionamento de Criativos_2026-09-21` ([planilha](https://docs.google.com/spreadsheets/d/1fyhzSbkrj2q5w7lytrWcrmQdBgbLdRkybaJGT9hhI38/edit)): **56 vídeos** que já vendem no orgânico, com 2 mil a 100 mil views e ≥70% de venda orgânica. Juntos: R$ 26.151 em 444.711 views = **R$ 58,80 por mil views, 2,7× a média de vídeo (R$ 21,61)**. Onda 1 (tier A) = 12 vídeos, R$ 184/dia; lista inteira R$ 886/dia. **Regra de corte: pausar acima de R$ 14,11 POR PEÇA em 3 dias; escalar abaixo de R$ 9,88.** Aba de acompanhamento com a decisão calculada por fórmula.
+- `Briefing de Criativo Rhode Jeans_2026-09-21.docx` (Drive `1ewFGgzw7Oc3-8_jwQMFNHc0871RZISQ5`): material para as creators, com as 5 regras medidas (frase na legenda, faixa de 5–100 mil views, caimento/medida real, produto hero, constância).
