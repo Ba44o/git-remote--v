@@ -1957,3 +1957,38 @@ A média também esconde a hora cara: 10/09 12h gastou R$ 2.380 com ROI 3,5. Bai
 - **R$ 9,18 de orgânico a cada 1.000 views, contra R$ 30,10 da base de vídeos de afiliadas (3,3× menos).**
 - Depois da corrida (14–16/09): R$ 99,90 orgânico (thami).
 - Veredito ❌ para "os vídeos da corrida venderam sozinhos".
+
+---
+
+## P35 · "A receita da loja caiu porque o TikTok parou de entregar tráfego" — ❌ REFUTADA (21/09/2026)
+
+**Pergunta do dono:** qual o motivo da queda de receita da loja nos últimos 2 meses, e como estão conversão, visitante e impressão.
+
+**Janela:** 22/07–19/09 (60 dias) × 01/06–21/07 (51 dias). Tudo por dia. O funil consolida em D-2, então a janela fecha em 19/09.
+**Relatório:** `relatorios/2026-09/Relatorio Diagnostico Queda de Receita da Loja_2026-09-21.xlsx` · [planilha](https://docs.google.com/spreadsheets/d/1AGIjSxHlydsLkTaoPnVmAfl6IuA9jmrVYPDhoJ6zp6c/edit)
+
+**GMV R$ 20.988/dia → R$ 17.132/dia (−18,4%). O tráfego SUBIU:**
+
+| fator | anterior | atual | Δ | fatia da queda |
+|---|---:|---:|---:|---:|
+| impressões de produto/dia | 302.320 | 313.520 | +3,7% | −17,9% |
+| CTR (clique ÷ impressão) | 5,79% | 5,72% | −1,2% | 6,0% |
+| **conversão clique → pedido** | **1,40%** | **1,12%** | **−19,7%** | **108,0%** |
+| ticket médio | R$ 88,74 | R$ 88,94 | +0,2% | 3,8% |
+
+- Visitantes de página de produto **+7,5%**, page views **+2,4%**. Não é entrega, é conversão.
+- **O degrau é carrinho → pedido:** carrinho ÷ clique ficou igual (8,3% → 8,1%), pedido ÷ carrinho caiu **−17,5%** (16,8% → 13,8%).
+- **Não é mix de canal** (shift-share sobre R$/clique): mix +R$ 0,041, taxa −R$ 0,287 — **116,9% da queda é o mesmo canal vendendo menos por clique**, nos cinco canais.
+- **Preço não subiu:** peça R$ 81,51 → R$ 79,75; subsídio da plataforma 9,7% (jun) → 6,7% (jul) → 8,6% (set).
+- Recolocar a conversão em 1,40% vale **~R$ 126 mil/mês** sem R$ 1 a mais de mídia.
+
+**Achados laterais:**
+- **`product_page_views` da API da loja == `product_clicks` da API de produto** — a mesma métrica, conferida nas duas janelas.
+- **A vitrine (`shop_tab`) SOBREPÕE os outros canais:** somar os seis dá 16% a mais que o GMV real; os cinco primeiros ficam a −1,4% do total. Nunca somar a vitrine (completa a nuance já registrada na memória do endpoint 202605).
+- **Vídeo do vendedor queima clique:** 8,9% dos cliques da loja a **R$ 0,09/clique**, contra R$ 2,03 da live do vendedor.
+- **Perda pós-pedido subiu:** peças que não viram caixa 21,7% (jun) → 24,8% (ago) = R$ 155.260 no mês.
+- Reembolso do carro-chefe 17,6% → 20,9% do GMV, com ~75% das devoluções em "não serviu" (modelagem).
+
+**⛔ Não medível hoje:** nota/avaliação da loja (nenhuma fonte instrumentada) — é a maior hipótese que sobrou sem teste. Sessão de site próprio também não existe: "visitante" aqui é visitante de página de produto dentro do TikTok Shop.
+
+**⚠️ Viés da base:** o período anterior inclui junho (campanha 6.6, subsídio 9,7%). Mesmo sem junho a linha cai: conversão pv→pedido 1,23% (jul) → 1,06% (ago) → 1,01% (set).
