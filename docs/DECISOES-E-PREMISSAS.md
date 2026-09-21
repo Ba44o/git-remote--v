@@ -2015,3 +2015,23 @@ generalização, com razão. As duas janelas de 2 meses misturam o pico de junho
   teste: pausar 7 dias e ver se o clique some e o GMV fica.
 - Fica de pé o núcleo do P35: o tráfego não caiu e a perda é de conversão. Muda a mira: **vídeo de
   afiliada (42,8% da queda) é o alvo**, não "a loja inteira".
+
+**Adendo 21/09 (P35) — "o vídeo de afiliada caiu por causa das minhas campanhas de GMV Max / ROI alvo alto?" ✅ ligado ao GMV Max · ⏳ o alvo em si não está provado.**
+
+O vídeo de afiliada **é canal de mídia, não canal orgânico**. Separando cada item por comissão de shop ads (Affiliate Orders API), por dia:
+
+| vídeo de afiliada | 01/06–12/07 | 10/08–19/09 | Δ |
+|---|---:|---:|---:|
+| venda total | R$ 7.407 | R$ 3.720 | −49,8% |
+| · puxada por anúncio | R$ 4.098 | R$ 1.533 | **−62,6%** |
+| · orgânica | R$ 3.309 | R$ 2.187 | −33,9% |
+| % da venda vinda de anúncio | 55,3% | 41,2% | |
+
+- Os **cliques do canal caíram só −17,7%**: o tráfego continua chegando, o que encolheu é o anúncio que fechava a venda.
+- **Contrafactual:** com a parte paga no nível anterior, o canal faria 66,5 peças/dia (vs 39,6) e a conversão daria **0,97%**, contra 1,00% real de antes. **A queda de conversão do canal é praticamente toda venda que o anúncio parou de puxar.**
+- **r = +0,92** entre mídia de produto/dia e conversão semanal do canal (r = +0,84 com cliques).
+- Contraprova interna: a **live de afiliada quase não usa anúncio** (6,9% → 3,5% da venda) e caiu bem menos (−28,9%).
+
+**Sobre o ROI alvo (⏳ não provado):** a assinatura de estrangulamento por alvo é gasto caindo COM ROAS realizado subindo. Nas campanhas de produto o ROAS realizado ficou **estável em 5,4–7,1** enquanto o gasto caiu de R$ 2.072/dia para ~R$ 600/dia, e o CPA piorou (R$ 13,84 → R$ 15,10 por pedido). Isso é mais compatível com **campanha pausada/trocada** (a `[MARMORIZADA-CARD-PRINCIPAL]` encerrou em 11/08) do que com alvo alto mordendo. Um alvo de 12 no produto seria inalcançável (o painel entrega ~6) e faria a campanha morrer de fome — cenário possível, mas a API não expõe o alvo (P34), então fica ⏳.
+
+⚠️ **Não basta voltar a gastar:** R$ 15,10 por pedido do painel = R$ 13,49 por peça, contra ~R$ 8 de contribuição bruta (P19) — **1,7× o que a peça devolve**, e o pedido do painel é a lente otimista. Se for testar, medir contribuição, não GMV.
