@@ -2035,3 +2035,21 @@ O vídeo de afiliada **é canal de mídia, não canal orgânico**. Separando cad
 **Sobre o ROI alvo (⏳ não provado):** a assinatura de estrangulamento por alvo é gasto caindo COM ROAS realizado subindo. Nas campanhas de produto o ROAS realizado ficou **estável em 5,4–7,1** enquanto o gasto caiu de R$ 2.072/dia para ~R$ 600/dia, e o CPA piorou (R$ 13,84 → R$ 15,10 por pedido). Isso é mais compatível com **campanha pausada/trocada** (a `[MARMORIZADA-CARD-PRINCIPAL]` encerrou em 11/08) do que com alvo alto mordendo. Um alvo de 12 no produto seria inalcançável (o painel entrega ~6) e faria a campanha morrer de fome — cenário possível, mas a API não expõe o alvo (P34), então fica ⏳.
 
 ⚠️ **Não basta voltar a gastar:** R$ 15,10 por pedido do painel = R$ 13,49 por peça, contra ~R$ 8 de contribuição bruta (P19) — **1,7× o que a peça devolve**, e o pedido do painel é a lente otimista. Se for testar, medir contribuição, não GMV.
+
+**Correção 21/09 (P35) — eu errei duas vezes na leitura de mídia; o dono estava certo.**
+
+O dono apontou dois IDs: `1873253065502882` (teste para baixar CAC) e `1871604934635057` (CAC alto, ROI baixo). Conferido campanha a campanha, ele está certo nos dois.
+
+| campaign_id | campanha | janela | CPA | ROAS |
+|---|---|---|---:|---:|
+| 1837899752347697 | `[GMV-MAX][MARMORIZADA-CARD-PRINCIPAL]` (a do hero) | 01/06→11/08 | **14,60 → 18,19 → 22,14** (jun/jul/ago) | 6,3 |
+| 1871604934635057 | `[MARMORIZADA-CARD-PRINCIPAL]-VENDA LIQUIDAS` | 24/07→11/08 | 14,52 | 7,0 |
+| 1873253065502882 | `Product GMV Max_Receita bruta` | 11/08→20/09 | **14,28 → 13,00** (ago/set) | 7,2 → 7,4 |
+
+**Erro 1 — Simpson.** Eu disse "o CPA piorou (13,84 → 15,10)". Isso é o AGREGADO das campanhas de produto. Campanha a campanha o CAC caiu: a nova é a mais barata do portfólio. O agregado subiu porque a verba migrou para campanhas pequenas e caras criadas em setembro: `WIDE LEG's` R$ 18,94 · `MOM 16/09` R$ 24,95 · `BAGGY R.B` R$ 37,73 — 32% do gasto de produto de setembro. **Nunca comparar CPA agregado quando o mix de campanha muda.**
+
+**Erro 2 — régua errada.** Eu comparei a mídia com "contribuição ~R$ 8/peça" (média da operação inteira, que inclui live de afiliada). A régua certa é a por canal (`Regua de Midia por Contribuicao`, ago/26): **teto R$ 25,16/peça no card de produto** e **R$ 14,11 no vídeo de afiliada**. A `Product GMV Max` roda a **R$ 12,24/peça** — dentro dos dois. **A mídia de produto paga**; quem estoura é `BAGGY R.B` (R$ 33,99/peça) e `BAGGY 27.07` (R$ 28,24/peça).
+
+**Consequência prática:** em ago+set, R$ 6.546 foram para campanhas acima do teto (CPA médio 22,19) e compraram 295 pedidos. No CPA da campanha boa comprariam 482 — **+187 pedidos com a mesma verba**.
+
+**E cai a recomendação de pausar a `Product GMV Max`:** ela é a mais eficiente. O salto de cliques do vídeo do vendedor em 10/08 coincide com ela, mas o painel atribui 30 pedidos/dia à campanha enquanto a API de produto vê quase nenhum pedido na superfície de vídeo do vendedor — é atribuição cruzada (clique conta na superfície, pedido conta em outra), não tráfego inútil. Ver [[reference_video_afiliada_e_canal_de_midia]].
