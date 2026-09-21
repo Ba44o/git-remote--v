@@ -2098,3 +2098,20 @@ Aberto por creator (Affiliate Orders API, base de comissão, cancelado fora), **
 **Ação:** conversa com a creator antes de qualquer mexida em mídia; e tratar concentração como risco (nenhuma creator acima de 20% da venda de afiliada).
 
 **Lição de método (registrada em memória):** eu respondi "todos os canais caíram" quando o dono perguntou se a queda era geral, e só abri por canal depois que ele insistiu — e mesmo assim parei no canal, sem descer para creator. **Para diagnóstico de queda: sempre descer até a menor unidade com nome (creator, campanha, SKU) antes de concluir.** A concentração transforma um evento individual em "tendência" falsa.
+
+## P38 · Criativo de vídeo: portfólio de poucos acertos, e o anúncio é o multiplicador (21/09/2026)
+
+Relatório `Relatorio Criativos de Video_2026-09-21` ([planilha](https://docs.google.com/spreadsheets/d/1wrvjRvNwQOlTfF4lGg30PcTi7R7Dz_O-ZnQPTWxGeL4/edit)), janela 22/08–21/09 × 23/07–21/08. Alcance da shop_videos API, venda do extrato de afiliada casada por `content_id`.
+
+**✅ O vídeo VOLTOU a crescer:** venda R$ 93.514 → **R$ 117.754 (+25,9%)**, views +34,4%, peças +28,3%. A parte puxada por anúncio subiu +26,7% e a orgânica +25,4%. Corrige a leitura de que o canal seguia caindo — a queda era da janela anterior e estava concentrada em uma creator (P37).
+
+**As cinco verdades medidas:**
+1. **Só 2,5% dos vídeos vendem** (267 de 10.498 ativos na janela).
+2. **Os 20 maiores fazem 53,2% da venda**; o maior sozinho, 14%.
+3. **Vídeo com venda por anúncio faz R$ 857 em média contra R$ 154 sem — 5,6×** (views 14.696 × 2.055). ⚠️ Mistura efeito do anúncio com seleção (o GMV Max escolhe o que já converte): é **teto**, não retorno medido. **Só 40,8% dos vídeos que vendem têm apoio de anúncio.**
+4. **A faixa que converte é 5 mil a 100 mil views:** R$ 49,60 por mil views (5–20 mil) e R$ 34,17 (20–100 mil), contra **R$ 8,34 acima de 100 mil**. Viral traz alcance que não compra.
+5. **#corridarhode: 281 vídeos, 55.061 views, R$ 1.288 = 1,1% da venda de vídeo.** A corrida entrega POSTAGEM, não venda — confirma e estende o P30/P32. Repetir só com briefing de criativo e prêmio por venda.
+
+**Hooks dos campeões** (frequência nos 40 maiores vs catálogo): #wideleg, #jeans, calça, #modafeminina, #calcajeans, "perfeita".
+
+⛔ **Sem dado:** retenção/watch time (só TikTok Studio) e **custo de mídia por criativo** (a API do GMV Max não abre custo por vídeo; só raspando a tela do Seller Center). Sem isso, o multiplicador do anúncio fica sem denominador.
