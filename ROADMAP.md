@@ -2,13 +2,19 @@
 
 > **Como usar este arquivo:** fonte de verdade do projeto. Antes de iniciar trabalho novo, leia daqui em diante. Atualizar conforme features são concluídas ou repriorizadas.
 >
-> **Última atualização:** 2026-09-01
+> **Última atualização:** 2026-09-22
 
 ---
 
 ## 📍 Estado atual
 
 Operação ativa: 4.926 creators afiliadas, 5 períodos no warehouse (2026-01 a 2026-05). URLs únicas: `creators.rhodejeans.com.br/hub.html` (hub) e `creators.rhodejeans.com.br/admin.html` (admin), servidos pelo projeto Vercel `rhode-vercel`. Auditoria de integridade (`audit_data.py`) confirma 0 divergências entre exports do TikTok Shop e Supabase em todos os períodos.
+
+### ⚠️ Transição & diagnóstico do negócio (22/09/2026)
+
+- **Transição:** o Head de Marketing está se desligando (decisão 22/09/2026). Handoff completo em `relatorios/2026-09/`: **Handoff de Marketing — Diagnóstico e Plano** (escopos: o que era do marketing vs. do dono + plano de ataque aos gargalos de marketing) e **Handoff Geral — Operação Marketing & Dados** (automações no ar, pipeline, acessos, armadilhas de dado, threads abertas). **Ler os dois antes de assumir.**
+- **Diagnóstico do negócio (testado — ver `docs/DECISOES-E-PREMISSAS.md`, P18/P35–P38):** a Rhode está numa **armadilha volume × margem** — contribuição ~R$3,45/peça pós-mídia não paga a estrutura (~R$70k/mês); sangra ~R$40–50k/mês. **Duas quedas:** (1) estrutural — as creators bigs pararam (afiliada 619k→209k; creators ≥R$5k 15→6) [P18/P37]; (2) conversão recente — shop ads cortado no vídeo de afiliada [P35]. Os furos que afundam (preço R$189 vs R$58, fit/devolução ~R$77k/mês, business model, estrutura) são **decisão de dono, fora do mandato do marketing**.
+- **Entregas recentes (set/2026), em `relatorios/2026-09/`:** Corrida de Vídeos #CorridaRhode (placar automático + relatório de impacto na loja) · Diagnóstico Queda de Receita da Loja (P35) · Relatório da apresentadora (Ingrid) · os 2 handoffs.
 
 ---
 
@@ -742,6 +748,8 @@ R$ 1.870.495,62). A sub-aba "Diário (loja toda)" do admin já popula direto.
 | 10 | Tiers Bronze 20k / Silver 50k / Gold 80k / Diamond 150k / Black 500k (GMV acumulado lifetime) | Calibrado em cima de 982 creators reais — 8% atinge Bronze | abr/26 |
 | 11 | **Mapa de escopos da API TikTok Shop** (app `6jebftqsep751`): ATIVOS = Order, Finance (`seller.finance.info`), Shop Analytics (`data.shop_analytics.public.read`), Affiliate Messages (`seller.affiliate_messages.write`). INATIVOS (toggle, self-enable + reauth) = Product (suíte), Logistics, TAP campaigns. "Aplicar"/sensíveis (não usar) = Customer Service, Content Posting, test scope. | Levantado via `probe_scopes.py` + painel "Gerenciar API" do Partner Center (jun/26). 0 escopos em análise/rejeitados. Catálogo vem do site (`rhodejeans.com.br`), não da Product API → **não ligar Product**. Finance ativo destrava *Faturamento líquido* (KPI hoje em construção). | jun/26 |
 | 13 | **Contrato de leitura do Supabase: toda query paginada leva `order=<coluna ÚNICA>`; nada de `limit` alto no lugar de paginar.** `id` por padrão; `affiliates`→`affiliate_id`; views (`conciliacao_pedido`, `repasse_divergencias`)→`order_id`; ordem não-única precisa de desempate (`order=data.desc,id`). Cap do PostgREST = **1000 linhas/resposta** — `limit=5000` devolve 1000 calado. Corolário: chave derivada de várias linhas (ex. `content_type` do pedido) sai por **maior GMV**, nunca "primeiro que aparece". | Sem `ORDER BY` o offset pula/duplica linhas entre páginas e **a contagem não denuncia** (vêm 4.842 de 4.842, com PKs repetidos): o total fica certo e **o split por canal enviesa** — jul/26 gravado como vídeo 1.157 / live afil 1.897 / loja 2.961 quando o certo era **1.423 / 2.438 / 2.154**. Varrido em 10 coletores + proxy/admin; ver RUNBOOK #17. | jul/26 |
+| 14 | **Documentação da transição de Marketing.** 2 handoffs (.docx) em `relatorios/2026-09/` (Marketing — Diagnóstico e Plano; Geral — Operação) + os diagnósticos como premissas P18/P35–P38 em `docs/DECISOES-E-PREMISSAS.md`. | Head de Marketing se desligando — a operação precisa ser reconstruível sem ele. Automações seguem no ar (daily-collect, relatório de live, seedings, projeção). | set/26 |
+| 15 | **Enquadramento do negócio: armadilha volume × margem.** O que trava a Rhode é MODELO (preço/fit/estrutura), não execução de marketing. KPI-mãe da afiliada = nº de creators faturando ≥R$5k/mês. Convém escalar preço/fit/business model a quem tem mandato. | Diagnósticos testados (P18/P35–P38): reposição de creator num produto que não gira volume é empurrar corda. Evita repetir "acelerar" num modelo de margem fina. | set/26 |
 | 12 | **Shop Analytics path corrigido.** Era `/analytics/202309/reports/shop_analytics` (morto). Path vivo descoberto e verificado: **`GET /analytics/202405/shop/performance`** com `start_date_ge` / `end_date_lt` (exclusivo) / `granularity` (`1D`\|`ALL`). Retorna `data.performance.intervals[]` (GMV, buyers, avg_order_value, cancellations, breakdown LIVE/VIDEO/PRODUCT_CARD). `buscar_analytics()` reescrita e testada — mas **ainda não wirada no main()** (ativação = item 4.1, adiado). Endpoint pode dar `36009007` timeout transiente → função já faz retry. | Descoberto via `discover_analytics.py` + `confirm_analytics.py` com token vivo (jun/26): só versão 202405 valida, demais dão "invalid version". | jun/26 |
 
 ---

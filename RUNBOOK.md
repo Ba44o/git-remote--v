@@ -1045,6 +1045,29 @@ Deve imprimir warning do lag + coletar N dias antes de `latest`, sem erro.
 
 ---
 
+## 21. Tabela `lives` com GMV DOBRADO de jun a set/26 (duas cópias por live)
+
+### Sintoma
+A soma de `lives.gmv_bruto` de junho/26 dá ~R$ 411k, e o real é ~R$ 206k. Qualquer painel, benchmark ou análise que some a tabela sem filtrar `schema_version` mostra o dobro.
+
+### Causa (verificada em 19/09/2026, só leitura)
+Desde junho/26 cada live entra DUAS vezes: a linha `v2-api` (export) e a linha `v3-api` (API). As duas têm o mesmo GMV e a mesma duração, com `started_at` 3 h de diferença (uma gravou BRT como UTC). Junho: 50 + 50 linhas, 50 pares idênticos. Agosto: 60 + 60. Julho e setembro também têm linhas `v3-api` sem par, porque faltou export.
+
+```
+2026-06 {'v3-api': (50, 205592), 'v2-api': (50, 205592)}
+2026-08 {'v2-api': (60, 193629), 'v3-api': (60, 193629)}
+```
+
+### Diagnóstico
+Agrupe `lives` por mês × `schema_version`. Se o mesmo mês tiver `v2-api` e `v3-api` com GMV igual, está duplicado.
+
+### Fix (pendente, não aplicado)
+Deduplicar pela chave natural: data BRT + duração ±1 min + GMV. Manter a linha de export (tem funil) e usar a `v3-api` só onde não houver export. Corrigir o fuso na origem do `v3-api`. Até lá, todo consumidor precisa filtrar `schema_version`. O `gerar_benchmarks_live.py` já exclui `v3-api`; os outros consumidores ainda não foram auditados.
+
+Relacionado: `live_attr.inicio` também mistura fusos (jul–ago gravado em BRT marcado como UTC). Para horário, use o export ou o unix da API.
+
+---
+
 ## 📞 Quando me chamar
 
 Diga:
