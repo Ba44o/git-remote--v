@@ -4,16 +4,15 @@ name: Rhode — Relatórios automáticos (live + loja + semanal head)
 # travado (8 abas) e publica na pasta do Drive "Relatorios de Live". Estado = a própria
 # pasta (room_id em appProperties).
 #
-# ⚠️ POR QUE O JOB FICA HORAS RODANDO EM LOOP, em vez de um cron de 15 min:
-# o GitHub ESTRANGULA workflows agendados. Medido neste repo em 11/09: o workflow de flash
-# sales pede "*/30" e é executado a cada 2–5 HORAS. Um cron de 15 min aqui simplesmente não
-# entrega — a promessa de "45 min após a live" morre. Então o job roda um laço próprio de
-# ~5h30 (teto de 6h do runner), checando a cada 15 min de verdade, e no fim dispara a si
-# mesmo. O `schedule` abaixo fica só como rede: se a corrente quebrar, ele religa.
-# Repositório público = minutos de Actions gratuitos, então o laço não custa nada.
+# Disparo curto, só no horário de live: uma checagem a cada 20 min entre 08h e 00h BRT.
+# Até 02/10/2026 o job rodava um laço de 5h30 que disparava a si mesmo (~67 mil min/mês de
+# Actions). Isso só era viável com o repositório público; no privado o grátis é 2.000 min.
+# O GitHub atrasa crons agendados, então o relatório pode sair mais tarde que 45 min após a
+# live — troca aceita para o repositório poder ser privado.
 on:
   schedule:
-    - cron: "17 */3 * * *"    # rede de segurança: religa a corrente se ela parar
+    - cron: "*/20 11-23 * * *"   # 08:00–20:59 BRT
+    - cron: "*/20 0-2 * * *"     # 21:00–23:59 BRT
   workflow_dispatch:
     inputs:
       room:
@@ -39,13 +38,12 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  actions: write        # para o job disparar o próximo elo da corrente
   contents: read
 
 jobs:
   relatorio:
     runs-on: ubuntu-latest
-    timeout-minutes: 350        # 5h50 — abaixo do teto de 6h do runner
+    timeout-minutes: 20
     env:
       SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -116,32 +114,18 @@ jobs:
             exit 0
           fi
 
-          # Laço: checa a cada 15 min por ~5h30. É isto que entrega a granularidade
-          # que o cron do GitHub não entrega.
-          FIM=$(( $(date +%s) + 19800 ))     # 5h30
-          N=0
-          while [ "$(date +%s)" -lt "$FIM" ]; do
-            N=$((N+1))
-            echo "───── ciclo $N · $(TZ=America/Sao_Paulo date '+%H:%M BRT') ─────"
-            python3 automacao/monitor_lives.py $ARGS || echo "⚠ monitor de lives falhou, seguindo"
-            # Relatório diário da loja: idempotente (checa a pasta do Drive antes),
-            # então roda a cada ciclo sem custo — sai uma vez por dia, quando D-1 fecha.
-            python3 automacao/monitor_loja.py || echo "⚠ monitor da loja falhou, seguindo"
-            # Semanal head (terça 08:00) + check de sexta (08:00). Idempotente pelo estado no Drive.
-            python3 automacao/monitor_semanal.py || echo "⚠ monitor semanal falhou, seguindo"
-            sleep 900
-          done
-          echo "laço encerrado após $N ciclos"
-
-      - name: Passar o bastão para o próximo run
-        # Sempre — inclusive se o monitor falhar — senão a corrente morre em silêncio.
-        if: always() && github.event.inputs.room == ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh workflow run relatorio-live.yml --repo "${{ github.repository }}" \
-            && echo "✓ próximo elo disparado" \
-            || echo "::warning::não consegui disparar o próximo elo — o cron de 3h religa"
+          # Uma passada. Falha em qualquer monitor deixa o job VERMELHO no fim — antes o
+          # "|| echo seguindo" escondia o erro e um token do Google expirado passou dias sem alarme.
+          FALHAS=""
+          python3 automacao/monitor_lives.py $ARGS || FALHAS="$FALHAS lives"
+          # Relatório diário da loja: idempotente (checa a pasta do Drive antes) — sai uma vez por dia.
+          python3 automacao/monitor_loja.py || FALHAS="$FALHAS loja"
+          # Semanal head (terça 08:00) + check de sexta (08:00). Idempotente pelo estado no Drive.
+          python3 automacao/monitor_semanal.py || FALHAS="$FALHAS semanal"
+          if [ -n "$FALHAS" ]; then
+            echo "::error::monitor(es) com falha:$FALHAS"
+            exit 1
+          fi
 
       - name: Limpar credenciais
         if: always()
