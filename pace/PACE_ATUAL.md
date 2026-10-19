@@ -1,15 +1,15 @@
-# Pace Agosto — Rhode (medido até 2026-10-17, 17 dias completos · 14 restantes)
+# Pace Agosto — Rhode (medido até 2026-10-18, 18 dias completos · 13 restantes)
 
-**NET: 2583 peças · 152/dia · índice 0.53x · projeção 4710** (meta 8847) · +178 já entraram hoje
+**NET: 2813 peças · 156/dia · índice 0.55x · projeção 4845** (meta 8847) · +123 já entraram hoje
 
 | Canal | Meta | MTD | /dia | nec/dia | Proj | Índice | |
 |---|--:|--:|--:|--:|--:|--:|:-:|
-| Live afiliada | 2823 | 861 | 51 | 140 | 1570 | 0.56x | 🔴 |
-| Vídeo afiliada | 1624 | 814 | 48 | 58 | 1484 | 0.91x | 🟡 |
-| Card afiliada | 75 | 48 | 3 | 2 | 88 | 1.17x | ✅ |
-| Live loja | 2796 | 757 | 45 | 146 | 1380 | 0.49x | 🔴 |
-| Vídeo loja | 67 | 22 | 1 | 3 | 40 | 0.59x | 🔴 |
-| Card loja | 311 | 82 | 5 | 16 | 149 | 0.48x | 🔴 |
-| **NET** | **8847** | **2583** | **152** | **447** | **4710** | **0.53x** | 🔴 |
+| Live afiliada | 2823 | 1050 | 58 | 136 | 1808 | 0.64x | 🔴 |
+| Vídeo afiliada | 1624 | 848 | 47 | 60 | 1460 | 0.90x | 🟡 |
+| Card afiliada | 75 | 49 | 3 | 2 | 84 | 1.13x | ✅ |
+| Live loja | 2796 | 762 | 42 | 156 | 1312 | 0.47x | 🔴 |
+| Vídeo loja | 67 | 22 | 1 | 3 | 38 | 0.56x | 🔴 |
+| Card loja | 311 | 82 | 5 | 18 | 142 | 0.46x | 🔴 |
+| **NET** | **8847** | **2813** | **156** | **464** | **4845** | **0.55x** | 🔴 |
 
-**Gargalo:** Card loja (0.48x) e Live loja (0.49x). Ritmo NET precisa ir de 152 → 447/dia pra bater a meta.
+**Gargalo:** Card loja (0.46x) e Live loja (0.47x). Ritmo NET precisa ir de 156 → 464/dia pra bater a meta.
